@@ -47,6 +47,10 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .src{display:block}.src .row{margin:6px 0 0}
 #msg{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:10px;font-size:13px;z-index:99;max-width:92vw}
 #msg.err{background:#c33;color:#fff}
+.world .wt{display:flex;justify-content:space-between;font-weight:600;margin-bottom:8px}
+.tile.locked{opacity:.45}
+#scene .nm{font-weight:700;margin-bottom:6px;min-height:20px}#scene .tx{min-height:54px;line-height:1.55;margin-bottom:12px}
+.shi{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.shi .nm2{flex:1}
 @media(max-width:800px){.app{flex-direction:column;align-items:stretch}.stagewrap{position:static;align-self:center}.stage{height:min(70vh,640px)}.cols{grid-template-columns:1fr}}
 </style>
 </head>
@@ -58,12 +62,17 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <button id="rand">🎲 랜덤</button><button id="crand">🎨 색 랜덤</button><button id="reset">↺ 처음 옷차림</button><button id="strip">👕 전부 벗기</button>
       <span style="flex:1"></span><button id="adminbtn" hidden>🛠 관리자 모드</button><button id="authbtn">⚙ 설정·로그인</button>
     </div></div>
+    <div class="card world"><div class="wt"><span id="wt"></span><span id="wm"></span></div>
+      <div class="bar" id="wp"></div><div class="bar" id="wa" style="margin-top:8px"></div><div class="tag" id="wl" style="margin-top:8px"></div>
+      <div class="bar" style="margin-top:8px"><button id="wskip">⏭ 시간 보내기</button><button id="wcheat"></button><button id="wnew">새 게임</button></div></div>
     <div class="card"><div class="tabs" id="tabs"></div><div class="grid" id="grid"></div></div>
     <div class="card" id="colorcard" hidden><h2>색상 (외곽선은 고정이에요)</h2><div id="colors"></div></div>
     <div class="card"><h2>레이어 순서 (위쪽일수록 앞에 그려져요)</h2><div id="order"></div><div class="bar" style="margin-top:8px"><button id="oreset">기본 순서로</button></div></div>
   </div>
 </div>
 
+<dialog id="scene"><div class="nm" id="sn"></div><div class="tx" id="st"></div><div class="bar" id="sb" style="justify-content:flex-end"></div></dialog>
+<dialog id="shop"><h2 id="shm"></h2><div id="shl"></div><div class="bar" style="margin-top:10px;justify-content:flex-end"><button id="shc">닫기</button></div></dialog>
 <dialog id="dlg">
   <h2>연결 설정</h2>
   <div class="row">
@@ -166,9 +175,9 @@ function thumb(its,w=76,h=92){const c=document.createElement('canvas');c.width=w
 let rq=0;function redraw(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;drawStage();document.querySelectorAll('canvas.thc').forEach(paintThumb)})}
 
 // ================= 게임 UI =================
-function toggle(it){const p=P(it.part),a=sel[it.part]=sel[it.part]||[],i=a.indexOf(it.id);
+function toggle(it){if(!owned(it))return hint(it);const p=P(it.part),a=sel[it.part]=sel[it.part]||[],i=a.indexOf(it.id);
   if(i>=0){if(!p.fixed)a.splice(i,1)}else if(p.multi)a.push(it.id);else sel[it.part]=[it.id];refresh()}
-function applySet(s){const on=s.items.every(it=>(sel[it.part]||[]).includes(it.id));
+function applySet(s){const lk=s.items.find(it=>!owned(it));if(lk)return hint(lk);const on=s.items.every(it=>(sel[it.part]||[]).includes(it.id));
   for(const it of s.items){const p=P(it.part),a=sel[it.part]=sel[it.part]||[];
     if(on){if(!p.fixed)sel[it.part]=a.filter(x=>x!==it.id)}else if(p.multi){if(!a.includes(it.id))a.push(it.id)}else sel[it.part]=[it.id]}refresh()}
 function tile(label,on,node,fn){const d=document.createElement('div');d.className='tile'+(on?' on':'');d.append(node,label);d.onclick=fn;return d}
@@ -179,9 +188,9 @@ function renderTabs(){
 }
 function renderGrid(){
   const gd=$('#grid');gd.innerHTML='';
-  if(tab==='세트'){SETS.forEach(s=>gd.append(tile(s.name,s.items.every(it=>(sel[it.part]||[]).includes(it.id)),thumb(s.items),()=>applySet(s))));if(!SETS.length)gd.textContent='세트가 없어요';return}
+  if(tab==='세트'){SETS.forEach(s=>{const t=tile(s.name,s.items.every(it=>(sel[it.part]||[]).includes(it.id)),thumb(s.items),()=>applySet(s));if(s.items.some(it=>!owned(it))){t.classList.add('locked');t.append(' 🔒')}gd.append(t)});if(!SETS.length)gd.textContent='세트가 없어요';return}
   if(!P(tab).fixed){const n=document.createElement('div');n.className='none';n.textContent='✕';gd.append(tile('없음',!(sel[tab]||[]).length,n,()=>{sel[tab]=[];refresh()}))}
-  ITEMS.filter(i=>i.part===tab).forEach(it=>gd.append(tile(it.name+(it.published===false?' (초안)':''),(sel[tab]||[]).includes(it.id),thumb([it]),()=>toggle(it))));
+  ITEMS.filter(i=>i.part===tab).forEach(it=>{const t=tile(it.name+(it.published===false?' (초안)':''),(sel[tab]||[]).includes(it.id),thumb([it]),()=>toggle(it));if(!owned(it)){t.classList.add('locked');t.append(' 🔒')}gd.append(t)});
 }
 function renderColors(){
   const box=$('#colors');box.innerHTML='';let any=false;
@@ -207,9 +216,9 @@ $('#reset').onclick=()=>{initSel();hidden.clear();refresh()};
 $('#oreset').onclick=()=>{order=PARTS.map(p=>p.code);refresh()};
 $('#strip').onclick=()=>{for(const p of PARTS)if(!p.fixed)sel[p.code]=[];refresh()};
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
-$('#rand').onclick=()=>{for(const p of PARTS){if(p.fixed)continue;const l=ITEMS.filter(i=>i.part===p.code&&i.layers.length);
+$('#rand').onclick=()=>{for(const p of PARTS){if(p.fixed)continue;const l=ITEMS.filter(i=>i.part===p.code&&i.layers.length&&owned(i));
   const must=['top','bottom','shoes'].includes(p.code);sel[p.code]=l.length&&(must||Math.random()<.4)?[rnd(l).id]:[]}
-  const s=SETS.length?rnd(SETS):null;if(s)for(const it of s.items)if(!P(it.part).fixed)sel[it.part]=[it.id];refresh()};
+  const ss=SETS.filter(s=>s.items.every(owned)),s=ss.length?rnd(ss):null;if(s)for(const it of s.items)if(!P(it.part).fixed)sel[it.part]=[it.id];refresh()};
 $('#crand').onclick=()=>{for(const c of Object.keys(sel))for(const id of sel[c]){const it=BY[id];if(!it)continue;
   for(const l of it.layers)if(roleOf(l.layer)==='fill')colors[it.id+':'+l.layer]='#'+[0,0,0].map(()=>Math.floor(60+Math.random()*180).toString(16).padStart(2,'0')).join('')}refresh()};
 
@@ -409,8 +418,93 @@ $('#exp').onclick=()=>{
   a.download='fsfs-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
 };
 
+// ================= 월드 (시간 · 장소 · 인물 · 이벤트 · 획득 경로) =================
+// 이 WORLD 데이터는 나중에 Supabase 테이블(장소/인물/이벤트/경로)로 옮길 수 있는 모양이에요.
+const WORLD={
+  start:{y:2027,m:3,d:1,money:30000,place:'home',allowance:3000},   // 게임 시작일, 시작 금액, 하루 용돈
+  birthday:'03-08',                                                  // 내 캐릭터 생일 (월-일)
+  places:{home:{n:'집',i:'🏠'},shop:{n:'보세 옷가게',i:'🛍',shop:true,open:[1,2]},cafe:{n:'카페 모카',i:'☕'}},   // open: 영업 시간대(0아침 1낮 2저녁 3밤)
+  npcs:{hayun:{n:'하윤',i:'👧',at:{1:'cafe',2:'cafe'},lines:['오늘 날씨 진짜 좋다. 이런 날엔 새 옷 사러 가고 싶지 않아?','여기 딸기라떼 맛있어. 다음엔 같이 마시자.','요즘 보세 가게에 새 옷 들어왔대. 가봤어?','너 오늘 옷 잘 입었다. 어디서 샀어?']}},
+  sources:[   // 획득 경로: ref = "파츠코드:의상이름"
+    ...['hair_back:뒷머리-중단발','hair_front:앞머리-기본','top:기본흰셔츠','top:하얀반팔티','bottom:베이지슬랙스','bottom:연청크롭데님','shoes:신발-회색로퍼','socks:흰색보통양말'].map(ref=>({ref,type:'starter'})),
+    ...[['top:민트반팔티',9000],['top:파랑후드',15000],['bottom:데님일자크롭',14000],['bottom:검정카고바지',16000],['shoes:신발-분홍컨버스화',18000],['socks:분홍땡땡이반종아리양말',3000]].map(([ref,price])=>({ref,type:'shop',place:'shop',price})),
+    {ref:'outer:분홍체크난방',type:'gift',npc:'hayun',event:'bday_hayun'}],
+  events:[{id:'bday_hayun',npc:'hayun',place:'cafe',birthday:true,aff:{hayun:2},give:['outer:분홍체크난방'],   // 조건: 카페 + 하윤이 있음 + 생일 당일~2일 뒤 + 호감도 2 이상
+    scene:[{who:'hayun',t:'어, 왔네! 잠깐만, 이거 받아. 생일 축하해!'},{who:'hayun',t:'지난번에 네가 이런 스타일 좋아한다고 했잖아. 작게 준비했어. 열어봐!'},
+      {choices:[{t:'어떻게 기억했어? 고마워!',aff:{hayun:1},reply:[{who:'hayun',t:'ㅎㅎ 잘 어울릴 것 같아서 골랐어. 한번 입어봐!'}]},
+                {t:'…이런 거 받아본 적 없는데. 정말 고마워.',aff:{hayun:2},reply:[{who:'hayun',t:'그럼 앞으로 매년 챙겨줘야겠네. 입어봐, 궁금해!'}]}]}]}]
+};
+const SLOTS=['아침','낮','저녁','밤'],DOW='일월화수목금토',rid=r=>'b:'+r;
+const ACQ={};WORLD.sources.forEach(s=>(ACQ[rid(s.ref)]=ACQ[rid(s.ref)]||[]).push(s));
+let G=null;
+function newGame(){const w=WORLD.start;G={day:0,slot:0,place:w.place,money:w.money,owned:{},aff:{},done:{},talked:{},cheat:G?G.cheat:false,log:'새 게임을 시작했어요'};
+  WORLD.sources.filter(s=>s.type==='starter').forEach(s=>G.owned[rid(s.ref)]=1)}
+function loadGame(){try{G=JSON.parse(localStorage.getItem('fsfsGame')||'null')}catch(e){G=null}if(!G)newGame()}
+const saveGame=()=>{try{localStorage.setItem('fsfsGame',JSON.stringify(G))}catch(e){}};
+const owned=it=>!ACQ[it.id]||G.cheat||!!G.owned[it.id];
+const routeText=s=>s.type==='starter'?'기본 제공':s.type==='shop'?`${WORLD.places[s.place].n} · ₩${s.price.toLocaleString()}`:s.type==='gift'?'특별한 날, 누군가에게 선물로 받을 수 있어요':s.type;
+const hint=it=>msg('🔒 '+(ACQ[it.id]||[]).map(routeText).join(' / '));
+const dateOf=()=>new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+G.day);
+const npcAt=id=>WORLD.npcs[id].at[G.slot]===G.place,here=()=>Object.keys(WORLD.npcs).filter(npcAt);
+function advance(){G.slot++;if(G.slot>3){G.slot=0;G.day++;G.place='home';G.money+=WORLD.start.allowance;G.log=`새 아침이에요. 용돈 +₩${WORLD.start.allowance.toLocaleString()}`}}
+function inBday(){const [m,d]=WORLD.birthday.split('-').map(Number),t=dateOf(),df=Math.round((t-new Date(t.getFullYear(),m-1,d))/864e5);return df>=0&&df<=2}
+function giveItem(ref){const id=rid(ref),it=BY[id];G.owned[id]=1;if(!it)return;msg('🎁 새 옷: '+it.name);
+  const p=P(it.part);sel[it.part]=p.multi?[...(sel[it.part]||[]).filter(x=>x!==id),id]:[id];tab=it.part}
+function runScene(steps,done){
+  const dlg=$('#scene'),q=[...steps];dlg.oncancel=e=>e.preventDefault();
+  const next=()=>{
+    const s=q.shift();if(!s){dlg.close();done&&done();return}
+    $('#sn').textContent=s.who?(s.who==='me'?'나':WORLD.npcs[s.who].n):'';const b=$('#sb');b.innerHTML='';
+    if(s.choices){$('#st').textContent='';s.choices.forEach(c=>{const x=document.createElement('button');x.textContent=c.t;
+      x.onclick=()=>{for(const [k,v] of Object.entries(c.aff||{}))G.aff[k]=(G.aff[k]||0)+v;q.unshift(...(c.reply||[]));next()};b.append(x)});return}
+    $('#st').textContent=s.t;const x=document.createElement('button');x.textContent=q.length?'다음 ▶':'닫기';x.className='pri';x.onclick=next;b.append(x);
+  };
+  if(!dlg.open)dlg.showModal();next();
+}
+function checkEvents(){
+  if($('#scene').open)return;
+  for(const e of WORLD.events){
+    if(G.done[e.id]||(e.place&&e.place!==G.place)||(e.npc&&!npcAt(e.npc))||(e.birthday&&!inBday()))continue;
+    if(e.aff&&Object.entries(e.aff).some(([k,v])=>(G.aff[k]||0)<v))continue;
+    G.done[e.id]=1;saveGame();runScene(e.scene,()=>{(e.give||[]).forEach(giveItem);after()});return;
+  }
+}
+function after(){saveGame();renderWorld();refresh();checkEvents()}
+function go(p){if(p===G.place)return;const d=G.day;advance();if(G.day===d){G.place=p;G.log=`${WORLD.places[p].n}에 도착했어요`}after()}
+function sleep(){G.slot=3;advance();after()}
+function talk(id){
+  const n=WORLD.npcs[id];if(G.talked[id]===G.day)return msg('오늘은 이미 충분히 이야기했어요');
+  G.talked[id]=G.day;G.aff[id]=(G.aff[id]||0)+1;advance();G.log=`${n.n}와 이야기했어요 (호감도 ${G.aff[id]})`;saveGame();renderWorld();
+  runScene([{who:id,t:n.lines[Math.floor(Math.random()*n.lines.length)]}],after);
+}
+function renderShop(pid){
+  const box=$('#shl');box.innerHTML='';
+  WORLD.sources.filter(s=>s.type==='shop'&&s.place===pid).forEach(s=>{
+    const it=BY[rid(s.ref)];if(!it)return;const row=document.createElement('div');row.className='shi';row.append(thumb([it],44,56));
+    const nm=document.createElement('div');nm.className='nm2';nm.textContent=it.name;row.append(nm);
+    const b=document.createElement('button'),has=!!G.owned[it.id];b.textContent=has?'보유':`₩${s.price.toLocaleString()} 구매`;b.disabled=has;
+    b.onclick=()=>{if(G.money<s.price)return msg('돈이 부족해요',1);G.money-=s.price;G.owned[it.id]=1;G.log=`${it.name}을(를) 샀어요`;saveGame();renderWorld();renderShop(pid);refresh()};
+    row.append(b);box.append(row)});
+  $('#shm').textContent=WORLD.places[pid].n+' · 보유 금액 ₩'+G.money.toLocaleString();redraw();
+}
+function openShop(pid){if(!WORLD.places[pid].open.includes(G.slot))return msg('지금은 문을 닫았어요 (영업: 낮~저녁)');renderShop(pid);$('#shop').showModal()}
+function renderWorld(){
+  const d=dateOf();$('#wt').textContent=`${d.getMonth()+1}월 ${d.getDate()}일 (${DOW[d.getDay()]}) ${SLOTS[G.slot]}`;$('#wm').textContent='₩'+G.money.toLocaleString();
+  const pl=$('#wp');pl.innerHTML='';
+  for(const [k,p] of Object.entries(WORLD.places)){const b=document.createElement('button');b.textContent=p.i+' '+p.n;if(k===G.place)b.className='on';else b.title='이동하면 시간이 한 칸 지나가요';b.onclick=()=>go(k);pl.append(b)}
+  const ac=$('#wa');ac.innerHTML='';const add=(t,fn)=>{const b=document.createElement('button');b.textContent=t;b.onclick=fn;ac.append(b)};
+  if(G.place==='home')add('😴 잠자기 (다음 날 아침)',sleep);
+  if(WORLD.places[G.place].shop)add('🛍 둘러보기',()=>openShop(G.place));
+  here().forEach(id=>add(`${WORLD.npcs[id].i} ${WORLD.npcs[id].n}와 이야기하기 (호감도 ${G.aff[id]||0})`,()=>talk(id)));
+  $('#wl').textContent=G.log||'';$('#wcheat').textContent=G.cheat?'🔓 전체 해금 중':'🔒 전체 해금(테스트)';
+}
+$('#wskip').onclick=()=>{advance();G.log='시간이 흘렀어요';after()};
+$('#wcheat').onclick=()=>{G.cheat=!G.cheat;after()};
+$('#wnew').onclick=()=>{if(!confirm('새 게임을 시작할까요? (보유 의상과 진행 상황이 초기화돼요)'))return;newGame();initSel();hidden.clear();after()};
+$('#shc').onclick=()=>{$('#shop').close();refresh()};
+
 // ================= 시작 =================
-buildModel();initSel();inited=true;refresh();
+loadGame();buildModel();initSel();inited=true;refresh();renderWorld();checkEvents();
 (async()=>{try{const t=JSON.parse(localStorage.getItem('fsfsSess')||'null');if(t&&t.rt){S={rt:t.rt,exp:0};await tok();if(S)await afterLogin()}}catch(e){msg('자동 로그인 실패: '+e.message,1)}})();
 </script>
 </body>
