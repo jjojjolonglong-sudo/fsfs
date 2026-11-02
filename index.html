@@ -138,8 +138,8 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <div class="card" style="margin-bottom:12px"><h2>프로필 이미지 한꺼번에 등록 — 파일 이름이 인물 이름이 돼요 (예: 하윤.png)</h2>
       <div class="row"><label>이미지 여러 장<input id="npf" type="file" accept="image/*" multiple></label><button class="pri" id="npbulk">등록</button><button id="npimp">내장 인물 가져오기</button></div>
       <div class="tag">이름이 이미 있는 인물과 같으면 새로 만들지 않고 그 인물의 썸네일로 붙여요 (덕질노트에서 가져온 뒤 GPT 썸네일을 이름으로 올리면 돼요)</div></div>
-    <div class="card" style="margin-bottom:12px"><h2>덕질노트(lvlv)에서 가져오기 — 이름·성별·키워드·어록·설정을 가져와 인물 초안을 만들어요</h2>
-      <div class="row"><button id="lvload">목록 불러오기</button><button id="lvall">전체 선택</button><button class="pri" id="lvgo">선택한 인물 가져오기</button></div>
+    <div class="card" style="margin-bottom:12px"><h2>덕질노트(lvlv) 인물을 NPC로 추가 — 한 번 연결하면 이름·성별·키워드·어록·프로필은 lvlv에서 그대로 읽어와요</h2>
+      <div class="row"><button id="lvload">목록 불러오기</button><button id="lvall">전체 선택</button><button class="pri" id="lvgo">선택한 인물 추가</button></div>
       <div id="lvlist" class="list" style="max-height:220px"></div></div>
     <div class="cols"><div class="card"><div class="list" id="nlist"></div></div><div class="card" id="ned"></div></div>
   </div>
@@ -305,6 +305,7 @@ async function loadCatalog(){
     sb('/rest/v1/fsfs_part?select=*&order=sort'),sb('/rest/v1/fsfs_source_type?select=*'),
     sb('/rest/v1/fsfs_set?select=*&order=name'),sb('/rest/v1/fsfs_item?select=*,fsfs_asset(*),fsfs_source(*)&order=created_at.desc'),
     sb('/rest/v1/fsfs_map?select=*&order=created_at').catch(()=>[]),sb('/rest/v1/fsfs_place?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_npc?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_event?select=*&order=created_at').catch(()=>[]),sb('/rest/v1/fsfs_keymap?select=*&order=keyword').catch(()=>[])]);
+  await applyLvlv();
   applyWorld();
   buildModel();rebuildAcq();pruneSel();refresh();renderWorld();if(!$('#dev').hidden)renderDevList();
 }
@@ -726,12 +727,12 @@ function renderNpcForm(){
   const e=$('#ned'),n=ncur;if(!n){e.innerHTML='<div class="tag">왼쪽에서 인물을 고르거나, 위에서 프로필 이미지를 등록하세요</div>';return}
   const pl=Object.entries(WORLD.places).map(([k,p])=>({k,n:(p.i||'')+' '+p.n})),sc=n.schedule||{};
   e.innerHTML=`<div style="display:grid;gap:8px"><div class="row"><div class="npi" style="width:72px;height:72px">${nimg(n)}</div>
-  <label style="flex:1">이름<input id="n_n" value="${esc(n.name)}"></label><label>이모지<input id="n_i" value="${esc(n.icon||'')}" style="width:64px"></label></div>
+  ${n.lv?'<div class="tag" style="width:100%">🔗 덕질노트(lvlv)에서 읽어오는 인물이에요. 이름·소개·대사·키워드는 lvlv에서 고쳐 주세요</div>':''}<label style="flex:1">이름<input id="n_n" value="${esc(n.name)}"${n.lv?' disabled':''}></label><label>이모지<input id="n_i" value="${esc(n.icon||'')}" style="width:64px"></label></div>
   <div class="row"><label>생일 (월-일)<input id="n_b" placeholder="03-08" value="${esc(n.birthday||'')}" style="width:90px"></label><label style="flex:1">직업·역할<input id="n_j" value="${esc(n.job||'')}"></label>
   <label>ID (이벤트 연결용)<input id="n_c" value="${esc(n.code)}" style="width:120px"></label></div>
-  <label>소개<input id="n_t" value="${esc(n.intro||'')}"></label><label>성격·말투<input id="n_p" value="${esc(n.personality||'')}"></label>
+  <label>소개<input id="n_t" value="${esc(n.intro||'')}"${n.lv?' disabled':''}></label><label>성격·말투<input id="n_p" value="${esc(n.personality||'')}"></label>
   <h2>하루 일정 — 시간대별로 어디에 있는지</h2><div class="row">${SLOTS.map((s,i)=>`<label>${s}<select class="n_s" data-i="${i}">${opts(pl,'k','n',sc[i],'어디에도 없음')}</select></label>`).join('')}</div>
-  <label>대사 (한 줄에 하나씩, 대화할 때 무작위로 나와요)<textarea id="n_l" rows="5" style="background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font:inherit">${esc((n.lines||[]).join('\n'))}</textarea></label>
+  <label>대사 (한 줄에 하나씩, 대화할 때 무작위로 나와요)<textarea id="n_l" rows="5"${n.lv?' disabled':''} style="background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font:inherit">${esc((n.lines||[]).join('\n'))}</textarea></label>
   ${npcExtra(n)}<label>프로필 이미지 교체<input id="n_f" type="file" accept="image/*"></label>
   <div class="row"><button class="pri" id="n_save">저장</button><button id="n_del">삭제</button></div></div>`;
   $('#n_save').onclick=saveNpc;$('#n_del').onclick=delNpc;bindAv();
@@ -920,44 +921,59 @@ function renderWalkers(){
 
 // --- 덕질노트(lvlv) 가져오기 ---
 const sexOf=s=>{s=String(s||'').toLowerCase();return s==='m'||s==='f'?s:null};
-function lvBuild(ch,kw,ck,tx){
-  const K={},by={},tb=t=>String(t.body??t.text??t.content??t.title??'').trim();
-  kw.forEach(k=>K[String(k.id)]=k);tx.forEach(t=>(by[String(t.char_id)]=by[String(t.char_id)]||[]).push(t));
-  return ch.map(c=>{const ts=by[String(c.id)]||[],ks=ck.filter(x=>String(x.char_id)===String(c.id)).map(x=>K[String(x.keyword_id)]).filter(Boolean);
-    const qs=ts.filter(t=>t.kind==='quote'),feat=qs.find(t=>String(t.id)===String(c.quote_id)),pf=ts.find(t=>String(t.id)===String(c.profile_id))||ts.find(t=>t.kind==='profile');
-    return{id:String(c.id),name:c.name,sex:sexOf(c.sex),traits:ks.filter(k=>k.kind==='char').map(k=>k.name),looks:ks.filter(k=>k.kind!=='char').map(k=>k.name),
-      quotes:[...(feat?[feat]:[]),...qs.filter(t=>t!==feat)].map(tb).filter(Boolean),profile:pf?tb(pf):''}});
+const qLinesF=t=>String(t||'').split('\n').map(x=>x.trim()).filter(Boolean);
+/* lvlv 인물 → fsfs가 쓰는 모양. 키워드는 분류와 상관없이 이름 전체를 쓰고(번역표는 이름으로 찾아요), 분류는 보여주기용으로만 묶어요 */
+function lvBuild(ch,kw,ck,kd){
+  const K={},KD={};kw.forEach(k=>K[String(k.id)]=k);(kd||[]).forEach(d=>KD[d.code]=d);
+  const label=code=>{const d=KD[code];if(!d)return code;const p=d.parent&&KD[d.parent];return p?p.name+' › '+d.name:d.name};
+  const order=code=>{const d=KD[code];return d?(d.parent&&KD[d.parent]?(KD[d.parent].sort_order*100+d.sort_order+1):d.sort_order*100):9999};
+  return ch.map(c=>{const ks=ck.filter(x=>String(x.char_id)===String(c.id)).map(x=>K[String(x.keyword_id)]).filter(Boolean),g={};
+    ks.forEach(k=>{(g[k.kind]=g[k.kind]||[]).push(k.name)});
+    const kwgroups=Object.keys(g).sort((a,b)=>order(a)-order(b)).map(k=>[label(k),g[k]]);
+    return{id:String(c.id),name:c.name,sex:sexOf(c.sex),traits:[...new Set(ks.map(k=>k.name))],looks:[],kwgroups,quotes:qLinesF(c.quote),profile:String(c.profile||'').trim()}});
 }
-const lvFields=c=>({name:c.name,sex:c.sex,traits:c.traits,looks:c.looks,quotes:c.quotes.map(text=>({text,src:'actual'})),profile_text:c.profile||null});
+const lvFields=c=>({name:c.name,sex:c.sex,traits:c.traits,looks:[],quotes:c.quotes.map(text=>({text,src:'actual'})),profile_text:c.profile||null});
 function lvNew(c,i){
   const keys=[...c.traits,...c.looks],short=c.quotes.filter(q=>q.length<=120),code='lv_'+c.id.slice(0,8);
   return{...lvFields(c),code,role:'fan',source_app:'lvlv',source_id:c.id,intro:(c.profile||'').slice(0,60)||null,lines:(short.length?short:c.quotes).slice(0,15),
     schedule:genSchedule(code,keys),avatar:genAvatar(c.sex,keys,code),sort:DB.npcs.length+i};
 }
-let LV=[],LVKW=[];
+let LV=[],LVKW=[],LVKD=[];
+async function lvFetch(){
+  const [ch,kw,ck,kd]=await Promise.all([sb('/rest/v1/lvlv_char?select=*'),sb('/rest/v1/lvlv_keyword?select=*'),sb('/rest/v1/lvlv_char_keyword?select=*'),sb('/rest/v1/lvlv_kind?select=*').catch(()=>[])]);
+  LVKW=kw;LVKD=kd;LV=lvBuild(ch,kw,ck,kd);return LV;
+}
+/* 덕질노트에서 가져온 인물은 저장된 복사본이 아니라 lvlv의 현재 내용을 읽어서 덮어써요 (lvlv를 못 읽으면 복사본을 그대로 써요) */
+async function applyLvlv(){
+  const L=DB.npcs.filter(n=>n.source_app==='lvlv');if(!L.length)return;
+  try{const all=await lvFetch();
+    L.forEach(n=>{const c=all.find(x=>x.id===String(n.source_id));if(!c){n.lv_missing=true;return}
+      const short=c.quotes.filter(q=>q.length<=120);
+      Object.assign(n,{lv:true,name:c.name,sex:c.sex,traits:c.traits,looks:[],kwgroups:c.kwgroups,quotes:c.quotes.map(text=>({text,src:'actual'})),profile_text:c.profile||null});
+      const ln=(short.length?short:c.quotes).slice(0,15);if(ln.length)n.lines=ln;
+      if(c.profile)n.intro=c.profile.slice(0,60)});
+  }catch(e){console.warn('lvlv 읽기 실패 — 저장된 복사본을 써요',e)}
+}
 function renderLv(){
   $('#lvlist').innerHTML=LV.map(c=>{const ex=DB.npcs.find(x=>x.source_app==='lvlv'&&x.source_id===c.id);
-    return `<label class="row" style="margin:2px 0"><input type="checkbox" class="lvc" value="${esc(c.id)}"> ${esc(c.name)} <span class="tag">${ex?'가져옴 (원본 정보만 갱신)':'새 인물'} · ${c.sex||'?'} · 키워드 ${c.traits.length+c.looks.length} · 어록 ${c.quotes.length}</span></label>`}).join('')||'<div class="tag">"목록 불러오기"를 눌러주세요</div>';
+    return `<label class="row" style="margin:2px 0"><input type="checkbox" class="lvc" value="${esc(c.id)}"${ex?' disabled':''}> ${esc(c.name)} <span class="tag">${ex?'연결됨 (lvlv에서 읽어와요)':'새 인물'} · ${c.sex||'?'} · 키워드 ${c.traits.length} · 어록 ${c.quotes.length}</span></label>`}).join('')||'<div class="tag">"목록 불러오기"를 눌러주세요</div>';
 }
 $('#lvload').onclick=async()=>{
-  try{msg('덕질노트를 불러오는 중…');
-    const [ch,kw,ck,tx]=await Promise.all([sb('/rest/v1/lvlv_char?select=*'),sb('/rest/v1/lvlv_keyword?select=*'),sb('/rest/v1/lvlv_char_keyword?select=*'),sb('/rest/v1/lvlv_text?select=*&kind=in.(quote,profile)')]);
-    LV=lvBuild(ch,kw,ck,tx);LVKW=kw;renderLv();msg(`${LV.length}명을 불러왔어요`)}catch(e){msg(e.message,1)}
+  try{msg('덕질노트를 불러오는 중…');await lvFetch();renderLv();msg(`${LV.length}명을 불러왔어요`)}catch(e){msg(e.message,1)}
 };
-$('#lvall').onclick=()=>document.querySelectorAll('.lvc').forEach(c=>c.checked=true);
+$('#lvall').onclick=()=>document.querySelectorAll('.lvc:not(:disabled)').forEach(c=>c.checked=true);
 $('#lvgo').onclick=async()=>{
-  const sel=[...document.querySelectorAll('.lvc')].filter(c=>c.checked).map(c=>c.value);if(!sel.length)return msg('가져올 인물을 선택해주세요',1);
-  let n=0,u=0;
-  try{for(const id of sel){const c=LV.find(x=>x.id===id),ex=DB.npcs.find(x=>x.source_app==='lvlv'&&x.source_id===id);
-      if(ex){await post('/rest/v1/fsfs_npc?id=eq.'+ex.id,lvFields(c),'PATCH');u++}else{await post('/rest/v1/fsfs_npc',lvNew(c,n));n++}}
-    await loadCatalog();renderNpcAdmin();renderLv();msg(`새로 ${n}명, 갱신 ${u}명 (이미 있던 인물의 일정·아바타·대사는 그대로 뒀어요)`)}catch(e){msg(e.message,1)}
+  const sel=[...document.querySelectorAll('.lvc')].filter(c=>c.checked&&!c.disabled).map(c=>c.value);if(!sel.length)return msg('추가할 인물을 선택해주세요',1);
+  let n=0;
+  try{for(const id of sel){const c=LV.find(x=>x.id===id);if(DB.npcs.some(x=>x.source_app==='lvlv'&&x.source_id===id))continue;await post('/rest/v1/fsfs_npc',lvNew(c,n));n++}
+    await loadCatalog();renderNpcAdmin();renderLv();msg(`${n}명을 추가했어요. 이름·키워드·어록·프로필은 lvlv에서 고치면 여기에도 반영돼요`)}catch(e){msg(e.message,1)}
 };
 
 // --- NPC 편집 폼: 역할 · 아바타 · 자동 생성 ---
 function npcExtra(n){
   const a=n.avatar||{};
   return `<div class="row"><label>역할<select id="n_role">${opts(Object.entries(ROLES).map(([k,v])=>({k,v})),'k','v',n.role||'resident')}</select></label>
-  <div class="tag" style="flex:1">${n.source_app?`원본 ${esc(n.source_app)} · 성격 ${esc((n.traits||[]).join(', ')||'-')} · 외모 ${esc((n.looks||[]).join(', ')||'-')} · 어록 ${(n.quotes||[]).length}개`:'직접 만든 인물'}</div></div>
+  <div class="tag" style="flex:1">${n.source_app?`원본 ${esc(n.source_app)}${n.lv_missing?' (⚠ lvlv에서 사라진 인물이라 저장된 복사본을 써요)':''} · ${(n.kwgroups&&n.kwgroups.length?n.kwgroups.map(([l,a])=>esc(l)+' '+esc(a.join(', '))).join(' / '):esc((n.traits||[]).concat(n.looks||[]).join(', '))||'키워드 없음')} · 어록 ${(n.quotes||[]).length}개`:'직접 만든 인물'}</div></div>
   <h2>아바타 (마을을 돌아다니는 작은 모습)</h2>
   <div class="row"><div id="av_pv" style="width:54px"></div><label>머리<select id="av_h">${opts(HAIRS,'k','n',a.hair||'short')}</select></label>
   ${[['hc','머리색','#3b2f2f'],['eye','눈색','#2b2b2b'],['skin','피부','#f2cfae'],['outfit','옷','#7aa5c9'],['pants','바지','#3d3d4a']].map(([k,t,d])=>`<label>${t}<input type="color" class="av_c" data-k="${k}" value="${a[k]||d}"></label>`).join('')}
@@ -1053,9 +1069,9 @@ $('#kstart').onclick=async()=>{
   try{await sb('/rest/v1/fsfs_keymap?on_conflict=keyword',{m:'POST',h:{Prefer:'resolution=ignore-duplicates,return=minimal'},b:parseStarter()});await loadCatalog();renderKeyAdmin();msg('시작 번역표를 넣었어요 (이미 있던 키워드는 그대로 뒀어요)')}catch(e){msg(e.message,1)}
 };
 $('#kmiss').onclick=async()=>{
-  try{const kw=LVKW.length?LVKW:await sb('/rest/v1/lvlv_keyword?select=*');LVKW=kw;const miss=kw.filter(k=>!KM(k.name));
+  try{if(!LVKW.length)await lvFetch();const seen=new Set(),miss=LVKW.filter(k=>{const n=k.name.trim();if(KM(k.name)||seen.has(n))return false;seen.add(n);return true});
     $('#kmissbox').innerHTML=miss.length?'<span class="tag">빠진 키워드 (눌러서 추가):</span>':'<span class="tag">빠진 키워드가 없어요</span>';
-    miss.forEach(k=>{const b=document.createElement('button');b.textContent='+ '+k.name;b.onclick=()=>{kcur={keyword:k.name,grp:k.kind==='look'?'look':'mood',effects:{places:{},slots:[],av:{}}};renderKeyForm()};$('#kmissbox').append(b)})}catch(e){msg(e.message,1)}
+    miss.forEach(k=>{const b=document.createElement('button');b.textContent='+ '+k.name;b.onclick=()=>{const gs=LVKW.filter(x=>x.name===k.name).map(x=>(LVKD.find(d=>d.code===x.kind)||{}).grp).filter(Boolean);kcur={keyword:k.name,grp:gs[0]||'mood',effects:{places:{},slots:[],av:{}}};renderKeyForm()};$('#kmissbox').append(b)})}catch(e){msg(e.message,1)}
 };
 function renderKeyForm(){
   const e=$('#ked'),r=kcur;if(!r){e.innerHTML='<div class="tag">왼쪽에서 키워드를 고르거나, + 새 키워드를 눌러주세요</div>';return}
