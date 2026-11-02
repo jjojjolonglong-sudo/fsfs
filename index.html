@@ -72,10 +72,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .npi{width:44px;height:44px;border-radius:50%;flex:none;background:var(--chk);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:20px}.npi img{width:100%;height:100%;object-fit:cover}
 .evs{display:flex;gap:6px;margin-bottom:6px;align-items:center}.evs .st2,.evs .rt{flex:1;min-width:0}
 .evc{border:1px dashed var(--line);border-radius:10px;padding:8px;margin-bottom:8px}.evch{border-left:3px solid var(--acc);padding-left:8px;margin:6px 0}.evch .evs{margin-left:8px}
-.walkers{position:absolute;inset:0;pointer-events:none;z-index:2}
-.walker{position:absolute;width:4.4%;min-width:22px;transform:translate(-50%,-50%);transition:left 1.4s ease,top 1.4s ease;pointer-events:auto;cursor:pointer;animation:wbob 1.5s ease-in-out infinite}
-.walker svg{width:100%;display:block;filter:drop-shadow(0 1px 0 rgba(0,0,0,.28))}@keyframes wbob{50%{margin-top:-2px}}
-#av_pv svg{width:100%;display:block}
+.enc{display:flex;gap:8px;align-items:center;text-align:left}.enc small{opacity:.7}
 </style>
 </head>
 <body>
@@ -561,7 +558,7 @@ function checkEvents(){
   }
 }
 function after(){saveGame();renderWorld();refresh();checkEvents()}
-function go(p){if(p===G.place)return;const d=G.day;advance();if(G.day===d){G.place=p;G.log=`${WORLD.places[p].n}에 도착했어요`}after()}
+function go(p){if(p===G.place)return;const d=G.day;advance();if(G.day===d){G.place=p;G.log=`${WORLD.places[p].n}에 도착했어요`;const hs=here();if(hs.length)G.log+=' · 만난 사람: '+hs.map(id=>WORLD.npcs[id].n).join(', ')}after()}
 function sleep(){G.slot=3;advance();after()}
 function talk(id){
   const n=WORLD.npcs[id];if(G.talked[id]===G.day)return msg('오늘은 이미 충분히 이야기했어요');
@@ -598,7 +595,7 @@ function visitPlace(pid){
   if(pid==='park')return msg(p.desc);
   msg(p.desc+' (아직 이 장소의 세부 기능은 준비 중이에요.)');
 }
-function renderWorld(){setTimeout(renderWalkers,0);if(!WORLD.places[G.place])G.place=startPlace();
+function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const d=dateOf();$('#wt').textContent=`${d.getMonth()+1}월 ${d.getDate()}일 (${DOW[d.getDay()]}) ${SLOTS[G.slot]}`;$('#wm').textContent='₩'+G.money.toLocaleString();
   buildTownMap();
   document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===G.place);b.classList.toggle('closed',!!(p.open&&!p.open.includes(G.slot)));});
@@ -608,7 +605,8 @@ function renderWorld(){setTimeout(renderWalkers,0);if(!WORLD.places[G.place])G.p
   const ac=$('#wa');ac.innerHTML='';const add=(t,fn)=>{const b=document.createElement('button');b.textContent=t;b.onclick=fn;ac.append(b)};
   if(G.place==='home')add('😴 잠자기 (다음 날 아침)',sleep);
   if(G.place!=='home')add((p.open&&!p.open.includes(G.slot))?'🔒 영업 종료':'🚪 들어가기 / 둘러보기',()=>visitPlace(G.place));
-  here().forEach(id=>add(`${WORLD.npcs[id].i} ${WORLD.npcs[id].n}와 이야기하기 (호감도 ${G.aff[id]||0})`,()=>talk(id)));
+  here().forEach(id=>{const n=WORLD.npcs[id],b=document.createElement('button');b.className='enc';
+    b.innerHTML=`<span class="npi">${n.img?`<img src="${esc(n.img)}" alt="">`:esc(n.i||'🙂')}</span><span><b>${esc(n.n)}</b>${n.job?' · '+esc(n.job):''}<br><small>이야기하기 · 호감도 ${G.aff[id]||0}</small></span>`;b.onclick=()=>talk(id);ac.append(b)});
   $('#wl').textContent=G.log||'';$('#wcheat').textContent=G.cheat?'🔓 전체 해금 중':'🔒 전체 해금(테스트)';
 }
 $('#wskip').onclick=()=>{advance();G.log='시간이 흘렀어요';after()};
@@ -629,7 +627,7 @@ const mainMap=()=>(DB.maps||[]).find(x=>x.is_main)||(DB.maps||[])[0];
 function applyWorld(){
   if(DB.places.length){WORLD.places={};DB.places.forEach(r=>WORLD.places[r.code]={n:r.name,i:r.icon||'📍',kind:r.kind||'',pos:[+r.x,+r.y],shop:r.is_shop,
     open:r.open_slots&&r.open_slots.length&&r.open_slots.length<4?r.open_slots:undefined,desc:r.descr||'',db:true})}else WORLD.places=PLACES0;
-  if(DB.npcs.length){WORLD.npcs={};DB.npcs.forEach(r=>WORLD.npcs[r.code]={n:r.name,i:r.icon||'🙂',img:r.file_key?pubUrl(r.file_key):'',at:r.schedule||{},lines:r.lines&&r.lines.length?r.lines:['…'],birthday:r.birthday||'',job:r.job||'',intro:r.intro||'',personality:r.personality||'',av:r.avatar||{},role:r.role||'resident',db:true})}else WORLD.npcs=NPCS0;
+  if(DB.npcs.length){WORLD.npcs={};DB.npcs.forEach(r=>WORLD.npcs[r.code]={n:r.name,i:r.icon||'🙂',img:r.file_key?pubUrl(r.file_key):'',at:r.schedule||{},lines:r.lines&&r.lines.length?r.lines:['…'],birthday:r.birthday||'',job:r.job||'',intro:r.intro||'',personality:r.personality||'',role:r.role||'resident',db:true})}else WORLD.npcs=NPCS0;
   WORLD.events=DB.events.length?DB.events.filter(r=>r.enabled!==false).map(evFromRow):EVENTS0;
   const m=mainMap(),map=$('#townmap');
   if(map){map.style.backgroundImage=m?`url("${pubUrl(m.file_key)}")`:'';if(m&&m.w)map.style.aspectRatio=m.w+'/'+m.h;map.dataset.built='';map.querySelectorAll('.map-building').forEach(b=>b.remove())}
@@ -735,14 +733,14 @@ function renderNpcForm(){
   <label>대사 (한 줄에 하나씩, 대화할 때 무작위로 나와요)<textarea id="n_l" rows="5"${n.lv?' disabled':''} style="background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font:inherit">${esc((n.lines||[]).join('\n'))}</textarea></label>
   ${npcExtra(n)}<label>프로필 이미지 교체<input id="n_f" type="file" accept="image/*"></label>
   <div class="row"><button class="pri" id="n_save">저장</button><button id="n_del">삭제</button></div></div>`;
-  $('#n_save').onclick=saveNpc;$('#n_del').onclick=delNpc;bindAv();
+  $('#n_save').onclick=saveNpc;$('#n_del').onclick=delNpc;bindSch();
 }
 async function saveNpc(){
   try{const n=ncur,f=$('#n_f').files[0];let key=n.file_key;
     if(f){const r=await putPlain('npcs',n.id,f,320);if(key&&key!==r.key)wdel(key);key=r.key}
     const sch={};document.querySelectorAll('.n_s').forEach(s=>{if(s.value)sch[s.dataset.i]=s.value});
     await post('/rest/v1/fsfs_npc?id=eq.'+n.id,{name:$('#n_n').value.trim()||n.name,icon:$('#n_i').value.trim()||null,birthday:$('#n_b').value.trim()||null,job:$('#n_j').value||null,
-      code:$('#n_c').value.trim()||n.code,intro:$('#n_t').value||null,personality:$('#n_p').value||null,schedule:sch,lines:$('#n_l').value.split('\n').map(s=>s.trim()).filter(Boolean),file_key:key,role:$('#n_role').value,avatar:readAv()},'PATCH');
+      code:$('#n_c').value.trim()||n.code,intro:$('#n_t').value||null,personality:$('#n_p').value||null,schedule:sch,lines:$('#n_l').value.split('\n').map(s=>s.trim()).filter(Boolean),file_key:key,role:$('#n_role').value},'PATCH');
     await loadCatalog();ncur=structuredClone(DB.npcs.find(x=>x.id===n.id));renderNpcAdmin();msg('저장했어요');
   }catch(e){msg(e.message,1)}
 }
@@ -865,30 +863,11 @@ async function delEv(){
   try{await sb('/rest/v1/fsfs_event?id=eq.'+ecur.id,{m:'DELETE'});ecur=null;await loadCatalog();renderEvAdmin();msg('삭제했어요')}catch(e){msg(e.message,1)}
 }
 
-// ================= 번역표 · 덕질노트 가져오기 · 마을 아바타 =================
+// ================= 번역표 · 덕질노트 가져오기 =================
 const STYLES={calm:'침착',serious:'진지',passionate:'열정',dreamy:'몽환',noble:'기품',mystic:'신비',eccentric:'기이',gloomy:'우울',flirty:'능글',warm:'다정',cheer:'쾌활',cool:'냉철',stoic:'과묵',shy:'소심',tsun:'츤데레'};
 const GRPS={role:'직업·신분',mood:'성격·분위기',look:'외모',story:'사연·나이'};
 const ROLES={resident:'주민',fan:'덕질 인물',mayor:'이장',guardian:'수호신'};
-const HAIRS=[{k:'short',n:'짧은 머리'},{k:'bob',n:'단발'},{k:'long',n:'장발'},{k:'pony',n:'포니테일'},{k:'bald',n:'민머리'}];
-const PAL=['#d98b78','#7aa5c9','#8fbf8a','#c9a56a','#b08fc9','#d9c26a','#6fb3b0','#c97a9a'];
 const KM=n=>DB.keymap.find(r=>r.keyword===n);
-// --- 작은 픽셀 아바타 (12×16 칸을 규칙으로 그려요) ---
-function avatarSvg(a,seed){
-  const hs=hash(String(seed)),A={hair:'short',hc:['#2b2626','#3b2f2f','#6b4a2f','#8a6a3d'][hs%4],eye:'#2b2b2b',skin:'#f2cfae',outfit:PAL[hs%PAL.length],pants:'#3d3d4a',...a},R=[];
-  const r=(x,y,w,h,c)=>R.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`),L=A.hair==='long',B=A.hair==='bob';
-  if(L||B)r(2,2,8,L?9:6,A.hc);if(A.hair==='pony')r(9,3,2,5,A.hc);
-  r(3,8,6,5,A.outfit);r(2,8,1,4,A.outfit);r(9,8,1,4,A.outfit);r(2,12,1,1,A.skin);r(9,12,1,1,A.skin);
-  r(4,13,2,3,A.pants);r(6,13,2,3,A.pants);r(4,15,2,1,'#2a2420');r(6,15,2,1,'#2a2420');if(A.skirt)r(2,11,8,2,A.outfit);
-  r(3,3,6,5,A.skin);r(4,2,4,1,A.skin);
-  if(A.hair!=='bald'){r(3,1,6,2,A.hc);r(2,2,1,3,A.hc);r(9,2,1,3,A.hc);if(L||B){r(2,5,1,L?6:3,A.hc);r(9,5,1,L?6:3,A.hc)}}
-  r(4,4,1,2,A.eye);r(7,4,1,2,A.eye);r(5,6,2,1,'#c97a6a');
-  return `<svg viewBox="0 0 12 16" shape-rendering="crispEdges">${R.join('')}</svg>`;
-}
-function genAvatar(sex,keys,seed){
-  const hs=hash(String(seed)),av={hair:sex==='f'?'bob':'short',hc:['#2b2626','#3b2f2f','#6b4a2f','#8a6a3d'][hs%4],eye:'#2b2b2b',skin:'#f2cfae',outfit:PAL[hs%PAL.length],pants:'#3d3d4a',skirt:sex==='f'};
-  keys.forEach(k=>{const m=KM(k);if(m&&m.effects&&m.effects.av)for(const [x,v] of Object.entries(m.effects.av))if(v)av[x]=v});
-  return av;
-}
 // --- 키워드 → 하루 일정 (같은 인물은 항상 같은 결과) ---
 function genSchedule(code,keys){
   const rows=keys.map(KM).filter(Boolean),sch={};
@@ -903,22 +882,6 @@ function genSchedule(code,keys){
   }
   return sch;
 }
-// --- 마을 지도 위를 돌아다니는 NPC ---
-const placePos=pid=>{const p=WORLD.places[pid];return p.db?p.pos:(HITSPOTS[pid]||p.pos||[50,50])};
-function renderWalkers(){
-  const map=$('#townmap');if(!map)return;let layer=map.querySelector('.walkers');
-  if(!layer){layer=document.createElement('div');layer.className='walkers';map.append(layer)}
-  const by={},seen=new Set();
-  Object.entries(WORLD.npcs).forEach(([id,n])=>{const p=n.at&&n.at[G.slot];if(p&&WORLD.places[p])(by[p]=by[p]||[]).push(id)});
-  for(const [pid,ids] of Object.entries(by)){const pos=placePos(pid);
-    ids.forEach((id,i)=>{seen.add(id);const n=WORLD.npcs[id];let w=layer.querySelector(`[data-n="${id}"]`);
-      if(!w){w=document.createElement('div');w.className='walker';w.dataset.n=id;w.innerHTML=avatarSvg(n.av||{},id);w.title=n.n;
-        w.onclick=()=>msg(`${n.n}${n.job?' · '+n.job:''}${n.lines&&n.lines.length?' — “'+n.lines[Math.floor(Math.random()*n.lines.length)]+'”':''}`);
-        w.style.left=pos[0]+'%';w.style.top=pos[1]+'%';layer.append(w)}
-      w.style.left=(pos[0]+(i%2?1:-1)*(2.6+Math.floor(i/2)*2.2))+'%';w.style.top=(pos[1]+6+(i%3)*1.4)+'%'});}
-  layer.querySelectorAll('.walker').forEach(w=>{if(!seen.has(w.dataset.n))w.remove()});
-}
-
 // --- 덕질노트(lvlv) 가져오기 ---
 const sexOf=s=>{s=String(s||'').toLowerCase();return s==='m'||s==='f'?s:null};
 const qLinesF=t=>String(t||'').split('\n').map(x=>x.trim()).filter(Boolean);
@@ -936,7 +899,7 @@ const lvFields=c=>({name:c.name,sex:c.sex,traits:c.traits,looks:[],quotes:c.quot
 function lvNew(c,i){
   const keys=[...c.traits,...c.looks],short=c.quotes.filter(q=>q.length<=120),code='lv_'+c.id.slice(0,8);
   return{...lvFields(c),code,role:'fan',source_app:'lvlv',source_id:c.id,intro:(c.profile||'').slice(0,60)||null,lines:(short.length?short:c.quotes).slice(0,15),
-    schedule:genSchedule(code,keys),avatar:genAvatar(c.sex,keys,code),sort:DB.npcs.length+i};
+    schedule:genSchedule(code,keys),sort:DB.npcs.length+i};
 }
 let LV=[],LVKW=[],LVKD=[];
 async function lvFetch(){
@@ -971,19 +934,12 @@ $('#lvgo').onclick=async()=>{
 
 // --- NPC 편집 폼: 역할 · 아바타 · 자동 생성 ---
 function npcExtra(n){
-  const a=n.avatar||{};
   return `<div class="row"><label>역할<select id="n_role">${opts(Object.entries(ROLES).map(([k,v])=>({k,v})),'k','v',n.role||'resident')}</select></label>
   <div class="tag" style="flex:1">${n.source_app?`원본 ${esc(n.source_app)}${n.lv_missing?' (⚠ lvlv에서 사라진 인물이라 저장된 복사본을 써요)':''} · ${(n.kwgroups&&n.kwgroups.length?n.kwgroups.map(([l,a])=>esc(l)+' '+esc(a.join(', '))).join(' / '):esc((n.traits||[]).concat(n.looks||[]).join(', '))||'키워드 없음')} · 어록 ${(n.quotes||[]).length}개`:'직접 만든 인물'}</div></div>
-  <h2>아바타 (마을을 돌아다니는 작은 모습)</h2>
-  <div class="row"><div id="av_pv" style="width:54px"></div><label>머리<select id="av_h">${opts(HAIRS,'k','n',a.hair||'short')}</select></label>
-  ${[['hc','머리색','#3b2f2f'],['eye','눈색','#2b2b2b'],['skin','피부','#f2cfae'],['outfit','옷','#7aa5c9'],['pants','바지','#3d3d4a']].map(([k,t,d])=>`<label>${t}<input type="color" class="av_c" data-k="${k}" value="${a[k]||d}"></label>`).join('')}
-  <label style="flex-direction:row;align-items:center;gap:4px"><input id="av_sk" type="checkbox"${a.skirt?' checked':''}>치마</label></div>
-  <div class="row"><button id="av_gen">아바타 자동 생성</button><button id="sc_gen">일정 자동 생성</button><span class="tag">번역표의 키워드를 읽어서 만들어요. 저장을 눌러야 반영돼요</span></div>`;
+  <div class="row"><button id="sc_gen">일정 자동 생성</button><span class="tag">번역표의 키워드를 읽어서 시간대별 장소를 정해줘요. 저장을 눌러야 반영돼요</span></div>`;
 }
-const readAv=()=>{const a={hair:$('#av_h').value,skirt:$('#av_sk').checked};document.querySelectorAll('.av_c').forEach(c=>a[c.dataset.k]=c.value);return a};
-function bindAv(){
-  const pv=()=>{$('#av_pv').innerHTML=avatarSvg(readAv(),ncur.code)},keys=()=>[...(ncur.traits||[]),...(ncur.looks||[])];pv();$('#ned').oninput=pv;
-  $('#av_gen').onclick=()=>{const a=genAvatar(ncur.sex,keys(),ncur.code);$('#av_h').value=a.hair;document.querySelectorAll('.av_c').forEach(c=>c.value=a[c.dataset.k]||c.value);$('#av_sk').checked=!!a.skirt;pv()};
+function bindSch(){
+  const keys=()=>[...(ncur.traits||[]),...(ncur.looks||[])];
   $('#sc_gen').onclick=()=>{const s=genSchedule(ncur.code,keys());document.querySelectorAll('.n_s').forEach(x=>x.value=s[x.dataset.i]||'');msg('일정을 만들었어요. 저장을 눌러 반영하세요')};
 }
 
@@ -1050,11 +1006,11 @@ const STARTER=`검사|role|park:2|0|stoic|
 신분을감춤|story|convenience:1|3|mystic|
 기혼자|story||||`;
 function parseStarter(){
-  return STARTER.trim().split('\n').map(l=>{const [k,g,pl,sl,st,av]=l.split('|'),places={},a={};
-    (pl||'').split(' ').filter(Boolean).forEach(x=>{const [p,v]=x.split(':');places[p]=+v});(av||'').split(',').filter(Boolean).forEach(x=>{const [kk,vv]=x.split('=');a[kk]=vv});
-    return{keyword:k,grp:g,effects:{places,slots:(sl||'').split('').filter(Boolean).map(Number),style:st||null,av:a}}});
+  return STARTER.trim().split('\n').map(l=>{const [k,g,pl,sl,st]=l.split('|'),places={};
+    (pl||'').split(' ').filter(Boolean).forEach(x=>{const [p,v]=x.split(':');places[p]=+v});
+    return{keyword:k,grp:g,effects:{places,slots:(sl||'').split('').filter(Boolean).map(Number),style:st||null}}});
 }
-const effSummary=f=>{f=f||{};return [Object.entries(f.places||{}).filter(([,v])=>v).map(([p,v])=>((WORLD.places[p]||{}).n||p)+v).join(' '),f.style?STYLES[f.style]||f.style:'',Object.keys(f.av||{}).filter(k=>f.av[k]).join('·')].filter(Boolean).join(' / ')||'(영향 없음)'};
+const effSummary=f=>{f=f||{};return [Object.entries(f.places||{}).filter(([,v])=>v).map(([p,v])=>((WORLD.places[p]||{}).n||p)+v).join(' '),f.style?STYLES[f.style]||f.style:''].filter(Boolean).join(' / ')||'(영향 없음)'};
 let kcur=null;
 function renderKeyAdmin(){
   const g=$('#kg');if(!g.children.length)g.innerHTML=opts(Object.entries(GRPS).map(([k,n])=>({k,n})),'k','n','','전체 분류');
@@ -1064,35 +1020,31 @@ function renderKeyAdmin(){
 }
 $('#kg').onchange=$('#kq').oninput=renderKeyAdmin;
 $('#klist').onclick=e=>{const d=e.target.closest('.it');if(!d)return;kcur=structuredClone(DB.keymap.find(r=>r.id===d.dataset.id));renderKeyAdmin()};
-$('#knew').onclick=()=>{kcur={keyword:'',grp:'mood',effects:{places:{},slots:[],av:{}}};renderKeyForm()};
+$('#knew').onclick=()=>{kcur={keyword:'',grp:'mood',effects:{places:{},slots:[]}};renderKeyForm()};
 $('#kstart').onclick=async()=>{
   try{await sb('/rest/v1/fsfs_keymap?on_conflict=keyword',{m:'POST',h:{Prefer:'resolution=ignore-duplicates,return=minimal'},b:parseStarter()});await loadCatalog();renderKeyAdmin();msg('시작 번역표를 넣었어요 (이미 있던 키워드는 그대로 뒀어요)')}catch(e){msg(e.message,1)}
 };
 $('#kmiss').onclick=async()=>{
   try{if(!LVKW.length)await lvFetch();const seen=new Set(),miss=LVKW.filter(k=>{const n=k.name.trim();if(KM(k.name)||seen.has(n))return false;seen.add(n);return true});
     $('#kmissbox').innerHTML=miss.length?'<span class="tag">빠진 키워드 (눌러서 추가):</span>':'<span class="tag">빠진 키워드가 없어요</span>';
-    miss.forEach(k=>{const b=document.createElement('button');b.textContent='+ '+k.name;b.onclick=()=>{const gs=LVKW.filter(x=>x.name===k.name).map(x=>(LVKD.find(d=>d.code===x.kind)||{}).grp).filter(Boolean);kcur={keyword:k.name,grp:gs[0]||'mood',effects:{places:{},slots:[],av:{}}};renderKeyForm()};$('#kmissbox').append(b)})}catch(e){msg(e.message,1)}
+    miss.forEach(k=>{const b=document.createElement('button');b.textContent='+ '+k.name;b.onclick=()=>{const gs=LVKW.filter(x=>x.name===k.name).map(x=>(LVKD.find(d=>d.code===x.kind)||{}).grp).filter(Boolean);kcur={keyword:k.name,grp:gs[0]||'mood',effects:{places:{},slots:[]}};renderKeyForm()};$('#kmissbox').append(b)})}catch(e){msg(e.message,1)}
 };
 function renderKeyForm(){
   const e=$('#ked'),r=kcur;if(!r){e.innerHTML='<div class="tag">왼쪽에서 키워드를 고르거나, + 새 키워드를 눌러주세요</div>';return}
-  const f=r.effects||{},pw=f.places||{},sl=f.slots||[],av=f.av||{};
+  const f=r.effects||{},pw=f.places||{},sl=f.slots||[];
   e.innerHTML=`<div style="display:grid;gap:8px"><div class="row"><label style="flex:1">키워드<input id="k_k" value="${esc(r.keyword)}"></label>
   <label>분류<select id="k_g">${opts(Object.entries(GRPS).map(([k,n])=>({k,n})),'k','n',r.grp)}</select></label>
   <label>성격 스타일 (리액션에 쓰여요)<select id="k_st">${opts(Object.entries(STYLES).map(([k,n])=>({k,n})),'k','n',f.style,'없음')}</select></label></div>
   <h2>자주 가는 곳 (0~3, 클수록 자주 가요)</h2><div class="row">${Object.entries(WORLD.places).map(([k,p])=>`<label>${p.i||''} ${esc(p.n)}<input type="number" min="0" max="3" class="k_p" data-p="${k}" value="${pw[k]||0}" style="width:60px"></label>`).join('')}</div>
   <h2>주로 보이는 시간대 (비우면 아무 때나)</h2><div class="row">${SLOTS.map((s,i)=>`<label style="flex-direction:row;align-items:center;gap:4px"><input type="checkbox" class="k_s" value="${i}"${sl.includes(i)?' checked':''}>${s}</label>`).join('')}</div>
-  <h2>아바타에 주는 영향 (비워두면 영향 없음)</h2><div class="row"><label>머리 모양<select id="k_h">${opts(HAIRS,'k','n',av.hair,'—')}</select></label>
-  ${[['hc','머리색'],['eye','눈색'],['skin','피부'],['outfit','옷'],['pants','바지']].map(([k,n])=>`<label>${n}<input class="k_c" data-k="${k}" value="${esc(av[k]||'')}" placeholder="#rrggbb" style="width:84px"></label>`).join('')}</div>
   <label>메모<input id="k_n" value="${esc(r.note||'')}"></label>
   <div class="row"><button class="pri" id="k_save">저장</button>${r.id?'<button id="k_del">삭제</button>':''}</div></div>`;
   $('#k_save').onclick=saveKey;if(r.id)$('#k_del').onclick=delKey;
 }
 async function saveKey(){
   try{const kw=$('#k_k').value.trim();if(!kw)throw new Error('키워드를 입력해주세요');
-    const places={},av={};document.querySelectorAll('.k_p').forEach(i=>{if(+i.value>0)places[i.dataset.p]=+i.value});
-    if($('#k_h').value)av.hair=$('#k_h').value;
-    document.querySelectorAll('.k_c').forEach(i=>{const v=i.value.trim();if(v){if(!/^#[0-9a-fA-F]{6}$/.test(v))throw new Error('색은 #rrggbb 형식으로 적어주세요');av[i.dataset.k]=v}});
-    const row={keyword:kw,grp:$('#k_g').value,note:$('#k_n').value||null,effects:{places,slots:[...document.querySelectorAll('.k_s')].filter(c=>c.checked).map(c=>+c.value),style:$('#k_st').value||null,av}};
+    const places={};document.querySelectorAll('.k_p').forEach(i=>{if(+i.value>0)places[i.dataset.p]=+i.value});
+    const row={keyword:kw,grp:$('#k_g').value,note:$('#k_n').value||null,effects:{places,slots:[...document.querySelectorAll('.k_s')].filter(c=>c.checked).map(c=>+c.value),style:$('#k_st').value||null}};
     await sb('/rest/v1/fsfs_keymap?on_conflict=keyword',{m:'POST',h:{Prefer:'resolution=merge-duplicates,return=minimal'},b:row});
     await loadCatalog();kcur=structuredClone(KM(kw));renderKeyAdmin();msg('저장했어요');
   }catch(e){msg(e.message,1)}
