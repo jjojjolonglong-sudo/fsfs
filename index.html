@@ -334,9 +334,13 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 .scale .needle{overflow:visible;bottom:-1px;opacity:1}
 .bd{border-right:1px solid rgba(32,27,23,.28)!important}.bd:last-of-type{border-right:0!important}
 #scene .tx{white-space:pre-wrap}
-.bkshelf-wrap{background:#fffef9;border:2px solid var(--ink);padding:14px 10px 6px;--face:#d8d2c2;--dk:#2b2924}
-.bks-shelf{display:flex;flex-wrap:wrap;align-items:flex-end;row-gap:34px;padding-bottom:36px;background:linear-gradient(to bottom,transparent 0 180px,#fff 180px 182px,var(--face) 182px 188px,var(--dk) 188px 190px,rgba(0,0,0,.13) 190px 193px,transparent 193px) 0 0/100% 214px repeat-y}
-.bks-slot{flex:none;height:180px;display:flex;align-items:flex-end}
+.bkshelf-wrap{--face:#d8d2c2;--dk:#2b2924}
+.bkbar{display:flex;align-items:center;gap:10px;margin:2px 0 10px}.bkbar .tag{flex:1}.bknav{display:flex;align-items:center;gap:8px}.bknav button{min-width:0;padding:2px 12px}.bknav b{min-width:46px;text-align:center}
+.bk-pg{display:flex;gap:14px;align-items:flex-start}
+.bk-case{flex:1;min-width:0;display:flex;background:#fffef9;border:5px solid #6b4f36;border-radius:4px;box-shadow:inset 0 0 0 2px #3f2e1f}
+.bk-cmp{flex:1;min-width:0;padding:0 4px;border-left:5px solid #6b4f36}.bk-cmp:first-child{border-left:0}
+.bk-lab{height:22px;line-height:22px;margin:0 -4px;text-align:center;font:700 11px/22px sans-serif;background:var(--face);border-bottom:2px solid var(--dk);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.bk-row{position:relative;height:196px;display:flex;align-items:flex-end;margin:0 -4px;padding:0 4px;border-bottom:8px solid var(--face);box-shadow:0 1px 0 var(--dk),0 3px 0 rgba(0,0,0,.13)}
 .bks-sp{position:relative;flex:none;cursor:pointer;border-radius:4px 4px 0 0;overflow:hidden;transform-origin:50% 100%}
 .bks-sp::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.3),rgba(255,255,255,.15) 20%,transparent 50%,rgba(0,0,0,.22))}
 .bks-sp:hover{transform:scale(1.06);z-index:2}.bks-sp.xt{border-radius:2px 2px 0 0}
@@ -353,19 +357,17 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 #scene .nm:empty{display:none}#scene .nm:empty~.tx{padding-top:18px}
 #welcome{max-width:420px;text-align:center;padding:34px 30px;cursor:pointer}.wl1{font-size:26px;font-weight:800}.wl2{margin-top:8px;color:var(--mute)}
 #bgmbtn{white-space:nowrap}.bgmrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}.bgmrow select{max-width:150px}
-.mp{--neon:#39ff14;--neon-dim:#1c8a0a;--lcd:#020a02;--fr:"VT323","DotGothic16","Malgun Gothic","Apple SD Gothic Neo",monospace;align-self:stretch;display:flex;flex-direction:column;gap:3px;width:230px;padding:4px;margin-left:10px;background:linear-gradient(180deg,#3b3b46,#24242c);border:2px solid;border-color:#6e6e7c #101014 #101014 #6e6e7c;box-shadow:3px 3px 0 var(--ink);font-family:var(--fr)!important}
-.mp *{font-family:var(--fr)!important}
-.mp-lcd{position:relative;overflow:hidden;flex:1;min-height:36px;display:flex;align-items:center;gap:8px;padding:2px 7px;background:var(--lcd);border:2px solid;border-color:#101014 #6e6e7c #6e6e7c #101014;color:var(--neon)}
-.mp-lcd::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px)}
-.mp-time{font-size:30px;line-height:1;letter-spacing:1px;white-space:nowrap;text-shadow:0 0 6px var(--neon),0 0 14px rgba(57,255,20,.6)}
+.mp{--neon:#39ff14;--lcd:#020a02;--fr:"VT323","DotGothic16","Malgun Gothic","Apple SD Gothic Neo",monospace;align-self:stretch;display:flex;flex-direction:column;width:230px;margin-left:10px;background:var(--lcd);border:2px solid var(--ink);border-radius:6px;overflow:hidden;cursor:pointer;position:relative;color:var(--neon);font-family:var(--fr)!important}
+.mp *{font-family:var(--fr)!important}.mp.paused .mp-lcd{opacity:.45}
+.mp::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px)}
+.mp-lcd{flex:1;min-height:0;display:flex;align-items:center;gap:8px;padding:2px 10px}
+.mp-time{font-size:34px;line-height:1;letter-spacing:1px;white-space:nowrap;text-shadow:0 0 6px var(--neon),0 0 14px rgba(57,255,20,.6)}
 .mp-mq{flex:1;min-width:0;overflow:hidden;white-space:nowrap;font-size:20px;line-height:22px;height:22px;text-shadow:0 0 6px var(--neon)}
 .mp-mq span{display:inline-block;will-change:transform}.mp-mq.scroll span{animation:mpmq var(--dur,10s) linear infinite}
 @keyframes mpmq{from{transform:translateX(var(--from,0))}to{transform:translateX(var(--to,0))}}
-.mp-seek{height:8px;background:var(--lcd);cursor:pointer;border:2px solid;border-color:#101014 #6e6e7c #6e6e7c #101014}.mp-seek #mp_bar{height:100%;width:0;background:var(--neon);box-shadow:0 0 6px var(--neon)}
-.mp-ctl{display:flex;gap:4px;height:22px}
-.mp .mb{flex:1;min-width:0;height:100%;padding:0;display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;color:#15141a;cursor:pointer;border-radius:0;transform:none;background:linear-gradient(180deg,#e6e3dc,#c6c2b9 55%,#b4b0a7);border:1px solid #0b0b0f;box-shadow:inset 1px 1px 0 #fff,inset 2px 2px 0 rgba(255,255,255,.55),inset -1px -1px 0 #4a4740,inset -2px -2px 0 rgba(0,0,0,.28)}
-.mp .mb:active,.mp .mb.on{background:linear-gradient(180deg,#a9a59c,#bdb9b0);box-shadow:inset 1px 1px 0 #2f2d29,inset 2px 2px 0 rgba(0,0,0,.35),inset -1px -1px 0 #fff,inset -2px -2px 0 rgba(255,255,255,.5);padding-top:2px}.mp .mb.on{color:#0a5a0a}
+.mp-seek{height:8px;background:var(--lcd);border-top:1px solid #1c8a0a}.mp-seek #mp_bar{height:100%;width:0;background:var(--neon);box-shadow:0 0 6px var(--neon)}
 .world .wt{flex-wrap:wrap}.world .wt .clk,.world .wt .cal,.mp{flex:none}.world .wt .tl{flex:0 1 500px;min-width:330px}
+#endview{margin-left:auto}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -377,9 +379,9 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
       <span id="cbar" class="bar" hidden><button id="rand">🎲 랜덤</button><button id="crand">🎨 색 랜덤</button><button id="reset">↺ 처음 옷차림</button><button id="strip">👕 전부 벗기</button><button id="closetx">옷장 닫기</button></span>
       <span style="flex:1"></span><button id="bgmbtn" title="배경음악 볼륨 (누르면 0~5 순환)">🎵 3</button><button id="sfxbtn" title="볼륨 (누르면 0~5 순환)">🔊 3</button><button id="wnew">새 게임</button><button id="adminbtn" hidden>🛠 관리자 모드</button><button id="authbtn">⚙ 설정·로그인</button>
     </div></div>
-    <div class="card world"><div class="wt"><span id="wt"></span><div id="mp" class="mp" hidden><div class="mp-lcd"><div class="mp-time" id="mp_time">00:00</div><div class="mp-mq" id="mp_mq"><span id="mp_t"></span></div></div><div class="mp-seek" id="mp_seek"><div id="mp_bar"></div></div><div class="mp-ctl"><button id="mp_p" class="mb" title="이전 곡">|◀</button><button id="mp_pl" class="mb" title="재생/일시정지">▶</button><button id="mp_n" class="mb" title="다음 곡">▶|</button></div></div><span style="flex:1"></span><button id="endview" class="pri" hidden>끝내기</button></div>
+    <div class="card world"><div class="wt"><span id="wt"></span><div id="mp" class="mp" hidden title="누르면 재생/일시정지"><div class="mp-lcd"><div class="mp-time" id="mp_time">00:00</div><div class="mp-mq" id="mp_mq"><span id="mp_t"></span></div></div><div class="mp-seek" id="mp_seek"><div id="mp_bar"></div></div></div><span style="flex:1"></span><button id="endview" class="pri" hidden>끝내기</button></div>
       <div id="stview" hidden><h2>📋 내 상태</h2><div id="st_b"></div></div>
-      <div id="bkview" hidden><div class="tag" id="bk_i" style="margin:2px 0 10px"></div><div id="bk_g" class="bkshelf-wrap"></div></div>
+      <div id="bkview" hidden><div class="bkbar"><div class="tag" id="bk_i"></div><div class="bknav"><button id="bk_pv" title="이전 책장">◀</button><b id="bk_pn">1 / 1</b><button id="bk_nx" title="다음 책장">▶</button></div></div><div id="bk_g" class="bkshelf-wrap"></div></div>
       <div id="mapview">
             <div id="townmap" class="townmap" aria-label="쿼터뷰 마을 지도"></div>
       <div class="descbox" id="mapcurrent"></div>
@@ -1550,7 +1552,7 @@ let BK=null,BKT=0;
 async function bkAll(tb,cols){const out=[];for(let off=0;;off+=1000){const j=await sb(`/rest/v1/${tb}?select=${cols}&order=id.asc&limit=1000&offset=${off}`);out.push(...(j||[]));if(!j||j.length<1000)break}return out}
 async function bkLoad(){
   if(BK&&Date.now()-BKT<300000)return BK;
-  const [books,series,logs]=await Promise.all([bkAll('bkbk_books','id,series,volume,label,color1,color2,color3,height,thickness,page'),bkAll('bkbk_series','id,name'),bkAll('bkbk_logs','id,date,book,onpage,offpage,onpct,offpct')]);
+  const [books,series,logs]=await Promise.all([bkAll('bkbk_books','id,series,volume,label,genre,color1,color2,color3,height,thickness,page'),bkAll('bkbk_series','id,name'),bkAll('bkbk_logs','id,date,book,onpage,offpage,onpct,offpct')]);
   const SM=new Map(series.map(x=>[String(x.id),x])),SN=new Map(series.map(x=>[x.name,x])),LM=new Map();logs.forEach(l=>{const k=String(l.book);(LM.get(k)||LM.set(k,[]).get(k)).push(l)});
   const out=[];books.forEach(b=>{const r=bkDone(LM.get(String(b.id))||[],bkP(b.page));if(!r.done)return;const sr=SM.get(String(b.series))||SN.get(String(b.series));out.push({...b,sr,name:bkTitle(sr,b),fd:r.date})});
   out.sort((a,b)=>bkCmp(a.fd,b.fd));BK=out;BKT=Date.now();return out}
@@ -1561,12 +1563,34 @@ function bkSpine(b,i){
   const pl=`<span class="bks-pl" style="background:${esc(c2)};color:${bkInk(c2)}"><b>${esc(t)}</b></span>`;
   if(!v){const d=Math.min(8,Math.max(5,w-12));return`<div ${a}><i class="bks-dm" style="width:${d}px;height:${d}px;background:${esc(c3)}"></i><div class="bks-bd sg">${pl}</div></div>`}
   return`<div ${a}><div class="bks-bd">${pl}<em class="bks-vq" style="background:${esc(c3)};color:${bkInk(c3)};font-size:${Math.min(9,Math.max(7,w-13))}px"><span>${esc(v)}</span></em></div></div>`}
+let BKPG=0,BKP=[];
+// 장르별로 칸(섹션)을 나눠서 꽂기: 한 칸 = 세로 칸막이 하나, 선반 2단. 장르가 많으면 여러 칸을 차지해요
+function bkPlan(L,SW){
+  const G=new Map();L.forEach((b,i)=>{const g=String(b.genre||'').trim()||'기타';(G.get(g)||G.set(g,[]).get(g)).push(i)});
+  const gs=[...G.entries()].sort((a,b)=>(a[0]==='기타')-(b[0]==='기타')||b[1].length-a[1].length);
+  const cmps=[];
+  gs.forEach(([g,ix])=>{let c=null,r=0,w=0,n=0;
+    const fresh=()=>{n++;c={g,n,rows:[[],[]]};cmps.push(c);r=0;w=0};fresh();
+    ix.forEach(i=>{const bw=BK_TW[bkTl(L[i].thickness)];
+      if(w+bw>SW){if(r===0){r=1;w=0}else{fresh()}}
+      c.rows[r].push(i);w+=bw})});
+  return cmps}
+function bkPages(cmps,per){const out=[];for(let i=0;i<cmps.length;i+=per)out.push(cmps.slice(i,i+per));return out}
+function bkRender(){
+  const g=$('#bk_g'),P=BKP[BKPG]||[],per=6;let h='';
+  for(let c=0;c<2;c++){const part=P.slice(c*3,c*3+3);if(!part.length&&c)break;
+    h+=`<div class="bk-case">${part.map(m=>`<div class="bk-cmp"><div class="bk-lab" title="${esc(m.g)}">${esc(m.g)}${m.n>1?' '+m.n:''}</div>${m.rows.map(r=>`<div class="bk-row">${r.map(i=>bkSpine(BK[i],i)).join('')}</div>`).join('')}</div>`).join('')}${Array.from({length:3-part.length},()=>'<div class="bk-cmp empty"><div class="bk-lab"></div><div class="bk-row"></div><div class="bk-row"></div></div>').join('')}</div>`}
+  g.innerHTML=`<div class="bk-pg">${h}</div>`;$('#bk_pn').textContent=(BKPG+1)+' / '+BKP.length}
+function bkGo(d){if(BKP.length<2)return;BKPG=(BKPG+d+BKP.length)%BKP.length;bkRender()}
+$('#bk_pv').onclick=()=>bkGo(-1);$('#bk_nx').onclick=()=>bkGo(1);
+document.addEventListener('keydown',e=>{if(viewBk&&!$('#scene').open&&(e.key==='ArrowLeft'||e.key==='ArrowRight'))bkGo(e.key==='ArrowLeft'?-1:1)});
 async function openShelf(){
-  const g=$('#bk_g');viewBk=true;renderWorld();g.innerHTML='<div class="tag">책장을 불러오는 중…</div>';$('#bk_i').textContent='';
+  const g=$('#bk_g');viewBk=true;renderWorld();g.innerHTML='<div class="tag">책장을 불러오는 중…</div>';$('#bk_i').textContent='';$('#bk_pn').textContent='';
   let L;try{L=await bkLoad()}catch(e){g.innerHTML=`<div class="tag">책장을 불러오지 못했어요. ${esc(String(e.message||e).slice(0,120))}</div>`;return}
   if(!L.length){g.innerHTML='<div class="tag">완독한 책이 아직 없어요. (bkbk에서 100%까지 읽은 기록이 있는 책만 꽂혀요. ⚙ 설정·로그인에서 로그인했는지도 확인해 주세요)</div>';return}
-  $('#bk_i').textContent=`완독한 책 ${L.length}권 · 책을 누르면 발췌문이 하나 나와요 · 한 번 읽을 때마다 ⏱ ${READ_MIN}분`;
-  g.innerHTML=`<div class="bks-shelf">${L.map((b,i)=>`<div class="bks-slot">${bkSpine(b,i)}</div>`).join('')}</div>`;
+  $('#bk_i').textContent=`완독한 책 ${L.length}권 · 누르면 발췌문 · 읽으면 ⏱ ${READ_MIN}분`;
+  const W=Math.max(520,g.clientWidth||690),caseW=(W-14)/2-10,SW=Math.max(70,Math.floor((caseW-10-18)/3));
+  BKP=bkPages(bkPlan(L,SW),6);BKPG=0;bkRender();
 }
 $('#bk_g').onclick=async e=>{const el=e.target.closest('.bks-sp');if(!el||!BK)return;const b=BK[+el.dataset.i];
   try{const t=await sb('/rest/v1/bkbk_texts?book=eq.'+b.id+'&select=text,page,pct&limit=1000'),L=(t||[]).filter(x=>x.text&&x.text.trim());
@@ -1605,20 +1629,18 @@ function bgmInit(){
     BGM.yt=new YT.Player('bgmyt',{width:'200',height:'200',playerVars:v,events:{onReady:()=>{BGM.ready=true;bgmApplyVol();bgmUpdate(true)},onStateChange:e=>{if(e.data===0)bgmNext();mpIcon(e.data)},onError:()=>bgmNext()}})};
   const t=document.createElement('script');t.src='https://www.youtube.com/iframe_api';document.head.append(t)}
 function bgmPlay(){if(!BGM.ready||!BGM.tracks.length)return;try{BGM.yt.setVolume(BGM_VOL[BGM.lv]);const t=BGM.tracks[BGM.i%BGM.tracks.length];BGM.yt[BGM.paused?'cueVideoById':'loadVideoById'](t.v);if(BGM.lv===0)BGM.yt.pauseVideo();mpShow(t)}catch(e){}}
-function bgmNext(){if(!BGM.tracks.length)return;BGM.i=(BGM.i+1)%BGM.tracks.length;bgmPlay()}
+function bgmNext(){const n=BGM.tracks.length;if(!n)return;BGM.i=n>1?(BGM.i+1+Math.floor(Math.random()*(n-1)))%n:0;bgmPlay()}
 async function bgmUpdate(force){if(!BGM||!BGM.started)return;
   if(!BGM.started||!BGM.ready)return;const r=bgmPick(),pid=r?String(r.playlist_id):null;
   if(pid===BGM.pl&&!force)return;BGM.pl=pid;
   if(!pid){BGM.tracks=[];try{BGM.yt.pauseVideo()}catch(e){}$('#mp').hidden=true;return}
-  try{const ids=await bgmTracks(pid);if(BGM.pl!==pid)return;BGM.tracks=ids.slice();for(let k=BGM.tracks.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[BGM.tracks[k],BGM.tracks[j]]=[BGM.tracks[j],BGM.tracks[k]]}BGM.i=0;bgmPlay()}catch(e){BGM.pl=null}}
+  try{const ids=await bgmTracks(pid);if(BGM.pl!==pid)return;BGM.tracks=ids.slice();BGM.i=Math.floor(Math.random()*BGM.tracks.length);bgmPlay()}catch(e){BGM.pl=null}}
 function mpShow(t){$('#mp').hidden=false;const x=(t.t||'–')+(t.a?' — '+t.a:''),sp=$('#mp_t'),mq=$('#mp_mq');sp.textContent=x;mq.classList.remove('scroll');
   requestAnimationFrame(()=>{const sw=sp.offsetWidth,cw=mq.clientWidth;if(sw>cw){mq.style.setProperty('--from',cw+'px');mq.style.setProperty('--to',-sw+'px');mq.style.setProperty('--dur',Math.max(8,(sw+cw)/38)+'s');mq.classList.add('scroll')}})}
 const mpTm=v=>{v=Math.max(0,Math.floor(v||0));return String(Math.floor(v/60)).padStart(2,'0')+':'+String(v%60).padStart(2,'0')};
 $('#mp_seek').onclick=e=>{if(!BGM.ready)return;try{const r=e.currentTarget.getBoundingClientRect(),d=BGM.yt.getDuration();if(d)BGM.yt.seekTo(d*Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)),true)}catch(x){}};
-function mpIcon(st){const on=st===1||st===3,b=$('#mp_pl');b.textContent=on?'❚❚':'▶';b.classList.toggle('on',on)}
-$('#mp_pl').onclick=()=>{if(!BGM.ready)return;try{const st=BGM.yt.getPlayerState();if(st===1||st===3){BGM.paused=true;BGM.yt.pauseVideo()}else{BGM.paused=false;if(BGM.lv===0){BGM.lv=3;try{localStorage.setItem('bgmlv',3)}catch(e){}bgmLabel();BGM.yt.setVolume(BGM_VOL[3])}BGM.yt.playVideo()}}catch(e){}};
-$('#mp_n').onclick=()=>{if(!BGM.tracks.length)return;BGM.paused=false;bgmNext()};
-$('#mp_p').onclick=()=>{if(!BGM.tracks.length)return;BGM.paused=false;BGM.i=(BGM.i-1+BGM.tracks.length)%BGM.tracks.length;bgmPlay()};
+function mpIcon(st){$('#mp').classList.toggle('paused',!(st===1||st===3))}
+$('#mp').onclick=e=>{if(e.target.closest('#mp_seek'))return;if(!BGM.ready)return;try{const st=BGM.yt.getPlayerState();if(st===1||st===3){BGM.paused=true;BGM.yt.pauseVideo()}else{BGM.paused=false;if(BGM.lv===0){BGM.lv=3;try{localStorage.setItem('bgmlv',3)}catch(x){}bgmLabel();BGM.yt.setVolume(BGM_VOL[3])}BGM.yt.playVideo()}}catch(x){}};
 setInterval(()=>{if(!BGM.ready)return;try{const d=BGM.yt.getDuration(),c=BGM.yt.getCurrentTime();$('#mp_bar').style.width=d?Math.min(100,c/d*100)+'%':'0';$('#mp_time').textContent=mpTm(c)}catch(e){}},500);
 function bgmStart(){BGM.started=true;bgmInit();bgmUpdate(true)}
 // 시작 화면: 한 번 눌러야 브라우저가 소리를 허용해요
