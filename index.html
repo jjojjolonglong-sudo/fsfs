@@ -75,6 +75,8 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .acts{display:grid;gap:6px;margin:10px 0}.acts:empty{margin:0}
 button.act{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;border-radius:12px;padding:8px 12px;width:100%}
 button.act small{color:var(--mute);font-size:11px;line-height:1.35}button.act.off{opacity:.5}
+#maptint{position:absolute;inset:0;z-index:2;pointer-events:none;mix-blend-mode:multiply;transition:background 1.2s ease}
+button.act.nav{background:var(--tint,#f3ece0)}
 #pl_msg{min-height:18px;font-size:12px;color:var(--acc);margin-top:6px}
 .srow{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--line)}
 .ebar{height:8px;border-radius:99px;background:var(--chk);overflow:hidden;margin:4px 0 2px}.ebar i{display:block;height:100%;background:var(--acc)}
@@ -107,7 +109,7 @@ button.act small{color:var(--mute);font-size:11px;line-height:1.35}button.act.of
 
 <dialog id="scene"><img id="sp" hidden alt=""><div class="nm" id="sn"></div><div class="tx" id="st"></div><div class="bar" id="sb" style="justify-content:flex-end"></div></dialog>
 <dialog id="place"><h2 id="pl_t" style="font-size:16px;color:var(--ink);margin-bottom:2px"></h2><div class="tag" id="pl_m"></div><div id="pl_d" style="margin:6px 0 0;line-height:1.5"></div>
-  <div class="acts" id="pl_a"></div><div class="acts" id="pl_n"></div><div id="pl_msg"></div>
+  <div class="acts" id="pl_g"></div><div class="acts" id="pl_a"></div><div class="acts" id="pl_n"></div><div id="pl_msg"></div>
   <div class="bar" style="margin-top:8px;justify-content:flex-end"><button id="pl_x">닫기</button></div></dialog>
 <dialog id="status"><h2 style="font-size:16px;color:var(--ink)">📋 내 상태</h2><div id="st_b"></div><div class="bar" style="margin-top:10px;justify-content:flex-end"><button id="st_x">닫기</button></div></dialog>
 <dialog id="shop"><h2 id="shm"></h2><div id="shl"></div><div class="bar" style="margin-top:10px;justify-content:flex-end"><button id="shc">닫기</button></div></dialog>
@@ -498,26 +500,52 @@ $('#exp').onclick=()=>{
 
 // ================= 월드 (시간 · 장소 · 인물 · 이벤트 · 획득 경로) =================
 // 시간: 하루 8칸(3시간씩). 0=00–03시 … 7=21–24시. 예전 4구간(아침·낮·저녁·밤) 데이터는 ob()/obAt()로 옮겨 써요.
-const NS=8,SLOTN=['한밤','새벽','아침','오전','점심','오후','저녁','밤'],SLOTS=SLOTN.map((n,i)=>`${String(i*3).padStart(2,'0')}–${String(i*3+3).padStart(2,'0')}시 ${n}`);
+const DAY=1440,NS=8,SLOTLEN=180;   // NS·SLOTLEN: 예전 8칸(3시간) 데이터를 읽을 때만 써요
+const pad2=n=>String(n).padStart(2,'0'),fmtT=m=>{m=((Math.round(m)%DAY)+DAY)%DAY;return pad2(Math.floor(m/60))+':'+pad2(m%60)};
+const toMin=v=>{const m=/^(\d{1,2}):(\d{2})$/.exec(v||'');return m?(+m[1]*60+ +m[2]):null};
+const inR=(list,m)=>!list||!list.length||list.some(([a,b])=>a===b?true:a<b?(m>=a&&m<b):(m>=a||m<b));   // [시작분,끝분) · 끝이 시작보다 작으면 자정을 넘겨요
+const fmtB=b=>b===0?'24:00':fmtT(b),rngText=l=>(l&&l.length?l.map(([a,b])=>fmtT(a)+'–'+fmtB(b)).join(', '):'하루 종일');
+const durText=m=>m<60?m+'분':Math.floor(m/60)+'시간'+(m%60?' '+(m%60)+'분':'');
+const slotRanges=sl=>{const a=[...new Set(sl||[])].filter(x=>x>=0&&x<NS).sort((x,y)=>x-y);if(!a.length||a.length>=NS)return[];
+  const g=[];a.forEach(x=>{const l=g[g.length-1];l&&l[1]===x-1?l[1]=x:g.push([x,x])});
+  const r=g.map(([x,y])=>[x*SLOTLEN,(y+1)*SLOTLEN%DAY]);
+  if(r.length>1&&r[r.length-1][1]===0&&r[0][0]===0){const f=r.shift();r[r.length-1][1]=f[1]}return r};
+const schedFromSlots=o=>{const out=[];Object.keys(o||{}).map(Number).filter(x=>x>=0&&x<NS&&o[x]).sort((x,y)=>x-y).forEach(i=>{const l=out[out.length-1],a=i*SLOTLEN,b=a+SLOTLEN;if(l&&l.p===o[i]&&l.b===a)l.b=b;else out.push({a,b,p:o[i]})});
+  const f=out[0],l=out[out.length-1];if(out.length>1&&f.a===0&&l.b===DAY&&f.p===l.p){l.b=f.b;out.shift()}out.forEach(x=>{if(x.b>=DAY)x.b%=DAY});return out};
+const BANDS=[[300,420,'이른아침'],[420,780,'오전'],[780,1020,'오후'],[1020,1140,'저녁'],[1140,300,'깊은 밤']];
+const bandOf=m=>(BANDS.find(([a,b])=>a<b?(m>=a&&m<b):(m>=a||m<b))||BANDS[4])[2];
+// 시간대별 배경 색 덧씌우기 (시각, [r,g,b,투명도]) — 사이는 부드럽게 이어져요
+const TINT=[[0,[18,28,78,.56]],[240,[18,28,78,.52]],[300,[255,196,186,.30]],[360,[255,222,205,.18]],[420,[255,255,255,0]],[780,[255,240,200,.08]],[960,[255,232,170,.18]],[1020,[255,160,96,.32]],[1110,[255,132,92,.34]],[1170,[62,54,130,.45]],[1260,[22,32,86,.54]],[1440,[18,28,78,.56]]];
+function tintAt(m){const j=TINT.findIndex(k=>k[0]>m),lo=TINT[Math.max(1,j)-1],hi=TINT[Math.max(1,j)],t=(m-lo[0])/(hi[0]-lo[0]),c=lo[1].map((v,i)=>v+(hi[1][i]-v)*t);return `rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${c[3].toFixed(3)})`}
+function applyTint(){const t=$('#maptint');if(t&&G)t.style.background=tintAt(G.min)}
+const rgRow=([a,b])=>`<div class="row rgr"><input type="time" step="300" value="${fmtT(a)}"> ~ <input type="time" step="300" value="${fmtT(b)}"><button type="button" class="rgx">✕</button></div>`;
+const rgHtml=(id,list)=>`<div class="rg" id="${id}">${(list||[]).map(rgRow).join('')}<button type="button" class="rga">+ 시간 구간 추가</button></div><div class="tag">예: 09:00 ~ 18:00. 밤을 넘기면 22:00 ~ 02:00처럼 적어요. 비워 두면 하루 종일이에요</div>`;
+const rgRead=id=>[...document.querySelectorAll('#'+id+' .rgr')].map(r=>{const i=r.querySelectorAll('input');return[toMin(i[0].value),toMin(i[1].value)]}).filter(([a,b])=>a!=null&&b!=null&&a!==b);
+const plOpts=()=>Object.entries(WORLD.places).map(([k,p])=>({k,n:(p.parent?'↳ ':'')+(p.i||'')+' '+p.n}));
+const schRow=x=>`<div class="row rgr schr"><input type="time" step="300" value="${fmtT(x.a)}"> ~ <input type="time" step="300" value="${fmtT(x.b)}"><select>${opts(plOpts(),'k','n',x.p,'장소 고르기')}</select><button type="button" class="rgx">✕</button></div>`;
+const schRead=()=>[...document.querySelectorAll('#n_sch .schr')].map(r=>{const i=r.querySelectorAll('input'),sl=r.querySelector('select');return{a:toMin(i[0].value),b:toMin(i[1].value),p:sl.value}}).filter(x=>x.a!=null&&x.b!=null&&x.a!==x.b&&x.p);
+document.addEventListener('click',e=>{const x=e.target.closest('.rgx');if(x){x.closest('.rgr').remove();return}
+  const a=e.target.closest('.rga');if(a){a.insertAdjacentHTML('beforebegin',rgRow([540,1080]));return}
+  const g=e.target.closest('.sga');if(g)g.insertAdjacentHTML('beforebegin',schRow({a:540,b:1080,p:''}))});
 const OLD2NEW=[[2,3],[4,5],[6,7],[0,1]],ob=a=>[...new Set(a.flatMap(b=>OLD2NEW[b]))].sort((x,y)=>x-y),obAt=o=>{const r={};Object.entries(o).forEach(([b,v])=>OLD2NEW[b].forEach(x=>r[x]=v));return r};
 // 이 WORLD 데이터는 나중에 Supabase 테이블(장소/인물/이벤트/경로)로 옮길 수 있는 모양이에요.
-const WORLD={moveSlots:1,sleepRegen:34,
+const WORLD={moveMin:15,innerMin:5,talkMin:30,skipMin:60,wakeMin:360,sleepRegen:12,   // 이동 15분 · 건물 안 이동 5분 · 대화 30분 · 수면 회복은 한 시간에 12
   start:{y:2027,m:3,d:1,money:30000,place:'home',allowance:3000},   // 게임 시작일, 시작 금액, 하루 용돈
   birthday:'03-08',                                                  // 내 캐릭터 생일 (월-일)
   places:{
     home:{n:'우리 집',i:'🏠',icon:'🏡',kind:'home',type:'home',pos:[18,24],roof:'#d98b78',wall:'#fff0d8',desc:'익숙하고 편안한 우리 집. 푹 쉬거나 다음 날을 시작할 수 있어요.'},
-    shop:{n:'보세 옷가게',i:'🛍',icon:'👗',kind:'clothes',type:'clothes',pos:[48,17],roof:'#e99a88',wall:'#fff0df',shop:true,open:ob([1,2]),desc:'마음에 드는 옷을 골라볼 수 있는 작은 보세 가게.'},
-    shoes:{n:'신발가게',i:'👟',icon:'👟',kind:'shoes',type:'clothes',pos:[79,19],roof:'#d9a76d',wall:'#fff0d8',shop:true,open:ob([1,2]),desc:'운동화부터 로퍼까지, 동네 신발가게.'},
+    shop:{n:'보세 옷가게',i:'🛍',icon:'👗',kind:'clothes',type:'clothes',pos:[48,17],roof:'#e99a88',wall:'#fff0df',shop:true,open:[[600,1200]],desc:'마음에 드는 옷을 골라볼 수 있는 작은 보세 가게.'},
+    shoes:{n:'신발가게',i:'👟',icon:'👟',kind:'shoes',type:'clothes',pos:[79,19],roof:'#d9a76d',wall:'#fff0d8',shop:true,open:[[600,1200]],desc:'운동화부터 로퍼까지, 동네 신발가게.'},
     cafe:{n:'카페 모카',i:'☕',icon:'☕',kind:'cafe',type:'cafe',pos:[77,43],roof:'#b77d69',wall:'#f8e4c8',desc:'커피와 달콤한 디저트가 있는 아늑한 카페.'},
-    restaurant:{n:'오늘의 식당',i:'🍝',icon:'🍝',kind:'restaurant',type:'restaurant',pos:[81,70],roof:'#e1a85f',wall:'#fff0d8',shop:true,open:ob([0,1,2]),desc:'따뜻한 식사 한 끼를 먹을 수 있는 동네 식당.'},
-    salon:{n:'살롱 라일락',i:'💇',icon:'💇🏻‍♀️',kind:'salon',type:'salon',pos:[53,82],roof:'#b6a1cf',wall:'#f4e8f5',shop:true,open:ob([1,2]),desc:'머리를 다듬고 기분 전환을 하는 미용실.'},
-    flower:{n:'꽃집',i:'💐',icon:'💐',kind:'flower',type:'store',pos:[25,80],roof:'#d98fb0',wall:'#fff0e8',shop:true,open:ob([0,1,2]),desc:'계절 꽃과 작은 꽃다발이 가득한 꽃집.'},
-    convenience:{n:'동네 편의점',i:'🏪',icon:'🏪',kind:'store',type:'store',pos:[13,59],roof:'#8ebc9b',wall:'#eff4d9',shop:true,open:ob([0,1,2,3]),desc:'간식과 음료를 살 수 있는 24시간 편의점.'},
-    bookstore:{n:'작은 서점',i:'📚',icon:'📚',kind:'bookstore',type:'store',pos:[38,57],roof:'#8eaec8',wall:'#eaf0e5',shop:true,open:ob([1,2]),desc:'책장을 천천히 둘러보기 좋은 작은 동네 서점.'},
-    bakery:{n:'동네 빵집',i:'🥐',icon:'🥐',kind:'bakery',type:'store',pos:[57,32],roof:'#d8b46f',wall:'#fff1d7',shop:true,open:ob([0,1,2]),desc:'갓 구운 빵 냄새가 골목까지 퍼지는 빵집.'},
+    restaurant:{n:'오늘의 식당',i:'🍝',icon:'🍝',kind:'restaurant',type:'restaurant',pos:[81,70],roof:'#e1a85f',wall:'#fff0d8',shop:true,open:[[420,1320]],desc:'따뜻한 식사 한 끼를 먹을 수 있는 동네 식당.'},
+    salon:{n:'살롱 라일락',i:'💇',icon:'💇🏻‍♀️',kind:'salon',type:'salon',pos:[53,82],roof:'#b6a1cf',wall:'#f4e8f5',shop:true,open:[[600,1200]],desc:'머리를 다듬고 기분 전환을 하는 미용실.'},
+    flower:{n:'꽃집',i:'💐',icon:'💐',kind:'flower',type:'store',pos:[25,80],roof:'#d98fb0',wall:'#fff0e8',shop:true,open:[[420,1320]],desc:'계절 꽃과 작은 꽃다발이 가득한 꽃집.'},
+    convenience:{n:'동네 편의점',i:'🏪',icon:'🏪',kind:'store',type:'store',pos:[13,59],roof:'#8ebc9b',wall:'#eff4d9',shop:true,open:[],desc:'간식과 음료를 살 수 있는 24시간 편의점.'},
+    bookstore:{n:'작은 서점',i:'📚',icon:'📚',kind:'bookstore',type:'store',pos:[38,57],roof:'#8eaec8',wall:'#eaf0e5',shop:true,open:[[600,1200]],desc:'책장을 천천히 둘러보기 좋은 작은 동네 서점.'},
+    bakery:{n:'동네 빵집',i:'🥐',icon:'🥐',kind:'bakery',type:'store',pos:[57,32],roof:'#d8b46f',wall:'#fff1d7',shop:true,open:[[420,1320]],desc:'갓 구운 빵 냄새가 골목까지 퍼지는 빵집.'},
     park:{n:'작은 공원',i:'🌳',icon:'🌳',kind:'park',type:'park',pos:[25,39],roof:'#93bd7a',wall:'#e8f0d6',desc:'나무와 벤치가 있는 작은 공원. 잠깐 산책하기 좋아요.'}
   },   // open: 영업 시간대(0아침 1낮 2저녁 3밤)
-  npcs:{hayun:{n:'하윤',i:'👧',at:obAt({1:'cafe',2:'cafe'}),lines:['오늘 날씨 진짜 좋다. 이런 날엔 새 옷 사러 가고 싶지 않아?','여기 딸기라떼 맛있어. 다음엔 같이 마시자.','요즘 보세 가게에 새 옷 들어왔대. 가봤어?','너 오늘 옷 잘 입었다. 어디서 샀어?']}},
+  npcs:{hayun:{n:'하윤',i:'👧',sch:[{a:720,b:1200,p:'cafe'}],lines:['오늘 날씨 진짜 좋다. 이런 날엔 새 옷 사러 가고 싶지 않아?','여기 딸기라떼 맛있어. 다음엔 같이 마시자.','요즘 보세 가게에 새 옷 들어왔대. 가봤어?','너 오늘 옷 잘 입었다. 어디서 샀어?']}},
   sources:[   // 획득 경로: ref = "파츠코드:의상이름"
     ...['hair_back:뒷머리-중단발','hair_front:앞머리-기본','top:기본흰셔츠','top:하얀반팔티','bottom:베이지슬랙스','bottom:연청크롭데님','shoes:신발-회색로퍼','socks:흰색보통양말'].map(ref=>({ref,type:'starter'})),
     ...[['top:민트반팔티',9000],['top:파랑후드',15000],['bottom:데님일자크롭',14000],['bottom:검정카고바지',16000],['shoes:신발-분홍컨버스화',18000],['socks:분홍땡땡이반종아리양말',3000]].map(([ref,price])=>({ref,type:'shop',place:'shop',price})),
@@ -529,15 +557,15 @@ const WORLD={moveSlots:1,sleepRegen:34,
 };
 const DOW='일월화수목금토',rid=r=>BY[r]?r:'b:'+r;
 const ACT0=[
-  {code:'sleep',name:'잠자기',icon:'😴',kind:'sleep',descr:'아침 6시까지 푹 자요. 에너지가 채워져요.',time_cost:0,energy:0,money:0},
-  {code:'closet',name:'옷장 열기',icon:'👗',kind:'closet',descr:'옷을 갈아입어요.',time_cost:0,energy:0,money:0},
-  {code:'status',name:'내 상태 보기',icon:'📋',kind:'status',descr:'돈·에너지·호감도를 확인해요.',time_cost:0,energy:0,money:0},
-  {code:'look',name:'둘러보기',icon:'👀',kind:'look',descr:'',time_cost:0,energy:0,money:0},
-  {code:'shop',name:'물건 보기',icon:'🛍',kind:'shop',descr:'파는 물건을 살펴봐요.',time_cost:0,energy:0,money:0},
-  {code:'walk',name:'산책하기',icon:'🚶',kind:'normal',descr:'천천히 걸으며 기분을 풀어요.',time_cost:1,energy:-5,money:0,scene:[{t:'나무 사이로 바람이 지나간다. 머릿속이 조금 맑아진 것 같다.'}]},
-  {code:'drink',name:'음료 마시기',icon:'☕',kind:'normal',descr:'달콤한 음료로 한숨 돌려요.',time_cost:1,energy:10,money:-4500,scene:[{t:'따뜻한 음료를 천천히 마셨다. 기운이 조금 돌아온다.'}]},
-  {code:'meal',name:'식사하기',icon:'🍝',kind:'normal',descr:'든든하게 한 끼를 먹어요.',time_cost:1,energy:25,money:-9000,scene:[{t:'따끈한 밥을 먹고 나니 몸이 한결 가볍다.'}]},
-  {code:'hair',name:'머리 손질',icon:'💇',kind:'normal',descr:'머리를 다듬고 기분 전환을 해요.',time_cost:1,energy:0,money:-25000,scene:[{t:'거울 속 머리 모양이 산뜻해졌다. 기분도 덩달아 가벼워진다.'}]}
+  {code:'sleep',name:'잠자기',icon:'😴',kind:'sleep',descr:'아침 6시까지 푹 자요(낮에는 8시간). 에너지가 채워져요.',mins:0,energy:0,money:0},
+  {code:'closet',name:'옷장 열기',icon:'👗',kind:'closet',descr:'옷을 갈아입어요.',mins:0,energy:0,money:0},
+  {code:'status',name:'내 상태 보기',icon:'📋',kind:'status',descr:'돈·에너지·호감도를 확인해요.',mins:0,energy:0,money:0},
+  {code:'look',name:'둘러보기',icon:'👀',kind:'look',descr:'',mins:0,energy:0,money:0},
+  {code:'shop',name:'물건 보기',icon:'🛍',kind:'shop',descr:'파는 물건을 살펴봐요.',mins:0,energy:0,money:0},
+  {code:'walk',name:'산책하기',icon:'🚶',kind:'normal',descr:'천천히 걸으며 기분을 풀어요.',mins:30,energy:-5,money:0,scene:[{t:'나무 사이로 바람이 지나간다. 머릿속이 조금 맑아진 것 같다.'}]},
+  {code:'drink',name:'음료 마시기',icon:'☕',kind:'normal',descr:'달콤한 음료로 한숨 돌려요.',mins:60,energy:10,money:-4500,scene:[{t:'따뜻한 음료를 천천히 마셨다. 기운이 조금 돌아온다.'}]},
+  {code:'meal',name:'식사하기',icon:'🍝',kind:'normal',descr:'든든하게 한 끼를 먹어요.',mins:60,energy:25,money:-9000,scene:[{t:'따끈한 밥을 먹고 나니 몸이 한결 가볍다.'}]},
+  {code:'hair',name:'머리 손질',icon:'💇',kind:'normal',descr:'머리를 다듬고 기분 전환을 해요.',mins:90,energy:0,money:-25000,scene:[{t:'거울 속 머리 모양이 산뜻해졌다. 기분도 덩달아 가벼워진다.'}]}
 ];
 const TYPES0={home:{name:'집',icon:'🏠',actions:['sleep','closet','status']},clothes:{name:'옷가게',icon:'👗',actions:['shop','look']},store:{name:'가게',icon:'🏪',actions:['look']},cafe:{name:'카페',icon:'☕',actions:['drink','look']},restaurant:{name:'식당',icon:'🍝',actions:['meal','look']},salon:{name:'미용실',icon:'💇',actions:['hair','look']},park:{name:'공원',icon:'🌳',actions:['walk','look']},basic:{name:'일반',icon:'📍',actions:['look']}};
 WORLD.actions={};ACT0.forEach(a=>WORLD.actions[a.code]=a);WORLD.types=structuredClone(TYPES0);WORLD.placeActs={};
@@ -549,21 +577,24 @@ function rebuildAcq(){   // 획득 경로: 코드에 적은 경로 + 이벤트 �
 }
 rebuildAcq();
 let G=null;
-function newGame(){const w=WORLD.start;G={v:2,day:0,slot:2,place:w.place,money:w.money,energy:100,owned:{},aff:{},done:{},doneDay:{},actDay:{},talked:{},closet:false,cheat:G?G.cheat:false,log:'새 게임을 시작했어요'};
+function newGame(){const w=WORLD.start;G={v:3,day:0,min:WORLD.wakeMin,place:w.place,money:w.money,energy:100,owned:{},aff:{},done:{},doneDay:{},actDay:{},talked:{},closet:false,cheat:G?G.cheat:false,log:'새 게임을 시작했어요'};
   WORLD.sources.filter(s=>s.type==='starter').forEach(s=>G.owned[rid(s.ref)]=1)}
 function loadGame(){try{G=JSON.parse(localStorage.getItem('fsfsGame')||'null')}catch(e){G=null}if(!G)newGame();
-  if(G.v!==2){G.slot=[2,4,6,7][G.slot]??2;G.v=2}   // 예전 저장(4구간)을 8칸으로 옮겨요
+  if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}   // 예전 저장(구간)을 시각으로 옮겨요
+  if(typeof G.min!=='number')G.min=WORLD.wakeMin;
   if(G.energy==null)G.energy=100;G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.closet=!!G.closet}
 const saveGame=()=>{try{localStorage.setItem('fsfsGame',JSON.stringify(G))}catch(e){}};
 const owned=it=>!ACQ[it.id]||G.cheat||!!G.owned[it.id];
 const routeText=s=>s.type==='starter'?'기본 제공':s.type==='shop'?`${WORLD.places[s.place].n} · ₩${s.price.toLocaleString()}`:s.type==='gift'?'특별한 날, 누군가에게 선물로 받을 수 있어요':s.type;
 const hint=it=>msg('🔒 '+(ACQ[it.id]||[]).map(routeText).join(' / '));
 const dateOf=()=>new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+G.day);
-const npcAt=id=>{const n=WORLD.npcs[id];return !!n&&n.at[G.slot]===G.place},here=()=>Object.keys(WORLD.npcs).filter(npcAt);
+const npcAt=id=>{const n=WORLD.npcs[id];return !!n&&(n.sch||[]).some(x=>x.p===G.place&&inR([[x.a,x.b]],G.min))},here=()=>Object.keys(WORLD.npcs).filter(npcAt);
 const clampE=v=>Math.max(0,Math.min(100,v));
 function newDay(){const a=WORLD.start.allowance||0;if(a){G.money+=a;G.log=`새 하루가 시작됐어요. 용돈 +₩${a.toLocaleString()}`}}
-function pass(n){for(let i=0;i<n;i++){G.slot++;if(G.slot>=NS){G.slot=0;G.day++;newDay()}}}   // 자정을 넘기면 다음 날
-const advance=()=>pass(WORLD.moveSlots||1);
+function pass(mins){G.min+=Math.max(0,Math.round(mins||0));while(G.min>=DAY){G.min-=DAY;G.day++;newDay()}}   // 자정을 넘기면 다음 날
+const advance=mins=>pass(mins==null?WORLD.moveMin:mins);
+function travelMin(a,b){const A=WORLD.places[a]||{},B=WORLD.places[b]||{},ta=A.parent||a,tb=B.parent||b;return (A.parent?(A.inner||WORLD.innerMin):0)+(ta!==tb?WORLD.moveMin:0)+(B.parent?(B.inner||WORLD.innerMin):0)}
+const topOf=pid=>(WORLD.places[pid]||{}).parent||pid;
 const fmt=t=>String(t||'').replace(/\{player\}/g,WORLD.playerName||'레오');
 const hash=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return Math.abs(h)};
 const mdOf=d=>String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -572,12 +603,12 @@ function inRange(a,b){const c=mdOf(dateOf());return a<=b?(c>=a&&c<=b):(c>=a||c<=
 function evOk(e){
   if(e.repeat==='daily'?G.doneDay[e.id]===G.day:G.done[e.id])return false;
   if((e.place&&e.place!==G.place)||(e.npc&&!npcAt(e.npc)))return false;
-  if(e.slots&&e.slots.length&&!e.slots.includes(G.slot))return false;
+  if(e.ranges&&e.ranges.length&&!inR(e.ranges,G.min))return false;
   if(e.from&&!inRange(e.from,e.to||e.from))return false;
   const bd=e.bday||(e.birthday?'player':null);
   if(bd&&!inBday(bd==='player'?WORLD.birthday:(WORLD.npcs[bd]||{}).birthday))return false;
   if(e.aff&&Object.entries(e.aff).some(([k,v])=>(G.aff[k]||0)<v))return false;
-  if(e.chance!=null&&e.chance<100&&hash(e.id+':'+G.day+':'+G.slot)%100>=e.chance)return false;   // 같은 날·같은 시간대엔 결과가 고정
+  if(e.chance!=null&&e.chance<100&&hash(e.id+':'+G.day+':'+Math.floor(G.min/120))%100>=e.chance)return false;   // 같은 날·같은 시간대엔 결과가 고정
   return true;
 }
 function giveItem(ref){const id=rid(ref),it=BY[id];G.owned[id]=1;if(!it)return;msg('🎁 새 옷: '+it.name);
@@ -602,12 +633,12 @@ function checkEvents(){
   }
 }
 function after(){saveGame();renderWorld();refresh();checkEvents()}
-function go(p){if(p===G.place)return;advance();G.place=p;G.closet=false;G.log=`${WORLD.places[p].n}에 도착했어요`;const hs=here();if(hs.length)G.log+=' · 만난 사람: '+hs.map(id=>WORLD.npcs[id].n).join(', ');after()}
-function sleepNow(){const n=((2-G.slot)+NS)%NS||NS,d0=G.day;pass(n);G.energy=clampE(G.energy+n*(WORLD.sleepRegen||34));
+function go(p,reopen){if(p===G.place||!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;G.log=`${WORLD.places[p].n}에 도착했어요 (${mn}분)`;const hs=here();if(hs.length)G.log+=' · 만난 사람: '+hs.map(id=>WORLD.npcs[id].n).join(', ');after();if(reopen&&!$('#scene').open)openPlace(p)}
+function sleepNow(){let n=((WORLD.wakeMin-G.min)+DAY)%DAY||DAY;if(n>720)n=480;const d0=G.day;pass(n);G.energy=clampE(G.energy+Math.round(n/60*(WORLD.sleepRegen||12)));
   const a=WORLD.start.allowance||0;G.log=`푹 잤어요 (에너지 ${G.energy})`+(a&&G.day!==d0?` · 용돈 +₩${a.toLocaleString()}`:'')}
 function talk(id){
   const n=WORLD.npcs[id];if(G.talked[id]===G.day)return msg('오늘은 이미 충분히 이야기했어요');
-  G.talked[id]=G.day;G.aff[id]=(G.aff[id]||0)+1;advance();G.log=`${n.n}와 이야기했어요 (호감도 ${G.aff[id]})`;saveGame();renderWorld();
+  G.talked[id]=G.day;G.aff[id]=(G.aff[id]||0)+1;advance(WORLD.talkMin);G.log=`${n.n}와 이야기했어요 (호감도 ${G.aff[id]})`;saveGame();renderWorld();
   runScene([{who:id,t:n.lines[Math.floor(Math.random()*n.lines.length)]}],after);
 }
 function renderShop(pid){
@@ -625,16 +656,17 @@ function buildTownMap(){
   const map=$('#townmap');if(!map||map.dataset.built)return;map.dataset.built='1';
   // 핫스팟은 지도 일러스트에 그려진 장소 라벨 위치에 맞춰 배치합니다.
   const hitspots=HITSPOTS;
+  if(!$('#maptint')){const t=document.createElement('div');t.id='maptint';map.prepend(t)}
   Object.entries(WORLD.places).forEach(([id,p])=>{
-    const b=document.createElement('button');b.type='button';b.className='map-building';b.dataset.place=id;
+    if(p.parent)return;const b=document.createElement('button');b.type='button';b.className='map-building';b.dataset.place=id;
     const pos=p.db?p.pos:(hitspots[id]||p.pos||[50,50]);b.style.setProperty('--x',pos[0]+'%');b.style.setProperty('--y',pos[1]+'%');
     b.setAttribute('aria-label',p.n+'으로 이동');b.title=p.n+'으로 이동';b.textContent=(p.i?p.i+' ':'')+p.n;b.onclick=()=>go(id);map.append(b);
   });
 }
 // ---- 장소창과 행동: 장소 유형(행동 묶음) + 장소별 추가/제외
 const dateText=()=>{const d=dateOf();return `${d.getMonth()+1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`};
-const openNow=pid=>{const p=WORLD.places[pid];return !(p&&p.open&&!p.open.includes(G.slot))};
-function hoursText(o){const a=[...o].sort((x,y)=>x-y),g=[];a.forEach(x=>{const l=g[g.length-1];l&&l[1]===x-1?l[1]=x:g.push([x,x])});return g.map(([x,y])=>`${x*3}–${(y+1)*3}시`).join(', ')}
+const openNow=pid=>{const p=WORLD.places[pid];if(!p)return true;return inR(p.open,G.min)&&(!p.parent||openNow(p.parent))};
+const timeText=()=>`${fmtT(G.min)} · ${bandOf(G.min)}`;
 const say=(t,e)=>{if($('#place').open){const m=$('#pl_msg');m.textContent=t||'';m.style.color=e?'#c33':''}else msg(t,e)};
 function actionsAt(pid){
   const p=WORLD.places[pid];if(!p)return[];const T=WORLD.types[p.type]||{actions:[]},o=WORLD.placeActs[pid]||{add:[],remove:[]};
@@ -643,10 +675,10 @@ function actionsAt(pid){
   if(!codes.length)codes=['look'];
   return codes.map(c=>WORLD.actions[c]).filter(Boolean);
 }
-const chips=a=>[a.kind==='sleep'?'⏱ 아침까지':a.time_cost?`⏱ ${a.time_cost*3}시간`:'',a.energy?`⚡ ${a.energy>0?'+':''}${a.energy}`:'',a.money?`₩ ${a.money>0?'+':''}${(+a.money).toLocaleString()}`:''].filter(Boolean).join(' · ');
+const chips=a=>[a.kind==='sleep'?'⏱ 아침까지':a.mins?`⏱ ${durText(a.mins)}`:'',a.energy?`⚡ ${a.energy>0?'+':''}${a.energy}`:'',a.money?`₩ ${a.money>0?'+':''}${(+a.money).toLocaleString()}`:''].filter(Boolean).join(' · ');
 function actState(a){
   const c=a.cond||{};
-  if(c.slots&&c.slots.length&&!c.slots.includes(G.slot))return{ok:false,why:'지금은 할 수 없어요 ('+c.slots.map(i=>SLOTN[i]).join('·')+'에만)'};
+  const rg=c.ranges||slotRanges(c.slots||[]);if(rg.length&&!inR(rg,G.min))return{ok:false,why:'지금은 할 수 없어요 ('+rngText(rg)+'에만)'};
   if(c.daily&&G.actDay[a.code]===G.day)return{ok:false,why:'오늘은 이미 했어요'};
   for(const r of (c.aff||[]))if((G.aff[r.npc]||0)<(+r.min||0))return{ok:false,why:`${(WORLD.npcs[r.npc]||{}).n||'그 사람'}과(와) 더 친해져야 해요`};
   if((a.energy||0)<0&&G.energy<-a.energy)return{ok:false,why:`에너지가 부족해요 (필요 ${-a.energy})`};
@@ -663,14 +695,20 @@ function doAction(a){
   G.money+=a.money||0;G.energy=clampE(G.energy+(a.energy||0));
   const ef=a.effects||{};(ef.aff||[]).forEach(r=>G.aff[r.npc]=(G.aff[r.npc]||0)+(+r.v||0));(ef.give||[]).forEach(giveItem);
   if((a.cond||{}).daily)G.actDay[a.code]=G.day;
-  pass(a.time_cost||0);G.log=`${a.icon||''} ${a.name}`+(chips(a)?` (${chips(a)})`:'');saveGame();
+  pass(a.mins||0);G.log=`${a.icon||''} ${a.name}`+(chips(a)?` (${chips(a)})`:'');saveGame();
   const done=()=>{after();if(!openNow(G.place)){$('#place').close();msg('문 닫을 시간이 됐어요')}else if($('#place').open)renderPlaceDlg()};
   a.scene&&a.scene.length?runScene(a.scene,done):done();
 }
 function renderPlaceDlg(){
   const pid=G.place,p=WORLD.places[pid];if(!p)return;
   $('#pl_t').textContent=`${p.i||''} ${p.n}`;$('#pl_d').textContent=p.desc||'';
-  $('#pl_m').textContent=`${dateText()} ${SLOTS[G.slot]}`+(p.open?` · 영업 ${hoursText(p.open)}`:'');
+  $('#pl_m').textContent=`${dateText()} ${timeText()}`+(p.open&&p.open.length?` · 영업 ${rngText(p.open)}`:'')+(p.parent?` · ${(WORLD.places[p.parent]||{}).n||''} 안`:'');
+  const nav=$('#pl_g');nav.innerHTML='';const conn=[];
+  if(p.parent){conn.push(p.parent);Object.keys(WORLD.places).filter(k=>WORLD.places[k].parent===p.parent&&k!==pid).forEach(k=>conn.push(k))}
+  Object.keys(WORLD.places).filter(k=>WORLD.places[k].parent===pid).forEach(k=>conn.push(k));
+  conn.forEach(k=>{const q=WORLD.places[k],mn=travelMin(pid,k),ok=openNow(k),b=document.createElement('button');b.className='act nav'+(ok?'':' off');
+    b.innerHTML=`<b>${k===p.parent?'↩ 나가기 · ':'🚪 '}${esc(q.i||'')} ${esc(q.n)}</b><small>⏱ ${mn}분${ok?'':' · 지금은 닫았어요'}</small>`;
+    b.onclick=()=>{if(!ok)return say('지금은 문을 닫았어요',1);$('#place').close();go(k,true)};nav.append(b)});
   const box=$('#pl_a');box.innerHTML='';
   actionsAt(pid).forEach(a=>{const st=actState(a),b=document.createElement('button'),ch=chips(a);b.className='act'+(st.ok?'':' off');
     b.innerHTML=`<b>${esc(a.icon||'▪')} ${esc(a.name)}</b>${ch||a.descr?`<small>${esc(ch)}${ch&&a.descr?' · ':''}${esc(a.descr||'')}</small>`:''}`;b.onclick=()=>doAction(a);box.append(b)});
@@ -683,7 +721,7 @@ function renderPlaceDlg(){
 function openPlace(pid){if(!openNow(pid))return msg('지금은 문을 닫았어요. 다른 곳을 둘러보세요.');renderPlaceDlg();$('#place').showModal()}
 function renderStatus(){
   const aff=Object.entries(G.aff).filter(([,v])=>v).map(([k,v])=>`<div class="srow"><span>${esc((WORLD.npcs[k]||{}).n||k)}</span><b>♥ ${v}</b></div>`).join('')||'<div class="tag">아직 호감도가 쌓인 사람이 없어요</div>';
-  $('#st_b').innerHTML=`<div class="srow"><span>날짜·시간</span><b>${dateText()} ${SLOTS[G.slot]}</b></div><div class="srow"><span>돈</span><b>₩${G.money.toLocaleString()}</b></div>
+  $('#st_b').innerHTML=`<div class="srow"><span>날짜·시간</span><b>${dateText()} ${timeText()}</b></div><div class="srow"><span>돈</span><b>₩${G.money.toLocaleString()}</b></div>
     <div class="srow" style="border:0"><span>에너지</span><b>${G.energy} / 100</b></div><div class="ebar"><i style="width:${G.energy}%"></i></div>
     <h2 style="margin-top:12px">호감도</h2>${aff}<div class="srow" style="margin-top:8px"><span>모은 옷</span><b>${Object.keys(G.owned).length}벌</b></div>`;
 }
@@ -691,12 +729,12 @@ $('#pl_x').onclick=()=>$('#place').close();$('#st_x').onclick=()=>$('#status').c
 $('#closetx').onclick=()=>{G.closet=false;after()};
 
 function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
-  const d=dateOf();$('#wt').textContent=`${dateText()} ${SLOTS[G.slot]}`;
+  const d=dateOf();$('#wt').textContent=`${dateText()} ${timeText()}`;applyTint();
   buildTownMap();
-  document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===G.place);b.classList.toggle('closed',!!(p.open&&!p.open.includes(G.slot)));});
-  const p=WORLD.places[G.place];$('#mapcurrent').innerHTML=`<span class="current-dot"></span><span>현재 위치: <strong>${p.n}</strong> — ${p.desc||''}</span>`;
+  document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===topOf(G.place));b.classList.toggle('closed',!openNow(id));});
+  const p=WORLD.places[G.place];$('#mapcurrent').innerHTML=`<span class="current-dot"></span><span>현재 위치: <strong>${p.parent&&WORLD.places[p.parent]?WORLD.places[p.parent].n+' › ':''}${p.n}</strong> — ${p.desc||''}</span>`;
   const pl=$('#wp');pl.innerHTML='';
-  for(const [k,p] of Object.entries(WORLD.places)){const b=document.createElement('button');b.textContent=p.i+' '+p.n;if(k===G.place)b.className='on';else b.title='이동하면 시간이 한 칸 지나가요';b.onclick=()=>go(k);pl.append(b)}
+  for(const [k,p] of Object.entries(WORLD.places)){if(p.parent)continue;const b=document.createElement('button');b.textContent=p.i+' '+p.n;if(k===G.place)b.className='on';else b.title='이동하면 15분이 지나가요';b.onclick=()=>go(k);pl.append(b)}
   const ac=$('#wa');ac.innerHTML='';const add=(t,fn)=>{const b=document.createElement('button');b.textContent=t;b.onclick=fn;ac.append(b)};
   add(openNow(G.place)?'🚪 들어가기 · 행동 고르기':'🔒 영업 종료',()=>openPlace(G.place));
   here().forEach(id=>{const n=WORLD.npcs[id],b=document.createElement('button');b.className='enc';
@@ -704,7 +742,7 @@ function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const co=G.place==='home'&&G.closet;$('#closet').hidden=!co;$('#cbar').hidden=!co;
   $('#wl').textContent=G.log||'';$('#wcheat').textContent=G.cheat?'🔓 전체 해금 중':'🔒 전체 해금(테스트)';
 }
-$('#wskip').onclick=()=>{advance();G.log='시간이 흘렀어요';after()};
+$('#wskip').onclick=()=>{pass(WORLD.skipMin);G.log='시간이 흘렀어요 (1시간)';after()};
 $('#wcheat').onclick=()=>{G.cheat=!G.cheat;after()};
 $('#wnew').onclick=()=>{if(!confirm('새 게임을 시작할까요? (보유 의상과 진행 상황이 초기화돼요)'))return;newGame();initSel();hidden.clear();after()};
 $('#shc').onclick=()=>{$('#shop').close();refresh()};
@@ -720,16 +758,16 @@ const PLACES0=WORLD.places,NPCS0=WORLD.npcs;  // DB가 비어 있을 때 쓰는 
 const startPlace=()=>WORLD.places.home?'home':Object.keys(WORLD.places)[0];
 const mainMap=()=>(DB.maps||[]).find(x=>x.is_main)||(DB.maps||[])[0];
 function applyWorld(){
-  if(DB.places.length){WORLD.places={};DB.places.forEach(r=>WORLD.places[r.code]={n:r.name,i:r.icon||'📍',kind:r.kind||'',pos:[+r.x,+r.y],shop:r.is_shop,
-    type:r.type_code||'basic',open:r.open_slots&&r.open_slots.length&&r.open_slots.length<NS?r.open_slots:undefined,desc:r.descr||'',db:true})}else WORLD.places=PLACES0;
+  if(DB.places.length){WORLD.places={};const codes=new Set(DB.places.map(r=>r.code));DB.places.forEach(r=>WORLD.places[r.code]={n:r.name,i:r.icon||'📍',kind:r.kind||'',pos:[+r.x,+r.y],shop:r.is_shop,
+    type:r.type_code||'basic',open:Array.isArray(r.open_ranges)?r.open_ranges:slotRanges(r.open_slots||[]),parent:(r.parent_code&&r.parent_code!==r.code&&codes.has(r.parent_code))?r.parent_code:null,inner:+r.move_min||0,desc:r.descr||'',db:true})}else WORLD.places=PLACES0;
   applyActions();
-  if(DB.npcs.length){WORLD.npcs={};DB.npcs.forEach(r=>WORLD.npcs[r.code]={n:r.name,i:r.icon||'🙂',img:r.file_key?pubUrl(r.file_key):'',at:r.schedule||{},lines:r.lines&&r.lines.length?r.lines:['…'],birthday:r.birthday||'',job:r.job||'',intro:r.intro||'',personality:r.personality||'',role:r.role||'resident',db:true})}else WORLD.npcs=NPCS0;
+  if(DB.npcs.length){WORLD.npcs={};DB.npcs.forEach(r=>WORLD.npcs[r.code]={n:r.name,i:r.icon||'🙂',img:r.file_key?pubUrl(r.file_key):'',sch:Array.isArray(r.sched)&&r.sched.length?r.sched:schedFromSlots(r.schedule||{}),lines:r.lines&&r.lines.length?r.lines:['…'],birthday:r.birthday||'',job:r.job||'',intro:r.intro||'',personality:r.personality||'',role:r.role||'resident',db:true})}else WORLD.npcs=NPCS0;
   WORLD.events=DB.events.length?DB.events.filter(r=>r.enabled!==false).map(evFromRow):EVENTS0;
   const m=mainMap(),map=$('#townmap');
   if(map){map.style.backgroundImage=m?`url("${pubUrl(m.file_key)}")`:'';if(m&&m.w)map.style.aspectRatio=m.w+'/'+m.h;map.dataset.built='';map.querySelectorAll('.map-building').forEach(b=>b.remove())}
   if(G&&!WORLD.places[G.place])G.place=startPlace();
 }
-function actFromRow(r){return{code:r.code,name:r.name,icon:r.icon||'',descr:r.descr||'',kind:r.kind||'normal',time_cost:+r.time_cost||0,energy:+r.energy||0,money:+r.money||0,cond:r.cond||{},effects:r.effects||{},scene:r.scene||[]}}
+function actFromRow(r){return{code:r.code,name:r.name,icon:r.icon||'',descr:r.descr||'',kind:r.kind||'normal',mins:r.time_min!=null?+r.time_min:(+r.time_cost||0)*SLOTLEN,energy:+r.energy||0,money:+r.money||0,cond:r.cond||{},effects:r.effects||{},scene:r.scene||[]}}
 function applyActions(){
   WORLD.actions={};const keep=['look','shop'];
   if(DB.actions.length){ACT0.filter(a=>keep.includes(a.code)).forEach(a=>WORLD.actions[a.code]=a);DB.actions.forEach(r=>WORLD.actions[r.code]=actFromRow(r))}else ACT0.forEach(a=>WORLD.actions[a.code]=a);
@@ -763,7 +801,7 @@ function renderMapAdmin(){
 }
 function bubble(r){
   const b=document.createElement('button');b.type='button';b.className='map-building'+(pcur&&(pcur.id||pcur.code)===(r.id||r.code)?' current':'');
-  b.style.setProperty('--x',r.x+'%');b.style.setProperty('--y',r.y+'%');b.textContent=(r.icon?r.icon+' ':'')+r.name;
+  b.style.setProperty('--x',r.x+'%');b.style.setProperty('--y',r.y+'%');b.textContent=(r.parent_code?'↳ ':'')+(r.icon?r.icon+' ':'')+r.name;
   b.onpointerdown=e=>dragStart(e,b,r);return b;
 }
 function dragStart(e,b,r){
@@ -777,7 +815,7 @@ function dragStart(e,b,r){
 }
 $('#pmap').onpointerdown=e=>{
   if(e.target!==$('#pmap'))return;const rc=e.currentTarget.getBoundingClientRect();
-  pcur={code:'p'+Date.now().toString(36),name:'새 장소',icon:'📍',descr:'',open_slots:null,is_shop:false,
+  pcur={code:'p'+Date.now().toString(36),name:'새 장소',icon:'📍',descr:'',open_ranges:[],is_shop:false,
     x:+((e.clientX-rc.left)/rc.width*100).toFixed(2),y:+((e.clientY-rc.top)/rc.height*100).toFixed(2)};renderMapAdmin();
 };
 const typeList=()=>Object.entries(WORLD.types).map(([k,t])=>({k,n:(t.icon||'')+' '+t.name}));
@@ -788,21 +826,23 @@ function fillPlaceActs(reset){
 }
 function renderPlaceForm(){
   const e=$('#ped'),p=pcur;if(!p){e.innerHTML='<div class="tag">지도의 빈 곳을 눌러 새 장소를 만들거나, 말풍선을 눌러 고르세요</div>';return}
-  const op=p.open_slots&&p.open_slots.length?p.open_slots:Array.from({length:NS},(_,i)=>i);
+  const orr=Array.isArray(p.open_ranges)?p.open_ranges:slotRanges(p.open_slots||[]),tops=DB.places.filter(r=>!r.parent_code&&r.code!==p.code).map(r=>({k:r.code,n:(r.icon||'')+' '+r.name})),kids=DB.places.filter(r=>r.parent_code===p.code).map(r=>esc(r.name)).join(', ');
   e.innerHTML=`<div style="display:grid;gap:8px"><div class="row"><label>이모지<input id="p_i" value="${esc(p.icon)}" style="width:70px"></label><label style="flex:1">이름<input id="p_n" value="${esc(p.name)}"></label></div>
   <label>설명<input id="p_d" value="${esc(p.descr)}"></label>
-  <div class="row">${SLOTS.map((s,i)=>`<label style="flex-direction:row;align-items:center;gap:4px"><input type="checkbox" class="p_o" value="${i}"${op.includes(i)?' checked':''}>${s}</label>`).join('')}</div>
-  <div class="tag">체크한 시간대에만 영업해요 (모두 체크 = 항상 열림)</div>
+  <h2>영업 시간</h2>${rgHtml('p_rg',orr)}
+  <div class="row"><label>상위 장소 (건물 안 공간이면 고르세요)<select id="p_par">${opts(tops,'k','n',p.parent_code,'(없음 · 지도에 표시)')}</select></label><label>안쪽 이동 시간(분)<input id="p_mm" type="number" min="1" max="60" value="${p.move_min||5}" style="width:80px"></label></div>
+  ${p.id&&!p.parent_code?`<div class="row"><button type="button" id="p_sub">+ 하위 장소 만들기</button><span class="tag">${kids?'하위 장소: '+kids:'아직 하위 장소가 없어요'}</span></div>`:''}
   <label style="flex-direction:row;align-items:center;gap:6px"><input id="p_s" type="checkbox"${p.is_shop?' checked':''}>상점 (물건을 파는 곳)</label>
   <h2>유형과 행동 — 유형을 고르면 그 유형의 행동이 들어와요. 이 장소에서만 더하거나 빼려면 체크를 바꾸세요</h2>
   <label>장소 유형<select id="p_ty">${opts(typeList(),'k','n',p.type_code,'(유형 없음)')}</select></label><div id="p_ac" class="row"></div>
   <div class="tag">위치 ${p.x}%, ${p.y}% · ID ${esc(p.code)}</div>
   <div class="row"><button class="pri" id="p_save">저장</button>${p.id?'<button id="p_del">삭제</button>':''}</div></div>`;
   fillPlaceActs();$('#p_ty').onchange=()=>fillPlaceActs(true);$('#p_save').onclick=savePlace;if(p.id)$('#p_del').onclick=delPlace;
+  if($('#p_sub'))$('#p_sub').onclick=()=>{pcur={code:'p'+Date.now().toString(36),name:'새 하위 장소',icon:'📍',descr:'',is_shop:false,x:p.x,y:p.y,parent_code:p.code,move_min:5,open_ranges:[]};renderMapAdmin()};
 }
 async function savePlace(){
-  try{const p=pcur,m=mainMap(),o=[...document.querySelectorAll('.p_o')].filter(c=>c.checked).map(c=>+c.value);
-    const row={code:p.code,name:$('#p_n').value.trim()||'이름 없음',icon:$('#p_i').value.trim(),descr:$('#p_d').value,is_shop:$('#p_s').checked,x:p.x,y:p.y,map_id:m?m.id:null,open_slots:(o.length===0||o.length===NS)?null:o,type_code:$('#p_ty').value||null};
+  try{const p=pcur,m=mainMap(),o=rgRead('p_rg');
+    const row={code:p.code,name:$('#p_n').value.trim()||'이름 없음',icon:$('#p_i').value.trim(),descr:$('#p_d').value,is_shop:$('#p_s').checked,x:p.x,y:p.y,map_id:m?m.id:null,open_slots:null,open_ranges:o,parent_code:$('#p_par').value||null,move_min:Math.max(1,parseInt($('#p_mm').value,10)||5),type_code:$('#p_ty').value||null};
     p.id?await post('/rest/v1/fsfs_place?id=eq.'+p.id,row,'PATCH'):await post('/rest/v1/fsfs_place',row);
     const ty=$('#p_ty').value||null,base=(WORLD.types[ty]||{actions:[]}).actions,chk=[...document.querySelectorAll('.p_a')].filter(c=>c.checked).map(c=>c.value);
     const rows=[...chk.filter(c=>!base.includes(c)).map(c=>({place_code:p.code,action_code:c,mode:'add'})),...base.filter(c=>!chk.includes(c)&&WORLD.actions[c]).map(c=>({place_code:p.code,action_code:c,mode:'remove'}))];
@@ -812,7 +852,7 @@ async function savePlace(){
 }
 async function delPlace(){
   if(!confirm(`"${pcur.name}" 장소를 삭제할까요?`))return;
-  try{await sb('/rest/v1/fsfs_place?id=eq.'+pcur.id,{m:'DELETE'});pcur=null;await loadCatalog();renderMapAdmin();msg('삭제했어요')}catch(e){msg(e.message,1)}
+  try{await post('/rest/v1/fsfs_place?parent_code=eq.'+encodeURIComponent(pcur.code),{parent_code:null},'PATCH');await sb('/rest/v1/fsfs_place?id=eq.'+pcur.id,{m:'DELETE'});pcur=null;await loadCatalog();renderMapAdmin();msg('삭제했어요')}catch(e){msg(e.message,1)}
 }
 $('#mapup').onclick=async()=>{
   const f=$('#mapf').files[0];if(!f)return msg('지도 이미지를 선택해주세요',1);
@@ -824,7 +864,7 @@ $('#mapup').onclick=async()=>{
 $('#pimp').onclick=async()=>{
   if(DB.places.length)return msg('이미 장소가 있어요. 내장 장소는 비어 있을 때만 가져와요',1);
   try{const m=mainMap(),rows=Object.entries(PLACES0).map(([code,p],i)=>{const h=HITSPOTS[code]||p.pos||[50,50];
-      return{code,name:p.n,icon:p.i,kind:p.kind||null,type_code:p.type||null,descr:p.desc||'',is_shop:!!p.shop,open_slots:p.open||null,x:h[0],y:h[1],map_id:m?m.id:null,sort:i}});
+      return{code,name:p.n,icon:p.i,kind:p.kind||null,type_code:p.type||null,descr:p.desc||'',is_shop:!!p.shop,open_slots:null,open_ranges:p.open||[],x:h[0],y:h[1],map_id:m?m.id:null,sort:i}});
     await post('/rest/v1/fsfs_place',rows);await loadCatalog();renderMapAdmin();msg(rows.length+'곳을 가져왔어요');
   }catch(e){msg(e.message,1)}
 };
@@ -845,7 +885,7 @@ function renderNpcForm(){
   <div class="row"><label>생일 (월-일)<input id="n_b" placeholder="03-08" value="${esc(n.birthday||'')}" style="width:90px"></label><label style="flex:1">직업·역할<input id="n_j" value="${esc(n.job||'')}"></label>
   <label>ID (이벤트 연결용)<input id="n_c" value="${esc(n.code)}" style="width:120px"></label></div>
   <label>소개<input id="n_t" value="${esc(n.intro||'')}"${n.lv?' disabled':''}></label><label>성격·말투<input id="n_p" value="${esc(n.personality||'')}"></label>
-  <h2>하루 일정 — 시간대별로 어디에 있는지</h2><div class="row">${SLOTS.map((s,i)=>`<label>${s}<select class="n_s" data-i="${i}">${opts(pl,'k','n',sc[i],'어디에도 없음')}</select></label>`).join('')}</div>
+  <h2>하루 일정 — 몇 시부터 몇 시까지 어디에 있는지</h2><div id="n_sch">${(Array.isArray(n.sched)&&n.sched.length?n.sched:schedFromSlots(n.schedule||{})).map(schRow).join('')}<button type="button" class="sga">+ 일정 추가</button></div><div class="tag">비어 있는 시간에는 어디에도 없어요 (만날 수 없어요)</div>
   <label>대사 (한 줄에 하나씩, 대화할 때 무작위로 나와요)<textarea id="n_l" rows="5"${n.lv?' disabled':''} style="background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font:inherit">${esc((n.lines||[]).join('\n'))}</textarea></label>
   ${npcExtra(n)}<label>프로필 이미지 교체<input id="n_f" type="file" accept="image/*"></label>
   <div class="row"><button class="pri" id="n_save">저장</button><button id="n_del">삭제</button></div></div>`;
@@ -854,9 +894,8 @@ function renderNpcForm(){
 async function saveNpc(){
   try{const n=ncur,f=$('#n_f').files[0];let key=n.file_key;
     if(f){const r=await putPlain('npcs',n.id,f,320);if(key&&key!==r.key)wdel(key);key=r.key}
-    const sch={};document.querySelectorAll('.n_s').forEach(s=>{if(s.value)sch[s.dataset.i]=s.value});
     await post('/rest/v1/fsfs_npc?id=eq.'+n.id,{name:$('#n_n').value.trim()||n.name,icon:$('#n_i').value.trim()||null,birthday:$('#n_b').value.trim()||null,job:$('#n_j').value||null,
-      code:$('#n_c').value.trim()||n.code,intro:$('#n_t').value||null,personality:$('#n_p').value||null,schedule:sch,lines:$('#n_l').value.split('\n').map(s=>s.trim()).filter(Boolean),file_key:key,role:$('#n_role').value},'PATCH');
+      code:$('#n_c').value.trim()||n.code,intro:$('#n_t').value||null,personality:$('#n_p').value||null,sched:schRead(),schedule:{},lines:$('#n_l').value.split('\n').map(s=>s.trim()).filter(Boolean),file_key:key,role:$('#n_role').value},'PATCH');
     await loadCatalog();ncur=structuredClone(DB.npcs.find(x=>x.id===n.id));renderNpcAdmin();msg('저장했어요');
   }catch(e){msg(e.message,1)}
 }
@@ -874,13 +913,13 @@ $('#npbulk').onclick=async()=>{
 };
 $('#npimp').onclick=async()=>{
   if(DB.npcs.length)return msg('이미 인물이 있어요. 내장 인물은 비어 있을 때만 가져와요',1);
-  try{await post('/rest/v1/fsfs_npc',Object.entries(NPCS0).map(([code,n],i)=>({code,name:n.n,icon:n.i,schedule:n.at,lines:n.lines,sort:i})));await loadCatalog();renderNpcAdmin();msg('내장 인물을 가져왔어요')}catch(e){msg(e.message,1)}
+  try{await post('/rest/v1/fsfs_npc',Object.entries(NPCS0).map(([code,n],i)=>({code,name:n.n,icon:n.i,sched:n.sch||[],schedule:{},lines:n.lines,sort:i})));await loadCatalog();renderNpcAdmin();msg('내장 인물을 가져왔어요')}catch(e){msg(e.message,1)}
 };
 
 // ================= 관리자: 이벤트 편집기 =================
 const EVENTS0=WORLD.events;WORLD.playerName=WORLD.playerName||'레오';
 function evFromRow(r){const c=r.cond||{},f=r.effects||{};
-  return{id:r.code,title:r.title,repeat:r.repeat_mode||'once',chance:r.chance??100,priority:r.priority||0,place:c.place||null,npc:c.npc||null,slots:c.slots||[],from:c.from||'',to:c.to||'',bday:c.bday||null,
+  return{id:r.code,title:r.title,repeat:r.repeat_mode||'once',chance:r.chance??100,priority:r.priority||0,place:c.place||null,npc:c.npc||null,ranges:Array.isArray(c.ranges)?c.ranges:slotRanges(c.slots||[]),from:c.from||'',to:c.to||'',bday:c.bday||null,
     aff:Object.fromEntries((c.aff||[]).map(a=>[a.npc,a.min])),scene:r.scene||[],give:f.give||[],money:f.money||0,affEff:f.aff||[]}}
 function normEv(r){const x=structuredClone(r);x.cond=x.cond||{};x.cond.aff=x.cond.aff||[];x.scene=x.scene||[];x.effects=x.effects||{};x.effects.give=x.effects.give||[];x.effects.aff=x.effects.aff||[];return x}
 let ecur=null;
@@ -890,7 +929,7 @@ const itemOpts=s=>opts(ITEMS.filter(i=>i.layers.length).map(i=>({k:i.builtin?i.p
 const ROWS={ca:()=>ecur.cond.aff,ea:()=>ecur.effects.aff,eg:()=>ecur.effects.give};
 function renderEvAdmin(){
   $('#elist').innerHTML=DB.events.map(r=>{const c=r.cond||{},p=c.place&&WORLD.places[c.place];
-    return `<div class="it${ecur&&ecur.id===r.id?' on':''}" data-id="${r.id}"><div><div>${r.enabled===false?'⏸ ':''}${esc(r.title)}</div><div class="tag">${[p?p.i+' '+p.n:'',c.bday?'🎂':'',(c.slots||[]).map(i=>SLOTS[i]).join('·'),r.repeat_mode==='daily'?'매일':'한 번'].filter(Boolean).join(' · ')}</div></div></div>`}).join('')||'<div class="tag">등록한 이벤트가 없어요</div>';
+    return `<div class="it${ecur&&ecur.id===r.id?' on':''}" data-id="${r.id}"><div><div>${r.enabled===false?'⏸ ':''}${esc(r.title)}</div><div class="tag">${[p?p.i+' '+p.n:'',c.bday?'🎂':'',((c.ranges||slotRanges(c.slots||[])).length?rngText(c.ranges||slotRanges(c.slots||[])):''),r.repeat_mode==='daily'?'매일':'한 번'].filter(Boolean).join(' · ')}</div></div></div>`}).join('')||'<div class="tag">등록한 이벤트가 없어요</div>';
   renderEvForm();
 }
 $('#elist').onclick=e=>{const d=e.target.closest('.it');if(!d)return;ecur=normEv(DB.events.find(x=>x.id===d.dataset.id));renderEvAdmin()};
@@ -946,7 +985,7 @@ function renderEvForm(){
     <label style="flex-direction:row;align-items:center;gap:6px"><input id="e_en" type="checkbox"${x.enabled!==false?' checked':''}>사용</label></div>
   <h2>언제 열릴까 (조건) — 비워둔 항목은 따지지 않아요</h2>
   <div class="row"><label>장소<select id="e_pl">${placeOpts(c.place,'어디서나')}</select></label><label>인물 (그 시간·그 장소에 있을 때)<select id="e_np">${npcOpts(c.npc,'상관없음')}</select></label></div>
-  <div class="row">${SLOTS.map((s,i)=>`<label style="flex-direction:row;align-items:center;gap:4px"><input type="checkbox" class="e_s" value="${i}"${sl.includes(i)?' checked':''}>${s}</label>`).join('')}<span class="tag">아무것도 체크하지 않으면 아무 때나</span></div>
+  <h2 style="margin:0">몇 시에 열릴까</h2>${rgHtml('e_rg',c.ranges||slotRanges(c.slots||[]))}
   <div class="row"><label>날짜 시작<input id="e_f" placeholder="03-08" value="${esc(c.from||'')}" style="width:84px"></label><label>끝<input id="e_t" placeholder="03-10" value="${esc(c.to||'')}" style="width:84px"></label>
     <label>생일 기준 (당일~2일 뒤)<select id="e_b"><option value="">없음</option><option value="player"${c.bday==='player'?' selected':''}>내 생일</option>${nl().map(n=>`<option value="${n.k}"${c.bday===n.k?' selected':''}>${esc(n.n)}의 생일</option>`).join('')}</select></label></div>
   <div id="ca_box"></div>
@@ -964,11 +1003,11 @@ function renderEvForm(){
   $('#e_save').onclick=saveEv;if(x.id)$('#e_del').onclick=delEv;
 }
 async function saveEv(){
-  try{const x=ecur,sl=[...document.querySelectorAll('.e_s')].filter(c=>c.checked).map(c=>+c.value),f=$('#e_f').value.trim(),to=$('#e_t').value.trim();
+  try{const x=ecur,sl=rgRead('e_rg'),f=$('#e_f').value.trim(),to=$('#e_t').value.trim();
     if((f&&!/^\d\d-\d\d$/.test(f))||(to&&!/^\d\d-\d\d$/.test(to)))throw new Error('날짜는 03-08 처럼 월-일 두 자리로 적어주세요');
     const row={code:$('#e_code').value.trim()||x.code,title:$('#e_title').value.trim()||'이름 없는 이벤트',enabled:$('#e_en').checked,repeat_mode:$('#e_r').value,
       chance:Math.min(100,Math.max(1,+$('#e_c').value||100)),priority:+$('#e_pr').value||0,note:$('#e_note').value||null,
-      cond:{place:$('#e_pl').value||null,npc:$('#e_np').value||null,slots:sl.length%NS?sl:[],from:f||null,to:to||null,bday:$('#e_b').value||null,aff:x.cond.aff.filter(a=>a.npc)},
+      cond:{place:$('#e_pl').value||null,npc:$('#e_np').value||null,ranges:sl,slots:[],from:f||null,to:to||null,bday:$('#e_b').value||null,aff:x.cond.aff.filter(a=>a.npc)},
       scene:cleanScene(x.scene),effects:{give:x.effects.give.filter(Boolean),money:+$('#e_m').value||0,aff:x.effects.aff.filter(a=>a.npc&&a.v)}};
     x.id?await post('/rest/v1/fsfs_event?id=eq.'+x.id,row,'PATCH'):await post('/rest/v1/fsfs_event',row);
     await loadCatalog();ecur=normEv(DB.events.find(r=>r.code===row.code));renderEvAdmin();msg('저장했어요');
@@ -987,7 +1026,7 @@ function renderActList(){
   $('#alist').innerHTML=DB.actions.slice().sort(sortBy).map(a=>`<div class="it${acur&&acur.id===a.id?' on':''}" data-id="${a.id}"><div style="font-size:20px">${esc(a.icon||'▪')}</div><div><div>${esc(a.name)}</div><div class="tag">${esc(chips(a)||KINDS[a.kind]||'')}</div></div></div>`).join('')||'<div class="tag">등록한 행동이 없어요. "내장 행동·유형 가져오기"로 시작하세요</div>';
 }
 $('#alist').onclick=e=>{const d=e.target.closest('.it');if(!d)return;acur=structuredClone(DB.actions.find(a=>a.id===d.dataset.id));renderActList();renderActForm()};
-$('#anew').onclick=()=>{acur={code:'a'+Date.now().toString(36),name:'새 행동',icon:'✨',descr:'',kind:'normal',time_cost:1,energy:0,money:0,cond:{},effects:{},scene:[],sort:DB.actions.length};renderActList();renderActForm()};
+$('#anew').onclick=()=>{acur={code:'a'+Date.now().toString(36),name:'새 행동',icon:'✨',descr:'',kind:'normal',mins:30,energy:0,money:0,cond:{},effects:{},scene:[],sort:DB.actions.length};renderActList();renderActForm()};
 function renderActForm(){
   const e=$('#aed'),a=acur;if(!a){e.innerHTML='<div class="tag">왼쪽에서 행동을 고르거나 "+ 새 행동"을 눌러주세요</div>';return}
   const c=a.cond||{},ef=a.effects||{},ca=(c.aff||[])[0]||{},ea=(ef.aff||[])[0]||{},simple=!(a.scene||[]).some(x=>x.choices),sl=c.slots||[];
@@ -995,11 +1034,11 @@ function renderActForm(){
   e.innerHTML=`<div style="display:grid;gap:8px">
   <div class="row"><label>이모지<input id="a_i" value="${esc(a.icon||'')}" style="width:70px"></label><label style="flex:1">이름<input id="a_n" value="${esc(a.name)}"></label><label>ID<input id="a_c" value="${esc(a.code)}" style="width:120px"${a.id?' disabled':''}></label></div>
   <label>종류<select id="a_k">${opts(Object.entries(KINDS).map(([k,n])=>({k,n})),'k','n',a.kind||'normal')}</select></label>
-  <div class="row"><label>걸리는 시간 (칸 수, 1칸 = 3시간)<input id="a_t" type="number" min="0" max="8" value="${a.time_cost||0}" style="width:90px"></label>
+  <div class="row"><label>걸리는 시간 (분)<input id="a_t" type="number" min="0" max="1440" step="5" value="${a.mins!=null?a.mins:(a.time_min!=null?+a.time_min:(+a.time_cost||0)*SLOTLEN)}" style="width:90px"></label>
     <label>에너지 (−는 소모)<input id="a_e" type="number" value="${a.energy||0}" style="width:90px"></label><label>돈 (−는 지출)<input id="a_m" type="number" step="500" value="${a.money||0}" style="width:110px"></label></div>
   <label>설명 (버튼 아래 작은 글씨)<input id="a_d" value="${esc(a.descr||'')}"></label>
   <h2>언제 할 수 있을까 — 비워둔 항목은 따지지 않아요</h2>
-  <div class="row">${SLOTS.map((s,i)=>`<label style="flex-direction:row;align-items:center;gap:4px"><input type="checkbox" class="a_s" value="${i}"${sl.includes(i)?' checked':''}>${s}</label>`).join('')}<span class="tag">아무것도 체크하지 않으면 아무 때나</span></div>
+  ${rgHtml('a_rg',c.ranges||slotRanges(c.slots||[]))}
   <div class="row"><label style="flex-direction:row;align-items:center;gap:6px"><input id="a_dy" type="checkbox"${c.daily?' checked':''}>하루에 한 번만</label>
     <label>호감도 조건 (이 인물과)${nsel('a_an',ca.npc,'없음')}</label><label>이상<input id="a_am" type="number" min="0" value="${ca.min||0}" style="width:70px"></label></div>
   <h2>하고 나면</h2><div class="row"><label>호감도가 오르는 인물${nsel('a_en',ea.npc,'없음')}</label><label>올라가는 값<input id="a_ev" type="number" value="${ea.v||0}" style="width:70px"></label></div>
@@ -1010,10 +1049,10 @@ function renderActForm(){
 async function saveAct(){
   try{const a=acur,code=a.id?a.code:$('#a_c').value.trim();if(!code)throw new Error('ID를 입력하세요');
     if(!a.id&&DB.actions.some(x=>x.code===code))throw new Error('같은 ID의 행동이 이미 있어요');
-    const sl=[...document.querySelectorAll('.a_s')].filter(c=>c.checked).map(c=>+c.value),an=$('#a_an').value,en=$('#a_en').value,ev=+$('#a_ev').value||0;
-    const cond={slots:sl.length%NS?sl:[],daily:$('#a_dy').checked,aff:an?[{npc:an,min:+$('#a_am').value||0}]:[]},effects={...(a.effects||{}),aff:en&&ev?[{npc:en,v:ev}]:[]};
+    const sl=rgRead('a_rg'),mins=Math.max(0,parseInt($('#a_t').value,10)||0),an=$('#a_an').value,en=$('#a_en').value,ev=+$('#a_ev').value||0;
+    const cond={ranges:sl,slots:[],daily:$('#a_dy').checked,aff:an?[{npc:an,min:+$('#a_am').value||0}]:[]},effects={...(a.effects||{}),aff:en&&ev?[{npc:en,v:ev}]:[]};
     const scene=$('#a_sc').disabled?a.scene:$('#a_sc').value.split('\n').map(x=>x.trim()).filter(Boolean).map(t=>({t}));
-    const row={code,name:$('#a_n').value.trim()||'이름 없음',icon:$('#a_i').value.trim(),descr:$('#a_d').value,kind:$('#a_k').value,time_cost:Math.max(0,parseInt($('#a_t').value,10)||0),energy:parseInt($('#a_e').value,10)||0,money:parseInt($('#a_m').value,10)||0,cond,effects,scene,sort:a.sort||0};
+    const row={code,name:$('#a_n').value.trim()||'이름 없음',icon:$('#a_i').value.trim(),descr:$('#a_d').value,kind:$('#a_k').value,time_min:mins,time_cost:Math.ceil(mins/SLOTLEN),energy:parseInt($('#a_e').value,10)||0,money:parseInt($('#a_m').value,10)||0,cond,effects,scene,sort:a.sort||0};
     a.id?await post('/rest/v1/fsfs_action?id=eq.'+a.id,row,'PATCH'):await post('/rest/v1/fsfs_action',row);
     acur=null;await loadCatalog();renderActAdmin();msg('저장했어요');
   }catch(e){msg(e.message,1)}
@@ -1026,7 +1065,7 @@ async function delAct(){
 }
 $('#aimp').onclick=async()=>{
   if(DB.actions.length||DB.ptypes.length)return msg('이미 행동이나 유형이 있어요. 내장 데이터는 비어 있을 때만 가져와요',1);
-  try{await post('/rest/v1/fsfs_action',ACT0.map((a,i)=>({code:a.code,name:a.name,icon:a.icon,descr:a.descr||'',kind:a.kind,time_cost:a.time_cost||0,energy:a.energy||0,money:a.money||0,cond:a.cond||{},effects:a.effects||{},scene:a.scene||[],sort:i})));
+  try{await post('/rest/v1/fsfs_action',ACT0.map((a,i)=>({code:a.code,name:a.name,icon:a.icon,descr:a.descr||'',kind:a.kind,time_min:a.mins||0,time_cost:Math.ceil((a.mins||0)/SLOTLEN),energy:a.energy||0,money:a.money||0,cond:a.cond||{},effects:a.effects||{},scene:a.scene||[],sort:i})));
     await post('/rest/v1/fsfs_place_type',Object.entries(TYPES0).map(([code,t],i)=>({code,name:t.name,icon:t.icon,sort:i})));
     await post('/rest/v1/fsfs_place_type_action',Object.entries(TYPES0).flatMap(([code,t])=>t.actions.map((ac,i)=>({type_code:code,action_code:ac,sort:i}))));
     await loadCatalog();renderActAdmin();msg('내장 행동·유형을 가져왔어요');
@@ -1071,11 +1110,11 @@ const KM=n=>DB.keymap.find(r=>r.keyword===n);
 function genSchedule(code,keys){
   const rows=keys.map(KM).filter(Boolean),sch={},night=x=>x>=6||x<=1;
   for(let t=0;t<NS;t++){
-    const w={};
-    rows.forEach(r=>{const e=r.effects||{},sl=e.slots&&e.slots.length?e.slots:null;if(sl&&!sl.includes(t))return;
-      for(const [p,v] of Object.entries(e.places||{})){const o=WORLD.places[p]&&WORLD.places[p].open;if(WORLD.places[p]&&v>0&&(!o||o.includes(t)))w[p]=(w[p]||0)+v}});
+    const w={},m=t*SLOTLEN+SLOTLEN/2;
+    rows.forEach(r=>{const e=r.effects||{},rg=Array.isArray(e.ranges)?e.ranges:slotRanges(e.slots||[]);if(rg.length&&!inR(rg,m))return;
+      for(const [p,v] of Object.entries(e.places||{})){const o=WORLD.places[p]&&WORLD.places[p].open;if(WORLD.places[p]&&v>0&&inR(o,m))w[p]=(w[p]||0)+v}});
     if((t===7||t<=1)&&WORLD.places.home)w.home=(w.home||0)+3;   // 한밤·새벽·밤에는 집에 있을 확률이 높아요
-    if(!Object.keys(w).length)Object.entries(WORLD.places).forEach(([p,pl])=>{if((p!=='home'||night(t))&&(!pl.open||pl.open.includes(t)))w[p]=1});
+    if(!Object.keys(w).length)Object.entries(WORLD.places).forEach(([p,pl])=>{if(!pl.parent&&(p!=='home'||night(t))&&inR(pl.open,m))w[p]=1});
     const tot=Object.values(w).reduce((a,b)=>a+b,0);if(!tot)continue;let x=hash(code+':'+t)%tot;
     for(const [p,v] of Object.entries(w)){if(x<v){sch[t]=p;break}x-=v}
   }
@@ -1098,7 +1137,7 @@ const lvFields=c=>({name:c.name,sex:c.sex,traits:c.traits,looks:[],quotes:c.quot
 function lvNew(c,i){
   const keys=[...c.traits,...c.looks],short=c.quotes.filter(q=>q.length<=120),code='lv_'+c.id.slice(0,8);
   return{...lvFields(c),code,role:'fan',source_app:'lvlv',source_id:c.id,intro:(c.profile||'').slice(0,60)||null,lines:(short.length?short:c.quotes).slice(0,15),
-    schedule:genSchedule(code,keys),sort:DB.npcs.length+i};
+    sched:schedFromSlots(genSchedule(code,keys)),schedule:{},sort:DB.npcs.length+i};
 }
 let LV=[],LVKW=[],LVKD=[];
 async function lvFetch(){
@@ -1139,7 +1178,7 @@ function npcExtra(n){
 }
 function bindSch(){
   const keys=()=>[...(ncur.traits||[]),...(ncur.looks||[])];
-  $('#sc_gen').onclick=()=>{const s=genSchedule(ncur.code,keys());document.querySelectorAll('.n_s').forEach(x=>x.value=s[x.dataset.i]||'');msg('일정을 만들었어요. 저장을 눌러 반영하세요')};
+  $('#sc_gen').onclick=()=>{const s=schedFromSlots(genSchedule(ncur.code,keys()));document.querySelectorAll('#n_sch .schr').forEach(r=>r.remove());s.forEach(x=>$('#n_sch .sga').insertAdjacentHTML('beforebegin',schRow(x)));msg('일정을 만들었어요. 저장을 눌러 반영하세요')};
 }
 
 // --- 키워드 번역표 편집기 ---
@@ -1207,7 +1246,7 @@ const STARTER=`검사|role|park:2|0|stoic|
 function parseStarter(){
   return STARTER.trim().split('\n').map(l=>{const [k,g,pl,sl,st]=l.split('|'),places={};
     (pl||'').split(' ').filter(Boolean).forEach(x=>{const [p,v]=x.split(':');places[p]=+v});
-    return{keyword:k,grp:g,effects:{places,slots:ob((sl||'').split('').filter(Boolean).map(Number)),style:st||null}}});
+    return{keyword:k,grp:g,effects:{places,ranges:slotRanges(ob((sl||'').split('').filter(Boolean).map(Number))),slots:[],style:st||null}}});
 }
 const effSummary=f=>{f=f||{};return [Object.entries(f.places||{}).filter(([,v])=>v).map(([p,v])=>((WORLD.places[p]||{}).n||p)+v).join(' '),f.style?STYLES[f.style]||f.style:''].filter(Boolean).join(' / ')||'(영향 없음)'};
 let kcur=null;
@@ -1235,7 +1274,7 @@ function renderKeyForm(){
   <label>분류<select id="k_g">${opts(Object.entries(GRPS).map(([k,n])=>({k,n})),'k','n',r.grp)}</select></label>
   <label>성격 스타일 (리액션에 쓰여요)<select id="k_st">${opts(Object.entries(STYLES).map(([k,n])=>({k,n})),'k','n',f.style,'없음')}</select></label></div>
   <h2>자주 가는 곳 (0~3, 클수록 자주 가요)</h2><div class="row">${Object.entries(WORLD.places).map(([k,p])=>`<label>${p.i||''} ${esc(p.n)}<input type="number" min="0" max="3" class="k_p" data-p="${k}" value="${pw[k]||0}" style="width:60px"></label>`).join('')}</div>
-  <h2>주로 보이는 시간대 (비우면 아무 때나)</h2><div class="row">${SLOTS.map((s,i)=>`<label style="flex-direction:row;align-items:center;gap:4px"><input type="checkbox" class="k_s" value="${i}"${sl.includes(i)?' checked':''}>${s}</label>`).join('')}</div>
+  <h2>주로 보이는 시간 (비우면 아무 때나)</h2>${rgHtml('k_rg',f.ranges||slotRanges(f.slots||[]))}
   <label>메모<input id="k_n" value="${esc(r.note||'')}"></label>
   <div class="row"><button class="pri" id="k_save">저장</button>${r.id?'<button id="k_del">삭제</button>':''}</div></div>`;
   $('#k_save').onclick=saveKey;if(r.id)$('#k_del').onclick=delKey;
@@ -1243,7 +1282,7 @@ function renderKeyForm(){
 async function saveKey(){
   try{const kw=$('#k_k').value.trim();if(!kw)throw new Error('키워드를 입력해주세요');
     const places={};document.querySelectorAll('.k_p').forEach(i=>{if(+i.value>0)places[i.dataset.p]=+i.value});
-    const row={keyword:kw,grp:$('#k_g').value,note:$('#k_n').value||null,effects:{places,slots:[...document.querySelectorAll('.k_s')].filter(c=>c.checked).map(c=>+c.value),style:$('#k_st').value||null}};
+    const row={keyword:kw,grp:$('#k_g').value,note:$('#k_n').value||null,effects:{places,ranges:rgRead('k_rg'),slots:[],style:$('#k_st').value||null}};
     await sb('/rest/v1/fsfs_keymap?on_conflict=keyword',{m:'POST',h:{Prefer:'resolution=merge-duplicates,return=minimal'},b:row});
     await loadCatalog();kcur=structuredClone(KM(kw));renderKeyAdmin();msg('저장했어요');
   }catch(e){msg(e.message,1)}
