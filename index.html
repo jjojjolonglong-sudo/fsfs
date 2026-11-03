@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>옷갈아입히기</title>
-<script src="https://jjojjolonglong-sudo.github.io/mnmn/fonts.v1.js" data-app="fsfs"></script>
 <style>
 :root{--bg:#f6f4f1;--p:#fff;--ink:#2b2622;--mute:#8a8078;--line:#e4dfd9;--acc:#e07a5f;--accbg:#fbe9e3;--chk:#efeae4}
 @media(prefers-color-scheme:dark){:root{--bg:#1e1c1a;--p:#292623;--ink:#efeae4;--mute:#a39a91;--line:#3b3733;--acc:#f0917a;--accbg:#4a312a;--chk:#33302c}}
@@ -803,7 +802,7 @@ async function putPlain(dir,id,file,max,q=0.88){
 const post=(path,b,m='POST')=>sb(path,{m,h:{Prefer:'return=minimal'},b});
 document.querySelectorAll('#devtabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('#devtabs button').forEach(x=>x.classList.toggle('on',x===b));
-  for(const t of ['items','map','npc','event','key','act'])$('#dv-'+t).hidden=b.dataset.t!==t;
+  for(const t of ['items','map','npc','event','act'])$('#dv-'+t).hidden=b.dataset.t!==t;
   if(b.dataset.t==='map')renderMapAdmin();if(b.dataset.t==='npc')renderNpcAdmin();if(b.dataset.t==='event')renderEvAdmin();if(b.dataset.t==='act')renderActAdmin();});
 
 // ---- 지도 · 장소
