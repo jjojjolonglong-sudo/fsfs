@@ -334,7 +334,7 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 .scale .needle{overflow:visible;bottom:-1px;opacity:1}
 .bd{border-right:1px solid rgba(32,27,23,.28)!important}.bd:last-of-type{border-right:0!important}
 #scene .tx{white-space:pre-wrap}
-.bkshelf-wrap{max-height:64vh;overflow:auto;background:#fffef9;border:2px solid var(--ink);padding:14px 10px 6px;--face:#d8d2c2;--dk:#2b2924}
+.bkshelf-wrap{background:#fffef9;border:2px solid var(--ink);padding:14px 10px 6px;--face:#d8d2c2;--dk:#2b2924}
 .bks-shelf{display:flex;flex-wrap:wrap;align-items:flex-end;row-gap:34px;padding-bottom:36px;background:linear-gradient(to bottom,transparent 0 180px,#fff 180px 182px,var(--face) 182px 188px,var(--dk) 188px 190px,rgba(0,0,0,.13) 190px 193px,transparent 193px) 0 0/100% 214px repeat-y}
 .bks-slot{flex:none;height:180px;display:flex;align-items:flex-end}
 .bks-sp{position:relative;flex:none;cursor:pointer;border-radius:4px 4px 0 0;overflow:hidden;transform-origin:50% 100%}
@@ -348,8 +348,11 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 .bks-xs{position:absolute;left:50%;top:8px;bottom:calc(25% + 6px);transform:translateX(-50%);writing-mode:vertical-rl;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 9px/1 'Gowun Batang','Batang',serif}
 .bks-xb{position:absolute;left:0;right:0;bottom:0;height:25%}
 .bks-dm{position:absolute;left:50%;top:13px;transform:translate(-50%,-50%) rotate(45deg);box-shadow:0 0 0 1px rgba(0,0,0,.25)}
-#bkdlg{max-width:920px}
-#bkdlg h2{background:none;border:0;transform:none;padding:0;display:block}
+
+
+#scene .nm:empty{display:none}#scene .nm:empty~.tx{padding-top:18px}
+#welcome{max-width:420px;text-align:center;padding:34px 30px;cursor:pointer}.wl1{font-size:26px;font-weight:800}.wl2{margin-top:8px;color:var(--mute)}
+#bgmbtn{white-space:nowrap}.bgmrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}.bgmrow select{max-width:150px}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -359,10 +362,11 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
   <div class="side">
     <div class="card"><div class="bar">
       <span id="cbar" class="bar" hidden><button id="rand">🎲 랜덤</button><button id="crand">🎨 색 랜덤</button><button id="reset">↺ 처음 옷차림</button><button id="strip">👕 전부 벗기</button><button id="closetx">옷장 닫기</button></span>
-      <span style="flex:1"></span><button id="sfxbtn" title="볼륨 (누르면 0~5 순환)">🔊 3</button><button id="wnew">새 게임</button><button id="adminbtn" hidden>🛠 관리자 모드</button><button id="authbtn">⚙ 설정·로그인</button>
+      <span style="flex:1"></span><button id="bgmbtn" title="배경음악 볼륨 (누르면 0~5 순환)">🎵 3</button><button id="sfxbtn" title="볼륨 (누르면 0~5 순환)">🔊 3</button><button id="wnew">새 게임</button><button id="adminbtn" hidden>🛠 관리자 모드</button><button id="authbtn">⚙ 설정·로그인</button>
     </div></div>
     <div class="card world"><div class="wt"><span id="wt"></span><span style="flex:1"></span><button id="endview" class="pri" hidden>끝내기</button></div>
       <div id="stview" hidden><h2>📋 내 상태</h2><div id="st_b"></div></div>
+      <div id="bkview" hidden><div class="tag" id="bk_i" style="margin:2px 0 10px"></div><div id="bk_g" class="bkshelf-wrap"></div></div>
       <div id="mapview">
             <div id="townmap" class="townmap" aria-label="쿼터뷰 마을 지도"></div>
       <div class="descbox" id="mapcurrent"></div>
@@ -377,7 +381,7 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 </div>
 
 <dialog id="delta"></dialog>
-<dialog id="bkdlg"><h2 id="bk_t" style="font-size:18px;text-transform:none;letter-spacing:0">📖 추천작</h2><div class="tag" id="bk_i" style="margin:6px 0 10px"></div><div id="bk_g" class="bkshelf-wrap"></div><div class="bar" style="margin-top:12px;justify-content:flex-end"><button id="bk_x">닫기</button></div></dialog>
+<dialog id="welcome"><div class="wl1">어서 오세요 🌿</div><div class="wl2">화면을 눌러 시작해요</div></dialog>
 <dialog id="scene"><img id="sp" hidden alt=""><div class="nm" id="sn"></div><div class="tx" id="st"></div><div class="bar" id="sb" style="justify-content:flex-end"></div></dialog>
 <dialog id="shop"><h2 id="shm"></h2><div id="shl"></div><div class="bar" style="margin-top:10px;justify-content:flex-end"><button id="shc">닫기</button></div></dialog>
 <dialog id="dlg">
@@ -412,6 +416,8 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
       <div class="cols"><div class="card lcard"><div class="list" id="alist"></div></div><div class="card" id="aed"></div></div></details>
     <details class="sec" open><summary><b>유형</b><span class="grow"></span><button class="pri" id="tnew">+ 새 유형</button></summary>
       <div class="cols"><div class="card lcard"><div class="list" id="tlist"></div></div><div class="card" id="ted"></div></div></details>
+    <details class="sec" open><summary><b>배경음악</b><span class="grow"></span><button class="pri" id="bnew">+ 새 규칙</button></summary>
+      <div class="card"><div class="tag" style="margin-bottom:6px">cdcd의 재생목록을 장소·시간대·인물·계절에 연결해요. 조건이 많이 맞는 규칙이 먼저 골라지고(인물 &gt; 장소 &gt; 시간대 &gt; 계절), 조건을 비워 두면 "상관없음"이에요.</div><div id="blist"></div></div></details>
     <details class="sec" open><summary><b>장소</b><span class="grow"></span><button id="pimp">내장 가져오기</button></summary>
       <div class="cols2"><div class="card"><div id="pmap" class="townmap"></div>
         <div class="tag" style="margin-top:6px">빈 곳 더블클릭 = 새 장소 · 장소 더블클릭 후 끌기 = 위치 옮기기</div>
@@ -593,7 +599,7 @@ async function loadCatalog(){
     sb('/rest/v1/fsfs_action?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_place_type?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_place_type_action?select=*').catch(()=>[]),sb('/rest/v1/fsfs_place_action?select=*').catch(()=>[])]);
   await applyLvlv();
   applyWorld();
-  buildModel();rebuildAcq();pruneSel();refresh();renderWorld();if(!$('#dev').hidden)renderDevList();
+  buildModel();rebuildAcq();pruneSel();refresh();renderWorld();if(!$('#dev').hidden)renderDevList();try{loadBgm()}catch(e){}
 }
 $('#go').onclick=async()=>{
   try{
@@ -923,7 +929,7 @@ function checkEvents(){
   }
 }
 function after(){deltaCheck();saveGame();renderWorld();refresh();checkEvents()}
-function go(p,reopen){if(p===G.place||!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;viewSt=false;G.log='';after()}
+function go(p,reopen){if(p===G.place||!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;viewSt=false;viewBk=false;G.log='';after()}
 function renderShop(pid){
   const box=$('#shl');box.innerHTML='';
   WORLD.sources.filter(s=>s.type==='shop'&&s.place===pid).forEach(s=>{
@@ -1012,9 +1018,9 @@ function renderStatus(){
     <h2 style="margin-top:12px">최근 돈 내역 (최대 20건)</h2>${(G.ledger||[]).map(e=>{const d=new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+e.d);return `<div class="srow"><span>${d.getMonth()+1}/${d.getDate()} ${fmtT(e.t)} · ${esc(e.n)}</span><b style="color:${e.v>0?'#2f7d4f':'#b4452f'}">${e.v>0?'+':'−'}₩${Math.abs(e.v).toLocaleString()}</b></div>`}).join('')||'<div class="tag">아직 돈이 오간 기록이 없어요</div>'}`;
 }
 
-$('#closetx').hidden=true;$('#endview').onclick=()=>{G.closet=false;viewSt=false;after()};
+$('#closetx').hidden=true;$('#endview').onclick=()=>{G.closet=false;viewSt=false;viewBk=false;after()};
 
-let viewSt=false;
+let viewSt=false,viewBk=false;
 function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const d=dateOf();const bn=bandOf(G.min),BR=[['아침','🌅',300,420],['오전','🌤',420,780],['오후','☀️',780,1020],['저녁','🌇',1020,1140],['밤','🌙',1140,1740]],wd=d.getDay(),np=((G.min-300+1440)%1440)/1440*100; 
   $('#wt').innerHTML=`<b class="clk">${fmtT(G.min).replace(":","<i>:</i>")}</b>
@@ -1026,8 +1032,8 @@ function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const pl=$('#wp');pl.innerHTML='';
   for(const [k,p] of Object.entries(WORLD.places)){if(p.parent)continue;const b=document.createElement('button');b.textContent=p.i+' '+p.n;if(k===G.place)b.className='on';else b.title='이동하면 15분이 지나가요';b.onclick=()=>go(k);pl.append(b)}
   renderActs();
-  const co=G.place==='home'&&G.closet,vw=co?'closet':(viewSt?'status':'');$('#closet').hidden=!co;$('#cbar').hidden=!co;$('#mapview').hidden=!!vw;$('#stview').hidden=vw!=='status';$('#endview').hidden=!vw;if(vw==='status')renderStatus();
-  $('#wl').textContent=G.log||'';document.querySelector('.stagewrap').classList.toggle('bare',!co);
+  const co=G.place==='home'&&G.closet,vw=co?'closet':(viewSt?'status':(viewBk?'bk':''));$('#closet').hidden=!co;$('#cbar').hidden=!co;$('#bkview').hidden=vw!=='bk';$('#mapview').hidden=!!vw;$('#stview').hidden=vw!=='status';$('#endview').hidden=!vw;if(vw==='status')renderStatus();
+  $('#wl').textContent=G.log||'';document.querySelector('.stagewrap').classList.toggle('bare',!co);try{bgmUpdate()}catch(e){}
 }
 $('#wnew').onclick=()=>{if(!confirm('새 게임을 시작할까요? (보유 의상과 진행 상황이 초기화돼요)'))return;newGame();LAST=null;initSel();hidden.clear();after()};
 $('#shc').onclick=()=>{$('#shop').close();refresh()};
@@ -1075,7 +1081,7 @@ const post=(path,b,m='POST')=>sb(path,{m,h:{Prefer:'return=minimal'},b});
 document.querySelectorAll('#devtabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('#devtabs button').forEach(x=>x.classList.toggle('on',x===b));
   for(const t of ['items','map','npc','event'])$('#dv-'+t).hidden=b.dataset.t!==t;
-  if(b.dataset.t==='map'){renderActAdmin();renderMapAdmin()}if(b.dataset.t==='npc')renderNpcAdmin();if(b.dataset.t==='event')renderEvAdmin();});
+  if(b.dataset.t==='map'){renderActAdmin();renderMapAdmin();renderBgmAdmin()}if(b.dataset.t==='npc')renderNpcAdmin();if(b.dataset.t==='event')renderEvAdmin();});
 
 // ---- 지도 · 장소
 let pcur=null;
@@ -1539,7 +1545,7 @@ function bkSpine(b,i){
   if(!v){const d=Math.min(8,Math.max(5,w-12));return`<div ${a}><i class="bks-dm" style="width:${d}px;height:${d}px;background:${esc(c3)}"></i><div class="bks-bd sg">${pl}</div></div>`}
   return`<div ${a}><div class="bks-bd">${pl}<em class="bks-vq" style="background:${esc(c3)};color:${bkInk(c3)};font-size:${Math.min(9,Math.max(7,w-13))}px"><span>${esc(v)}</span></em></div></div>`}
 async function openShelf(){
-  const dlg=$('#bkdlg'),g=$('#bk_g');g.innerHTML='<div class="tag">책장을 불러오는 중…</div>';$('#bk_i').textContent='';if(!dlg.open)dlg.showModal();
+  const g=$('#bk_g');viewBk=true;renderWorld();g.innerHTML='<div class="tag">책장을 불러오는 중…</div>';$('#bk_i').textContent='';
   let L;try{L=await bkLoad()}catch(e){g.innerHTML=`<div class="tag">책장을 불러오지 못했어요. ${esc(String(e.message||e).slice(0,120))}</div>`;return}
   if(!L.length){g.innerHTML='<div class="tag">완독한 책이 아직 없어요. (bkbk에서 100%까지 읽은 기록이 있는 책만 꽂혀요. ⚙ 설정·로그인에서 로그인했는지도 확인해 주세요)</div>';return}
   $('#bk_i').textContent=`완독한 책 ${L.length}권 · 책을 누르면 발췌문이 하나 나와요 · 한 번 읽을 때마다 ⏱ ${READ_MIN}분`;
@@ -1551,7 +1557,64 @@ $('#bk_g').onclick=async e=>{const el=e.target.closest('.bks-sp');if(!el||!BK)re
     const q=L[Math.floor(Math.random()*L.length)],pos=bkHas(q.page)&&String(q.page)!==''?'p.'+q.page:(bkHas(q.pct)&&String(q.pct)!==''?Math.round(bkPC(q.pct))+'%':'');
     runScene([{t:`${q.text.trim()}\n\n— ${b.name}${pos?' · '+pos:''}`}],()=>{pass(READ_MIN);G.log='';after()});
   }catch(er){msg('발췌문을 불러오지 못했어요',1)}};
-$('#bk_x').onclick=()=>$('#bkdlg').close();
+
+/* ===== 배경음악 (cdcd 재생목록 연결) ===== */
+const SEASONS=[['spring','🌸 봄'],['summer','🌴 여름'],['autumn','🍁 가을'],['winter','❄️ 겨울']],seasonOf=d=>{const m=d.getMonth()+1;return m>=3&&m<=5?'spring':m<=8&&m>=6?'summer':m>=9&&m<=11?'autumn':'winter'};
+const BGM_VOL=[0,8,22,40,62,85];
+var BGM={lv:(()=>{try{const v=localStorage.getItem('bgmlv');return v==null?3:Math.min(5,Math.max(0,+v||0))}catch(e){return 3}})(),rules:[],started:false,pl:null,tracks:[],i:0,yt:null,ready:false,cache:{}};
+const bgmLabel=()=>{$('#bgmbtn').textContent='🎵 '+BGM.lv};
+$('#bgmbtn').onclick=()=>{BGM.lv=(BGM.lv+1)%6;try{localStorage.setItem('bgmlv',BGM.lv)}catch(e){}bgmLabel();sfx('click');bgmApplyVol()};bgmLabel();
+async function loadBgm(){try{BGM.rules=await sb('/rest/v1/fsfs_bgm?select=*&order=sort,created_at')||[]}catch(e){BGM.rules=[]}bgmUpdate()}
+function bgmPick(){
+  const p=WORLD.places[G.place]||{},ctx={place:[G.place,p.parent].filter(Boolean),band:bandOf(G.min),npc:here(),season:seasonOf(dateOf())};let best=null,bs=-1;
+  for(const r of BGM.rules){let sc=0;
+    if(r.npc){if(!ctx.npc.includes(r.npc))continue;sc+=8}
+    if(r.place){if(!ctx.place.includes(r.place))continue;sc+=4}
+    if(r.band){if(r.band!==ctx.band)continue;sc+=2}
+    if(r.season){if(r.season!==ctx.season)continue;sc+=1}
+    if(sc>bs){best=r;bs=sc}}
+  return best}
+async function bgmTracks(pid){
+  if(BGM.cache[pid])return BGM.cache[pid];
+  const rows=await sb('/rest/v1/cdcd_playlist_track?playlist_id=eq.'+encodeURIComponent(pid)+'&select=track_order,music:cdcd_music(id,name,youtube_url)&order=track_order.asc');
+  const ids=(rows||[]).map(r=>{const m=Array.isArray(r.music)?r.music[0]:r.music;const u=String((m||{}).youtube_url||'');const x=u.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);return x?x[1]:/^[A-Za-z0-9_-]{11}$/.test(u.trim())?u.trim():null}).filter(Boolean);
+  return BGM.cache[pid]=ids}
+function bgmApplyVol(){if(!BGM.ready)return;try{BGM.yt.setVolume(BGM_VOL[BGM.lv]);if(BGM.lv===0)BGM.yt.pauseVideo();else if(BGM.pl&&BGM.started&&BGM.yt.getPlayerState()!==1&&BGM.yt.getPlayerState()!==3)BGM.yt.playVideo()}catch(e){}}
+function bgmInit(){
+  if(BGM.yt||BGM.loading)return;BGM.loading=true;
+  const d=document.createElement('div');d.id='bgmhost';d.style.cssText='position:fixed;left:-9999px;bottom:0;width:200px;height:200px;opacity:0;pointer-events:none';d.innerHTML='<div id="bgmyt"></div>';document.body.append(d);
+  window.onYouTubeIframeAPIReady=()=>{const v={playsinline:1,controls:0,disablekb:1,rel:0};if(location.protocol.startsWith('http'))v.origin=location.origin;
+    BGM.yt=new YT.Player('bgmyt',{width:'200',height:'200',playerVars:v,events:{onReady:()=>{BGM.ready=true;bgmApplyVol();bgmUpdate(true)},onStateChange:e=>{if(e.data===0)bgmNext()},onError:()=>bgmNext()}})};
+  const t=document.createElement('script');t.src='https://www.youtube.com/iframe_api';document.head.append(t)}
+function bgmPlay(){if(!BGM.ready||!BGM.tracks.length)return;try{BGM.yt.setVolume(BGM_VOL[BGM.lv]);BGM.yt.loadVideoById(BGM.tracks[BGM.i%BGM.tracks.length]);if(BGM.lv===0)BGM.yt.pauseVideo()}catch(e){}}
+function bgmNext(){if(!BGM.tracks.length)return;BGM.i=(BGM.i+1)%BGM.tracks.length;bgmPlay()}
+async function bgmUpdate(force){if(!BGM||!BGM.started)return;
+  if(!BGM.started||!BGM.ready)return;const r=bgmPick(),pid=r?String(r.playlist_id):null;
+  if(pid===BGM.pl&&!force)return;BGM.pl=pid;
+  if(!pid){BGM.tracks=[];try{BGM.yt.pauseVideo()}catch(e){}return}
+  try{const ids=await bgmTracks(pid);if(BGM.pl!==pid)return;BGM.tracks=ids.slice();for(let k=BGM.tracks.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[BGM.tracks[k],BGM.tracks[j]]=[BGM.tracks[j],BGM.tracks[k]]}BGM.i=0;bgmPlay()}catch(e){BGM.pl=null}}
+function bgmStart(){BGM.started=true;bgmInit();bgmUpdate(true)}
+// 시작 화면: 한 번 눌러야 브라우저가 소리를 허용해요
+(function(){const w=$('#welcome');if(location.hash==='#dev')return;w.showModal();w.onclick=()=>{w.close();bgmStart()};w.oncancel=e=>{e.preventDefault()}})();
+// 관리자: 규칙 편집
+let BGMPL=null;
+async function renderBgmAdmin(){
+  const L=$('#blist');if(!L)return;
+  if(!BGMPL){try{BGMPL=await sb('/rest/v1/cdcd_playlist?select=id,name&order=id.asc')||[]}catch(e){BGMPL=[];L.innerHTML='<div class="tag">cdcd 재생목록을 못 불러왔어요. 로그인 상태를 확인해 주세요.</div>';return}}
+  const opt=(arr,v,any)=>`<option value="">${any}</option>`+arr.map(([k,n])=>`<option value="${esc(k)}"${String(v||'')===String(k)?' selected':''}>${esc(n)}</option>`).join('');
+  const row=r=>`<div class="bgmrow" data-id="${r.id||''}"><select class="b_pl">${opt(BGMPL.map(x=>[x.id,x.name]),r.playlist_id,'(재생목록 고르기)')}</select>
+  <select class="b_pc">${opt(Object.entries(WORLD.places).map(([k,v])=>[k,(v.i||'')+' '+v.n]),r.place,'장소: 상관없음')}</select>
+  <select class="b_bd">${opt(BANDS.map(b=>[b[2],b[2]]),r.band,'시간대: 상관없음')}</select>
+  <select class="b_np">${opt(Object.entries(WORLD.npcs).map(([k,v])=>[k,(v.i||'')+' '+v.n]),r.npc,'인물: 상관없음')}</select>
+  <select class="b_ss">${opt(SEASONS,r.season,'계절: 상관없음')}</select>
+  <button class="pri b_save">저장</button>${r.id?'<button class="b_del">삭제</button>':'<button class="b_del">취소</button>'}</div>`;
+  L.innerHTML=(BGM.rules.map(row).join('')||'')+(BGM.draft?row({}):'')||'<div class="tag">아직 규칙이 없어요. "+ 새 규칙"을 눌러요</div>'}
+$('#bnew').onclick=async e=>{BGM.draft=true;await renderBgmAdmin()};
+$('#blist').onclick=async e=>{const r=e.target.closest('.bgmrow');if(!r)return;
+  if(e.target.classList.contains('b_del')){try{if(r.dataset.id){await sb('/rest/v1/fsfs_bgm?id=eq.'+r.dataset.id,{m:'DELETE'});await loadBgm()}BGM.draft=false;BGM.cache={};await renderBgmAdmin()}catch(er){msg(er.message,1)}return}
+  if(e.target.classList.contains('b_save')){const v=c=>r.querySelector(c).value||null,pl=v('.b_pl');if(!pl)return msg('재생목록을 골라 주세요',1);
+    const row={playlist_id:pl,place:v('.b_pc'),band:v('.b_bd'),npc:v('.b_np'),season:v('.b_ss'),sort:BGM.rules.length};
+    try{if(r.dataset.id)await sb('/rest/v1/fsfs_bgm?id=eq.'+r.dataset.id,{m:'PATCH',b:row});else await post('/rest/v1/fsfs_bgm',row);BGM.draft=false;await loadBgm();await renderBgmAdmin();msg('저장했어요')}catch(er){msg(er.message,1)}}};
 </script>
 </body>
 </html>
