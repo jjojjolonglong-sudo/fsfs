@@ -182,7 +182,34 @@ button.act.off{opacity:.45;box-shadow:none}
 @media(max-width:1000px){.fr.id3{grid-template-columns:56px 1fr}.cols{grid-template-columns:1fr}.lcard{min-height:0}.lcard .list{position:static;max-height:260px}}
 #dev h2{transform:none;display:block;background:none;border:0;padding:0;text-transform:none;letter-spacing:0;font-size:20px!important}
 .fr>.chip{justify-self:start}
+
+/* ===== v13: 색 톤 정리(중성 종이 + 버터 + 코랄), 간판 단순화, 거울, 전광판 ===== */
+:root{--bg:#f4f2f1;--p:#fff;--ink:#1f1d1e;--mute:#7d7778;--line:#dedad9;--acc:#ee6a4e;--accbg:#ffe7e0;--chk:#ece9e8;--hi:#ffe9a0;--thr:#4a6bdc}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1a1b;--p:#262324;--ink:#f3eeee;--mute:#a89fa0;--line:#3d3839;--acc:#ff7f63;--accbg:#4a2b25;--chk:#302c2d;--hi:#6b5a2e}}
+.townmap{background-color:#eceae8;border:1px solid var(--ink)}
+/* 장소 간판: 얇은 선, 그림자·빨간 테두리 없음, 호버는 틱 올라감 */
+.map-building{border:1px solid var(--ink);box-shadow:none;border-radius:3px;background:#fff;transition:none!important;animation:none}
+.map-building::before{border-right:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.map-building:hover{background:var(--hi);transform:translate(-50%,calc(-50% - 3px));box-shadow:none}
+.map-building.current{background:var(--hi);border-color:var(--ink);box-shadow:none}
+.map-building.armed{background:var(--hi);animation:none;transform:translate(-50%,calc(-50% - 3px));outline:1px dashed var(--ink);outline-offset:3px;color:var(--ink)}
+.map-building:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+/* 거울 */
+.stagewrap{padding:12px}
+.stage{position:relative;border:0;border-radius:150px 150px 8px 8px;background:linear-gradient(165deg,#fbfcfd 0%,#e8edf1 52%,#f5f8fa 100%);
+  box-shadow:0 0 0 7px #e4e6e8,0 0 0 9px var(--ink),inset 0 0 36px rgba(110,130,150,.22),8px 10px 0 9px rgba(0,0,0,.10)}
+.stage::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(115deg,transparent 18%,rgba(255,255,255,.55) 18%,rgba(255,255,255,.55) 27%,transparent 27%,transparent 33%,rgba(255,255,255,.35) 33%,rgba(255,255,255,.35) 36%,transparent 36%)}
+/* 전광판 시계 */
+#wt .clk{position:relative;font:400 64px/1 "VT323","Courier New",monospace;letter-spacing:.04em;color:#ff7a4d;background:#16100f;padding:6px 16px 4px;border-radius:3px;overflow:hidden;
+  text-shadow:0 0 6px rgba(255,106,61,.85),0 0 18px rgba(255,80,40,.45);border:2px solid #000;box-shadow:inset 0 0 0 2px #2c2220}
+#wt .clk::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle,transparent 45%,rgba(0,0,0,.38) 52%) 0 0/4px 4px,linear-gradient(transparent 50%,rgba(0,0,0,.18) 50%) 0 0/100% 3px}
+#wt .clk i{font-style:normal;animation:blk 1s steps(1) infinite}
+@keyframes blk{50%{opacity:.15}}
+#sfxbtn{padding:3px 9px}
+#stview{padding:4px 2px}
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="app">
@@ -192,12 +219,15 @@ button.act.off{opacity:.45;box-shadow:none}
       <span id="cbar" class="bar" hidden><button id="rand">🎲 랜덤</button><button id="crand">🎨 색 랜덤</button><button id="reset">↺ 처음 옷차림</button><button id="strip">👕 전부 벗기</button><button id="closetx">옷장 닫기</button></span>
       <span style="flex:1"></span><button id="adminbtn" hidden>🛠 관리자 모드</button><button id="authbtn">⚙ 설정·로그인</button>
     </div></div>
-    <div class="card world"><div class="wt"><span id="wt"></span></div>
+    <div class="card world"><div class="wt"><span id="wt"></span><span style="flex:1"></span><button id="sfxbtn" title="클릭 소리 켜기/끄기">🔊</button><button id="endview" class="pri" hidden>끝내기</button></div>
+      <div id="stview" hidden><h2>📋 내 상태</h2><div id="st_b"></div></div>
+      <div id="mapview">
       <div class="map-heading"><span>오늘은 어디로 갈까?</span><span class="map-hint">건물을 누르면 이동해요 · 이동 시 시간이 흘러요</span></div>
       <div id="townmap" class="townmap" aria-label="쿼터뷰 마을 지도"></div>
       <div class="map-current" id="mapcurrent"></div>
       <div class="bar" id="wp" hidden></div><div class="bar" id="wa" style="margin-top:8px"></div><div class="tag" id="wl" style="margin-top:8px"></div>
       <div class="bar" style="margin-top:8px"><button id="wskip">⏭ 시간 보내기</button><button id="wcheat"></button><button id="wnew">새 게임</button></div></div>
+    </div>
     <div id="closet" hidden>
     <div class="card"><div class="tabs" id="tabs"></div><div class="grid" id="grid"></div></div>
     <div class="card" id="colorcard" hidden><h2>색상 (외곽선은 고정이에요)</h2><div id="colors"></div></div>
@@ -210,7 +240,6 @@ button.act.off{opacity:.45;box-shadow:none}
 <dialog id="place"><h2 id="pl_t" style="font-size:16px;color:var(--ink);margin-bottom:2px"></h2><div class="tag" id="pl_m"></div><div id="pl_d" style="margin:6px 0 0;line-height:1.5"></div>
   <div class="acts" id="pl_g"></div><div class="acts" id="pl_a"></div><div class="acts" id="pl_n"></div><div id="pl_msg"></div>
   <div class="bar" style="margin-top:8px;justify-content:flex-end"><button id="pl_x">닫기</button></div></dialog>
-<dialog id="status"><h2 style="font-size:16px;color:var(--ink)">📋 내 상태</h2><div id="st_b"></div><div class="bar" style="margin-top:10px;justify-content:flex-end"><button id="st_x">닫기</button></div></dialog>
 <dialog id="shop"><h2 id="shm"></h2><div id="shl"></div><div class="bar" style="margin-top:10px;justify-content:flex-end"><button id="shc">닫기</button></div></dialog>
 <dialog id="dlg">
   <h2>연결 설정</h2>
@@ -747,7 +776,7 @@ function checkEvents(){
   }
 }
 function after(){saveGame();renderWorld();refresh();checkEvents()}
-function go(p,reopen){if(p===G.place||!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;G.log=`${WORLD.places[p].n}에 도착했어요 (${mn}분)`;const hs=here();if(hs.length)G.log+=' · 만난 사람: '+hs.map(id=>WORLD.npcs[id].n).join(', ');after();if(reopen&&!$('#scene').open)openPlace(p)}
+function go(p,reopen){if(p===G.place||!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;viewSt=false;G.log=`${WORLD.places[p].n}에 도착했어요 (${mn}분)`;const hs=here();if(hs.length)G.log+=' · 만난 사람: '+hs.map(id=>WORLD.npcs[id].n).join(', ');after();if(reopen&&!$('#scene').open)openPlace(p)}
 function renderShop(pid){
   const box=$('#shl');box.innerHTML='';
   WORLD.sources.filter(s=>s.type==='shop'&&s.place===pid).forEach(s=>{
@@ -801,7 +830,7 @@ function actState(a,who){
 function doAction(a,who){
   const st=actState(a,who);if(!st.ok)return say(st.why,1);if(!availAct(a))return say('지금은 시간이 부족해요',1);const pid=G.place;
   if(a.kind==='closet'){G.closet=true;$('#place').close();after();setTimeout(()=>$('#closet').scrollIntoView({behavior:'smooth',block:'start'}),50);return}
-  if(a.kind==='status'){renderStatus();$('#status').showModal();return}
+  if(a.kind==='status'){viewSt=true;renderStatus();$('#place').close();after();return}
   if(a.kind==='shop'){if(!WORLD.sources.some(s=>s.type==='shop'&&s.place===pid))return say('아직 파는 물건이 없어요');return openShop(pid)}
   if(a.kind==='look')return say(WORLD.places[pid].desc||'조용한 곳이에요');
   earn(a.money||0,a.name+(who?' · '+((WORLD.npcs[who]||{}).n||''):''));G.energy=clampE(G.energy+enOf(a));
@@ -840,11 +869,12 @@ function renderStatus(){
     <h2 style="margin-top:12px">호감도</h2>${aff}<div class="srow" style="margin-top:8px"><span>모은 옷</span><b>${Object.keys(G.owned).length}벌</b></div>
     <h2 style="margin-top:12px">최근 돈 내역 (최대 20건)</h2>${(G.ledger||[]).map(e=>{const d=new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+e.d);return `<div class="srow"><span>${d.getMonth()+1}/${d.getDate()} ${fmtT(e.t)} · ${esc(e.n)}</span><b style="color:${e.v>0?'#2f7d4f':'#b4452f'}">${e.v>0?'+':'−'}₩${Math.abs(e.v).toLocaleString()}</b></div>`}).join('')||'<div class="tag">아직 돈이 오간 기록이 없어요</div>'}`;
 }
-$('#pl_x').onclick=()=>$('#place').close();$('#st_x').onclick=()=>$('#status').close();
-$('#closetx').onclick=()=>{G.closet=false;after()};
+$('#pl_x').onclick=()=>$('#place').close();
+$('#closetx').hidden=true;$('#endview').onclick=()=>{G.closet=false;viewSt=false;after()};
 
+let viewSt=false;
 function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
-  const d=dateOf();$('#wt').innerHTML=`<b class="clk">${fmtT(G.min)}</b><span class="dt">${dateText()}</span><span class="band">${({'이른아침':'🌅','오전':'🌤','오후':'☀️','저녁':'🌇','깊은 밤':'🌙'})[bandOf(G.min)]||''} ${bandOf(G.min)}</span>`;applyTint();
+  const d=dateOf();$('#wt').innerHTML=`<b class="clk">${fmtT(G.min).replace(":","<i>:</i>")}</b><span class="dt">${dateText()}</span><span class="band">${({'이른아침':'🌅','오전':'🌤','오후':'☀️','저녁':'🌇','깊은 밤':'🌙'})[bandOf(G.min)]||''} ${bandOf(G.min)}</span>`;applyTint();
   buildTownMap();
   document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===topOf(G.place));b.classList.toggle('closed',!openNow(id));});
   const p=WORLD.places[G.place];$('#mapcurrent').innerHTML=`<span class="current-dot"></span><span>현재 위치: <strong>${p.parent&&WORLD.places[p.parent]?WORLD.places[p.parent].n+' › ':''}${p.n}</strong> — ${p.desc||''}</span>`;
@@ -854,7 +884,7 @@ function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   add(openNow(G.place)?'🚪 들어가기 · 행동 고르기':'🔒 영업 종료',()=>openPlace(G.place));
   here().forEach(id=>{const n=WORLD.npcs[id],b=document.createElement('button');b.className='enc';
     b.innerHTML=`<span class="npi">${n.img?`<img src="${esc(n.img)}" alt="">`:esc(n.i||'🙂')}</span><span><b>${esc(n.n)}</b>${n.job?' · '+esc(n.job):''}<br><small>이야기하기 · 호감도 ${G.aff[id]||0}</small></span>`;b.onclick=()=>talk(id);ac.append(b)});
-  const co=G.place==='home'&&G.closet;$('#closet').hidden=!co;$('#cbar').hidden=!co;
+  const co=G.place==='home'&&G.closet,vw=co?'closet':(viewSt?'status':'');$('#closet').hidden=!co;$('#cbar').hidden=!co;$('#mapview').hidden=!!vw;$('#stview').hidden=vw!=='status';$('#endview').hidden=!vw;if(vw==='status')renderStatus();
   $('#wl').textContent=G.log||'';$('#wcheat').textContent=G.cheat?'🔓 전체 해금 중':'🔒 전체 해금(테스트)';
 }
 $('#wskip').onclick=()=>{pass(WORLD.skipMin);G.log='시간이 흘렀어요 (1시간)';after()};
@@ -1302,6 +1332,23 @@ function npcExtra(n){
 // ================= 시작 =================
 loadGame();buildModel();rebuildAcq();initSel();inited=true;refresh();renderWorld();checkEvents();
 (async()=>{try{const t=JSON.parse(localStorage.getItem('fsfsSess')||'null');if(t&&t.rt){S={rt:t.rt,exp:0};await tok();if(S)await afterLogin()}}catch(e){msg('자동 로그인 실패: '+e.message,1)}})();
+
+/* ===== 달칵 소리 (키캡 버튼) ===== */
+const SFX_URL='https://jjojjolonglong-sudo.github.io/mnmn/click.v1.wav';
+const SFX={on:(()=>{try{return localStorage.getItem('sfx')!=='0'}catch(e){return true}})(),ctx:null,buf:null,raw:null};
+fetch(SFX_URL).then(r=>r.ok?r.arrayBuffer():null).then(b=>{SFX.raw=b}).catch(()=>{});
+function sfxSynth(c){const sr=c.sampleRate,n=Math.floor(sr*.12),b=c.createBuffer(1,n,sr),d=b.getChannelData(0);let pv=0;
+  for(let i=0;i<n;i++){const t=i/sr;let v=.9*Math.sin(2*Math.PI*(170-400*t)*t)*Math.exp(-t/.012);
+    if(t>=.038){const u=t-.038,nz=Math.random()*2-1;v+=.55*(nz-.9*pv)*Math.exp(-u/.004)+.45*Math.sin(2*Math.PI*3100*u)*Math.exp(-u/.006);pv=nz}
+    d[i]=v*Math.min(1,t/.0008)*.5}return b}
+function sfxPlay(){if(!SFX.on)return;try{
+  if(!SFX.ctx){SFX.ctx=new(window.AudioContext||window.webkitAudioContext)();SFX.buf=sfxSynth(SFX.ctx);
+    if(SFX.raw)SFX.ctx.decodeAudioData(SFX.raw.slice(0)).then(b=>{SFX.buf=b}).catch(()=>{})}
+  if(SFX.ctx.state==='suspended')SFX.ctx.resume();
+  const s=SFX.ctx.createBufferSource(),g=SFX.ctx.createGain();g.gain.value=.7;s.buffer=SFX.buf;s.connect(g).connect(SFX.ctx.destination);s.start()}catch(e){}}
+document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('button');if(!b||b.disabled||b.classList.contains('map-building')||b.id==='sfxbtn')return;sfxPlay()},true);
+$('#sfxbtn').onclick=()=>{SFX.on=!SFX.on;try{localStorage.setItem('sfx',SFX.on?'1':'0')}catch(e){}$('#sfxbtn').textContent=SFX.on?'🔊':'🔇';sfxPlay()};
+$('#sfxbtn').textContent=SFX.on?'🔊':'🔇';
 </script>
 </body>
 </html>
