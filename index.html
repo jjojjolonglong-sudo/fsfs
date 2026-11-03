@@ -326,6 +326,25 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 #delta[open]{display:flex}#delta::backdrop{background:rgba(32,27,23,.28)}
 #delta.onmap{transform:translate(-50%,-50%)}
 #scene{cursor:pointer}
+
+/* ===== v19 ===== */
+.scale{height:20px;border-top:1px solid var(--ink);overflow:visible}
+.scale>i.tk{position:absolute;top:0;width:1px;background:var(--ink);opacity:.7;border:0}
+.scale>i.tk.l{height:11px}.scale>i.tk.m{height:7px}.scale>i.tk.s{height:4px}
+.scale .needle{overflow:visible;bottom:-1px;opacity:1}
+.bd{border-right:1px solid rgba(32,27,23,.28)!important}.bd:last-of-type{border-right:0!important}
+#scene .tx{white-space:pre-wrap}
+.bkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:14px 10px;max-height:60vh;overflow:auto;padding:4px}
+.bk{display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px;box-shadow:none;border:2px solid transparent;background:none;font-weight:600}
+.bk:hover{border-color:var(--ink);background:var(--hi)}
+.bkc{position:relative;width:100%;aspect-ratio:110/156;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:3px 3px 0 var(--ink)}
+.bkc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.bkc em{font-style:normal;font-size:11px;padding:6px;text-align:center;line-height:1.3}
+.bkc img+em{display:none}
+.bkt{font-size:11px;line-height:1.3;max-height:2.6em;overflow:hidden;text-align:center}
+.bks{font-size:10px;color:var(--acc)}
+#bkdlg{max-width:760px}
+#bkdlg h2{background:none;border:0;transform:none;padding:0;display:block}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
 </head>
@@ -353,6 +372,7 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 </div>
 
 <dialog id="delta"></dialog>
+<dialog id="bkdlg"><h2 id="bk_t" style="font-size:18px;text-transform:none;letter-spacing:0">📖 추천작</h2><div class="tag" id="bk_i" style="margin:6px 0 10px"></div><div id="bk_g" class="bkgrid"></div><div class="bar" style="margin-top:12px;justify-content:flex-end"><button id="bk_x">닫기</button></div></dialog>
 <dialog id="scene"><img id="sp" hidden alt=""><div class="nm" id="sn"></div><div class="tx" id="st"></div><div class="bar" id="sb" style="justify-content:flex-end"></div></dialog>
 <dialog id="shop"><h2 id="shm"></h2><div id="shl"></div><div class="bar" style="margin-top:10px;justify-content:flex-end"><button id="shc">닫기</button></div></dialog>
 <dialog id="dlg">
@@ -808,11 +828,11 @@ const WORLD={moveMin:15,innerMin:5,talkMin:30,skipMin:60,wakeMin:360,sleepRegen:
 };
 const DOW='일월화수목금토',rid=r=>BY[r]?r:'b:'+r;
 const ACT0=[
+  {code:'bkbk',name:'추천작 살펴보기',icon:'📖',kind:'bkbk',descr:'책장에서 책을 골라 발췌문을 읽어요. (bkbk 연동)',mins:0,energy:0,money:0},
   {code:'talk',name:'이야기하기',icon:'💬',kind:'normal',descr:'',mins:30,energy:0,money:0,effects:{aff:[{npc:'*',v:1}]},scene:[]},
   {code:'sleep',name:'잠자기',icon:'😴',kind:'normal',descr:'아침 6시까지 푹 자요. 에너지가 채워져요.',mins:0,energy:0,money:0,endAt:360,minMins:240,cond:{ranges:[[1200,120]]},effects:{eph:12}},
   {code:'closet',name:'옷장 열기',icon:'👗',kind:'closet',descr:'옷을 갈아입어요.',mins:0,energy:0,money:0},
   {code:'status',name:'내 상태 보기',icon:'📋',kind:'status',descr:'돈·에너지·호감도를 확인해요.',mins:0,energy:0,money:0},
-  {code:'look',name:'둘러보기',icon:'👀',kind:'look',descr:'',mins:0,energy:0,money:0},
   {code:'shop',name:'물건 보기',icon:'🛍',kind:'shop',descr:'파는 물건을 살펴봐요.',mins:0,energy:0,money:0},
   {code:'walk',name:'산책하기',icon:'🚶',kind:'normal',descr:'천천히 걸으며 기분을 풀어요.',mins:30,energy:-5,money:0,scene:[{t:'나무 사이로 바람이 지나간다. 머릿속이 조금 맑아진 것 같다.'}]},
   {code:'drink',name:'음료 마시기',icon:'☕',kind:'normal',descr:'달콤한 음료로 한숨 돌려요.',mins:60,energy:10,money:-4500,scene:[{t:'따뜻한 음료를 천천히 마셨다. 기운이 조금 돌아온다.'}]},
@@ -829,7 +849,7 @@ const ACT0=[
   {code:'read',name:'책 읽어보기',icon:'📖',kind:'normal',descr:'마음에 드는 책을 골라 한참 읽어요.',mins:60,energy:-3,money:0,scene:[{t:'서서 읽다 보니 어느새 한 챕터가 끝났다.'}]}
 ];
 const PLACEACT0={convenience:{add:['job_conv','snack'],remove:[]},cafe:{add:['job_cafe'],remove:[]},flower:{add:['job_flower','flowerbuy'],remove:[]},bookstore:{add:['job_book','read'],remove:[]},bakery:{add:['job_bakery','bread'],remove:[]}};
-const TYPES0={home:{name:'집',icon:'🏠',actions:['sleep','closet','status']},clothes:{name:'옷가게',icon:'👗',actions:['shop','look']},store:{name:'가게',icon:'🏪',actions:['look']},cafe:{name:'카페',icon:'☕',actions:['drink','look']},restaurant:{name:'식당',icon:'🍝',actions:['meal','look']},salon:{name:'미용실',icon:'💇',actions:['hair','look']},park:{name:'공원',icon:'🌳',actions:['walk','look']},basic:{name:'일반',icon:'📍',actions:['look']}};
+const TYPES0={home:{name:'집',icon:'🏠',actions:['sleep','closet','status']},clothes:{name:'옷가게',icon:'👗',actions:['shop']},store:{name:'가게',icon:'🏪',actions:[]},cafe:{name:'카페',icon:'☕',actions:['drink']},restaurant:{name:'식당',icon:'🍝',actions:['meal']},salon:{name:'미용실',icon:'💇',actions:['hair']},park:{name:'공원',icon:'🌳',actions:['walk']},basic:{name:'일반',icon:'📍',actions:[]},library:{name:'도서관',icon:'📚',actions:['bkbk']}};
 WORLD.actions={};ACT0.forEach(a=>WORLD.actions[a.code]=a);WORLD.types=structuredClone(TYPES0);WORLD.placeActs=structuredClone(PLACEACT0);
 const ACQ={};
 function rebuildAcq(){   // 획득 경로: 코드에 적은 경로 + 이벤트 보상으로 주는 의상(받기 전엔 잠김)
@@ -930,7 +950,7 @@ function actionsAt(pid){
   const p=WORLD.places[pid];if(!p)return[];const T=WORLD.types[p.type]||{actions:[]},o=WORLD.placeActs[pid]||{add:[],remove:[]};
   let codes=[...T.actions];o.add.forEach(c=>{if(!codes.includes(c))codes.push(c)});codes=codes.filter(c=>!o.remove.includes(c));
   if(WORLD.sources.some(s=>s.type==='shop'&&s.place===pid)&&!codes.some(c=>(WORLD.actions[c]||{}).kind==='shop'))codes.unshift('shop');
-  if(!codes.length)codes=['look'];
+  codes=codes.filter(c=>c!=='look'&&(WORLD.actions[c]||{}).kind!=='look');
   if(here().length&&WORLD.actions.talk&&!codes.includes('talk')&&!o.remove.includes('talk'))codes.push('talk');
   return codes.map(c=>WORLD.actions[c]).filter(Boolean);
 }
@@ -955,7 +975,7 @@ function doAction(a,who){
   if(a.kind==='closet'){G.closet=true;after();setTimeout(()=>$('#closet').scrollIntoView({behavior:'smooth',block:'start'}),50);return}
   if(a.kind==='status'){viewSt=true;renderStatus();after();return}
   if(a.kind==='shop'){if(!WORLD.sources.some(s=>s.type==='shop'&&s.place===pid))return say('아직 파는 물건이 없어요');return openShop(pid)}
-  if(a.kind==='look')return say(WORLD.places[pid].desc||'조용한 곳이에요');
+  if(a.kind==='bkbk')return openShelf();
   earn(a.money||0,a.name+(who?' · '+((WORLD.npcs[who]||{}).n||''):''));G.energy=clampE(G.energy+enOf(a));
   const ef=a.effects||{},ev=+((ef.aff||[])[0]||{}).v||0;if(who&&ev)G.aff[who]=(G.aff[who]||0)+ev;(ef.give||[]).forEach(giveItem);
   if((a.cond||{}).daily)G.actDay[dk(a,who)]=G.day;
@@ -994,7 +1014,7 @@ function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const d=dateOf();const bn=bandOf(G.min),BR=[['아침','🌅',300,420],['오전','🌤',420,780],['오후','☀️',780,1020],['저녁','🌇',1020,1140],['밤','🌙',1140,1740]],wd=d.getDay(),np=((G.min-300+1440)%1440)/1440*100; 
   $('#wt').innerHTML=`<b class="clk">${fmtT(G.min).replace(":","<i>:</i>")}</b>
    <div class="cal${wd===0?' sun':wd===6?' sat':''}"><span class="mo">${d.getMonth()+1}월</span><b class="dy">${d.getDate()}</b><span class="wk">${DOW[wd]}요일</span></div>
-   <div class="tl"><div class="bands">${BR.map(([n,i,a,b])=>`<span class="bd${n===bn?' on':''}" style="flex:${b-a} 1 0"><i>${i}</i><em>${n}</em></span>`).join('')}</div><div class="scale">${'<i></i>'.repeat(12)}<svg class="needle" style="left:${Math.min(97,Math.max(3,np))}%" viewBox="0 0 12 16" width="12" height="16"><path d="M6 1.2 L10.8 15 H1.2 Z" fill="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div></div>`;applyTint();
+   <div class="tl"><div class="bands">${BR.map(([n,i,a,b])=>`<span class="bd${n===bn?' on':''}" style="flex:${b-a} 1 0"><i>${i}</i><em>${n}</em></span>`).join('')}</div><div class="scale">${Array.from({length:47},(_,k)=>{const n=k+1;return `<i class="tk ${n%4===0?'l':n%2===0?'m':'s'}" style="left:${n/48*100}%"></i>`}).join('')}<svg class="needle" style="left:${Math.min(97,Math.max(3,np))}%" viewBox="0 0 12 16" width="12" height="16"><path d="M6 0.5 L11.2 16 H0.8 Z" fill="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div></div>`;applyTint();
   buildTownMap();
   document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===topOf(G.place));b.classList.toggle('closed',!openNow(id));});
   const p=WORLD.places[G.place];$('#mapcurrent').innerHTML=`<div class="loc">${p.parent&&WORLD.places[p.parent]?`<span class="pp">${esc(WORLD.places[p.parent].n)} › </span>`:''}<b>${esc(p.i||'')} ${esc(p.n)}</b><span class="ar">에 도착했어요.</span></div>${p.desc?`<div class="ld">${esc(p.desc)}</div>`:''}`;
@@ -1029,11 +1049,13 @@ function applyWorld(){
 }
 function actFromRow(r){return{code:r.code,name:r.name,icon:r.icon||'',descr:r.descr||'',kind:r.kind==='sleep'?'normal':(r.kind||'normal'),mins:r.time_min!=null?+r.time_min:(+r.time_cost||0)*SLOTLEN,endAt:r.end_min!=null?+r.end_min:(r.kind==='sleep'?WORLD.wakeMin:null),minMins:+r.min_mins||0,energy:+r.energy||0,money:+r.money||0,cond:r.cond||{},effects:(()=>{const e={...(r.effects||{})};if(r.kind==='sleep'&&e.eph==null)e.eph=WORLD.sleepRegen||12;return e})(),scene:r.scene||[]}}
 function applyActions(){
-  WORLD.actions={};const keep=['look','shop','talk'];
+  WORLD.actions={};const keep=['shop','talk','bkbk'];
   if(DB.actions.length){ACT0.filter(a=>keep.includes(a.code)).forEach(a=>WORLD.actions[a.code]=a);DB.actions.forEach(r=>WORLD.actions[r.code]=actFromRow(r))}else ACT0.forEach(a=>WORLD.actions[a.code]=a);
   WORLD.types={};
   if(DB.ptypes.length)DB.ptypes.forEach(t=>WORLD.types[t.code]={name:t.name,icon:t.icon||'📍',actions:DB.ptacts.filter(x=>x.type_code===t.code).sort((a,b)=>(a.sort||0)-(b.sort||0)).map(x=>x.action_code)});
   else Object.entries(TYPES0).forEach(([k,t])=>WORLD.types[k]={...t,actions:[...t.actions]});
+  if(!WORLD.actions.bkbk)WORLD.actions.bkbk=ACT0.find(a=>a.code==='bkbk');
+  WORLD.types.library={name:'도서관',icon:'📚',actions:['bkbk'],fixed:true};   // 고정 유형: bkbk 책장 연동
   WORLD.placeActs=DB.actions.length?{}:structuredClone(PLACEACT0);DB.pacts.forEach(x=>{const o=WORLD.placeActs[x.place_code]=WORLD.placeActs[x.place_code]||{add:[],remove:[]};(x.mode==='remove'?o.remove:o.add).push(x.action_code)});
 }
 async function putPlain(dir,id,file,max,q=0.88){
@@ -1292,7 +1314,7 @@ async function delEv(){
 }
 
 // ================= 관리자: 행동 · 장소 유형 =================
-const FIXED={closet:'옷장 열기',status:'내 상태 보기',shop:'상점 열기',look:'둘러보기'};   // 고정: 앱 기본 기능을 여는 버튼. 나머지는 전부 커스텀
+const FIXED={closet:'옷장 열기',status:'내 상태 보기',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기'};   // 고정: 앱 기본 기능을 여는 버튼. 나머지는 전부 커스텀
 let acur=null,tcur=null;const sortBy=(a,b)=>(a.sort||0)-(b.sort||0);
 function renderActAdmin(){renderActList();renderActForm();renderTypeList();renderTypeForm()}
 function renderActList(){
@@ -1356,15 +1378,15 @@ async function delAct(){
 }
 $('#aimp').onclick=async()=>{
   if(DB.actions.length||DB.ptypes.length)return msg('이미 행동이나 유형이 있어요. 내장 데이터는 비어 있을 때만 가져와요',1);
-  try{await post('/rest/v1/fsfs_action',ACT0.map((a,i)=>({code:a.code,name:a.name,icon:a.icon,descr:a.descr||'',kind:a.kind,time_min:a.mins||0,time_cost:Math.ceil((a.mins||0)/SLOTLEN),end_min:a.endAt!=null?a.endAt:null,min_mins:a.minMins||0,energy:a.energy||0,money:a.money||0,cond:a.cond||{},effects:a.effects||{},scene:a.scene||[],sort:i})));
-    await post('/rest/v1/fsfs_place_type',Object.entries(TYPES0).map(([code,t],i)=>({code,name:t.name,icon:t.icon,sort:i})));
-    await post('/rest/v1/fsfs_place_type_action',Object.entries(TYPES0).flatMap(([code,t])=>t.actions.map((ac,i)=>({type_code:code,action_code:ac,sort:i}))));
+  try{await post('/rest/v1/fsfs_action',ACT0.filter(a=>a.code!=='bkbk').map((a,i)=>({code:a.code,name:a.name,icon:a.icon,descr:a.descr||'',kind:a.kind,time_min:a.mins||0,time_cost:Math.ceil((a.mins||0)/SLOTLEN),end_min:a.endAt!=null?a.endAt:null,min_mins:a.minMins||0,energy:a.energy||0,money:a.money||0,cond:a.cond||{},effects:a.effects||{},scene:a.scene||[],sort:i})));
+    await post('/rest/v1/fsfs_place_type',Object.entries(TYPES0).filter(([k])=>k!=='library').map(([code,t],i)=>({code,name:t.name,icon:t.icon,sort:i})));
+    await post('/rest/v1/fsfs_place_type_action',Object.entries(TYPES0).filter(([k])=>k!=='library').flatMap(([code,t])=>t.actions.map((ac,i)=>({type_code:code,action_code:ac,sort:i}))));
     const pa=Object.entries(PLACEACT0).filter(([k])=>DB.places.some(r=>r.code===k)).flatMap(([k,o])=>o.add.map(c=>({place_code:k,action_code:c,mode:'add'})));if(pa.length)await post('/rest/v1/fsfs_place_action',pa);
     await loadCatalog();renderActAdmin();msg('내장 행동·유형을 가져왔어요');
   }catch(e){msg(e.message,1)}
 };
 function renderTypeList(){
-  $('#tlist').innerHTML=DB.ptypes.slice().sort(sortBy).map(t=>`<div class="it${tcur&&tcur.id===t.id?' on':''}" data-id="${t.id}"><div style="font-size:20px">${esc(t.icon||'📍')}</div><div><div>${esc(t.name)}</div><div class="tag">행동 ${DB.ptacts.filter(x=>x.type_code===t.code).length}개 · 장소 ${DB.places.filter(p=>p.type_code===t.code).length}곳</div></div></div>`).join('')||'<div class="tag">등록한 유형이 없어요</div>';
+  $('#tlist').innerHTML=DB.ptypes.slice().sort(sortBy).map(t=>`<div class="it${tcur&&tcur.id===t.id?' on':''}" data-id="${t.id}"><div style="font-size:20px">${esc(t.icon||'📍')}</div><div><div>${esc(t.name)}</div><div class="tag">행동 ${DB.ptacts.filter(x=>x.type_code===t.code).length}개 · 장소 ${DB.places.filter(p=>p.type_code===t.code).length}곳</div></div></div>`).join('')+`<div class="it" style="cursor:default;opacity:.8"><div style="font-size:20px">📚</div><div><div>도서관 🔒</div><div class="tag">고정 · 추천작 살펴보기(bkbk) 연동</div></div></div>`;
 }
 $('#tlist').onclick=e=>{const d=e.target.closest('.it');if(!d)return;tcur=structuredClone(DB.ptypes.find(t=>t.id===d.dataset.id));tcur._acts=DB.ptacts.filter(x=>x.type_code===tcur.code).sort(sortBy).map(x=>x.action_code);renderTypeList();renderTypeForm()};
 $('#tnew').onclick=()=>{tcur={code:'t'+Date.now().toString(36),name:'새 유형',icon:'📍',sort:DB.ptypes.length,_acts:[]};renderTypeList();renderTypeForm()};
@@ -1479,6 +1501,28 @@ function deltaCheck(){const c=dSnap(),o=LAST;LAST=c;if(!o)return;const it=[];
   const el=$('#delta');el.innerHTML=it.join('');el.classList.toggle('onmap',placeOnMap(el));el.dataset.t=Date.now();if(!el.open)el.showModal();
   el.onclick=()=>{if(Date.now()-el.dataset.t>250)el.close()}}
 LAST=dSnap();
+
+/* ===== bkbk 연동: 책장 → 책 → 발췌문 ===== */
+const BK_MEDIA='https://media.jjojjolonglong.workers.dev',BK_H16=/^[0-9a-f]{16}$/,READ_MIN=20;
+const bkImg=u=>{u=String(u||'');if(!u)return'';if(/^https?:/.test(u))return u;if(BK_H16.test(u))return`${BK_MEDIA}/o/images/${u}.webp`;if(/(^|\/)(covers|images)\/[0-9a-f]+\.jpg$/.test(u))u=u.replace(/\.jpg$/,'_s.jpg');return`${BK_MEDIA}/o/${u}`};
+const bkInk=h=>{h=String(h||'#888').replace('#','');if(h.length<6)return'#fff';const[r,g,b]=[0,2,4].map(i=>parseInt(h.substr(i,2),16));return r*.3+g*.59+b*.11>150?'#222':'#fff'};
+let BK=null;
+async function openShelf(){
+  const dlg=$('#bkdlg'),g=$('#bk_g');g.innerHTML='<div class="tag">책장을 불러오는 중…</div>';$('#bk_i').textContent='';dlg.showModal();
+  try{if(!BK)BK=await sb('/rest/v1/bkbk_books?select=id,label,author,cover,color1,star&order=star.desc.nullslast,label.asc&limit=1000');}
+  catch(e){g.innerHTML=`<div class="tag">책장을 불러오지 못했어요. ${esc(String(e.message||e).slice(0,120))}</div>`;return}
+  if(!BK||!BK.length){g.innerHTML='<div class="tag">책장이 비어 있어요. bkbk에 책이 있다면 ⚙ 설정·로그인에서 로그인했는지 확인해 주세요.</div>';return}
+  $('#bk_i').textContent=`책을 누르면 발췌문이 하나 나와요 · 한 번 읽을 때마다 ⏱ ${READ_MIN}분 · ${BK.length}권`;
+  g.innerHTML=BK.map((b,i)=>{const im=bkImg(b.cover),c=b.color1||'#d9d4cc';
+    return`<button type="button" class="bk" data-i="${i}"><span class="bkc" style="background:${esc(c)};color:${bkInk(c)}">${im?`<img src="${esc(im)}" alt="" loading="lazy" onerror="this.remove()">`:''}<em>${esc(b.label||'')}</em></span><span class="bkt">${esc(b.label||'')}</span>${b.star?`<span class="bks">${'★'.repeat(Math.min(5,+b.star))}</span>`:''}</button>`}).join('');
+}
+$('#bk_g').onclick=async e=>{const el=e.target.closest('.bk');if(!el)return;const b=BK[+el.dataset.i];
+  try{const t=await sb('/rest/v1/bkbk_texts?book=eq.'+b.id+'&select=text,chapter,page&limit=300'),L=(t||[]).filter(x=>x.text&&x.text.trim());
+    if(!L.length)return msg('이 책엔 아직 발췌문이 없어요');
+    const q=L[Math.floor(Math.random()*L.length)],tail=[b.author,q.chapter,q.page?q.page+'쪽':''].filter(Boolean).join(' · ');
+    runScene([{t:`${q.text.trim()}\n\n— 『${b.label||''}』${tail?' · '+tail:''}`}],()=>{pass(READ_MIN);G.log='';after()});
+  }catch(er){msg('발췌문을 불러오지 못했어요',1)}};
+$('#bk_x').onclick=()=>$('#bkdlg').close();
 </script>
 </body>
 </html>
