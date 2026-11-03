@@ -394,6 +394,13 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 .mvp span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:6px;text-align:center;font-size:12px;font-weight:700;color:#fff;text-shadow:0 1px 2px #000}
 .mvshelf.sh .mvp{animation:mvsl .6s ease-out}@keyframes mvsl{from{transform:translateX(calc(100% + 12px))}to{transform:none}}
 .mvshelf.sh .mvp:last-child{animation:mvnew .6s ease-out}@keyframes mvnew{from{transform:translateX(160%);opacity:0}to{transform:none;opacity:1}}
+#dev input:disabled,#dev textarea:disabled,#dev select:disabled{background:#e2ded5!important;color:#8b8478;cursor:not-allowed;border-color:#b9b3a6}
+.t24{width:70px!important;text-align:center;font-variant-numeric:tabular-nums}
+.sp{min-width:140px;flex:1}.schr{flex-wrap:wrap}
+#pmap .map-building{user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
+#pmap .map-building:hover,#pmap .map-building:active{transform:translate(-50%,-50%);box-shadow:0 3px 0 var(--ink)}
+#pmap .map-building.current:hover,#pmap .map-building.current:active{box-shadow:0 3px 0 var(--ink),0 0 0 3px var(--acc)}
+#pmap .map-building.armed{animation:none;transform:translate(-50%,-50%)}
 #film{padding:0;border:0;outline:none;border-radius:6px;background:#0a0912;color:#ffe14a;width:min(94vw,680px);max-width:none;box-shadow:0 0 0 1px #2a2540,0 20px 70px #000;overflow:hidden;cursor:pointer;user-select:none;-webkit-user-select:none;font-family:'Gowun Dodum',inherit}
 #film::backdrop{background:rgba(0,0,0,.82)}
 #film::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:6;background:repeating-linear-gradient(0deg,#0000 0 2px,#0004 2px 3px)}
@@ -488,13 +495,7 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
         <div class="card" id="ped"></div></div></details>
   </div>
   <div id="dv-npc" hidden>
-    <div class="card" style="margin-bottom:12px"><div class="hd"><b>프로필 이미지 한꺼번에 등록</b><i class="tip" tabindex="0" data-tip="파일 이름이 인물 이름이 돼요 (예: 하윤.png). 이름이 이미 있는 인물과 같으면 새로 만들지 않고 그 인물의 썸네일로 붙여요 (덕질노트에서 가져온 뒤 GPT 썸네일을 이름으로 올리면 돼요)">?</i></div>
-      <div class="row"><label>이미지 여러 장<input id="npf" type="file" accept="image/*" multiple></label><button class="pri" id="npbulk">등록</button><button id="npimp">내장 인물 가져오기</button></div>
-      </div>
-    <div class="card" style="margin-bottom:12px"><div class="hd"><b>덕질노트(lvlv) 인물을 NPC로 추가</b><i class="tip" tabindex="0" data-tip="한 번 연결하면 이름·성별·키워드·어록·프로필은 lvlv에서 그대로 읽어와요">?</i></div>
-      <div class="row"><button id="lvload">목록 불러오기</button><button id="lvall">전체 선택</button><button class="pri" id="lvgo">선택한 인물 추가</button></div>
-      <div id="lvlist" class="list" style="max-height:220px"></div></div>
-    <div class="cols"><div class="card"><div class="list" id="nlist"></div></div><div class="card" id="ned"></div></div>
+    <div class="cols"><div class="card"><div class="row" style="margin-bottom:6px"><button class="pri" id="nnew">+ 새 인물</button><span class="tag" id="lvstat">🔗 덕질노트(lvlv) 인물은 이 탭을 열 때 자동으로 추가돼요</span></div><div class="list" id="nlist"></div></div><div class="card" id="ned"></div></div>
   </div>
   <div id="dv-event" hidden>
     <div class="card" style="margin-bottom:12px"><div class="hd"><b>이벤트</b><i class="tip" tabindex="0" data-tip="일어나는 사건이에요. 조건(날짜·호감도·장소·시간·인물)이 맞을 때 그 장소에 가면 선택 없이 저절로 시작돼요. 끝나면 보상(의상·돈·호감도)을 줘요">?</i></div>
@@ -871,12 +872,23 @@ document.addEventListener('click',e=>{const b=e.target.closest('.emo');if(b){emo
       if(ev.target.id==='ep_clear'&&emoTarget){emoTarget.dataset.v='';emoTarget.textContent='＋';d.close()}if(ev.target.id==='ep_x')d.close()}}
   d.showModal()}});
 const tip=t=>`<i class="tip" tabindex="0" data-tip="${esc(t)}">?</i>`;
-const rgRow=([a,b])=>`<div class="rgr"><input type="time" step="300" value="${fmtT(a)}"><i>~</i><input type="time" step="300" value="${fmtT(b)}"><button type="button" class="rgx" title="지우기">✕</button></div>`;
+const t24=(v,ex='')=>`<input class="t24" inputmode="numeric" maxlength="5" placeholder="00:00" value="${v}"${ex}>`;
+document.addEventListener('input',e=>{const t=e.target;if(!t.classList||!t.classList.contains('t24'))return;const d=t.value.replace(/\D/g,'').slice(0,4);t.value=d.length>2?d.slice(0,2)+':'+d.slice(2):d});
+document.addEventListener('change',e=>{const t=e.target;if(!t.classList||!t.classList.contains('t24'))return;const d=t.value.replace(/\D/g,'');if(!d){t.value='';return}
+  let h,m;if(d.length<=2){h=+d;m=0}else{h=+d.slice(0,-2);m=+d.slice(-2)}if(h>24||m>59||(h===24&&m)){t.value='';msg('시간은 00:00 ~ 24:00으로 적어 주세요',1);return}t.value=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')});
+const rgRow=([a,b])=>`<div class="rgr">${t24(fmtT(a))}<i>~</i>${t24(fmtT(b))}<button type="button" class="rgx" title="지우기">✕</button></div>`;
 const rgHtml=(id,list)=>`<div class="rg" id="${id}"><span class="rgempty">하루 종일</span>${(list||[]).map(rgRow).join('')}<button type="button" class="rga">+ 시간</button></div>`;
-const rgRead=id=>[...document.querySelectorAll('#'+id+' .rgr')].map(r=>{const i=r.querySelectorAll('input');return[toMin(i[0].value),toMin(i[1].value)]}).filter(([a,b])=>a!=null&&b!=null&&a!==b);
+const rgRead=id=>[...document.querySelectorAll('#'+id+' .rgr')].map(r=>{const i=r.querySelectorAll('.t24');return[toMin(i[0].value),toMin(i[1].value)]}).filter(([a,b])=>a!=null&&b!=null&&a!==b);
 const plOpts=()=>[...Object.entries(WORLD.types).map(([k,t])=>({k:'@type:'+k,n:'⭐ 모든 '+(t.icon||'')+' '+t.name})),...Object.entries(WORLD.places).map(([k,p])=>({k,n:(p.parent?'↳ ':'')+(p.i||'')+' '+p.n}))];
-const schRow=x=>`<div class="rgr schr"><input type="time" step="300" value="${fmtT(x.a)}"> ~ <input type="time" step="300" value="${fmtT(x.b)}"><select>${opts(plOpts(),'k','n',x.p,'장소 고르기')}</select><button type="button" class="rgx">✕</button></div>`;
-const schRead=()=>[...document.querySelectorAll('#n_sch .schr')].map(r=>{const i=r.querySelectorAll('input'),sl=r.querySelector('select');return{a:toMin(i[0].value),b:toMin(i[1].value),p:sl.value}}).filter(x=>x.a!=null&&x.b!=null&&x.p);
+function plChoices(){const out=[];Object.entries(WORLD.types).forEach(([k,t])=>out.push({k:'@type:'+k,v:'모든 '+t.name,i:t.icon||'⭐'}));
+  const cnt={};Object.values(WORLD.places).forEach(p=>cnt[p.n]=(cnt[p.n]||0)+1);
+  Object.entries(WORLD.places).forEach(([k,p])=>out.push({k,v:cnt[p.n]>1&&p.parent?p.n+' ('+((WORLD.places[p.parent]||{}).n||'')+')':p.n,i:p.i||''}));return out}
+const plLabel=code=>{const c=plChoices().find(x=>x.k===code);return c?c.v:''};
+let SCHBAD=[];
+const schRow=x=>`<div class="rgr schr">${t24(fmtT(x.a))}<i>~</i>${t24(fmtT(x.b))}<input class="sp" list="pl_dl" placeholder="장소 이름을 입력하세요" value="${esc(plLabel(x.p))}"><button type="button" class="rgx">✕</button></div>`;
+const schRead=()=>{SCHBAD=[];const C=plChoices();return [...document.querySelectorAll('#n_sch .schr')].map(r=>{const i=r.querySelectorAll('.t24'),v=r.querySelector('.sp').value.trim();if(!v)return null;
+  let c=C.find(x=>x.v===v)||C.find(x=>x.v.replace(/\s/g,'')===v.replace(/\s/g,''));if(!c){const m=C.filter(x=>x.v.includes(v));if(m.length===1)c=m[0]}
+  if(!c){SCHBAD.push(v);return null}return{a:toMin(i[0].value),b:toMin(i[1].value),p:c.k}}).filter(x=>x&&x.a!=null&&x.b!=null)};
 document.addEventListener('click',e=>{const x=e.target.closest('.rgx');if(x){x.closest('.rgr').remove();return}
   const a=e.target.closest('.rga');if(a){a.insertAdjacentHTML('beforebegin',rgRow([540,1080]));return}
   const g=e.target.closest('.sga');if(g)g.insertAdjacentHTML('beforebegin',schRow({a:0,b:0,p:''}))});
@@ -892,10 +904,10 @@ const WORLD={moveMin:15,innerMin:5,talkMin:30,skipMin:60,wakeMin:360,sleepRegen:
     cafe:{n:'카페 모카',i:'☕',icon:'☕',kind:'cafe',type:'cafe',pos:[77,43],roof:'#b77d69',wall:'#f8e4c8',desc:'커피와 달콤한 디저트가 있는 아늑한 카페.'},
     restaurant:{n:'오늘의 식당',i:'🍝',icon:'🍝',kind:'restaurant',type:'restaurant',pos:[81,70],roof:'#e1a85f',wall:'#fff0d8',shop:true,open:[[420,1320]],desc:'따뜻한 식사 한 끼를 먹을 수 있는 동네 식당.'},
     salon:{n:'살롱 라일락',i:'💇',icon:'💇🏻‍♀️',kind:'salon',type:'salon',pos:[53,82],roof:'#b6a1cf',wall:'#f4e8f5',shop:true,open:[[600,1200]],desc:'머리를 다듬고 기분 전환을 하는 미용실.'},
-    flower:{n:'꽃집',i:'💐',icon:'💐',kind:'flower',type:'store',pos:[25,80],roof:'#d98fb0',wall:'#fff0e8',shop:true,open:[[420,1320]],desc:'계절 꽃과 작은 꽃다발이 가득한 꽃집.'},
-    convenience:{n:'동네 편의점',i:'🏪',icon:'🏪',kind:'store',type:'store',pos:[13,59],roof:'#8ebc9b',wall:'#eff4d9',shop:true,open:[],desc:'간식과 음료를 살 수 있는 24시간 편의점.'},
-    bookstore:{n:'작은 서점',i:'📚',icon:'📚',kind:'bookstore',type:'store',pos:[38,57],roof:'#8eaec8',wall:'#eaf0e5',shop:true,open:[[600,1200]],desc:'책장을 천천히 둘러보기 좋은 작은 동네 서점.'},
-    bakery:{n:'동네 빵집',i:'🥐',icon:'🥐',kind:'bakery',type:'store',pos:[57,32],roof:'#d8b46f',wall:'#fff1d7',shop:true,open:[[420,1320]],desc:'갓 구운 빵 냄새가 골목까지 퍼지는 빵집.'},
+    flower:{n:'꽃집',i:'💐',icon:'💐',kind:'flower',type:'basic',pos:[25,80],roof:'#d98fb0',wall:'#fff0e8',shop:true,open:[[420,1320]],desc:'계절 꽃과 작은 꽃다발이 가득한 꽃집.'},
+    convenience:{n:'동네 편의점',i:'🏪',icon:'🏪',kind:'store',type:'basic',pos:[13,59],roof:'#8ebc9b',wall:'#eff4d9',shop:true,open:[],desc:'간식과 음료를 살 수 있는 24시간 편의점.'},
+    bookstore:{n:'작은 서점',i:'📚',icon:'📚',kind:'bookstore',type:'basic',pos:[38,57],roof:'#8eaec8',wall:'#eaf0e5',shop:true,open:[[600,1200]],desc:'책장을 천천히 둘러보기 좋은 작은 동네 서점.'},
+    bakery:{n:'동네 빵집',i:'🥐',icon:'🥐',kind:'bakery',type:'basic',pos:[57,32],roof:'#d8b46f',wall:'#fff1d7',shop:true,open:[[420,1320]],desc:'갓 구운 빵 냄새가 골목까지 퍼지는 빵집.'},
     park:{n:'작은 공원',i:'🌳',icon:'🌳',kind:'park',type:'park',pos:[25,39],roof:'#93bd7a',wall:'#e8f0d6',desc:'나무와 벤치가 있는 작은 공원. 잠깐 산책하기 좋아요.'}
   },   // open: 영업 시간대(0아침 1낮 2저녁 3밤)
   npcs:{hayun:{n:'하윤',i:'👧',sch:[{a:720,b:1200,p:'cafe'}],lines:['오늘 날씨 진짜 좋다. 이런 날엔 새 옷 사러 가고 싶지 않아?','여기 딸기라떼 맛있어. 다음엔 같이 마시자.','요즘 보세 가게에 새 옷 들어왔대. 가봤어?','너 오늘 옷 잘 입었다. 어디서 샀어?']}},
@@ -932,7 +944,7 @@ const ACT0=[
   {code:'read',name:'책 읽어보기',icon:'📖',kind:'normal',descr:'마음에 드는 책을 골라 한참 읽어요.',mins:60,energy:-3,money:0,scene:[{t:'서서 읽다 보니 어느새 한 챕터가 끝났다.'}]}
 ];
 const PLACEACT0={convenience:{add:['job_conv','snack'],remove:[]},cafe:{add:['job_cafe'],remove:[]},flower:{add:['job_flower','flowerbuy'],remove:[]},bookstore:{add:['job_book','read'],remove:[]},bakery:{add:['job_bakery','bread'],remove:[]}};
-const TYPES0={home:{name:'집',icon:'🏠',actions:['sleep','closet','status']},clothes:{name:'옷가게',icon:'👗',actions:['shop']},store:{name:'가게',icon:'🏪',actions:[]},cafe:{name:'카페',icon:'☕',actions:['drink']},restaurant:{name:'식당',icon:'🍝',actions:['meal']},salon:{name:'미용실',icon:'💇',actions:['hair']},park:{name:'공원',icon:'🌳',actions:['walk']},basic:{name:'일반',icon:'📍',actions:[]},library:{name:'도서관',icon:'📚',actions:['bkbk']},cinema:{name:'영화관',icon:'🎬',actions:['mvmv']}};
+const TYPES0={home:{name:'집',icon:'🏠',actions:['sleep','closet','status']},clothes:{name:'옷가게',icon:'👗',actions:['shop']},cafe:{name:'카페',icon:'☕',actions:['drink']},restaurant:{name:'식당',icon:'🍝',actions:['meal']},salon:{name:'미용실',icon:'💇',actions:['hair']},park:{name:'공원',icon:'🌳',actions:['walk']},basic:{name:'일반',icon:'📍',actions:[]},library:{name:'도서관',icon:'📚',actions:['bkbk']},cinema:{name:'영화관',icon:'🎬',actions:['mvmv']}};
 WORLD.actions={};ACT0.forEach(a=>WORLD.actions[a.code]=a);WORLD.types=structuredClone(TYPES0);WORLD.placeActs=structuredClone(PLACEACT0);
 const ACQ={};
 function rebuildAcq(){   // 획득 경로: 코드에 적은 경로 + 이벤트 보상으로 주는 의상(받기 전엔 잠김)
@@ -1002,7 +1014,13 @@ function checkEvents(){
   }
 }
 function after(){deltaCheck();saveGame();renderWorld();refresh();checkEvents()}
-function go(p,reopen){if(p===G.place||!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;viewSt=false;viewBk=false;viewMv=false;G.log='';after()}
+function greetAt(pid){
+  if($('#scene').open||$('#film').open)return;
+  const ids=Object.keys(WORLD.npcs).filter(k=>{const n=WORLD.npcs[k];return n.work===pid&&((n.sch||[]).length?npcAt(k):openNow(pid))});
+  G.greet=G.greet||{};const k=ids.find(id=>G.greet[id]!==G.day);if(!k)return;G.greet[k]=G.day;
+  const n=WORLD.npcs[k],ln=(n.lines||[]).filter(x=>x&&x!=='…'),t=ln.length?ln[Math.floor(Math.random()*ln.length)]:'어서 오세요!';
+  runScene([{who:k,t}],()=>{saveGame()})}
+function go(p,reopen){if(p===G.place||!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;viewSt=false;viewBk=false;viewMv=false;G.log='';after();greetAt(p)}
 function renderShop(pid){
   const box=$('#shl');box.innerHTML='';
   WORLD.sources.filter(s=>s.type==='shop'&&s.place===pid).forEach(s=>{
@@ -1060,7 +1078,7 @@ function doAction(a,who){
   if(a.kind==='status'){viewSt=true;renderStatus();after();return}
   if(a.kind==='shop'){if(!WORLD.sources.some(s=>s.type==='shop'&&s.place===pid))return say('아직 파는 물건이 없어요');return openShop(pid)}
   if(a.kind==='bkbk')return openShelf();
-  if(a.kind==='mvmv')return openMovies();
+  if(a.kind==='mvmv'){MOVIE_MIN=a.mins>0?a.mins:30;return openMovies()}
   earn(a.money||0,a.name+(who?' · '+((WORLD.npcs[who]||{}).n||''):''));G.energy=clampE(G.energy+enOf(a));
   const ef=a.effects||{},ev=+((ef.aff||[])[0]||{}).v||0;if(who&&ev)G.aff[who]=(G.aff[who]||0)+ev;(ef.give||[]).forEach(giveItem);
   if((a.cond||{}).daily)G.actDay[dk(a,who)]=G.day;
@@ -1126,9 +1144,9 @@ const bgUrls=m=>[`url("${MAPFILE}")`].concat(m&&cfg.pub?[`url("${pubUrl(m.file_k
 const mapSize=el=>{const im=new Image();im.onload=()=>{if(im.naturalWidth)el.style.aspectRatio=im.naturalWidth+'/'+im.naturalHeight};im.src=MAPFILE};
 function applyWorld(){
   if(DB.places.length){WORLD.places={};const codes=new Set(DB.places.map(r=>r.code));DB.places.forEach(r=>WORLD.places[r.code]={n:r.name,i:r.icon||'📍',kind:r.kind||'',pos:[+r.x,+r.y],shop:r.is_shop,
-    type:r.type_code||'basic',open:Array.isArray(r.open_ranges)?r.open_ranges:slotRanges(r.open_slots||[]),parent:(r.parent_code&&r.parent_code!==r.code&&codes.has(r.parent_code))?r.parent_code:null,inner:+r.move_min||0,desc:r.descr||'',db:true})}else WORLD.places=PLACES0;
+    type:r.type_code||'basic',open:Array.isArray(r.open_ranges)?r.open_ranges:slotRanges(r.open_slots||[]),parent:(r.parent_code&&r.parent_code!==r.code&&codes.has(r.parent_code))?r.parent_code:null,inner:0,desc:r.descr||'',db:true})}else WORLD.places=PLACES0;
   applyActions();
-  if(DB.npcs.length){WORLD.npcs={};DB.npcs.forEach(r=>WORLD.npcs[r.code]={n:r.name,i:r.icon||'🙂',img:r.file_key?pubUrl(r.file_key):'',sch:Array.isArray(r.sched)&&r.sched.length?r.sched:schedFromSlots(r.schedule||{}),lines:r.lines&&r.lines.length?r.lines:['…'],birthday:r.birthday||'',job:r.job||'',intro:r.intro||'',personality:r.personality||'',role:r.role||'resident',db:true})}else WORLD.npcs=NPCS0;
+  if(DB.npcs.length){WORLD.npcs={};DB.npcs.forEach(r=>WORLD.npcs[r.code]={n:r.name,i:r.icon||'🙂',img:r.file_key?pubUrl(r.file_key):'',sch:Array.isArray(r.sched)&&r.sched.length?r.sched:schedFromSlots(r.schedule||{}),lines:r.lines&&r.lines.length?r.lines:['…'],birthday:r.birthday||'',job:r.job||'',intro:r.intro||'',personality:r.personality||'',role:r.role||'resident',work:r.workplace||'',db:true})}else WORLD.npcs=NPCS0;
   WORLD.events=DB.events.length?DB.events.filter(r=>r.enabled!==false).map(evFromRow):EVENTS0;
   const m=mainMap(),map=$('#townmap');
   if(map){map.style.backgroundImage=bgUrls(m);if(m&&m.w)map.style.aspectRatio=m.w+'/'+m.h;mapSize(map);map.dataset.built='';map.querySelectorAll('.map-building').forEach(b=>b.remove())}
@@ -1158,7 +1176,7 @@ const post=(path,b,m='POST')=>sb(path,{m,h:{Prefer:'return=minimal'},b});
 document.querySelectorAll('#devtabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('#devtabs button').forEach(x=>x.classList.toggle('on',x===b));
   for(const t of ['items','map','npc','event'])$('#dv-'+t).hidden=b.dataset.t!==t;
-  if(b.dataset.t==='map'){renderActAdmin();renderMapAdmin();renderBgmAdmin()}if(b.dataset.t==='npc')renderNpcAdmin();if(b.dataset.t==='event')renderEvAdmin();});
+  if(b.dataset.t==='map'){renderActAdmin();renderMapAdmin();renderBgmAdmin()}if(b.dataset.t==='npc'){renderNpcAdmin();lvAuto()}if(b.dataset.t==='event')renderEvAdmin();});
 
 // ---- 지도 · 장소
 let pcur=null;
@@ -1174,7 +1192,7 @@ const isDbl=(k,e)=>{const n=Date.now(),d=n-lastTap.t<380&&lastTap.k===k&&Math.hy
 function bubble(r){
   const key=r.id||r.code,b=document.createElement('button');b.type='button';b.className='map-building'+(pcur&&(pcur.id||pcur.code)===key?' current':'')+(armed===key?' armed':'');
   b.style.setProperty('--x',r.x+'%');b.style.setProperty('--y',r.y+'%');b.textContent=(r.parent_code?'↳ ':'')+(r.icon?r.icon+' ':'')+r.name;
-  b.onpointerdown=e=>bubbleDown(e,b,r);return b;
+  b.onpointerdown=e=>bubbleDown(e,b,r);b.ondragstart=e=>e.preventDefault();b.oncontextmenu=e=>e.preventDefault();return b;
 }
 function bubbleDown(e,b,r){
   e.preventDefault();e.stopPropagation();const key=r.id||r.code,dbl=isDbl('b:'+key,e);
@@ -1191,7 +1209,7 @@ function bubbleDown(e,b,r){
 $('#pmap').onpointerdown=e=>{
   if(e.target!==$('#pmap'))return;const rc=e.currentTarget.getBoundingClientRect();
   if(!isDbl('map',e)){armed=null;document.querySelectorAll('#pmap .map-building').forEach(x=>x.classList.remove('armed'));return}
-  pcur={code:'p'+Date.now().toString(36),name:'새 장소',icon:'📍',descr:'',open_ranges:[],is_shop:false,
+  pcur={code:'p'+Date.now().toString(36),name:'새 장소',icon:'📍',descr:'',open_ranges:[],
     x:+((e.clientX-rc.left)/rc.width*100).toFixed(2),y:+((e.clientY-rc.top)/rc.height*100).toFixed(2)};armed=null;renderMapAdmin();
 };
 const typeList=()=>Object.entries(WORLD.types).map(([k,t])=>({k,n:(t.icon||'')+' '+t.name}));
@@ -1202,25 +1220,23 @@ function fillPlaceActs(){
 }
 function renderPlaceForm(){
   const e=$('#ped'),p=pcur;if(!p){e.innerHTML='<div class="tag">왼쪽 지도에서 장소를 누르면 여기서 편집해요</div>';return}
-  const orr=Array.isArray(p.open_ranges)?p.open_ranges:slotRanges(p.open_slots||[]),tops=DB.places.filter(r=>!r.parent_code&&r.code!==p.code).map(r=>({k:r.code,n:(r.icon||'')+' '+r.name})),kids=DB.places.filter(r=>r.parent_code===p.code).map(r=>esc(r.name)).join(', ');
+  const orr=Array.isArray(p.open_ranges)?p.open_ranges:slotRanges(p.open_slots||[]),tops=DB.places.filter(r=>!r.parent_code&&r.code!==p.code).map(r=>({k:r.code,n:(r.icon||'')+' '+r.name})),kids=DB.places.filter(r=>r.parent_code===p.code).map(r=>`<span class="chip">${esc((r.icon||'')+' '+r.name)}</span>`).join('');
   e.innerHTML=`<div class="form">
   <div class="fr id3"><label class="f"><span>아이콘</span>${emoBtn('p_i',p.icon||'')}</label><label class="f"><span>이름</span><input id="p_n" value="${esc(p.name)}"></label>
     <label class="f"><span>유형${tip('유형에 묶인 행동을 이 장소에서 할 수 있어요. 행동을 더하거나 빼는 건 위 "행동" 편집에서 해요')}</span><select id="p_ty">${opts(typeList(),'k','n',p.type_code,'(없음)')}</select></label></div>
+  <div class="f"><span>영업 시간${tip('비워 두면 하루 종일 열려 있어요. 밤을 넘기려면 22:00 ~ 02:00처럼 적어요 (24시간 표기)')}</span>${rgHtml('p_rg',orr)}</div>
   <input id="p_d" placeholder="설명 — 장소창에 보여요" value="${esc(p.descr)}">
-  <div class="fr"><label class="f"><span>상위 장소${tip('건물 안 공간이면 고르세요. 고르면 지도에는 안 보이고, 상위 장소의 장소창에서 들어가요')}</span><select id="p_par">${opts(tops,'k','n',p.parent_code,'(없음)')}</select></label>
-    <label class="f"><span>안쪽 이동(분)${tip('상위 장소와 오갈 때 걸리는 시간')}</span><input id="p_mm" type="number" min="1" max="60" value="${p.move_min||5}"></label>
-    <label class="chip"><input id="p_s" type="checkbox"${p.is_shop?' checked':''}>🛍 상점</label></div>
-  <div class="f"><span>영업 시간${tip('비워 두면 하루 종일 열려 있어요. 밤을 넘기려면 22:00 ~ 02:00처럼 적어요')}</span>${rgHtml('p_rg',orr)}</div>
+  <div class="fr"><label class="f"><span>상위 장소${tip('건물 안 공간이면 고르세요. 고르면 지도에는 안 보이고, 상위 장소의 장소창에서 들어가요 (안쪽 이동은 5분)')}</span><select id="p_par">${opts(tops,'k','n',p.parent_code,'(없음)')}</select></label>
+    <div class="f"><span>하위 장소</span>${p.id&&!p.parent_code?`<div class="row">${kids}<button type="button" id="p_sub">+ 하위 장소</button></div>`:`<div class="tag">${p.parent_code?'이 장소는 하위 장소예요':'저장한 뒤에 추가할 수 있어요'}</div>`}</div></div>
   <div class="tag" id="p_ac"></div>
-  ${p.id&&!p.parent_code?`<div class="row"><button type="button" id="p_sub">+ 하위 장소</button><span class="tag">${kids?'하위: '+kids:''}</span></div>`:''}
   <div class="tag">위치 ${p.x}%, ${p.y}% · ID ${esc(p.code)}</div>
   <div class="row"><button class="pri" id="p_save">저장</button>${p.id?'<button id="p_del">삭제</button>':''}</div></div>`;
   fillPlaceActs();$('#p_ty').onchange=fillPlaceActs;$('#p_save').onclick=savePlace;if(p.id)$('#p_del').onclick=delPlace;
-  if($('#p_sub'))$('#p_sub').onclick=()=>{pcur={code:'p'+Date.now().toString(36),name:'새 하위 장소',icon:'📍',descr:'',is_shop:false,x:p.x,y:p.y,parent_code:p.code,move_min:5,open_ranges:[]};renderMapAdmin()};
+  if($('#p_sub'))$('#p_sub').onclick=()=>{pcur={code:'p'+Date.now().toString(36),name:'새 하위 장소',icon:'📍',descr:'',x:p.x,y:p.y,parent_code:p.code,open_ranges:[]};renderMapAdmin()};
 }
 async function savePlace(){
   try{const p=pcur,m=mainMap(),o=rgRead('p_rg');
-    const row={code:p.code,name:$('#p_n').value.trim()||'이름 없음',icon:$('#p_i').dataset.v||'',descr:$('#p_d').value,is_shop:$('#p_s').checked,x:p.x,y:p.y,map_id:m?m.id:null,open_slots:null,open_ranges:o,parent_code:$('#p_par').value||null,move_min:Math.max(1,parseInt($('#p_mm').value,10)||5),type_code:$('#p_ty').value||null};
+    const row={code:p.code,name:$('#p_n').value.trim()||'이름 없음',icon:$('#p_i').dataset.v||'',descr:$('#p_d').value,x:p.x,y:p.y,map_id:m?m.id:null,open_slots:null,open_ranges:o,parent_code:$('#p_par').value||null,type_code:$('#p_ty').value||null};
     p.id?await post('/rest/v1/fsfs_place?id=eq.'+p.id,row,'PATCH'):await post('/rest/v1/fsfs_place',row);
     pcur=null;await loadCatalog();renderMapAdmin();msg('저장했어요');
   }catch(e){msg(e.message,1)}
@@ -1248,47 +1264,38 @@ $('#pimp').onclick=async()=>{
 let ncur=null;
 const nimg=n=>n.file_key&&cfg.pub?`<img src="${esc(pubUrl(n.file_key))}">`:esc(n.icon||'🙂');
 function renderNpcAdmin(){
-  $('#nlist').innerHTML=DB.npcs.map(n=>`<div class="it${ncur&&ncur.id===n.id?' on':''}" data-id="${n.id}"><div class="npi">${nimg(n)}</div><div><div>${esc(n.name)}</div><div class="tag">${esc(n.job||'')}${n.birthday?' 🎂'+esc(n.birthday):''}</div></div></div>`).join('')||'<div class="tag">등록한 인물이 없어요</div>';
+  $('#nlist').innerHTML=DB.npcs.map(n=>`<div class="it${ncur&&ncur.id===n.id?' on':''}" data-id="${n.id}"><div class="npi">${nimg(n)}</div><div><div>${esc(n.name)}</div><div class="tag">${n.workplace&&WORLD.places[n.workplace]?'💼 '+esc(WORLD.places[n.workplace].n):''}${n.birthday?' 🎂'+esc(n.birthday):''}</div></div></div>`).join('')||'<div class="tag">등록한 인물이 없어요</div>';
   renderNpcForm();
 }
 $('#nlist').onclick=e=>{const d=e.target.closest('.it');if(!d)return;ncur=structuredClone(DB.npcs.find(n=>n.id===d.dataset.id));renderNpcAdmin()};
 function renderNpcForm(){
-  const e=$('#ned'),n=ncur;if(!n){e.innerHTML='<div class="tag">왼쪽에서 인물을 고르거나, 위에서 프로필 이미지를 등록하세요</div>';return}
+  const e=$('#ned'),n=ncur;if(!n){e.innerHTML='<div class="tag">왼쪽에서 인물을 고르거나 "+ 새 인물"을 눌러요</div>';return}
   const pl=Object.entries(WORLD.places).map(([k,p])=>({k,n:(p.i||'')+' '+p.n})),sc=n.schedule||{};
   e.innerHTML=`<div style="display:grid;gap:8px"><div class="row"><div class="npi" style="width:72px;height:72px">${nimg(n)}</div>
   ${n.lv?'<div class="tag" style="width:100%">🔗 덕질노트(lvlv)에서 읽어오는 인물이에요. 이름·소개·대사·키워드는 lvlv에서 고쳐 주세요</div>':''}<label style="flex:1">이름<input id="n_n" value="${esc(n.name)}"${n.lv?' disabled':''}></label><label>이모지${emoBtn('n_i',n.icon||'')}</label></div>
-  <div class="row"><label>생일 (월-일)<input id="n_b" placeholder="03-08" value="${esc(n.birthday||'')}" style="width:90px"></label><label style="flex:1">직업·역할<input id="n_j" value="${esc(n.job||'')}"></label>
+  <div class="row"><label>생일 (월-일)<input id="n_b" placeholder="03-08" value="${esc(n.birthday||'')}" style="width:90px"></label><label style="flex:1">직장 (방문하면 인사해요)<select id="n_wp"${'workplace' in n?'':' disabled'}>${opts(Object.entries(WORLD.places).map(([k,p])=>({k,n:(p.parent?'↳ ':'')+(p.i||'')+' '+p.n})),'k','n',n.workplace||'','(없음)')}</select></label>
   <label>ID (이벤트 연결용)<input id="n_c" value="${esc(n.code)}" style="width:120px"></label></div>
   <label>소개<input id="n_t" value="${esc(n.intro||'')}"${n.lv?' disabled':''}></label><label>성격·말투<input id="n_p" value="${esc(n.personality||'')}"></label>
-  <h2>출몰 장소 — 어디에, 몇 시에 나타나는지</h2><div id="n_sch">${(Array.isArray(n.sched)&&n.sched.length?n.sched:schedFromSlots(n.schedule||{})).map(schRow).join('')}<button type="button" class="sga">+ 일정 추가</button></div><div class="tag">시간을 00:00 ~ 00:00으로 두면 하루 종일이에요. 「⭐ 모든 …」을 고르면 그 유형의 모든 가게에 나타나요. 어느 줄에도 없는 시간에는 만날 수 없어요</div>
+  <datalist id="pl_dl">${plChoices().map(c=>`<option value="${esc(c.v)}" label="${esc(c.i)}"></option>`).join('')}</datalist><h2>출몰 장소 — 어디에, 몇 시에 나타나는지</h2><div id="n_sch">${(Array.isArray(n.sched)&&n.sched.length?n.sched:schedFromSlots(n.schedule||{})).map(schRow).join('')}<button type="button" class="sga">+ 일정 추가</button></div><div class="tag">시간은 24시간으로 적어요 (00:00 ~ 00:00이면 하루 종일). 장소 칸에 이름을 치면 목록이 나와요. 「모든 …」을 고르면 그 유형의 모든 장소에 나타나요. 어느 줄에도 없는 시간에는 만날 수 없어요</div>
   <label>대사 (한 줄에 하나씩, 대화할 때 무작위로 나와요)<textarea id="n_l" rows="5"${n.lv?' disabled':''} style="background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font:inherit">${esc((n.lines||[]).join('\n'))}</textarea></label>
   ${npcExtra(n)}<label>프로필 이미지 교체<input id="n_f" type="file" accept="image/*"></label>
   <div class="row"><button class="pri" id="n_save">저장</button><button id="n_del">삭제</button></div></div>`;
   $('#n_save').onclick=saveNpc;$('#n_del').onclick=delNpc;
 }
 async function saveNpc(){
-  try{const n=ncur,f=$('#n_f').files[0];let key=n.file_key;
+  try{const n=ncur,f=$('#n_f').files[0];let key=n.file_key;const sched=schRead();if(SCHBAD.length)throw new Error('장소를 찾을 수 없어요: '+SCHBAD.join(', '));
     if(f){const r=await putPlain('npcs',n.id,f,320);if(key&&key!==r.key)wdel(key);key=r.key}
-    await post('/rest/v1/fsfs_npc?id=eq.'+n.id,{name:$('#n_n').value.trim()||n.name,icon:$('#n_i').dataset.v||null,birthday:$('#n_b').value.trim()||null,job:$('#n_j').value||null,
-      code:$('#n_c').value.trim()||n.code,intro:$('#n_t').value||null,personality:$('#n_p').value||null,sched:schRead(),schedule:{},lines:$('#n_l').value.split('\n').map(s=>s.trim()).filter(Boolean),file_key:key,role:$('#n_role').value},'PATCH');
+    await post('/rest/v1/fsfs_npc?id=eq.'+n.id,{name:$('#n_n').value.trim()||n.name,icon:$('#n_i').dataset.v||null,birthday:$('#n_b').value.trim()||null,
+      code:$('#n_c').value.trim()||n.code,intro:$('#n_t').value||null,personality:$('#n_p').value||null,sched,schedule:{},lines:$('#n_l').value.split('\n').map(s=>s.trim()).filter(Boolean),file_key:key,role:$('#n_role').value||'resident',...(('workplace' in n)?{workplace:$('#n_wp').value||null}:{})},'PATCH');
     await loadCatalog();ncur=structuredClone(DB.npcs.find(x=>x.id===n.id));renderNpcAdmin();msg('저장했어요');
   }catch(e){msg(e.message,1)}
 }
 async function delNpc(){
   if(!confirm(`"${ncur.name}" 인물을 삭제할까요?`))return;
-  try{const k=ncur.file_key;await sb('/rest/v1/fsfs_npc?id=eq.'+ncur.id,{m:'DELETE'});if(k)wdel(k);ncur=null;await loadCatalog();renderNpcAdmin();msg('삭제했어요')}catch(e){msg(e.message,1)}
+  try{const k=ncur.file_key;if(ncur.source_app==='lvlv'){const sk=lvSkip();sk.push(String(ncur.source_id));try{localStorage.setItem('fsfsLvSkip',JSON.stringify(sk))}catch(x){}}await sb('/rest/v1/fsfs_npc?id=eq.'+ncur.id,{m:'DELETE'});if(k)wdel(k);ncur=null;await loadCatalog();renderNpcAdmin();msg('삭제했어요')}catch(e){msg(e.message,1)}
 }
-$('#npbulk').onclick=async()=>{
-  const fs=[...$('#npf').files];if(!fs.length)return msg('이미지를 선택해주세요',1);let ok=0;
-  for(const f of fs){try{msg(`등록 중 ${ok+1}/${fs.length}: ${f.name}`);const nm=f.name.replace(/\.[^.]+$/,''),ex=DB.npcs.find(x=>x.name===nm);
-      if(ex){const r=await putPlain('npcs',ex.id,f,320);await post('/rest/v1/fsfs_npc?id=eq.'+ex.id,{file_key:r.key},'PATCH');if(ex.file_key&&ex.file_key!==r.key)wdel(ex.file_key)}
-      else{const id=crypto.randomUUID(),r=await putPlain('npcs',id,f,320);await post('/rest/v1/fsfs_npc',{id,code:'npc_'+id.slice(0,8),name:nm,file_key:r.key,sort:DB.npcs.length+ok})}
-      ok++}catch(e){msg(f.name+': '+e.message,1);break}}
-  $('#npf').value='';await loadCatalog();renderNpcAdmin();if(ok===fs.length)msg(`${ok}명을 등록했어요`);
-};
-$('#npimp').onclick=async()=>{
-  if(DB.npcs.length)return msg('이미 인물이 있어요. 내장 인물은 비어 있을 때만 가져와요',1);
-  try{await post('/rest/v1/fsfs_npc',Object.entries(NPCS0).map(([code,n],i)=>({code,name:n.n,icon:n.i,sched:n.sch||[],schedule:{},lines:n.lines,sort:i})));await loadCatalog();renderNpcAdmin();msg('내장 인물을 가져왔어요')}catch(e){msg(e.message,1)}
+$('#nnew').onclick=async()=>{
+  try{const id=crypto.randomUUID();await post('/rest/v1/fsfs_npc',{id,code:'npc_'+id.slice(0,8),name:'새 인물',role:'resident',sort:DB.npcs.length});await loadCatalog();ncur=structuredClone(DB.npcs.find(x=>x.id===id));renderNpcAdmin();msg('새 인물을 만들었어요')}catch(e){msg(e.message,1)}
 };
 
 // ================= 관리자: 이벤트 편집기 =================
@@ -1402,27 +1409,31 @@ async function delEv(){
 }
 
 // ================= 관리자: 행동 · 장소 유형 =================
-const FIXED={closet:'옷장 열기',status:'내 상태 보기',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',mvmv:'mvmv 포스터 벽 열기'};   // 고정: 앱 기본 기능을 여는 버튼. 나머지는 전부 커스텀
+const FIXED={closet:'옷장 열기',status:'내 상태 보기',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',mvmv:'mvmv 포스터 벽 열기'};
+const isFix=a=>!!FIXED[a.kind]||a.code==='talk';
+const actRows=()=>{const have=new Set(DB.actions.map(a=>a.code)),v=ACT0.filter(a=>(FIXED[a.kind]||a.code==='talk')&&!have.has(a.code)).map(a=>({code:a.code,name:a.name,icon:a.icon,descr:a.descr||'',kind:a.kind,mins:a.mins||0,endAt:a.endAt,minMins:a.minMins||0,energy:a.energy||0,money:a.money||0,cond:a.cond||{},effects:a.effects||{},scene:a.scene||[],sort:0,virtual:true}));
+  return [...v,...DB.actions].sort((a,b)=>(isFix(b)-isFix(a))||sortBy(a,b))};
+const actKey=a=>a.id||('v:'+a.code);   // 고정: 앱 기본 기능을 여는 버튼. 나머지는 전부 커스텀
 let acur=null,tcur=null;const sortBy=(a,b)=>(a.sort||0)-(b.sort||0);
 function renderActAdmin(){renderActList();renderActForm();renderTypeList();renderTypeForm()}
 function renderActList(){
-  $('#alist').innerHTML=DB.actions.slice().sort(sortBy).map(a=>`<div class="it${acur&&acur.id===a.id?' on':''}" data-id="${a.id}"><div style="font-size:20px">${esc(a.icon||'▪')}</div><div><div>${esc(a.name)}</div><div class="tag">${FIXED[a.kind]?'🔒 고정':'커스텀'}${chips(a)?' · '+esc(chips(a)):''}</div></div></div>`).join('')||'<div class="tag">등록한 행동이 없어요. "내장 행동·유형 가져오기"로 시작하세요</div>';
+  $('#alist').innerHTML=actRows().map(a=>`<div class="it${acur&&actKey(acur)===actKey(a)?' on':''}" data-id="${esc(actKey(a))}"><div style="font-size:20px">${esc(a.icon||'▪')}</div><div><div>${esc(a.name)}</div><div class="tag">${isFix(a)?'🔒 고정':'커스텀'}${chips(a.id?a:{...a})?' · '+esc(chips(a)):''}</div></div></div>`).join('')||'<div class="tag">등록한 행동이 없어요. "내장 가져오기"로 기본 행동을 불러와요</div>';
 }
-$('#alist').onclick=e=>{const d=e.target.closest('.it');if(!d)return;acur=structuredClone(DB.actions.find(a=>a.id===d.dataset.id));renderActList();renderActForm()};
+$('#alist').onclick=e=>{const d=e.target.closest('.it');if(!d)return;acur=structuredClone(actRows().find(a=>actKey(a)===d.dataset.id));renderActList();renderActForm()};
 $('#anew').onclick=()=>{acur={code:'a'+Date.now().toString(36),name:'새 행동',icon:'✨',descr:'',kind:'normal',mins:30,energy:0,money:0,cond:{},effects:{},scene:[],sort:DB.actions.length};renderActList();renderActForm()};
 function renderActForm(){
   const e=$('#aed'),a=acur;if(!a){e.innerHTML='<div class="tag">왼쪽에서 행동을 고르거나 "+ 새 행동"을 눌러요</div>';return}
-  const c=a.cond||{},ef=a.effects||{},ca=(c.aff||[])[0]||{},ea=(ef.aff||[])[0]||{},pn=partnerOf(a),simple=!(a.scene||[]).some(x=>x.choices),fixed=!!FIXED[a.kind];
+  const c=a.cond||{},ef=a.effects||{},ca=(c.aff||[])[0]||{},ea=(ef.aff||[])[0]||{},pn=partnerOf(a),simple=!(a.scene||[]).some(x=>x.choices),fixed=isFix(a);
   const mins=a.mins!=null?a.mins:(a.time_min!=null?+a.time_min:(+a.time_cost||0)*SLOTLEN),end=a.end_min!=null?a.end_min:a.endAt,mm=a.min_mins!=null?a.min_mins:(a.minMins||0),eph=ef.eph!=null?ef.eph:(a.kind==='sleep'?(WORLD.sleepRegen||12):0);
   const nsel=(id,v,none,ex)=>`<select id="${id}">${opts([...(ex||[]),...Object.entries(WORLD.npcs).map(([k,n])=>({k,n:(n.i||'')+' '+n.n}))],'k','n',v,none)}</select>`;
   const F=(l,t,h)=>`<label class="f"><span>${l}${t?tip(t):''}</span>${h}</label>`;
   e.innerHTML=`<div class="form">
-  <div class="fr id3"><label class="f"><span>아이콘</span>${emoBtn('a_i',a.icon||'')}</label>${F('이름','',`<input id="a_n" value="${esc(a.name)}">`)}${F('ID','',`<input id="a_c" value="${esc(a.code)}"${a.id?' disabled':''}>`)}</div>
-  ${fixed?`<div class="note">🔒 고정 — 앱 기본 기능(${FIXED[a.kind]})이에요. 이름·아이콘·설명·가능한 장소만 바꿀 수 있어요</div>`:''}
+  <div class="fr id3"><label class="f"><span>아이콘</span>${emoBtn('a_i',a.icon||'')}</label>${F('이름','',`<input id="a_n" value="${esc(a.name)}">`)}${F('ID','',`<input id="a_c" value="${esc(a.code)}"${a.id||a.virtual?' disabled':''}>`)}</div>
+  ${fixed?`<div class="note">🔒 고정 — 앱 기본 기능이에요. 지우기만 막혀 있고, 나머지는 모두 바꿀 수 있어요</div>`:''}
   <input id="a_d" placeholder="설명 — 버튼 아래 작은 글씨" value="${esc(a.descr||'')}">
-  <div id="a_more" style="display:${fixed?'none':'grid'};gap:10px">
+  <div id="a_more" style="display:grid;gap:10px">
     <div class="fr">${F('시간(분)','걸리는 시간이에요. 끝나는 시각을 정하면 무시돼요',`<input id="a_t" type="number" min="0" max="1440" step="5" value="${mins}">`)}
-      ${F('끝나는 시각','정하면 언제 시작해도 이 시각에 끝나요 (잠자기 06:00처럼). 비우면 왼쪽 시간만큼 걸려요',`<input id="a_end" type="time" step="300" value="${end!=null?fmtT(end):''}">`)}
+      ${F('끝나는 시각','정하면 언제 시작해도 이 시각에 끝나요 (잠자기 06:00처럼). 비우면 왼쪽 시간만큼 걸려요',`<input id="a_end" class="t24" inputmode="numeric" maxlength="5" placeholder="--:--" value="${end!=null?fmtT(end):''}">`)}
       ${F('최소 시간(분)','끝나는 시각까지 남은 시간이 이보다 짧으면 버튼이 안 보여요',`<input id="a_mm" type="number" min="0" step="5" value="${mm}">`)}
       ${F('에너지','마이너스는 소모예요',`<input id="a_e" type="number" value="${a.energy||0}">`)}
       ${F('시간당 에너지','잠자기처럼 오래 할수록 회복될 때 써요. 위 에너지와 더해져요',`<input id="a_eph" type="number" value="${eph}">`)}
@@ -1435,25 +1446,25 @@ function renderActForm(){
     <textarea id="a_sc" rows="3" placeholder="장면 대사 — 한 줄에 하나씩, 한 뒤에 차례로 나와요"${simple?'':' disabled'}>${simple?esc((a.scene||[]).map(x=>x.t||'').join('\n')):'(선택지가 있는 장면이라 이벤트 편집기에서 고쳐 주세요)'}</textarea>
   </div>
   <div class="f"><span>어디서 할 수 있나${tip('유형을 체크하면 그 유형의 모든 장소에서 할 수 있어요. 그 뒤에 장소 하나만 따로 켜고 끌 수 있어요')}</span>
-    <div class="chips" id="a_ty">${Object.entries(WORLD.types).map(([k,t])=>`<label class="chip ty"><input type="checkbox" class="a_ty" value="${esc(k)}"${t.actions.includes(a.code)?' checked':''}>모든 ${esc(t.icon||'')} ${esc(t.name)}</label>`).join('')}</div>
+    <div class="chips" id="a_ty">${Object.entries(WORLD.types).map(([k,t])=>`<label class="chip ty"><input type="checkbox" class="a_ty" value="${esc(k)}"${t.actions.includes(a.code)?' checked':''}${t.fixed?' disabled':''}>모든 ${esc(t.icon||'')} ${esc(t.name)}${t.fixed?' 🔒':''}</label>`).join('')}</div>
     <div class="chips" id="a_pl">${Object.entries(WORLD.places).map(([k,pl])=>{const ov=WORLD.placeActs[k]||{add:[],remove:[]},base=((WORLD.types[pl.type||'basic']||{actions:[]}).actions).includes(a.code),on=(base||ov.add.includes(a.code))&&!ov.remove.includes(a.code);
       return `<label class="chip"><input type="checkbox" class="a_pl" value="${esc(k)}"${on?' checked':''}>${pl.parent?'↳ ':''}${esc(pl.i||'')} ${esc(pl.n)}</label>`}).join('')}</div></div>
-  <div class="row"><button class="pri" id="a_save">저장</button>${a.id?'<button id="a_del">삭제</button>':''}</div></div>`;
+  <div class="row"><button class="pri" id="a_save">저장</button>${a.id&&!fixed?'<button id="a_del">삭제</button>':(fixed?'<span class="tag">🔒 고정 행동은 지울 수 없어요</span>':'')}</div></div>`;
   e.onchange=ev=>{const t=ev.target;if(t.classList&&t.classList.contains('a_ty'))document.querySelectorAll('.a_pl').forEach(c=>{if(((WORLD.places[c.value]||{}).type||'basic')===t.value)c.checked=t.checked})};
-  $('#a_save').onclick=saveAct;if(a.id)$('#a_del').onclick=delAct;
+  $('#a_save').onclick=saveAct;if($('#a_del'))$('#a_del').onclick=delAct;
 }
 async function saveAct(){
-  try{const a=acur,code=a.id?a.code:$('#a_c').value.trim();if(!code)throw new Error('ID를 입력하세요');
+  try{const a=acur,code=(a.id||a.virtual)?a.code:$('#a_c').value.trim();if(!code)throw new Error('ID를 입력하세요');
     if(!a.id&&DB.actions.some(x=>x.code===code))throw new Error('같은 ID의 행동이 이미 있어요');
     const sl=rgRead('a_rg'),mins=Math.max(0,parseInt($('#a_t').value,10)||0),an=$('#a_an').value,en=an,ev=+$('#a_ev').value||0;
     const cond={ranges:sl,slots:[],daily:$('#a_dy').checked,aff:an?[{npc:an,min:+$('#a_am').value||0}]:[]},effects={...(a.effects||{}),aff:en&&ev?[{npc:en,v:ev}]:[],eph:parseInt($('#a_eph').value,10)||0};
     const scene=$('#a_sc').disabled?a.scene:$('#a_sc').value.split('\n').map(x=>x.trim()).filter(Boolean).map(t=>({t}));
-    const row={code,name:$('#a_n').value.trim()||'이름 없음',icon:$('#a_i').dataset.v||'',descr:$('#a_d').value,kind:FIXED[a.kind]?a.kind:'normal',time_min:mins,time_cost:Math.ceil(mins/SLOTLEN),end_min:toMin($('#a_end').value),min_mins:Math.max(0,parseInt($('#a_mm').value,10)||0),energy:parseInt($('#a_e').value,10)||0,money:parseInt($('#a_m').value,10)||0,cond,effects,scene,sort:a.sort||0};
+    const row={code,name:$('#a_n').value.trim()||'이름 없음',icon:$('#a_i').dataset.v||'',descr:$('#a_d').value,kind:FIXED[a.kind]?a.kind:'normal',time_min:mins,time_cost:Math.ceil(mins/SLOTLEN),end_min:toMin($('#a_end').value),min_mins:Math.max(0,parseInt($('#a_mm').value,10)||0),energy:parseInt($('#a_e').value,10)||0,money:parseInt($('#a_m').value,10)||0,cond,effects,scene,sort:Math.max(0,a.sort||0)};
     a.id?await post('/rest/v1/fsfs_action?id=eq.'+a.id,row,'PATCH'):await post('/rest/v1/fsfs_action',row);
-    const q=encodeURIComponent(code),tys=[...document.querySelectorAll('.a_ty')].filter(c=>c.checked).map(c=>c.value);
+    const q=encodeURIComponent(code),tys=[...document.querySelectorAll('.a_ty:not(:disabled)')].filter(c=>c.checked).map(c=>c.value),fxT=Object.entries(WORLD.types).filter(([k,t])=>t.fixed&&t.actions.includes(code)).map(([k])=>k);
     await sb('/rest/v1/fsfs_place_type_action?action_code=eq.'+q,{m:'DELETE'});
     if(tys.length)await post('/rest/v1/fsfs_place_type_action',tys.map(t=>{const o=DB.ptacts.find(x=>x.type_code===t&&x.action_code===code);return{type_code:t,action_code:code,sort:o?o.sort||0:Math.max(0,...DB.ptacts.filter(x=>x.type_code===t).map(x=>x.sort||0))+1}}));
-    const prow=[];document.querySelectorAll('.a_pl').forEach(c=>{const pl=WORLD.places[c.value]||{},base=tys.includes(pl.type||'basic');if(c.checked&&!base)prow.push({place_code:c.value,action_code:code,mode:'add'});if(!c.checked&&base)prow.push({place_code:c.value,action_code:code,mode:'remove'})});
+    const prow=[];document.querySelectorAll('.a_pl').forEach(c=>{const pl=WORLD.places[c.value]||{},base=tys.includes(pl.type||'basic')||fxT.includes(pl.type||'basic');if(c.checked&&!base)prow.push({place_code:c.value,action_code:code,mode:'add'});if(!c.checked&&base)prow.push({place_code:c.value,action_code:code,mode:'remove'})});
     await sb('/rest/v1/fsfs_place_action?action_code=eq.'+q,{m:'DELETE'});if(prow.length)await post('/rest/v1/fsfs_place_action',prow);
     acur=null;await loadCatalog();renderActAdmin();msg('저장했어요');
   }catch(e){msg(e.message,1)}
@@ -1503,7 +1514,7 @@ async function delType(){
 }
 
 // ================= 덕질노트 가져오기 =================
-const ROLES={resident:'주민',fan:'덕질 인물',mayor:'이장',guardian:'수호신'};
+const ROLES={fan:'덕질 인물',mayor:'이장'};
 // --- 덕질노트(lvlv) 가져오기 ---
 const sexOf=s=>{s=String(s||'').toLowerCase();return s==='m'||s==='f'?s:null};
 const qLinesF=t=>String(t||'').split('\n').map(x=>x.trim()).filter(Boolean);
@@ -1539,24 +1550,20 @@ async function applyLvlv(){
       if(c.profile)n.intro=c.profile.slice(0,60)});
   }catch(e){console.warn('lvlv 읽기 실패 — 저장된 복사본을 써요',e)}
 }
-function renderLv(){
-  $('#lvlist').innerHTML=LV.map(c=>{const ex=DB.npcs.find(x=>x.source_app==='lvlv'&&x.source_id===c.id);
-    return `<label class="row" style="margin:2px 0"><input type="checkbox" class="lvc" value="${esc(c.id)}"${ex?' disabled':''}> ${esc(c.name)} <span class="tag">${ex?'연결됨 (lvlv에서 읽어와요)':'새 인물'} · ${c.sex||'?'} · 키워드 ${c.traits.length} · 어록 ${c.quotes.length}</span></label>`}).join('')||'<div class="tag">"목록 불러오기"를 눌러주세요</div>';
-}
-$('#lvload').onclick=async()=>{
-  try{msg('덕질노트를 불러오는 중…');await lvFetch();renderLv();msg(`${LV.length}명을 불러왔어요`)}catch(e){msg(e.message,1)}
-};
-$('#lvall').onclick=()=>document.querySelectorAll('.lvc:not(:disabled)').forEach(c=>c.checked=true);
-$('#lvgo').onclick=async()=>{
-  const sel=[...document.querySelectorAll('.lvc')].filter(c=>c.checked&&!c.disabled).map(c=>c.value);if(!sel.length)return msg('추가할 인물을 선택해주세요',1);
-  let n=0;
-  try{for(const id of sel){const c=LV.find(x=>x.id===id);if(DB.npcs.some(x=>x.source_app==='lvlv'&&x.source_id===id))continue;await post('/rest/v1/fsfs_npc',lvNew(c,n));n++}
-    await loadCatalog();renderNpcAdmin();renderLv();msg(`${n}명을 추가했어요. 이름·키워드·어록·프로필은 lvlv에서 고치면 여기에도 반영돼요`)}catch(e){msg(e.message,1)}
-};
+/* lvlv 인물 자동 동기화: 아직 NPC가 아닌 인물을 이 탭을 열 때 자동으로 추가해요 (지운 인물은 다시 넣지 않아요) */
+const lvSkip=()=>{try{return JSON.parse(localStorage.getItem('fsfsLvSkip')||'[]')}catch(e){return[]}};
+let lvBusy=false;
+async function lvAuto(){
+  if(lvBusy)return;lvBusy=true;const st=$('#lvstat');
+  try{const all=await lvFetch(),sk=lvSkip(),miss=all.filter(c=>!DB.npcs.some(x=>x.source_app==='lvlv'&&x.source_id===c.id)&&!sk.includes(c.id));
+    if(miss.length){for(let i=0;i<miss.length;i++)await post('/rest/v1/fsfs_npc',lvNew(miss[i],i));await loadCatalog();renderNpcAdmin();msg(`덕질노트에서 ${miss.length}명을 자동으로 추가했어요`)}
+    st.textContent=`🔗 덕질노트 인물 ${DB.npcs.filter(x=>x.source_app==='lvlv').length}명 연결됨 · 새 인물은 자동으로 추가돼요`}
+  catch(e){st.textContent='🔗 덕질노트를 읽지 못했어요 (로그인했는지 확인해 주세요)';console.warn(e)}
+  lvBusy=false}
 
 // --- NPC 편집 폼: 역할 · 아바타 · 자동 생성 ---
 function npcExtra(n){
-  return `<div class="row"><label>역할<select id="n_role">${opts(Object.entries(ROLES).map(([k,v])=>({k,v})),'k','v',n.role||'resident')}</select></label>
+  return `<div class="row"><label>역할<select id="n_role">${opts(Object.entries(ROLES).map(([k,v])=>({k,v})),'k','v',ROLES[n.role]?n.role:'','(없음)')}</select></label>
   <div class="tag" style="flex:1">${n.source_app?`원본 ${esc(n.source_app)}${n.lv_missing?' (⚠ lvlv에서 사라진 인물이라 저장된 복사본을 써요)':''} · ${(n.kwgroups&&n.kwgroups.length?n.kwgroups.map(([l,a])=>esc(l)+' '+esc(a.join(', '))).join(' / '):esc((n.traits||[]).concat(n.looks||[]).join(', '))||'키워드 없음')} · 어록 ${(n.quotes||[]).length}개`:'직접 만든 인물'}</div></div>
   `;
 }
@@ -1729,7 +1736,7 @@ $('#c_test').onclick=()=>{
   const u=pub.replace(/\/$/,'')+'/'+key;r.textContent='확인 중…';const im=new Image();im.onload=()=>r.textContent='✅ 이미지가 열려요';im.onerror=()=>r.textContent='❌ 열리지 않아요 → '+u;im.src=u+'?t='+Date.now()};
 
 /* ===== mvmv 연동: 영화관 — 포스터 5칸(주 1회 왼쪽으로 한 칸) + 필름롤 상영 ===== */
-const MOVIE_MIN=30,MEDIA_BASE='https://media.jjojjolonglong.workers.dev',mediaUrl=h=>/^[0-9a-f]{16}$/.test(h||'')?MEDIA_BASE+'/o/images/'+h+'.webp':'';
+let MOVIE_MIN=30;const MEDIA_BASE='https://media.jjojjolonglong.workers.dev',mediaUrl=h=>/^[0-9a-f]{16}$/.test(h||'')?MEDIA_BASE+'/o/images/'+h+'.webp':'';
 let MV=null,MVT=0;
 async function mvAll(tb,cols){const out=[];for(let off=0;;off+=1000){const j=await sb(`/rest/v1/${tb}?select=${cols}&order=id.asc&limit=1000&offset=${off}`);out.push(...(j||[]));if(!j||j.length<1000)break}return out}
 async function mvLoad(){
