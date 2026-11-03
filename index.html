@@ -355,7 +355,10 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 
 
 #scene .nm:empty{display:none}#scene .nm:empty~.tx{padding-top:18px}
-#welcome{max-width:420px;text-align:center;padding:34px 30px;cursor:pointer}.wl1{font-size:26px;font-weight:800}.wl2{margin-top:8px;color:var(--mute)}
+#welcome{position:fixed;inset:0;width:100vw;height:100vh;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;box-shadow:none;background:#020a02;cursor:pointer;display:none;align-items:center;justify-content:center;overflow:hidden}
+#welcome[open]{display:flex}#welcome::backdrop{background:#020a02}
+.wl1{font:400 clamp(30px,6vw,64px)/1 "VT323","DotGothic16",monospace!important;letter-spacing:2px;color:#39ff14;text-shadow:0 0 8px #39ff14,0 0 22px rgba(57,255,20,.6);animation:wlb 1.6s steps(2,jump-none) infinite}
+@keyframes wlb{50%{opacity:.35}}
 #bgmbtn{white-space:nowrap}.bgmrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}.bgmrow select{max-width:150px}
 .mp{--neon:#39ff14;--lcd:#020a02;--fr:"VT323","DotGothic16","Malgun Gothic","Apple SD Gothic Neo",monospace;align-self:stretch;display:flex;flex-direction:column;width:230px;margin-left:10px;background:var(--lcd);border:2px solid var(--ink);border-radius:6px;overflow:hidden;cursor:pointer;position:relative;color:var(--neon);font-family:var(--fr)!important}
 .mp *{font-family:var(--fr)!important}.mp.paused .mp-lcd{opacity:.45}
@@ -396,7 +399,7 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 </div>
 
 <dialog id="delta"></dialog>
-<dialog id="welcome"><div class="wl1">어서 오세요 🌿</div><div class="wl2">화면을 눌러 시작해요</div></dialog>
+<dialog id="welcome"><div class="wl1">play the retro music</div></dialog>
 <dialog id="scene"><img id="sp" hidden alt=""><div class="nm" id="sn"></div><div class="tx" id="st"></div><div class="bar" id="sb" style="justify-content:flex-end"></div></dialog>
 <dialog id="shop"><h2 id="shm"></h2><div id="shl"></div><div class="bar" style="margin-top:10px;justify-content:flex-end"><button id="shc">닫기</button></div></dialog>
 <dialog id="dlg">
