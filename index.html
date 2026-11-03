@@ -376,6 +376,11 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 #endview{margin-left:auto}
 .world .wt{gap:8px}#wt{gap:8px}.mp{margin-left:0;width:200px}.world .wt .tl{flex:0 1 420px;min-width:300px}
 #wt .clk{font-size:50px;padding:0 10px 9px}
+#endview{margin-left:0}.endbar{display:flex;justify-content:flex-end;margin-top:12px}
+#wt{flex:0 1 auto}
+#wt .clk{justify-content:center;letter-spacing:0;padding:0 12px 3px}
+.scale>i.tk{background:var(--ink);opacity:.35}.scale>i.tk.m{opacity:.55}.scale>i.tk.l{opacity:.85}
+.scale .dot{position:absolute;top:2px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#fff;border:2px solid var(--ink);box-shadow:0 2px 0 var(--ink);z-index:2;box-sizing:border-box}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -387,14 +392,14 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
       <span id="cbar" class="bar" hidden><button id="rand">🎲 랜덤</button><button id="crand">🎨 색 랜덤</button><button id="reset">↺ 처음 옷차림</button><button id="strip">👕 전부 벗기</button><button id="closetx">옷장 닫기</button></span>
       <span style="flex:1"></span><button id="bgmbtn" title="배경음악 볼륨 (누르면 0~5 순환)">🎵 3</button><button id="sfxbtn" title="볼륨 (누르면 0~5 순환)">🔊 3</button><button id="wnew">새 게임</button><button id="adminbtn" hidden>🛠 관리자 모드</button><button id="authbtn">⚙ 설정·로그인</button>
     </div></div>
-    <div class="card world"><div class="wt"><span id="wt"></span><div id="mp" class="mp" hidden title="누르면 재생/일시정지"><div class="mp-lcd"><div class="mp-time" id="mp_time">00:00</div><div class="mp-mq" id="mp_mq"><span id="mp_t"></span></div></div><div class="mp-seek" id="mp_seek"><div id="mp_bar"></div></div></div><span style="flex:1"></span><button id="endview" class="pri" hidden>끝내기</button></div>
+    <div class="card world"><div class="wt"><span id="wt"></span><div id="mp" class="mp" hidden title="누르면 재생/일시정지"><div class="mp-lcd"><div class="mp-time" id="mp_time">00:00</div><div class="mp-mq" id="mp_mq"><span id="mp_t"></span></div></div><div class="mp-seek" id="mp_seek"><div id="mp_bar"></div></div></div></div>
       <div id="stview" hidden><h2>📋 내 상태</h2><div id="st_b"></div></div>
       <div id="bkview" hidden><div class="bkbar"><div class="tag" id="bk_i"></div><div class="bknav"><button id="bk_pv" title="이전 책장">◀</button><b id="bk_pn">1 / 1</b><button id="bk_nx" title="다음 책장">▶</button></div></div><div id="bk_g" class="bkshelf-wrap"></div></div>
       <div id="mapview">
             <div id="townmap" class="townmap" aria-label="쿼터뷰 마을 지도"></div>
       <div class="descbox" id="mapcurrent"></div>
       <div class="bar" id="wp" hidden></div><div class="actbox"><div class="boxlab">뭐 할까</div><div class="acts" id="wa"></div><div class="tag" id="wl"></div></div></div>
-    </div>
+    <div class="endbar" id="endbar" hidden><button id="endview" class="pri">끝내기</button></div></div>
     <div id="closet" hidden>
     <div class="card"><div class="tabs" id="tabs"></div><div class="grid" id="grid"></div></div>
     <div class="card" id="colorcard" hidden><h2>색상 (외곽선은 고정이에요)</h2><div id="colors"></div></div>
@@ -1049,14 +1054,14 @@ function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const d=dateOf();const bn=bandOf(G.min),BR=[['아침','🌅',300,420],['오전','🌤',420,780],['오후','☀️',780,1020],['저녁','🌇',1020,1140],['밤','🌙',1140,1740]],wd=d.getDay(),np=((G.min-300+1440)%1440)/1440*100; 
   $('#wt').innerHTML=`<div class="cal${wd===0?' sun':wd===6?' sat':''}"><span class="mo">${d.getMonth()+1}월</span><b class="dy">${d.getDate()}</b><span class="wk">${DOW[wd]}요일</span></div>
    <b class="clk">${fmtT(G.min).replace(":","<i>:</i>")}</b>
-   <div class="tl"><div class="bands">${BR.map(([n,i,a,b])=>`<span class="bd${n===bn?' on':''}" style="flex:${b-a} 1 0"><i>${i}</i><em>${n}</em></span>`).join('')}</div><div class="scale">${Array.from({length:47},(_,k)=>{const n=k+1;return `<i class="tk ${n%4===0?'l':n%2===0?'m':'s'}" style="left:${n/48*100}%"></i>`}).join('')}<svg class="needle" style="left:${Math.min(97,Math.max(3,np))}%" viewBox="0 0 12 16" width="12" height="16"><path d="M6 0.5 L11.2 16 H0.8 Z" fill="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div></div>`;applyTint();
+   <div class="tl"><div class="bands">${BR.map(([n,i,a,b])=>`<span class="bd${n===bn?' on':''}" style="flex:${b-a} 1 0"><i>${i}</i><em>${n}</em></span>`).join('')}</div><div class="scale">${Array.from({length:47},(_,k)=>{const n=k+1;return `<i class="tk ${n%4===0?'l':n%2===0?'m':'s'}" style="left:${n/48*100}%"></i>`}).join('')}<b class="dot" style="left:${Math.min(97,Math.max(3,np))}%"></b></div></div>`;applyTint();
   buildTownMap();
   document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===topOf(G.place));b.classList.toggle('closed',!openNow(id));});
   const p=WORLD.places[G.place];$('#mapcurrent').innerHTML=`<div class="loc">${p.parent&&WORLD.places[p.parent]?`<span class="pp">${esc(WORLD.places[p.parent].n)} › </span>`:''}<b>${esc(p.i||'')} ${esc(p.n)}</b><span class="ar">에 도착했어요.</span></div>${p.desc?`<div class="ld">${esc(p.desc)}</div>`:''}`;
   const pl=$('#wp');pl.innerHTML='';
   for(const [k,p] of Object.entries(WORLD.places)){if(p.parent)continue;const b=document.createElement('button');b.textContent=p.i+' '+p.n;if(k===G.place)b.className='on';else b.title='이동하면 15분이 지나가요';b.onclick=()=>go(k);pl.append(b)}
   renderActs();
-  const co=G.place==='home'&&G.closet,vw=co?'closet':(viewSt?'status':(viewBk?'bk':''));$('#closet').hidden=!co;$('#cbar').hidden=!co;$('#bkview').hidden=vw!=='bk';$('#mapview').hidden=!!vw;$('#stview').hidden=vw!=='status';$('#endview').hidden=!vw;if(vw==='status')renderStatus();
+  const co=G.place==='home'&&G.closet,vw=co?'closet':(viewSt?'status':(viewBk?'bk':''));$('#closet').hidden=!co;$('#cbar').hidden=!co;$('#bkview').hidden=vw!=='bk';$('#mapview').hidden=!!vw;$('#stview').hidden=vw!=='status';$('#endbar').hidden=!vw;if(vw==='status')renderStatus();
   $('#wl').textContent=G.log||'';document.querySelector('.stagewrap').classList.toggle('bare',!co);try{bgmUpdate()}catch(e){}
 }
 $('#wnew').onclick=()=>{if(!confirm('새 게임을 시작할까요? (보유 의상과 진행 상황이 초기화돼요)'))return;newGame();LAST=null;initSel();hidden.clear();after()};
