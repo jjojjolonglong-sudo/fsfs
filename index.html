@@ -380,7 +380,10 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 #wt{flex:0 1 auto}
 #wt .clk{justify-content:center;letter-spacing:0;padding:0 12px 3px}
 .scale>i.tk{background:var(--ink);opacity:.35}.scale>i.tk.m{opacity:.55}.scale>i.tk.l{opacity:.85}
-.scale .dot{position:absolute;top:2px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#fff;border:2px solid var(--ink);box-shadow:0 2px 0 var(--ink);z-index:2;box-sizing:border-box}
+.scale .dot{position:absolute;top:-7px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#fff;border:2px solid var(--ink);z-index:2;box-sizing:border-box}
+.ochips{display:flex;flex-wrap:wrap;gap:8px}.oc{display:flex;flex-direction:column;align-items:center;gap:3px;width:70px;padding:6px 4px 5px;background:var(--p);border:2px solid var(--ink);border-radius:6px;box-shadow:0 3px 0 var(--ink)}
+.oc .onm{font-size:10px;font-weight:700;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.oc .obar{display:flex;gap:3px}.oc .obar button{min-width:0;padding:1px 7px;font-size:11px;border-radius:5px;box-shadow:0 2px 0 var(--ink)}
+.card.world #closet .card{box-shadow:none;margin-top:10px}.card.world #closet .card::before{display:none}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -399,12 +402,12 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
             <div id="townmap" class="townmap" aria-label="쿼터뷰 마을 지도"></div>
       <div class="descbox" id="mapcurrent"></div>
       <div class="bar" id="wp" hidden></div><div class="actbox"><div class="boxlab">뭐 할까</div><div class="acts" id="wa"></div><div class="tag" id="wl"></div></div></div>
-    <div class="endbar" id="endbar" hidden><button id="endview" class="pri">끝내기</button></div></div>
     <div id="closet" hidden>
     <div class="card"><div class="tabs" id="tabs"></div><div class="grid" id="grid"></div></div>
     <div class="card" id="colorcard" hidden><h2>색상 (외곽선은 고정이에요)</h2><div id="colors"></div></div>
-    <div class="card"><h2>레이어 순서 (위쪽일수록 앞에 그려져요)</h2><div id="order"></div><div class="bar" style="margin-top:8px"><button id="oreset">기본 순서로</button></div></div>
+    <div class="card"><h2>순서</h2><div id="order"></div></div>
     </div>
+    <div class="endbar" id="endbar" hidden><button id="endview" class="pri">끝내기</button></div></div>
   </div>
 </div>
 
@@ -489,17 +492,19 @@ const CROP={"x": 743, "y": 267, "w": 994, "h": 2994}, CVS=0.6, LEGACY={"body":[{
 const DEF={sb:'https://rtvvajhsnwkkrmncyfbs.supabase.co',anon:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0dnZhamhzbndra3JtbmN5ZmJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0NjkwMTEsImV4cCI6MjEwNzA0NTAxMX0.O2aLLeazv_FhUhbVAkp4vz3pw8GPb_683dUu7Et1Cwk',worker:'https://fsfs.jjojjolonglong.workers.dev',pub:'https://fsfs-assets.jjojjolonglong.workers.dev',cw:2480,ch:3508,scale:0.6,outline:'#3a332f',builtin:true};
 let cfg={...DEF};try{Object.assign(cfg,JSON.parse(localStorage.getItem('fsfsCfg')||'{}'))}catch(e){}if(!cfg.pub)cfg.pub=DEF.pub;
 const PARTS0=[{code:'hair_back',label:'뒷머리',z:10},{code:'body',label:'바디',z:20,fixed:true},{code:'socks',label:'양말',z:30},{code:'bottom',label:'하의',z:40},{code:'top',label:'상의',z:50},{code:'outer',label:'외투&원피스',z:60},{code:'shoes',label:'신발',z:70},{code:'hair_front',label:'앞머리',z:80},{code:'accessory',label:'액세서리',z:90,multi:true}];
+const SINGLE=['hair_back','hair_front','shoes','body'];
 const START={hair_back:'뒷머리-중단발',hair_front:'앞머리-기본',top:'기본흰셔츠',bottom:'베이지슬랙스',shoes:'신발-회색로퍼'};
 const PAIRS=[['땋은머리','뒷머리-땋은머리','앞머리-땋은머리'],['옆사베기','뒷머리-옆사베기','앞머리-옆사베기'],['미디움롱','뒷머리-미디움롱','앞머리-처피뱅미디움롱'],['단발펌','뒷머리-단발펌','앞머리-단발펌'],['레드숏컷','뒷머리-레드숏컷','앞머리-레드숏컷'],['하이포니테일','뒷머리-하이포니테일','앞머리-하이포니테일'],['중단발','뒷머리-중단발','앞머리-기본']];
 const TAB_ORDER=['hair_back','hair_front','top','outer','bottom','socks','shoes','accessory'];
 let PARTS=PARTS0.slice(),DB={parts:[],types:[],sets:[],items:[],maps:[],places:[],npcs:[],events:[],keymap:[],actions:[],ptypes:[],ptacts:[],pacts:[]},ITEMS=[],BY={},SETS=[];
-let order=[],sel={},hidden=new Set(),colors={},tab='세트',S=null,isAdmin=false,inited=false;
+let order=[],iord=[],sel={},hidden=new Set(),colors={},tab='세트',S=null,isAdmin=false,inited=false;
 const P=c=>PARTS.find(p=>p.code===c),pz=c=>(P(c)||{z:0}).z;
 const roleOf=n=>n==='outline'?'outline':n==='static'?'static':'fill';
 const pubUrl=k=>cfg.pub?cfg.pub.replace(/\/$/,'')+'/'+k:'';
 
 function buildModel(){
-  PARTS=(DB.parts.length?DB.parts.map(p=>({code:p.code,label:p.label,z:p.z_default,fixed:p.is_fixed,multi:p.multi})):PARTS0.slice()).sort((a,b)=>a.z-b.z);
+  PARTS=(DB.parts.length?DB.parts.map(p=>({code:p.code,label:p.label,z:p.z_default,fixed:p.is_fixed,multi:p.multi})):PARTS0.map(p=>({...p}))).sort((a,b)=>a.z-b.z);
+  PARTS.forEach(p=>{p.multi=!p.fixed&&!SINGLE.includes(p.code)});
   const its=[];
   if(cfg.builtin)for(const [part,arr] of Object.entries(LEGACY))for(const o of arr)
     its.push({id:'b:'+part+':'+o.n,key:o.n,part,name:o.n.replace(/^(앞머리|뒷머리|신발)-/,''),builtin:true,layers:[{layer:'static',src:o.s,x:o.x,y:o.y,w:o.w,h:o.h}]});
@@ -532,11 +537,18 @@ function layerCanvas(l,color){
   const x=c.getContext('2d');x.drawImage(l.img,0,0);x.globalCompositeOperation='source-in';x.fillStyle=col;x.fillRect(0,0,c.width,c.height);
   l._t={col,c};return c;
 }
+const bodyZ=()=>{const b=PARTS.find(p=>p.fixed);return b?b.z:20};
+// 순서를 정할 수 있는 의상: 바디와 그 뒤(뒷머리 등)는 항상 맨 아래에 고정
+const movable=id=>{const it=BY[id];return !!it&&pz(it.part)>bodyZ()};
+function syncOrder(){
+  const cur=[];for(const p of PARTS)for(const id of sel[p.code]||[])if(movable(id))cur.push(id);
+  iord=iord.filter(id=>cur.includes(id));
+  for(const id of cur){if(iord.includes(id))continue;const z=pz(BY[id].part);let k=iord.findIndex(o=>pz(BY[o].part)<=z);if(k<0)k=iord.length;iord.splice(k,0,id)}}
 function drawStage(){
-  g.clearRect(0,0,cv.width,cv.height);const k=cv.width/CROP.w;
-  for(const code of order){if(hidden.has(code))continue;
-    for(const id of sel[code]||[]){const it=BY[id];if(!it)continue;
-      for(const l of it.layers){const c=layerCanvas(l,colorOf(it,l));if(c)g.drawImage(c,(l.x*cfg.cw-CROP.x)*k,(l.y*cfg.ch-CROP.y)*k,l.w*cfg.cw*k,l.h*cfg.ch*k)}}}
+  g.clearRect(0,0,cv.width,cv.height);const k=cv.width/CROP.w;syncOrder();
+  const base=[];for(const p of PARTS)for(const id of sel[p.code]||[])if(!movable(id))base.push(id);
+  for(const id of [...base,...[...iord].reverse()]){const it=BY[id];if(!it)continue;
+    for(const l of it.layers){const c=layerCanvas(l,colorOf(it,l));if(c)g.drawImage(c,(l.x*cfg.cw-CROP.x)*k,(l.y*cfg.ch-CROP.y)*k,l.w*cfg.cw*k,l.h*cfg.ch*k)}}
 }
 function paintThumb(c){
   const its=c._its,x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);
@@ -578,17 +590,15 @@ function renderColors(){
   $('#colorcard').hidden=!any;
 }
 function renderOrder(){
-  const o=$('#order');o.innerHTML='';
-  for(let z=order.length-1;z>=0;z--){const c=order[z],r=document.createElement('div');r.className='orow'+(hidden.has(c)?' hid':'');
-    const nm=document.createElement('span');nm.className='nm';nm.textContent=(P(c)||{label:c}).label;
-    const mkb=(t,fn,dis)=>{const b=document.createElement('button');b.textContent=t;b.disabled=!!dis;if(dis)b.style.opacity=.35;b.onclick=fn;return b};
-    r.append(nm,mkb(hidden.has(c)?'🙈':'👁',()=>{hidden.has(c)?hidden.delete(c):hidden.add(c);refresh()}),
-      mkb('▲',()=>{[order[z],order[z+1]]=[order[z+1],order[z]];refresh()},z===order.length-1),
-      mkb('▼',()=>{[order[z],order[z-1]]=[order[z-1],order[z]];refresh()},z===0));o.append(r)}
-}
+  syncOrder();const o=$('#order');o.innerHTML='';const w=document.createElement('div');w.className='ochips';
+  iord.forEach((id,i)=>{const it=BY[id];if(!it)return;const c=document.createElement('div');c.className='oc';
+    const cvn=thumb([it],40,50);const nm=document.createElement('div');nm.className='onm';nm.textContent=it.name;
+    const bar=document.createElement('div');bar.className='obar';
+    const mk=(t,d)=>{const b=document.createElement('button');b.textContent=t;const j=i+d;if(j<0||j>=iord.length){b.disabled=true;b.style.opacity=.3}b.onclick=()=>{[iord[i],iord[j]]=[iord[j],iord[i]];refresh()};return b};
+    bar.append(mk('◀',-1),mk('▶',1));c.append(cvn,nm,bar);w.append(c)});
+  if(!iord.length)w.innerHTML='<div class="tag">입은 옷이 없어요</div>';o.append(w)}
 function refresh(){renderTabs();renderGrid();renderColors();renderOrder();redraw()}
-$('#reset').onclick=()=>{initSel();hidden.clear();refresh()};
-$('#oreset').onclick=()=>{order=PARTS.map(p=>p.code);refresh()};
+$('#reset').onclick=()=>{initSel();hidden.clear();iord=[];refresh()};
 $('#strip').onclick=()=>{for(const p of PARTS)if(!p.fixed)sel[p.code]=[];refresh()};
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
 $('#rand').onclick=()=>{for(const p of PARTS){if(p.fixed)continue;const l=ITEMS.filter(i=>i.part===p.code&&i.layers.length&&owned(i));
