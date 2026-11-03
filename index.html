@@ -334,19 +334,24 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 .scale .needle{overflow:visible;bottom:-1px;opacity:1}
 .bd{border-right:1px solid rgba(32,27,23,.28)!important}.bd:last-of-type{border-right:0!important}
 #scene .tx{white-space:pre-wrap}
-.bkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:14px 10px;max-height:60vh;overflow:auto;padding:4px}
-.bk{display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px;box-shadow:none;border:2px solid transparent;background:none;font-weight:600}
-.bk:hover{border-color:var(--ink);background:var(--hi)}
-.bkc{position:relative;width:100%;aspect-ratio:110/156;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:3px 3px 0 var(--ink)}
-.bkc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.bkc em{font-style:normal;font-size:11px;padding:6px;text-align:center;line-height:1.3}
-.bkc img+em{display:none}
-.bkt{font-size:11px;line-height:1.3;max-height:2.6em;overflow:hidden;text-align:center}
-.bks{font-size:10px;color:var(--acc)}
-#bkdlg{max-width:760px}
+.bkshelf-wrap{max-height:64vh;overflow:auto;background:#fffef9;border:2px solid var(--ink);padding:14px 10px 6px;--face:#d8d2c2;--dk:#2b2924}
+.bks-shelf{display:flex;flex-wrap:wrap;align-items:flex-end;row-gap:34px;padding-bottom:36px;background:linear-gradient(to bottom,transparent 0 180px,#fff 180px 182px,var(--face) 182px 188px,var(--dk) 188px 190px,rgba(0,0,0,.13) 190px 193px,transparent 193px) 0 0/100% 214px repeat-y}
+.bks-slot{flex:none;height:180px;display:flex;align-items:flex-end}
+.bks-sp{position:relative;flex:none;cursor:pointer;border-radius:4px 4px 0 0;overflow:hidden;transform-origin:50% 100%}
+.bks-sp::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.3),rgba(255,255,255,.15) 20%,transparent 50%,rgba(0,0,0,.22))}
+.bks-sp:hover{transform:scale(1.06);z-index:2}.bks-sp.xt{border-radius:2px 2px 0 0}
+.bks-bd{position:absolute;left:3px;right:3px;top:18px;bottom:16px;display:flex;flex-direction:column}.bks-bd.sg{top:26px;bottom:26px}
+.bks-pl{flex:1;min-height:0;overflow:hidden;display:flex;justify-content:center}
+.bks-pl b{flex:none;display:block;height:112%;margin-top:3px;writing-mode:vertical-rl;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 11px/1.15 'Gowun Batang','Batang',serif;transform:scaleY(.85);transform-origin:50% 0}
+.bks-vq{flex:none;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font:700 10px sans-serif;font-style:normal;overflow:hidden}
+.bks-vq span{display:block;white-space:nowrap;transform:scaleX(.78)}
+.bks-xs{position:absolute;left:50%;top:8px;bottom:calc(25% + 6px);transform:translateX(-50%);writing-mode:vertical-rl;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 9px/1 'Gowun Batang','Batang',serif}
+.bks-xb{position:absolute;left:0;right:0;bottom:0;height:25%}
+.bks-dm{position:absolute;left:50%;top:13px;transform:translate(-50%,-50%) rotate(45deg);box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+#bkdlg{max-width:920px}
 #bkdlg h2{background:none;border:0;transform:none;padding:0;display:block}
 </style>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="app">
@@ -372,7 +377,7 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 </div>
 
 <dialog id="delta"></dialog>
-<dialog id="bkdlg"><h2 id="bk_t" style="font-size:18px;text-transform:none;letter-spacing:0">📖 추천작</h2><div class="tag" id="bk_i" style="margin:6px 0 10px"></div><div id="bk_g" class="bkgrid"></div><div class="bar" style="margin-top:12px;justify-content:flex-end"><button id="bk_x">닫기</button></div></dialog>
+<dialog id="bkdlg"><h2 id="bk_t" style="font-size:18px;text-transform:none;letter-spacing:0">📖 추천작</h2><div class="tag" id="bk_i" style="margin:6px 0 10px"></div><div id="bk_g" class="bkshelf-wrap"></div><div class="bar" style="margin-top:12px;justify-content:flex-end"><button id="bk_x">닫기</button></div></dialog>
 <dialog id="scene"><img id="sp" hidden alt=""><div class="nm" id="sn"></div><div class="tx" id="st"></div><div class="bar" id="sb" style="justify-content:flex-end"></div></dialog>
 <dialog id="shop"><h2 id="shm"></h2><div id="shl"></div><div class="bar" style="margin-top:10px;justify-content:flex-end"><button id="shc">닫기</button></div></dialog>
 <dialog id="dlg">
@@ -1502,25 +1507,49 @@ function deltaCheck(){const c=dSnap(),o=LAST;LAST=c;if(!o)return;const it=[];
   el.onclick=()=>{if(Date.now()-el.dataset.t>250)el.close()}}
 LAST=dSnap();
 
-/* ===== bkbk 연동: 책장 → 책 → 발췌문 ===== */
-const BK_MEDIA='https://media.jjojjolonglong.workers.dev',BK_H16=/^[0-9a-f]{16}$/,READ_MIN=20;
-const bkImg=u=>{u=String(u||'');if(!u)return'';if(/^https?:/.test(u))return u;if(BK_H16.test(u))return`${BK_MEDIA}/o/images/${u}.webp`;if(/(^|\/)(covers|images)\/[0-9a-f]+\.jpg$/.test(u))u=u.replace(/\.jpg$/,'_s.jpg');return`${BK_MEDIA}/o/${u}`};
+/* ===== bkbk 연동: 완독한 책을 bkbk의 책장 모양 그대로 → 책 → 발췌문 ===== */
+const READ_MIN=20;
+const bkP=v=>parseFloat(v)||0,bkPC=v=>Math.round(bkP(v)*10000)/100,bkHas=v=>v!==''&&v!=null,bkDk=d=>String(d||'').slice(0,10),bkCmp=(a,b)=>a>b?1:a<b?-1:0;
 const bkInk=h=>{h=String(h||'#888').replace('#','');if(h.length<6)return'#fff';const[r,g,b]=[0,2,4].map(i=>parseInt(h.substr(i,2),16));return r*.3+g*.59+b*.11>150?'#222':'#fff'};
-let BK=null;
-async function openShelf(){
-  const dlg=$('#bkdlg'),g=$('#bk_g');g.innerHTML='<div class="tag">책장을 불러오는 중…</div>';$('#bk_i').textContent='';dlg.showModal();
-  try{if(!BK)BK=await sb('/rest/v1/bkbk_books?select=id,label,author,cover,color1,star&order=star.desc.nullslast,label.asc&limit=1000');}
-  catch(e){g.innerHTML=`<div class="tag">책장을 불러오지 못했어요. ${esc(String(e.message||e).slice(0,120))}</div>`;return}
-  if(!BK||!BK.length){g.innerHTML='<div class="tag">책장이 비어 있어요. bkbk에 책이 있다면 ⚙ 설정·로그인에서 로그인했는지 확인해 주세요.</div>';return}
-  $('#bk_i').textContent=`책을 누르면 발췌문이 하나 나와요 · 한 번 읽을 때마다 ⏱ ${READ_MIN}분 · ${BK.length}권`;
-  g.innerHTML=BK.map((b,i)=>{const im=bkImg(b.cover),c=b.color1||'#d9d4cc';
-    return`<button type="button" class="bk" data-i="${i}"><span class="bkc" style="background:${esc(c)};color:${bkInk(c)}">${im?`<img src="${esc(im)}" alt="" loading="lazy" onerror="this.remove()">`:''}<em>${esc(b.label||'')}</em></span><span class="bkt">${esc(b.label||'')}</span>${b.star?`<span class="bks">${'★'.repeat(Math.min(5,+b.star))}</span>`:''}</button>`}).join('');
+const BK_HL={낮음:17,중간:21,높음:21},BK_TL={'아주 얇음':.8,얇음:1.5,중간:2.5,두꺼움:3.5},BK_TW={'아주 얇음':10,얇음:17,중간:22.5,두꺼움:31.5};
+const bkHv=b=>BK_HL[b.height]||bkP(b.height)||21,bkTl=v=>BK_TL[v]?v:!bkHas(v)?'중간':bkP(v)<1?'아주 얇음':bkP(v)<2?'얇음':bkP(v)<3?'중간':'두꺼움';
+// bkbk와 같은 완독 판정: 100%까지 읽은 로그가 있고, 그 뒤에 0%/1쪽에서 다시 시작하는 로그가 없으면 완독
+function bkDone(logs,pg){
+  const epc=(o,pk,gk)=>bkHas(o[pk])?bkPC(o[pk]):bkHas(o[gk])&&pg?Math.min(100,bkP(o[gk])/pg*100):0,eOn=l=>epc(l,'onpct','onpage'),eOff=l=>epc(l,'offpct','offpage'),
+    fresh=l=>bkHas(l.onpct)?bkPC(l.onpct)<=0.5:bkHas(l.onpage)?bkP(l.onpage)<=1:eOn(l)<=0.5;
+  const L=[...logs].sort((a,b)=>bkCmp(bkDk(a.date),bkDk(b.date))||eOn(a)-eOn(b));let done=false,cd='';
+  L.forEach(l=>{if(done&&fresh(l))done=false;if(!done&&eOff(l)>=100){done=true;cd=bkDk(l.date)}});
+  return{done,date:cd};
 }
-$('#bk_g').onclick=async e=>{const el=e.target.closest('.bk');if(!el)return;const b=BK[+el.dataset.i];
-  try{const t=await sb('/rest/v1/bkbk_texts?book=eq.'+b.id+'&select=text,chapter,page&limit=300'),L=(t||[]).filter(x=>x.text&&x.text.trim());
+// 책 이름: bkbk_series.name [bkbk_books.label] (label이 비면 괄호 없이 시리즈 이름만)
+const bkTitle=(sr,b)=>{const lb=String(b.label||'').trim();return sr?(lb?`${sr.name} [${lb}]`:sr.name):(lb||'(제목 없음)')};
+let BK=null,BKT=0;
+async function bkAll(tb,cols){const out=[];for(let off=0;;off+=1000){const j=await sb(`/rest/v1/${tb}?select=${cols}&order=id.asc&limit=1000&offset=${off}`);out.push(...(j||[]));if(!j||j.length<1000)break}return out}
+async function bkLoad(){
+  if(BK&&Date.now()-BKT<300000)return BK;
+  const [books,series,logs]=await Promise.all([bkAll('bkbk_books','id,series,volume,label,color1,color2,color3,height,thickness,page'),bkAll('bkbk_series','id,name'),bkAll('bkbk_logs','id,date,book,onpage,offpage,onpct,offpct')]);
+  const SM=new Map(series.map(x=>[String(x.id),x])),SN=new Map(series.map(x=>[x.name,x])),LM=new Map();logs.forEach(l=>{const k=String(l.book);(LM.get(k)||LM.set(k,[]).get(k)).push(l)});
+  const out=[];books.forEach(b=>{const r=bkDone(LM.get(String(b.id))||[],bkP(b.page));if(!r.done)return;const sr=SM.get(String(b.series))||SN.get(String(b.series));out.push({...b,sr,name:bkTitle(sr,b),fd:r.date})});
+  out.sort((a,b)=>bkCmp(a.fd,b.fd));BK=out;BKT=Date.now();return out}
+function bkSpine(b,i){
+  const th=bkTl(b.thickness),w=BK_TW[th],xt=th==='아주 얇음',c1=b.color1||'#888',c2=b.color2||'#ddd',c3=b.color3||'#fff',v=Array.from(String(b.label||'').trim()).slice(0,3).join(''),t=b.sr?b.sr.name:(b.label||''),h=Math.min(168,Math.max(80,bkHv(b)*8)),
+    a=`class="bks-sp${xt?' xt':''}" data-i="${i}" title="${esc(b.name)}" style="width:${w}px;height:${h}px;background:${esc(c1)}"`;
+  if(xt)return`<div ${a}><b class="bks-xs" style="color:${esc(c3)}">${esc(t)}</b><i class="bks-xb" style="background:${esc(c2)}"></i></div>`;
+  const pl=`<span class="bks-pl" style="background:${esc(c2)};color:${bkInk(c2)}"><b>${esc(t)}</b></span>`;
+  if(!v){const d=Math.min(8,Math.max(5,w-12));return`<div ${a}><i class="bks-dm" style="width:${d}px;height:${d}px;background:${esc(c3)}"></i><div class="bks-bd sg">${pl}</div></div>`}
+  return`<div ${a}><div class="bks-bd">${pl}<em class="bks-vq" style="background:${esc(c3)};color:${bkInk(c3)};font-size:${Math.min(9,Math.max(7,w-13))}px"><span>${esc(v)}</span></em></div></div>`}
+async function openShelf(){
+  const dlg=$('#bkdlg'),g=$('#bk_g');g.innerHTML='<div class="tag">책장을 불러오는 중…</div>';$('#bk_i').textContent='';if(!dlg.open)dlg.showModal();
+  let L;try{L=await bkLoad()}catch(e){g.innerHTML=`<div class="tag">책장을 불러오지 못했어요. ${esc(String(e.message||e).slice(0,120))}</div>`;return}
+  if(!L.length){g.innerHTML='<div class="tag">완독한 책이 아직 없어요. (bkbk에서 100%까지 읽은 기록이 있는 책만 꽂혀요. ⚙ 설정·로그인에서 로그인했는지도 확인해 주세요)</div>';return}
+  $('#bk_i').textContent=`완독한 책 ${L.length}권 · 책을 누르면 발췌문이 하나 나와요 · 한 번 읽을 때마다 ⏱ ${READ_MIN}분`;
+  g.innerHTML=`<div class="bks-shelf">${L.map((b,i)=>`<div class="bks-slot">${bkSpine(b,i)}</div>`).join('')}</div>`;
+}
+$('#bk_g').onclick=async e=>{const el=e.target.closest('.bks-sp');if(!el||!BK)return;const b=BK[+el.dataset.i];
+  try{const t=await sb('/rest/v1/bkbk_texts?book=eq.'+b.id+'&select=text,page,pct&limit=1000'),L=(t||[]).filter(x=>x.text&&x.text.trim());
     if(!L.length)return msg('이 책엔 아직 발췌문이 없어요');
-    const q=L[Math.floor(Math.random()*L.length)],tail=[b.author,q.chapter,q.page?q.page+'쪽':''].filter(Boolean).join(' · ');
-    runScene([{t:`${q.text.trim()}\n\n— 『${b.label||''}』${tail?' · '+tail:''}`}],()=>{pass(READ_MIN);G.log='';after()});
+    const q=L[Math.floor(Math.random()*L.length)],pos=bkHas(q.page)&&String(q.page)!==''?'p.'+q.page:(bkHas(q.pct)&&String(q.pct)!==''?Math.round(bkPC(q.pct))+'%':'');
+    runScene([{t:`${q.text.trim()}\n\n— ${b.name}${pos?' · '+pos:''}`}],()=>{pass(READ_MIN);G.log='';after()});
   }catch(er){msg('발췌문을 불러오지 못했어요',1)}};
 $('#bk_x').onclick=()=>$('#bkdlg').close();
 </script>
