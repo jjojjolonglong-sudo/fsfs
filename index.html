@@ -241,6 +241,60 @@ button.act.off{opacity:.45;box-shadow:none}
 #delta{position:fixed;inset:auto;top:100px;left:50%;transform:translateX(-50%);margin:0;padding:10px 16px;border:2px solid var(--ink);border-radius:4px;background:var(--p);color:var(--ink);box-shadow:4px 4px 0 var(--ink);display:none;gap:14px;font-weight:800;font-size:15px;z-index:1000}
 #delta:popover-open{display:flex}
 #delta .up{color:#1f8a4c}#delta .dn{color:#c8432b}#delta span:not(.up):not(.dn){color:var(--mute)}
+
+/* ===== v15 ===== */
+.stage{box-sizing:content-box;height:min(86vh,880px);aspect-ratio:994/2946;overflow:hidden}
+.stage canvas{position:absolute;left:0;top:0;width:100%;height:auto}
+.stage::after{left:0;right:0;top:0;bottom:0;height:auto;transform:none;border-radius:inherit;
+  background:linear-gradient(152deg,transparent 0 64%,rgba(255,255,255,.26) 64% 69.5%,transparent 69.5%)}
+.cal{box-shadow:none}
+/* 시간대 띠 + 눈금 */
+.tl{position:relative;flex:1 1 440px;max-width:660px;display:flex;flex-direction:column;min-width:0}
+.tl .bands{flex:1;border-radius:4px 4px 0 0}
+.bd{padding:3px 0;min-width:0;overflow:hidden}
+.bd em{letter-spacing:-.03em}
+.ruler{position:relative;height:24px;border:2px solid var(--ink);border-top:0;border-radius:0 0 4px 4px;background:var(--p)}
+.ruler .tk{position:absolute;top:0;width:1px;height:4px;background:var(--ink);opacity:.5}.ruler .tk.mj{height:8px;opacity:1}
+.ruler .tt{position:absolute;top:9px;font-size:10px;font-weight:700;transform:translateX(-50%);white-space:nowrap}
+.ruler .tt.f{transform:none;left:3px!important}.ruler .tt.l{transform:translateX(-100%);left:auto!important;right:3px}
+.nw{position:absolute;left:2px;right:2px;top:-3px;bottom:-3px;pointer-events:none}
+.needle{position:absolute;top:0;bottom:0;width:3px;margin-left:-1.5px;background:var(--acc);border:1px solid var(--ink);border-radius:1px}
+/* 변화 팝업: 맵 중앙 */
+#delta{top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;padding:14px 22px;gap:18px;box-shadow:5px 5px 0 var(--ink)}
+/* 관리자 안내·이벤트 편집기 */
+.hd{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:800;margin-bottom:8px}
+.fsec{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800;margin-top:8px;padding-bottom:4px;border-bottom:2px solid var(--ink)}
+.fsec .n{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:50%;background:var(--ink);color:var(--p);font-size:11px}
+.fr.id2{grid-template-columns:minmax(0,1fr) 160px auto}
+.lr select{width:auto;flex:1;min-width:120px}.lr input.l2{width:84px}
+.evs{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.evs select{width:150px;flex:none}.evs input{flex:1;min-width:0}
+.evs .mv{display:inline-flex;gap:3px;flex:none}.evs .mv button{padding:2px 7px;box-shadow:none}
+.evs.me select{background:var(--hi)}.evs.me input{background:var(--hi);text-align:right}
+.evs.nr input{font-style:italic;color:var(--mute);border-style:dashed}.evs.nr select{border-style:dashed}
+.evc{border:2px dashed var(--ink);border-radius:4px;padding:8px;margin-bottom:8px}
+.evh{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.evch{border-left:3px solid var(--ink);padding-left:8px;margin:8px 0}
+.evch .row.sub{margin:4px 0 6px}.evch .row.sub select{width:auto;flex:1;max-width:220px}.evch .row.sub input{width:70px}
+.badge{font-size:12px;font-weight:800;padding:3px 8px;border:2px solid var(--ink);border-radius:3px;background:var(--hi);white-space:nowrap}
+#wt{flex:1 1 auto;min-width:0;flex-wrap:nowrap}
+.tl{flex:1 1 360px}
+@media(max-width:1100px){#wt{flex-wrap:wrap}}
+
+/* ===== v16: 시간 포인터, 설명칸/액션칸, 액션 상세 ===== */
+.tl{padding-bottom:13px}
+.tl .bands{border-radius:4px}
+.nw{top:auto;bottom:0;height:12px}
+.needle{top:0;bottom:auto;width:0;height:0;margin-left:-7px;background:none;border:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:11px solid var(--ink);border-radius:0}
+.descbox{margin-top:12px;padding:16px 14px;border:2px solid var(--ink);border-radius:4px;background:var(--p);text-align:center}
+.descbox .loc{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.descbox .ld{font-size:15px;color:var(--mute);margin-top:6px;line-height:1.5}
+.actbox{position:relative;margin-top:22px;padding:18px 12px 12px;border:2px solid var(--ink);border-radius:4px;background:var(--p)}
+.boxlab{position:absolute;top:-12px;left:12px;background:var(--ink);color:var(--p);font-size:12px;font-weight:800;padding:2px 12px;border-radius:3px;letter-spacing:.06em}
+.actbox #wa{margin:0}.actbox #wl{margin-top:10px}
+.lockmsg{grid-column:1/-1;text-align:center;padding:14px;font-weight:700;color:var(--mute)}
+#adlg{max-width:440px}.ad-d{margin:8px 0 12px;line-height:1.55;min-height:20px}.ad-w{margin-top:10px;font-weight:700;color:#c8432b}
+#adlg h2{background:none;border:0;transform:none;padding:0;display:block}.ad-d:empty{display:none}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
 </head>
@@ -256,8 +310,8 @@ button.act.off{opacity:.45;box-shadow:none}
       <div id="stview" hidden><h2>📋 내 상태</h2><div id="st_b"></div></div>
       <div id="mapview">
             <div id="townmap" class="townmap" aria-label="쿼터뷰 마을 지도"></div>
-      <div class="map-current" id="mapcurrent"></div>
-      <div class="bar" id="wp" hidden></div><div class="acts" id="wa"></div><div class="tag" id="wl" style="margin-top:4px"></div></div>
+      <div class="descbox" id="mapcurrent"></div>
+      <div class="bar" id="wp" hidden></div><div class="actbox"><div class="boxlab">액션</div><div class="acts" id="wa"></div><div class="tag" id="wl"></div></div></div>
     </div>
     <div id="closet" hidden>
     <div class="card"><div class="tabs" id="tabs"></div><div class="grid" id="grid"></div></div>
@@ -269,9 +323,7 @@ button.act.off{opacity:.45;box-shadow:none}
 
 <div id="delta" popover="manual"></div>
 <dialog id="scene"><img id="sp" hidden alt=""><div class="nm" id="sn"></div><div class="tx" id="st"></div><div class="bar" id="sb" style="justify-content:flex-end"></div></dialog>
-<dialog id="place"><h2 id="pl_t" style="font-size:16px;color:var(--ink);margin-bottom:2px"></h2><div class="tag" id="pl_m"></div><div id="pl_d" style="margin:6px 0 0;line-height:1.5"></div>
-  <div class="acts" id="pl_g"></div><div class="acts" id="pl_a"></div><div class="acts" id="pl_n"></div><div id="pl_msg"></div>
-  <div class="bar" style="margin-top:8px;justify-content:flex-end"><button id="pl_x">닫기</button></div></dialog>
+<dialog id="adlg"><h2 id="ad_t" style="font-size:18px;text-transform:none;letter-spacing:0"></h2><div id="ad_d" class="ad-d"></div><div id="ad_r"></div><div id="ad_w" class="ad-w"></div><div class="bar" style="margin-top:14px;justify-content:flex-end"><button id="ad_x">취소</button><button class="pri" id="ad_go">하기</button></div></dialog>
 <dialog id="shop"><h2 id="shm"></h2><div id="shl"></div><div class="bar" style="margin-top:10px;justify-content:flex-end"><button id="shc">닫기</button></div></dialog>
 <dialog id="dlg">
   <h2>연결 설정</h2>
@@ -292,7 +344,7 @@ button.act.off{opacity:.45;box-shadow:none}
   <div class="row"><h2 style="flex:1;font-size:16px;color:var(--ink)">🛠 관리자 모드</h2><button id="devclose">게임으로 돌아가기</button></div>
   <div class="tabs" id="devtabs"><button data-t="items" class="on">👗 의상</button><button data-t="map">🗺 마을</button><button data-t="npc">🧑 인물</button><button data-t="event">📖 이벤트</button></div>
   <div id="dv-items"><div class="card" style="margin-bottom:12px">
-    <h2>빠른 등록 — 전체 캔버스 크기 PNG를 레이어별로 한꺼번에 선택하세요. 파일명: 이름__outline.png, 이름__fill1.png, 이름__fill2.png, 이름__static.png (__ 가 없으면 static 한 장짜리)</h2>
+    <div class="hd"><b>빠른 등록</b><i class="tip" tabindex="0" data-tip="전체 캔버스 크기 PNG를 레이어별로 한꺼번에 선택하세요. 파일명: 이름__outline.png, 이름__fill1.png, 이름__fill2.png, 이름__static.png (__ 가 없으면 static 한 장짜리)">?</i></div>
     <div class="row"><label>파츠<select id="np"></select></label><label>PNG 파일<input id="nf" type="file" accept="image/png" multiple></label>
       <button class="pri" id="bulk">등록</button><button id="exp">JSON 백업</button></div>
   </div>
@@ -312,16 +364,16 @@ button.act.off{opacity:.45;box-shadow:none}
         <div class="card" id="ped"></div></div></details>
   </div>
   <div id="dv-npc" hidden>
-    <div class="card" style="margin-bottom:12px"><h2>프로필 이미지 한꺼번에 등록 — 파일 이름이 인물 이름이 돼요 (예: 하윤.png)</h2>
+    <div class="card" style="margin-bottom:12px"><div class="hd"><b>프로필 이미지 한꺼번에 등록</b><i class="tip" tabindex="0" data-tip="파일 이름이 인물 이름이 돼요 (예: 하윤.png). 이름이 이미 있는 인물과 같으면 새로 만들지 않고 그 인물의 썸네일로 붙여요 (덕질노트에서 가져온 뒤 GPT 썸네일을 이름으로 올리면 돼요)">?</i></div>
       <div class="row"><label>이미지 여러 장<input id="npf" type="file" accept="image/*" multiple></label><button class="pri" id="npbulk">등록</button><button id="npimp">내장 인물 가져오기</button></div>
-      <div class="tag">이름이 이미 있는 인물과 같으면 새로 만들지 않고 그 인물의 썸네일로 붙여요 (덕질노트에서 가져온 뒤 GPT 썸네일을 이름으로 올리면 돼요)</div></div>
-    <div class="card" style="margin-bottom:12px"><h2>덕질노트(lvlv) 인물을 NPC로 추가 — 한 번 연결하면 이름·성별·키워드·어록·프로필은 lvlv에서 그대로 읽어와요</h2>
+      </div>
+    <div class="card" style="margin-bottom:12px"><div class="hd"><b>덕질노트(lvlv) 인물을 NPC로 추가</b><i class="tip" tabindex="0" data-tip="한 번 연결하면 이름·성별·키워드·어록·프로필은 lvlv에서 그대로 읽어와요">?</i></div>
       <div class="row"><button id="lvload">목록 불러오기</button><button id="lvall">전체 선택</button><button class="pri" id="lvgo">선택한 인물 추가</button></div>
       <div id="lvlist" class="list" style="max-height:220px"></div></div>
     <div class="cols"><div class="card"><div class="list" id="nlist"></div></div><div class="card" id="ned"></div></div>
   </div>
   <div id="dv-event" hidden>
-    <div class="card" style="margin-bottom:12px"><h2>이벤트 — 일어나는 사건이에요. 조건(날짜·호감도·장소·시간·인물)이 맞을 때 그 장소에 가면 선택 없이 저절로 시작돼요. 끝나면 보상(의상·돈·호감도)을 줘요</h2>
+    <div class="card" style="margin-bottom:12px"><div class="hd"><b>이벤트</b><i class="tip" tabindex="0" data-tip="일어나는 사건이에요. 조건(날짜·호감도·장소·시간·인물)이 맞을 때 그 장소에 가면 선택 없이 저절로 시작돼요. 끝나면 보상(의상·돈·호감도)을 줘요">?</i></div>
       <div class="row"><button class="pri" id="evnew">+ 새 이벤트</button><button id="evimp">내장 이벤트 가져오기</button></div></div>
     <div class="cols"><div class="card"><div class="list" id="elist"></div></div><div class="card" id="eed"></div></div>
   </div>
@@ -809,7 +861,7 @@ function checkEvents(){
   }
 }
 function after(){deltaCheck();saveGame();renderWorld();refresh();checkEvents()}
-function go(p,reopen){if(p===G.place||!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;viewSt=false;G.log=`${WORLD.places[p].n}에 도착했어요 (${mn}분)`;const hs=here();if(hs.length)G.log+=' · 만난 사람: '+hs.map(id=>WORLD.npcs[id].n).join(', ');after();if(reopen&&!$('#scene').open)openPlace(p)}
+function go(p,reopen){if(p===G.place||!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;viewSt=false;G.log=`${WORLD.places[p].n}에 도착했어요 (${mn}분)`;const hs=here();if(hs.length)G.log+=' · 만난 사람: '+hs.map(id=>WORLD.npcs[id].n).join(', ');after()}
 function renderShop(pid){
   const box=$('#shl');box.innerHTML='';
   WORLD.sources.filter(s=>s.type==='shop'&&s.place===pid).forEach(s=>{
@@ -836,7 +888,7 @@ function buildTownMap(){
 const dateText=()=>{const d=dateOf();return `${d.getMonth()+1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`};
 const openNow=pid=>{const p=WORLD.places[pid];if(!p)return true;return inR(p.open,G.min)&&(!p.parent||openNow(p.parent))};
 const timeText=()=>`${fmtT(G.min)} · ${bandOf(G.min)}`;
-const say=(t,e)=>{if($('#place').open){const m=$('#pl_msg');m.textContent=t||'';m.style.color=e?'#c33':''}else msg(t,e)};
+const say=(t,e)=>msg(t,e);
 function actionsAt(pid){
   const p=WORLD.places[pid];if(!p)return[];const T=WORLD.types[p.type]||{actions:[]},o=WORLD.placeActs[pid]||{add:[],remove:[]};
   let codes=[...T.actions];o.add.forEach(c=>{if(!codes.includes(c))codes.push(c)});codes=codes.filter(c=>!o.remove.includes(c));
@@ -863,37 +915,49 @@ function actState(a,who){
 }
 function doAction(a,who){
   const st=actState(a,who);if(!st.ok)return say(st.why,1);if(!availAct(a))return say('지금은 시간이 부족해요',1);const pid=G.place;
-  if(a.kind==='closet'){G.closet=true;$('#place').close();after();setTimeout(()=>$('#closet').scrollIntoView({behavior:'smooth',block:'start'}),50);return}
-  if(a.kind==='status'){viewSt=true;renderStatus();$('#place').close();after();return}
+  if(a.kind==='closet'){G.closet=true;after();setTimeout(()=>$('#closet').scrollIntoView({behavior:'smooth',block:'start'}),50);return}
+  if(a.kind==='status'){viewSt=true;renderStatus();after();return}
   if(a.kind==='shop'){if(!WORLD.sources.some(s=>s.type==='shop'&&s.place===pid))return say('아직 파는 물건이 없어요');return openShop(pid)}
   if(a.kind==='look')return say(WORLD.places[pid].desc||'조용한 곳이에요');
   earn(a.money||0,a.name+(who?' · '+((WORLD.npcs[who]||{}).n||''):''));G.energy=clampE(G.energy+enOf(a));
   const ef=a.effects||{},ev=+((ef.aff||[])[0]||{}).v||0;if(who&&ev)G.aff[who]=(G.aff[who]||0)+ev;(ef.give||[]).forEach(giveItem);
   if((a.cond||{}).daily)G.actDay[dk(a,who)]=G.day;
   const wn=who?(WORLD.npcs[who]||{}).n:'',ch0=chips(a)+(who&&ev?` · ♥ ${ev>0?'+':''}${ev}`:'');pass(durOf(a));G.log=`${a.icon||''} ${a.name}`+(wn?` — ${wn}`:'')+(ch0?` (${ch0})`:'');saveGame();PARTNER=who||'';
-  const done=()=>{PARTNER='';after();if(!openNow(G.place)){$('#place').close();msg('문 닫을 시간이 됐어요')}else if($('#place').open)renderPlaceDlg()};
+  const done=()=>{PARTNER='';after();if(!openNow(G.place))msg('문 닫을 시간이 됐어요')};
   const sc=a.code==='talk'&&who?talkScene(who):a.scene;sc&&sc.length?runScene(sc,done):done();
 }
 function talkScene(who){const n=WORLD.npcs[who]||{},L=n.lines||[];return[{who,t:L.length?L[Math.floor(Math.random()*L.length)]:'...'}]}
-function renderPlaceDlg(){
-  const pid=G.place,p=WORLD.places[pid];if(!p)return;
-  $('#pl_t').textContent=`${p.i||''} ${p.n}`;$('#pl_d').textContent=p.desc||'';
-  $('#pl_m').textContent=`${dateText()} ${timeText()}`+(p.open&&p.open.length?` · 영업 ${rngText(p.open)}`:'')+(p.parent?` · ${(WORLD.places[p.parent]||{}).n||''} 안`:'');
-  const nav=$('#pl_g');nav.innerHTML='';const conn=[];
+function renderActs(){
+  const pid=G.place,p=WORLD.places[pid],box=$('#wa');box.innerHTML='';if(!p)return;
+  if(!openNow(pid)){box.innerHTML=`<div class="lockmsg">🔒 지금은 문을 닫았어요${p.open&&p.open.length?' · 영업 '+rngText(p.open):''}</div>`}
+  const conn=[];
   if(p.parent){conn.push(p.parent);Object.keys(WORLD.places).filter(k=>WORLD.places[k].parent===p.parent&&k!==pid).forEach(k=>conn.push(k))}
   Object.keys(WORLD.places).filter(k=>WORLD.places[k].parent===pid).forEach(k=>conn.push(k));
   conn.forEach(k=>{const q=WORLD.places[k],mn=travelMin(pid,k),ok=openNow(k),b=document.createElement('button');b.className='act nav'+(ok?'':' off');
     b.innerHTML=`<b>${k===p.parent?'↩ 나가기 · ':'🚪 '}${esc(q.i||'')} ${esc(q.n)}</b><small>⏱ ${mn}분${ok?'':' · 지금은 닫았어요'}</small>`;
-    b.onclick=()=>{if(!ok)return say('지금은 문을 닫았어요',1);$('#place').close();go(k,true)};nav.append(b)});
-  const box=$('#pl_a');box.innerHTML='';
+    b.onclick=()=>{if(!ok)return msg('지금은 문을 닫았어요',1);go(k)};box.append(b)});
+  if(!openNow(pid))return;
   const vars=[];actionsAt(pid).filter(availAct).forEach(a=>{const sp=partnerOf(a);
-    if(!sp)vars.push([a,null]);else if(sp==='*')here().forEach(id=>vars.push([a,id]));else if(npcAt(sp))vars.push([a,sp])});   // 함께할 인물이 없으면 버튼이 안 보여요
+    if(!sp)vars.push([a,null]);else if(sp==='*')here().forEach(id=>vars.push([a,id]));else if(npcAt(sp))vars.push([a,sp])});
   vars.forEach(([a,who])=>{const st=actState(a,who),b=document.createElement('button'),ch=chips(a),wn=who?(WORLD.npcs[who]||{}).n:'';b.className='act'+(st.ok?'':' off');
-    b.innerHTML=`<b>${esc(a.icon||'▪')} ${esc(a.name)}${wn?' · '+esc(wn)+josa(wn):''}</b>${ch||a.descr||!st.ok?`<small>${esc(ch)}${ch&&a.descr?' · ':''}${esc(a.descr||'')}${!st.ok?(ch||a.descr?' · ':'')+'🔒 '+esc(st.why):''}</small>`:''}`;b.onclick=()=>doAction(a,who);box.append(b)});
-  $('#pl_n').innerHTML='';
-  $('#pl_msg').textContent='';
+    b.innerHTML=`<b>${esc(a.icon||'▪')} ${esc(a.name)}${wn?' · '+esc(wn)+josa(wn):''}</b>${ch||!st.ok?`<small>${esc(ch)}${!st.ok?(ch?' · ':'')+'🔒 '+esc(st.why):''}</small>`:''}`;b.onclick=()=>openAct(a,who);box.append(b)});
 }
-function openPlace(pid){if(!openNow(pid))return msg('지금은 문을 닫았어요. 다른 곳을 둘러보세요.');renderPlaceDlg();$('#place').showModal()}
+function openAct(a,who){
+  const st=actState(a,who),wn=who?(WORLD.npcs[who]||{}).n:'',ev=+(((a.effects||{}).aff||[])[0]||{}).v||0,c=a.cond||{},rg=c.ranges||slotRanges(c.slots||[]),ar=(c.aff||[])[0],en=enOf(a),rows=[];
+  if(a.endAt!=null)rows.push(['걸리는 시간',`${fmtT(a.endAt)}까지 (${durText(durOf(a))})`]);else if(a.mins)rows.push(['걸리는 시간',durText(a.mins)]);
+  if(en)rows.push(['에너지',(en>0?'+':'−')+Math.abs(en)]);
+  if(a.money)rows.push(['돈',(a.money>0?'+':'−')+'₩'+Math.abs(a.money).toLocaleString()]);
+  if(who&&ev)rows.push([wn+' 호감도',(ev>0?'+':'−')+Math.abs(ev)]);
+  if(rg.length)rows.push(['가능한 시간',rngText(rg)]);
+  if(c.daily)rows.push(['횟수','하루 한 번']);
+  if(who&&ar&&+ar.min)rows.push(['필요 호감도',`${ar.min} 이상 (지금 ${G.aff[who]||0})`]);
+  $('#ad_t').textContent=`${a.icon||'▪'} ${a.name}${wn?' · '+wn+josa(wn):''}`;
+  $('#ad_d').textContent=a.descr||(a.kind==='look'?(WORLD.places[G.place]||{}).desc||'':'');
+  $('#ad_r').innerHTML=rows.map(([k,v])=>`<div class="srow"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('');
+  $('#ad_w').textContent=st.ok?'':'🔒 '+st.why;
+  const go=$('#ad_go');go.disabled=!st.ok;go.onclick=()=>{$('#adlg').close();doAction(a,who)};
+  $('#adlg').showModal();
+}
 function renderStatus(){
   const aff=Object.entries(G.aff).filter(([,v])=>v).map(([k,v])=>`<div class="srow"><span>${esc((WORLD.npcs[k]||{}).n||k)}</span><b>♥ ${v}</b></div>`).join('')||'<div class="tag">아직 호감도가 쌓인 사람이 없어요</div>';
   $('#st_b').innerHTML=`<div class="srow"><span>날짜·시간</span><b>${dateText()} ${timeText()}</b></div><div class="srow"><span>돈</span><b>₩${G.money.toLocaleString()}</b></div>
@@ -901,25 +965,23 @@ function renderStatus(){
     <h2 style="margin-top:12px">호감도</h2>${aff}<div class="srow" style="margin-top:8px"><span>모은 옷</span><b>${Object.keys(G.owned).length}벌</b></div>
     <h2 style="margin-top:12px">최근 돈 내역 (최대 20건)</h2>${(G.ledger||[]).map(e=>{const d=new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+e.d);return `<div class="srow"><span>${d.getMonth()+1}/${d.getDate()} ${fmtT(e.t)} · ${esc(e.n)}</span><b style="color:${e.v>0?'#2f7d4f':'#b4452f'}">${e.v>0?'+':'−'}₩${Math.abs(e.v).toLocaleString()}</b></div>`}).join('')||'<div class="tag">아직 돈이 오간 기록이 없어요</div>'}`;
 }
-$('#pl_x').onclick=()=>$('#place').close();
+$('#ad_x').onclick=()=>$('#adlg').close();
 $('#closetx').hidden=true;$('#endview').onclick=()=>{G.closet=false;viewSt=false;after()};
 
 let viewSt=false;
 function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
-  const d=dateOf();const bn=bandOf(G.min),BI=[['이른아침','🌅'],['오전','🌤'],['오후','☀️'],['저녁','🌇'],['깊은 밤','🌙']],wd=d.getDay();
+  const d=dateOf();const bn=bandOf(G.min),BR=[['이른아침','🌅',300,420],['오전','🌤',420,780],['오후','☀️',780,1020],['저녁','🌇',1020,1140],['깊은밤','🌙',1140,1740]],wd=d.getDay(),np=((G.min-300+1440)%1440)/1440*100; 
   $('#wt').innerHTML=`<b class="clk">${fmtT(G.min).replace(":","<i>:</i>")}</b>
    <div class="cal${wd===0?' sun':wd===6?' sat':''}"><span class="mo">${d.getMonth()+1}월</span><b class="dy">${d.getDate()}</b><span class="wk">${DOW[wd]}요일</span></div>
-   <div class="bands">${BI.map(([n,i])=>`<span class="bd${n===bn?' on':''}"><i>${i}</i><em>${n}</em></span>`).join('')}</div>`;applyTint();
+   <div class="tl"><div class="bands">${BR.map(([n,i,a,b])=>`<span class="bd${n.replace('깊은밤','깊은 밤')===bn?' on':''}" style="flex:${b-a} 1 0"><i>${i}</i><em>${n}</em></span>`).join('')}</div><div class="nw"><b class="needle" style="left:${np}%"></b></div></div>`;applyTint();
   buildTownMap();
   document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===topOf(G.place));b.classList.toggle('closed',!openNow(id));});
-  const p=WORLD.places[G.place];$('#mapcurrent').innerHTML=`<span class="current-dot"></span><span>현재 위치: <strong>${p.parent&&WORLD.places[p.parent]?WORLD.places[p.parent].n+' › ':''}${p.n}</strong>${p.desc?' — '+esc(p.desc):''}<br><small>오늘은 어디로 갈까? 건물을 누르면 이동해요. 이동 시 시간이 흘러요.</small></span>`;
+  const p=WORLD.places[G.place];$('#mapcurrent').innerHTML=`<div class="loc">현재 위치 · ${p.parent&&WORLD.places[p.parent]?esc(WORLD.places[p.parent].n)+' › ':''}${esc(p.i||'')} ${esc(p.n)}</div>${p.desc?`<div class="ld">${esc(p.desc)}</div>`:''}`;
   const pl=$('#wp');pl.innerHTML='';
   for(const [k,p] of Object.entries(WORLD.places)){if(p.parent)continue;const b=document.createElement('button');b.textContent=p.i+' '+p.n;if(k===G.place)b.className='on';else b.title='이동하면 15분이 지나가요';b.onclick=()=>go(k);pl.append(b)}
-  const ac=$('#wa');ac.innerHTML='';const add=(t,sm,fn,off)=>{const b=document.createElement('button');b.className='act'+(off?' off':'');b.innerHTML=`<b>${t}</b>${sm?`<small>${sm}</small>`:''}`;b.onclick=fn;ac.append(b)};
-  add(openNow(G.place)?'🚪 들어가기':'🔒 영업 종료',openNow(G.place)?'이 장소에서 할 수 있는 행동 고르기':'지금은 문을 닫았어요',()=>openPlace(G.place),!openNow(G.place));
-  const ta=WORLD.actions.talk;if(ta)here().forEach(id=>{const n=WORLD.npcs[id],st=actState(ta,id);add(`${esc(n.i||'🙂')} ${esc(n.n)}${josa(n.n)} ${esc(ta.name)}`,esc(chips(ta)+(chips(ta)?' · ':'')+'호감도 '+(G.aff[id]||0))+(st.ok?'':' · 🔒 '+esc(st.why)),()=>doAction(ta,id),!st.ok)});
+  renderActs();
   const co=G.place==='home'&&G.closet,vw=co?'closet':(viewSt?'status':'');$('#closet').hidden=!co;$('#cbar').hidden=!co;$('#mapview').hidden=!!vw;$('#stview').hidden=vw!=='status';$('#endview').hidden=!vw;if(vw==='status')renderStatus();
-  $('#wl').textContent=G.log||'';document.querySelector('.stagewrap').classList.toggle('bare',co);
+  $('#wl').textContent=G.log||'';document.querySelector('.stagewrap').classList.toggle('bare',!co);
 }
 $('#wnew').onclick=()=>{if(!confirm('새 게임을 시작할까요? (보유 의상과 진행 상황이 초기화돼요)'))return;newGame();LAST=null;initSel();hidden.clear();after()};
 $('#shc').onclick=()=>{$('#shop').close();refresh()};
@@ -1106,7 +1168,7 @@ function evFromRow(r){const c=r.cond||{},f=r.effects||{};
 function normEv(r){const x=structuredClone(r);x.cond=x.cond||{};x.cond.aff=x.cond.aff||[];x.scene=x.scene||[];x.effects=x.effects||{};x.effects.give=x.effects.give||[];x.effects.aff=x.effects.aff||[];return x}
 let ecur=null;
 const nl=()=>Object.entries(WORLD.npcs).map(([k,n])=>({k,n:(n.i||'')+' '+n.n})),pl2=()=>Object.entries(WORLD.places).map(([k,p])=>({k,n:(p.i||'')+' '+p.n}));
-const npcOpts=(s,none)=>opts(nl(),'k','n',s,none),placeOpts=(s,none)=>opts(pl2(),'k','n',s,none),whoOpts=s=>opts([{k:'me',n:'나 ({player})'},...nl()],'k','n',s,'나레이션');
+const npcOpts=(s,none)=>opts(nl(),'k','n',s,none),placeOpts=(s,none)=>opts(pl2(),'k','n',s,none),whoOpts=s=>opts([{k:'me',n:'🙋 나 (플레이어)'},...nl().map(n=>({k:n.k,n:'💬 상대 · '+n.n}))],'k','n',s,'📝 나레이션'),whoCls=v=>v==='me'?'me':(v?'':'nr');
 const itemOpts=s=>opts(ITEMS.filter(i=>i.layers.length).map(i=>({k:i.builtin?i.part+':'+i.key:i.id,n:((P(i.part)||{}).label||i.part)+' · '+i.name})),'k','n',s,'의상 선택');
 const ROWS={ca:()=>ecur.cond.aff,ea:()=>ecur.effects.aff,eg:()=>ecur.effects.give};
 function renderEvAdmin(){
@@ -1122,18 +1184,20 @@ $('#evimp').onclick=async()=>{
       cond:{place:e.place||null,npc:e.npc||null,bday:e.birthday?'player':null,aff:Object.entries(e.aff||{}).map(([npc,min])=>({npc,min}))},scene:e.scene,effects:{give:e.give||[],money:0,aff:[]}})));
     await loadCatalog();renderEvAdmin();msg('내장 이벤트를 가져왔어요')}catch(e){msg(e.message,1)}
 };
-function rowsHtml(k,title,add){
-  return `<div class="tag" style="margin:4px 0">${title}</div>`+ROWS[k]().map((r,n)=>`<div class="row lr" data-l="${k}" data-n="${n}">`+(k==='eg'?`<select class="l1" style="flex:1">${itemOpts(r)}</select>`:
-    `<select class="l1">${npcOpts(r.npc,'인물 선택')}</select><label style="flex-direction:row;align-items:center;gap:4px">${k==='ca'?'최소':'변화'}<input class="l2" type="number" value="${k==='ca'?r.min:r.v}" style="width:70px"></label>`)+`<button class="lx">✕</button></div>`).join('')+`<div class="row"><button class="la" data-l="${k}">+ ${add}</button></div>`;
+function rowsHtml(k,title,add,tp){
+  return `<div class="f"><span>${title}${tp?tip(tp):''}</span></div>`+ROWS[k]().map((r,n)=>`<div class="row lr" data-l="${k}" data-n="${n}">`+(k==='eg'?`<select class="l1">${itemOpts(r)}</select>`:
+    `<select class="l1">${npcOpts(r.npc,'인물 선택')}</select><span class="tag">${k==='ca'?'최소':'변화'}</span><input class="l2" type="number" value="${k==='ca'?r.min:r.v}">`)+`<button class="lx">✕</button></div>`).join('')+`<div class="row"><button class="la" data-l="${k}">+ ${add}</button></div>`;
 }
-function renderRows(){$('#ca_box').innerHTML=rowsHtml('ca','호감도 조건 (이 인물과의 호감도가 이 이상일 때)','호감도 조건');$('#eg_box').innerHTML=rowsHtml('eg','받는 의상 (이벤트로 받기 전까지는 잠겨 있어요)','의상 추가');$('#ea_box').innerHTML=rowsHtml('ea','호감도 변화','호감도 변화')}
+function renderRows(){$('#ca_box').innerHTML=rowsHtml('ca','필요 호감도','호감도 조건','이 인물과의 호감도가 이 값 이상일 때만 열려요');$('#eg_box').innerHTML=rowsHtml('eg','받는 의상','의상 추가','이벤트로 받기 전까지는 잠겨 있어요');$('#ea_box').innerHTML=rowsHtml('ea','호감도 변화','호감도 변화')}
 function renderScn(){
+  const line=(cls,i,s,extra)=>`<div class="evs ${whoCls(s.who)}" ${i}><select class="${extra[0]}">${whoOpts(s.who)}</select><input class="${extra[1]}" value="${esc(s.t)}" placeholder="${extra[2]}"><span class="mv">${extra[3]}</span></div>`;
   $('#scn').innerHTML=ecur.scene.map((s,i)=>s.choices?
-   `<div class="evc" data-i="${i}"><div class="tag">선택지 — 플레이어가 고르는 부분</div>${s.choices.map((c,j)=>{const [an,av]=Object.entries(c.aff||{})[0]||['',0];
-     return `<div class="evch" data-j="${j}"><div class="row"><input class="ct2" value="${esc(c.t)}" placeholder="선택지 문구" style="flex:1;min-width:140px"><label>호감도 대상<select class="ca">${npcOpts(an,'없음')}</select></label><label>변화<input class="cv" type="number" value="${av}" style="width:64px"></label><button class="cx">✕</button></div>
-     ${(c.reply||[]).map((r,k)=>`<div class="evs" data-k="${k}"><select class="rw">${whoOpts(r.who)}</select><input class="rt" value="${esc(r.t)}" placeholder="답변 대사"><button class="rx">✕</button></div>`).join('')}<button class="ra">+ 답변 줄</button></div>`}).join('')}
-     <div class="row"><button class="ca2">+ 선택지</button><button class="su">▲</button><button class="sd">▼</button><button class="sx">✕ 삭제</button></div></div>`
-   :`<div class="evs" data-i="${i}"><select class="sw">${whoOpts(s.who)}</select><input class="st2" value="${esc(s.t)}" placeholder="대사 ({player}는 플레이어 이름으로 바뀌어요)"><button class="su">▲</button><button class="sd">▼</button><button class="sx">✕</button></div>`).join('')||'<div class="tag">장면이 비어 있어요</div>';
+   `<div class="evc" data-i="${i}"><div class="evh"><b>🙋 선택지</b><span class="tag">플레이어가 고르는 말 — 고르면 아래 답변이 이어져요</span></div>${s.choices.map((c,j)=>{const [an,av]=Object.entries(c.aff||{})[0]||['',0];
+     return `<div class="evch" data-j="${j}"><div class="row"><span class="badge me">🙋 나</span><input class="ct2" value="${esc(c.t)}" placeholder="플레이어가 고를 말" style="flex:1;min-width:140px"><button class="cx" title="선택지 삭제">✕</button></div>
+     <div class="row sub"><span class="tag">고르면 호감도</span><select class="ca">${npcOpts(an,'변화 없음')}</select><input class="cv" type="number" value="${av}" placeholder="±"></div>
+     ${(c.reply||[]).map((r,k)=>`<div class="evs ${whoCls(r.who)}" data-k="${k}"><select class="rw">${whoOpts(r.who)}</select><input class="rt" value="${esc(r.t)}" placeholder="이어지는 대사"><span class="mv"><button class="rx">✕</button></span></div>`).join('')}<button class="ra">+ 이어지는 대사</button></div>`}).join('')}
+     <div class="row"><button class="ca2">+ 선택지</button><button class="su">▲</button><button class="sd">▼</button><button class="sx">✕ 이 선택지 블록 삭제</button></div></div>`
+   :`<div class="evs ${whoCls(s.who)}" data-i="${i}"><select class="sw">${whoOpts(s.who)}</select><input class="st2" value="${esc(s.t)}" placeholder="대사 ({player}는 플레이어 이름으로 바뀌어요)"><span class="mv"><button class="su">▲</button><button class="sd">▼</button><button class="sx">✕</button></span></div>`).join('')||'<div class="tag">장면이 비어 있어요. 아래 버튼으로 대사를 추가하세요</div>';
 }
 const cleanScene=sc=>sc.map(s=>s.choices?{choices:s.choices.filter(c=>c.t.trim()).map(c=>({t:c.t,...(c.aff?{aff:c.aff}:{}),reply:(c.reply||[]).filter(r=>r.t.trim()).map(r=>({who:r.who||'',t:r.t}))}))}:{who:s.who||'',t:s.t||''}).filter(s=>s.choices?s.choices.length:s.t.trim());
 function evInput(ev){
@@ -1141,6 +1205,7 @@ function evInput(ev){
   if(L){const a=ROWS[L.dataset.l](),n=+L.dataset.n;if(L.dataset.l==='eg'){if(t.matches('.l1'))a[n]=t.value}else{if(t.matches('.l1'))a[n].npc=t.value;if(t.matches('.l2'))a[n][L.dataset.l==='ca'?'min':'v']=+t.value}return}
   const se=t.closest('[data-i]');if(!se)return;
   const s=ecur.scene[+se.dataset.i],ch=t.closest('[data-j]'),c=ch&&s.choices[+ch.dataset.j],rp=t.closest('[data-k]'),r=rp&&c.reply[+rp.dataset.k];
+  if(t.matches('.sw,.rw')){const ln=t.closest('.evs');if(ln)ln.className='evs '+whoCls(t.value)}
   if(t.matches('.sw'))s.who=t.value;if(t.matches('.st2'))s.t=t.value;if(t.matches('.ct2'))c.t=t.value;if(t.matches('.rw'))r.who=t.value;if(t.matches('.rt'))r.t=t.value;
   if(t.matches('.ca,.cv')){const row=t.closest('.evch'),n=row.querySelector('.ca').value,v=+row.querySelector('.cv').value;c.aff=n&&v?{[n]:v}:undefined}
 }
@@ -1161,26 +1226,31 @@ function evClick(ev){
 }
 function renderEvForm(){
   const e=$('#eed');if(!ecur){e.innerHTML='<div class="tag">왼쪽에서 이벤트를 고르거나 "+ 새 이벤트"를 눌러주세요</div>';return}
-  const x=ecur,c=x.cond,sl=c.slots||[];
-  e.innerHTML=`<div style="display:grid;gap:8px">
-  <div class="row"><label style="flex:1">제목 (나만 보는 이름)<input id="e_title" value="${esc(x.title)}"></label><label>ID<input id="e_code" value="${esc(x.code)}" style="width:130px"></label>
-    <label style="flex-direction:row;align-items:center;gap:6px"><input id="e_en" type="checkbox"${x.enabled!==false?' checked':''}>사용</label></div>
-  <h2>언제 열릴까 (조건) — 비워둔 항목은 따지지 않아요</h2>
-  <div class="row"><label>장소<select id="e_pl">${placeOpts(c.place,'어디서나')}</select></label><label>인물 (그 시간·그 장소에 있을 때)<select id="e_np">${npcOpts(c.npc,'상관없음')}</select></label></div>
-  <h2 style="margin:0">몇 시에 열릴까</h2>${rgHtml('e_rg',c.ranges||slotRanges(c.slots||[]))}
-  <div class="row"><label>날짜 시작<input id="e_f" placeholder="03-08" value="${esc(c.from||'')}" style="width:84px"></label><label>끝<input id="e_t" placeholder="03-10" value="${esc(c.to||'')}" style="width:84px"></label>
-    <label>생일 기준 (당일~2일 뒤)<select id="e_b"><option value="">없음</option><option value="player"${c.bday==='player'?' selected':''}>내 생일</option>${nl().map(n=>`<option value="${n.k}"${c.bday===n.k?' selected':''}>${esc(n.n)}의 생일</option>`).join('')}</select></label></div>
+  const x=ecur,c=x.cond;
+  e.innerHTML=`<div class="form">
+  <div class="fr id2"><label class="f"><span>제목${tip('나만 보는 이름이에요')}</span><input id="e_title" value="${esc(x.title)}"></label><label class="f"><span>ID</span><input id="e_code" value="${esc(x.code)}"></label><label class="chip" style="align-self:end"><input id="e_en" type="checkbox"${x.enabled!==false?' checked':''}>사용</label></div>
+  <div class="fsec"><span class="n">1</span>언제 열리나${tip('비워둔 항목은 따지지 않아요. 조건이 모두 맞는 곳에 가면 저절로 시작돼요')}</div>
+  <div class="fr"><label class="f"><span>장소</span><select id="e_pl">${placeOpts(c.place,'어디서나')}</select></label>
+    <label class="f"><span>인물${tip('그 시간·그 장소에 있을 때만 열려요')}</span><select id="e_np">${npcOpts(c.npc,'상관없음')}</select></label>
+    <label class="f"><span>생일 기준${tip('생일 당일부터 2일 뒤까지')}</span><select id="e_b"><option value="">없음</option><option value="player"${c.bday==='player'?' selected':''}>내 생일</option>${nl().map(n=>`<option value="${n.k}"${c.bday===n.k?' selected':''}>${esc(n.n)}의 생일</option>`).join('')}</select></label></div>
+  <div class="f"><span>시간${tip('비워 두면 아무 때나 열려요')}</span>${rgHtml('e_rg',c.ranges||slotRanges(c.slots||[]))}</div>
+  <div class="fr"><label class="f"><span>날짜 시작</span><input id="e_f" placeholder="03-08" value="${esc(c.from||'')}"></label><label class="f"><span>날짜 끝</span><input id="e_t" placeholder="03-10" value="${esc(c.to||'')}"></label>
+    <label class="f"><span>반복</span><select id="e_r"><option value="once"${x.repeat_mode!=='daily'?' selected':''}>한 번만</option><option value="daily"${x.repeat_mode==='daily'?' selected':''}>하루 한 번</option></select></label>
+    <label class="f"><span>확률(%)</span><input id="e_c" type="number" min="1" max="100" value="${x.chance??100}"></label>
+    <label class="f"><span>우선순위${tip('여러 이벤트가 동시에 열리면 큰 쪽이 먼저 나와요')}</span><input id="e_pr" type="number" value="${x.priority||0}"></label></div>
   <div id="ca_box"></div>
-  <div class="row"><label>반복<select id="e_r"><option value="once"${x.repeat_mode!=='daily'?' selected':''}>한 번만</option><option value="daily"${x.repeat_mode==='daily'?' selected':''}>하루 한 번</option></select></label>
-    <label>확률 (%)<input id="e_c" type="number" min="1" max="100" value="${x.chance??100}" style="width:76px"></label><label>우선순위 (클수록 먼저)<input id="e_pr" type="number" value="${x.priority||0}" style="width:76px"></label></div>
-  <h2>장면 (대사 → 선택지 → 답변)</h2><div id="scn"></div>
-  <div class="row"><button id="e_ad">+ 대사</button><button id="e_ac">+ 선택지</button><button id="e_pv">▶ 미리보기</button></div>
-  <h2>끝나면 받는 것 (보상)</h2><div id="eg_box"></div><div id="ea_box"></div>
-  <div class="row"><label>돈 (+/−)<input id="e_m" type="number" value="${x.effects.money||0}" style="width:100px"></label></div>
-  <label>메모<input id="e_note" value="${esc(x.note||'')}"></label>
+  <div class="fsec"><span class="n">2</span>장면${tip('위에서 아래로 차례로 나와요. 말하는 사람(나레이션·나·상대)을 골라 대사를 적어요. {player}는 플레이어 이름으로 바뀌어요')}</div>
+  <div id="scn"></div>
+  <div class="row"><button id="e_adn">+ 상대 대사</button><button id="e_adm">+ 내 대사</button><button id="e_adr">+ 나레이션</button><button id="e_ac">+ 선택지</button><button id="e_pv">▶ 미리보기</button></div>
+  <div class="fsec"><span class="n">3</span>끝나면 받는 것${tip('이벤트가 끝나면 보상을 줘요')}</div>
+  <div id="eg_box"></div><div id="ea_box"></div>
+  <label class="f" style="max-width:180px"><span>돈 (+/−)</span><input id="e_m" type="number" value="${x.effects.money||0}"></label>
+  <input id="e_note" placeholder="메모 — 나만 보는 설명" value="${esc(x.note||'')}">
   <div class="row"><button class="pri" id="e_save">저장</button>${x.id?'<button id="e_del">삭제</button>':''}</div></div>`;
   renderScn();renderRows();e.oninput=e.onchange=evInput;e.onclick=evClick;
-  $('#e_ad').onclick=()=>{x.scene.push({who:c.npc||'',t:''});renderScn()};$('#e_ac').onclick=()=>{x.scene.push({choices:[{t:'',reply:[]}]});renderScn()};
+  const first=Object.keys(WORLD.npcs)[0]||'';
+  $('#e_adn').onclick=()=>{x.scene.push({who:$('#e_np').value||first,t:''});renderScn()};$('#e_adm').onclick=()=>{x.scene.push({who:'me',t:''});renderScn()};$('#e_adr').onclick=()=>{x.scene.push({who:'',t:''});renderScn()};
+  $('#e_ac').onclick=()=>{x.scene.push({choices:[{t:'',reply:[]}]});renderScn()};
   $('#e_pv').onclick=()=>{const s=cleanScene(x.scene);s.length?runScene(s,null,true):msg('장면이 비어 있어요',1)};
   $('#e_save').onclick=saveEv;if(x.id)$('#e_del').onclick=delEv;
 }
@@ -1369,8 +1439,9 @@ loadGame();buildModel();rebuildAcq();initSel();inited=true;refresh();renderWorld
 const SFX_BASE='https://jjojjolonglong-sudo.github.io/mnmn/';
 const SFX={on:(()=>{try{return localStorage.getItem('sfx')!=='0'}catch(e){return true}})(),a:{}};
 ['click','get'].forEach(k=>{try{const a=new Audio(SFX_BASE+k+'.wav');a.preload='auto';SFX.a[k]=a}catch(e){}});
-function sfx(k){if(!SFX.on||!SFX.a[k])return;try{const a=SFX.a[k].cloneNode();a.volume=.7;a.play().catch(()=>{})}catch(e){}}
-document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('button');if(!b||b.disabled||b.classList.contains('map-building')||b.id==='sfxbtn')return;sfx('click')},true);
+const SFX_VOL={click:.3,get:.45};
+function sfx(k){if(!SFX.on||!SFX.a[k])return;try{const a=SFX.a[k].cloneNode();a.volume=SFX_VOL[k]||.4;a.play().catch(()=>{})}catch(e){}}
+document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('button');if(!b||b.disabled||(b.classList.contains('map-building')&&b.closest('#pmap'))||b.id==='sfxbtn')return;sfx('click')},true);
 $('#sfxbtn').onclick=()=>{SFX.on=!SFX.on;try{localStorage.setItem('sfx',SFX.on?'1':'0')}catch(e){}$('#sfxbtn').textContent=SFX.on?'🔊':'🔇';sfx('click')};
 $('#sfxbtn').textContent=SFX.on?'🔊':'🔇';
 
@@ -1384,7 +1455,7 @@ function deltaCheck(){const c=dSnap(),o=LAST;LAST=c;if(!o)return;const it=[];
   if(c.o>o.o)it.push(`<span class="up">👗 새 옷 +${c.o-o.o}</span>`);
   if(!it.length)return;if(c.t>o.t)it.push(`<span>⏱ ${durText(c.t-o.t)}</span>`);
   if(c.m>o.m)sfx('get');
-  const el=$('#delta');el.innerHTML=it.join('');try{el.hidePopover()}catch(e){}try{el.showPopover()}catch(e){el.style.display='block'}
+  const el=$('#delta');el.innerHTML=it.join('');{const h=$('#mapview').hidden?document.querySelector('.card.world'):$('#townmap'),r=h.getBoundingClientRect(),t=Math.max(r.top,0),b=Math.min(r.bottom,innerHeight);el.style.left=(r.left+r.width/2)+'px';el.style.top=((t+b)/2)+'px'}try{el.hidePopover()}catch(e){}try{el.showPopover()}catch(e){el.style.display='block'}
   clearTimeout(deltaCheck.t);deltaCheck.t=setTimeout(()=>{try{el.hidePopover()}catch(e){el.style.display='none'}},2800)}
 LAST=dSnap();
 </script>
