@@ -336,11 +336,14 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 #scene .tx{white-space:pre-wrap}
 .bkshelf-wrap{--face:#d8d2c2;--dk:#2b2924}
 .bkbar{display:flex;align-items:center;gap:10px;margin:2px 0 10px}.bkbar .tag{flex:1}.bknav{display:flex;align-items:center;gap:8px}.bknav button{min-width:0;padding:2px 12px}.bknav b{min-width:46px;text-align:center}
-.bk-pg{display:flex;gap:14px;align-items:flex-start}
-.bk-case{flex:1;min-width:0;display:flex;background:#fffef9;border:5px solid #6b4f36;border-radius:4px;box-shadow:inset 0 0 0 2px #3f2e1f}
-.bk-cmp{flex:1;min-width:0;padding:0 4px;border-left:5px solid #6b4f36}.bk-cmp:first-child{border-left:0}
-.bk-lab{height:22px;line-height:22px;margin:0 -4px;text-align:center;font:700 11px/22px sans-serif;background:var(--face);border-bottom:2px solid var(--dk);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
-.bk-row{position:relative;height:196px;display:flex;align-items:flex-end;margin:0 -4px;padding:0 4px;border-bottom:8px solid var(--face);box-shadow:0 1px 0 var(--dk),0 3px 0 rgba(0,0,0,.13)}
+.bk-vp{overflow:hidden;padding:2px 0 6px}.bk-tr{display:flex;align-items:flex-start;will-change:transform}
+.bk-case{flex:none;display:flex;align-items:stretch;background:var(--face);padding:8px 0;border:2px solid;border-color:#fff var(--dk) var(--dk) #fff;box-shadow:inset -1px -1px var(--sh),3px 3px 0 #0004}
+.bk-cmp{flex:1;min-width:0;position:relative;z-index:1;background:#9a9484;border:2px solid;border-color:var(--dk) #fff #fff var(--dk);padding:6px 0 0;margin:0 -2px;box-shadow:inset 2px 2px 0 rgba(0,0,0,.25)}
+.bk-post{flex:none;width:8px;position:relative;z-index:3;background:linear-gradient(90deg,#fff,var(--face) 18%,var(--face) 70%,var(--sh));border-left:1px solid #fff;border-right:1px solid var(--dk);box-shadow:0 0 0 1px rgba(0,0,0,.18)}
+.bk-row{position:relative;height:122px;display:flex;align-items:flex-end;padding:0 6px;margin-bottom:22px}
+.bk-row::after{content:"";position:absolute;left:-4px;right:-4px;bottom:-14px;height:14px;z-index:0;background:linear-gradient(to bottom,#fff 0 2px,var(--face) 2px 11px,var(--dk) 11px 13px,rgba(0,0,0,.18) 13px 14px)}
+.bk-row .bks-sp{z-index:1}
+.bk-lab{position:absolute;left:8px;bottom:-12px;z-index:2;font:700 10px/10px var(--ui,sans-serif);color:#3b372f;max-width:calc(100% - 16px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bks-sp{position:relative;flex:none;cursor:pointer;border-radius:4px 4px 0 0;overflow:hidden;transform-origin:50% 100%}
 .bks-sp::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.3),rgba(255,255,255,.15) 20%,transparent 50%,rgba(0,0,0,.22))}
 .bks-sp:hover{transform:scale(1.06);z-index:2}.bks-sp.xt{border-radius:2px 2px 0 0}
@@ -1555,36 +1558,35 @@ let BK=null,BKT=0;
 async function bkAll(tb,cols){const out=[];for(let off=0;;off+=1000){const j=await sb(`/rest/v1/${tb}?select=${cols}&order=id.asc&limit=1000&offset=${off}`);out.push(...(j||[]));if(!j||j.length<1000)break}return out}
 async function bkLoad(){
   if(BK&&Date.now()-BKT<300000)return BK;
-  const [books,series,logs]=await Promise.all([bkAll('bkbk_books','id,series,volume,label,genre,color1,color2,color3,height,thickness,page'),bkAll('bkbk_series','id,name'),bkAll('bkbk_logs','id,date,book,onpage,offpage,onpct,offpct')]);
+  const [books,series,logs,tags]=await Promise.all([bkAll('bkbk_books','id,series,volume,label,genre,color1,color2,color3,height,thickness,page'),bkAll('bkbk_series','id,name'),bkAll('bkbk_logs','id,date,book,onpage,offpage,onpct,offpct'),bkAll('bkbk_tags','id,name').catch(()=>[])]);
+  const TM=new Map(tags.map(t=>[String(t.id),t.name]));
   const SM=new Map(series.map(x=>[String(x.id),x])),SN=new Map(series.map(x=>[x.name,x])),LM=new Map();logs.forEach(l=>{const k=String(l.book);(LM.get(k)||LM.set(k,[]).get(k)).push(l)});
-  const out=[];books.forEach(b=>{const r=bkDone(LM.get(String(b.id))||[],bkP(b.page));if(!r.done)return;const sr=SM.get(String(b.series))||SN.get(String(b.series));out.push({...b,sr,name:bkTitle(sr,b),fd:r.date})});
+  const out=[];books.forEach(b=>{const r=bkDone(LM.get(String(b.id))||[],bkP(b.page));if(!r.done)return;const sr=SM.get(String(b.series))||SN.get(String(b.series));const g0=String(b.genre||'').split(/[,;]\s*/).filter(Boolean)[0]||'';out.push({...b,sr,name:bkTitle(sr,b),fd:r.date,gn:g0?(TM.get(g0)||g0):''})});
   out.sort((a,b)=>bkCmp(a.fd,b.fd));BK=out;BKT=Date.now();return out}
+const BK_SH=.72,BK_SW=.85,bkW=b=>Math.max(8,Math.round(BK_TW[bkTl(b.thickness)]*BK_SW));
 function bkSpine(b,i){
-  const th=bkTl(b.thickness),w=BK_TW[th],xt=th==='아주 얇음',c1=b.color1||'#888',c2=b.color2||'#ddd',c3=b.color3||'#fff',v=Array.from(String(b.label||'').trim()).slice(0,3).join(''),t=b.sr?b.sr.name:(b.label||''),h=Math.min(168,Math.max(80,bkHv(b)*8)),
+  const th=bkTl(b.thickness),w=bkW(b),xt=th==='아주 얇음',c1=b.color1||'#888',c2=b.color2||'#ddd',c3=b.color3||'#fff',v=Array.from(String(b.label||'').trim()).slice(0,3).join(''),t=b.sr?b.sr.name:(b.label||''),h=Math.round(Math.min(168,Math.max(80,bkHv(b)*8))*BK_SH),
     a=`class="bks-sp${xt?' xt':''}" data-i="${i}" title="${esc(b.name)}" style="width:${w}px;height:${h}px;background:${esc(c1)}"`;
   if(xt)return`<div ${a}><b class="bks-xs" style="color:${esc(c3)}">${esc(t)}</b><i class="bks-xb" style="background:${esc(c2)}"></i></div>`;
   const pl=`<span class="bks-pl" style="background:${esc(c2)};color:${bkInk(c2)}"><b>${esc(t)}</b></span>`;
   if(!v){const d=Math.min(8,Math.max(5,w-12));return`<div ${a}><i class="bks-dm" style="width:${d}px;height:${d}px;background:${esc(c3)}"></i><div class="bks-bd sg">${pl}</div></div>`}
   return`<div ${a}><div class="bks-bd">${pl}<em class="bks-vq" style="background:${esc(c3)};color:${bkInk(c3)};font-size:${Math.min(9,Math.max(7,w-13))}px"><span>${esc(v)}</span></em></div></div>`}
-let BKPG=0,BKP=[];
-// 장르별로 칸(섹션)을 나눠서 꽂기: 한 칸 = 세로 칸막이 하나, 선반 2단. 장르가 많으면 여러 칸을 차지해요
+let BKPG=0,BKC=[],BKW=0;
+// 장르는 줄(선반) 단위로 나눠 꽂아요: 한 줄에는 한 장르만, 장르가 바뀌면 새 줄. 줄은 위→아래, 칸(열)은 왼쪽→오른쪽으로 채워요
 function bkPlan(L,SW){
-  const G=new Map();L.forEach((b,i)=>{const g=String(b.genre||'').trim()||'기타';(G.get(g)||G.set(g,[]).get(g)).push(i)});
-  const gs=[...G.entries()].sort((a,b)=>(a[0]==='기타')-(b[0]==='기타')||b[1].length-a[1].length);
-  const cmps=[];
-  gs.forEach(([g,ix])=>{let c=null,r=0,w=0,n=0;
-    const fresh=()=>{n++;c={g,n,rows:[[],[]]};cmps.push(c);r=0;w=0};fresh();
-    ix.forEach(i=>{const bw=BK_TW[bkTl(L[i].thickness)];
-      if(w+bw>SW){if(r===0){r=1;w=0}else{fresh()}}
-      c.rows[r].push(i);w+=bw})});
-  return cmps}
-function bkPages(cmps,per){const out=[];for(let i=0;i<cmps.length;i+=per)out.push(cmps.slice(i,i+per));return out}
+  const G=new Map();L.forEach((b,i)=>{const g=b.gn||'기타';(G.get(g)||G.set(g,[]).get(g)).push(i)});
+  const gs=[...G.entries()].sort((a,b)=>(a[0]==='기타')-(b[0]==='기타')||b[1].length-a[1].length),rows=[];
+  gs.forEach(([g,ix])=>{let cur=null,w=0;ix.forEach(i=>{const bw=bkW(L[i]);if(!cur||w+bw>SW){cur={g,first:!cur,ix:[]};rows.push(cur);w=0}cur.ix.push(i);w+=bw})});
+  const cols=[];for(let i=0;i<rows.length;i+=3)cols.push(rows.slice(i,i+3));
+  const cases=[];for(let i=0;i<cols.length;i+=2)cases.push(cols.slice(i,i+2));return cases}
 function bkRender(){
-  const g=$('#bk_g'),P=BKP[BKPG]||[],per=6;let h='';
-  for(let c=0;c<2;c++){const part=P.slice(c*3,c*3+3);if(!part.length&&c)break;
-    h+=`<div class="bk-case">${part.map(m=>`<div class="bk-cmp"><div class="bk-lab" title="${esc(m.g)}">${esc(m.g)}${m.n>1?' '+m.n:''}</div>${m.rows.map(r=>`<div class="bk-row">${r.map(i=>bkSpine(BK[i],i)).join('')}</div>`).join('')}</div>`).join('')}${Array.from({length:3-part.length},()=>'<div class="bk-cmp empty"><div class="bk-lab"></div><div class="bk-row"></div><div class="bk-row"></div></div>').join('')}</div>`}
-  g.innerHTML=`<div class="bk-pg">${h}</div>`;$('#bk_pn').textContent=(BKPG+1)+' / '+BKP.length}
-function bkGo(d){if(BKP.length<2)return;BKPG=(BKPG+d+BKP.length)%BKP.length;bkRender()}
+  const g=$('#bk_g'),cw=(BKW-14)/2;
+  const col=c=>`<div class="bk-cmp">${Array.from({length:3},(_,k)=>{const r=(c||[])[k];return r?`<div class="bk-row">${r.ix.map(i=>bkSpine(BK[i],i)).join('')}<span class="bk-lab">${r.first?esc(r.g):''}</span></div>`:'<div class="bk-row"><span class="bk-lab"></span></div>'}).join('')}</div>`;
+  g.innerHTML=`<div class="bk-vp"><div class="bk-tr" id="bk_tr" style="gap:14px">${BKC.map(cs=>`<div class="bk-case" style="width:${cw}px"><i class="bk-post"></i>${col(cs[0])}<i class="bk-post"></i>${col(cs[1])}<i class="bk-post"></i></div>`).join('')}</div></div>`;
+  bkShift(false)}
+function bkShift(anim=true){const t=$('#bk_tr');if(!t)return;const cw=(BKW-14)/2;t.style.transition=anim?'transform .35s ease':'none';t.style.transform=`translateX(${-BKPG*(cw+14)}px)`;
+  const n=BKC.length;$('#bk_pn').textContent=n<2?'1 / 1':`${BKPG+1}–${BKPG+2} / ${n}`}
+function bkGo(d){const n=BKC.length;if(n<3)return;BKPG=BKPG+d;if(BKPG<0)BKPG=n-2;else if(BKPG>n-2)BKPG=0;bkShift(true)}
 $('#bk_pv').onclick=()=>bkGo(-1);$('#bk_nx').onclick=()=>bkGo(1);
 document.addEventListener('keydown',e=>{if(viewBk&&!$('#scene').open&&(e.key==='ArrowLeft'||e.key==='ArrowRight'))bkGo(e.key==='ArrowLeft'?-1:1)});
 async function openShelf(){
@@ -1592,8 +1594,8 @@ async function openShelf(){
   let L;try{L=await bkLoad()}catch(e){g.innerHTML=`<div class="tag">책장을 불러오지 못했어요. ${esc(String(e.message||e).slice(0,120))}</div>`;return}
   if(!L.length){g.innerHTML='<div class="tag">완독한 책이 아직 없어요. (bkbk에서 100%까지 읽은 기록이 있는 책만 꽂혀요. ⚙ 설정·로그인에서 로그인했는지도 확인해 주세요)</div>';return}
   $('#bk_i').textContent=`완독한 책 ${L.length}권 · 누르면 발췌문 · 읽으면 ⏱ ${READ_MIN}분`;
-  const W=Math.max(520,g.clientWidth||690),caseW=(W-14)/2-10,SW=Math.max(70,Math.floor((caseW-10-18)/3));
-  BKP=bkPages(bkPlan(L,SW),6);BKPG=0;bkRender();
+  BKW=Math.max(520,g.clientWidth||690);const caseW=(BKW-14)/2,colW=Math.floor((caseW-3*8)/2),SW=Math.max(60,colW-8);
+  BKC=bkPlan(L,SW);BKPG=0;bkRender();
 }
 $('#bk_g').onclick=async e=>{const el=e.target.closest('.bks-sp');if(!el||!BK)return;const b=BK[+el.dataset.i];
   try{const t=await sb('/rest/v1/bkbk_texts?book=eq.'+b.id+'&select=text,page,pct&limit=1000'),L=(t||[]).filter(x=>x.text&&x.text.trim());
