@@ -295,7 +295,7 @@ button.act.off{opacity:.45;box-shadow:none}
 .descbox .ld{font-size:15px;color:var(--mute);margin-top:6px;line-height:1.5}
 .actbox{position:relative;margin-top:22px;padding:18px 12px 12px;border:2px solid var(--ink);border-radius:4px;background:var(--p)}
 .boxlab{position:absolute;top:-12px;left:12px;background:var(--ink);color:var(--p);font-size:12px;font-weight:800;padding:2px 12px;border-radius:3px;letter-spacing:.06em}
-.actbox #wa{margin:0}.actbox #wl{margin-top:10px}
+.actbox #wa{margin:0}
 .lockmsg{grid-column:1/-1;text-align:center;padding:14px;font-weight:700;color:var(--mute)}
 #adlg{max-width:440px}.ad-d{margin:8px 0 12px;line-height:1.55;min-height:20px}.ad-w{margin-top:10px;font-weight:700;color:#c8432b}
 #adlg h2{background:none;border:0;transform:none;padding:0;display:block}.ad-d:empty{display:none}
@@ -422,6 +422,7 @@ html{overflow:hidden}
 #inttint{position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;transition:background 1.2s ease}
 .mapov{position:absolute;inset:0;z-index:7;pointer-events:none}.mapov>*{pointer-events:auto}
 .mapov .descbox{position:absolute;left:12px;top:12px;margin:0;padding:7px 16px;max-width:380px;text-align:left;border:0;border-radius:6px;background:rgba(24,20,16,.58);color:#fff;box-shadow:none;pointer-events:none;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.mapov .descbox[hidden]{display:none}
 .mapov.int .descbox{left:50%;transform:translateX(-50%);text-align:center;max-width:70%}
 .mapov .descbox .loc{display:block;font-size:20px;font-weight:800;line-height:1.25;color:#fff;text-shadow:0 1px 3px #0008}.mapov .descbox .loc b{font-size:20px}.mapov .descbox .loc .pp{font-size:12px;color:#ddd}
 .mapov .descbox .ld{margin-top:2px;font-size:13px;line-height:1.35;color:#e8e2d8;text-shadow:0 1px 2px #0008}
@@ -435,7 +436,6 @@ html{overflow:hidden}
 #vtbar{position:absolute;right:12px;top:12px;margin:0}
 .mapov>#actov{position:absolute;left:12px;right:12px;bottom:12px;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
 #actov[hidden]{display:none}
-#actov #wl{margin:0;padding:3px 12px;border-radius:4px;background:rgba(24,20,16,.7);color:#fff;font-size:12px;max-width:80%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}#actov #wl:empty{display:none}
 #actov .actrow{width:100%;min-height:62px}
 #actov button,#actov .noact{pointer-events:auto}
 #actov .noact{flex:0 0 auto;display:flex;align-items:center;justify-content:center;min-height:58px;margin:0 auto;padding:0 28px;border-radius:4px;background:rgba(24,20,16,.7);color:#fff;font-weight:700}
@@ -443,7 +443,8 @@ html{overflow:hidden}
 .actrow{display:flex;gap:8px;align-items:center}
 #game #wa{display:flex!important;flex-wrap:nowrap;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;margin:0;flex:1;min-width:0;scroll-behavior:smooth}
 #game #wa::-webkit-scrollbar{display:none}
-#game #wa button.act,#game #wa .lockmsg{flex:0 0 250px;width:250px;min-height:58px}#game #wa .lockmsg{display:flex;align-items:center;justify-content:center}
+#game #wa{scroll-snap-type:x mandatory}#game #wa>*{scroll-snap-align:start}
+#game #wa button.act,#game #wa .lockmsg{flex:0 0 var(--aw,250px);width:var(--aw,250px);min-height:58px}#game #wa .lockmsg{display:flex;align-items:center;justify-content:center}
 .acarr{flex:none;width:38px;padding:0;border:2px solid var(--ink);border-radius:4px;background:var(--p);font-weight:800;box-shadow:0 3px 0 var(--ink);cursor:pointer}.acarr:disabled{opacity:.35;box-shadow:none}.acarr[hidden]{display:none}
 /* 에너지·돈 전광판 */
 #wt .vit{display:flex;flex-direction:column;gap:5px;align-self:stretch}
@@ -500,9 +501,9 @@ html{overflow:hidden}
           <div class="mapov"><div class="descbox" id="mapcurrent"></div>
             <div id="townbar" class="townbar"><button type="button" id="tw_l" class="twarr">◀</button><span id="tw_items" class="twitems"></span><button type="button" id="tw_r" class="twarr">▶</button></div>
             <div id="vtbar" hidden><button type="button" id="viewtog"></button></div>
-            <div id="actov"><div class="tag" id="wl"></div><div class="actrow"><button type="button" id="ac_l" class="acarr" hidden>◀</button><div class="acts" id="wa"></div><button type="button" id="ac_r" class="acarr" hidden>▶</button></div></div></div>
+            <div id="actov"><div class="actrow"><button type="button" id="ac_l" class="acarr" hidden>◀</button><div class="acts" id="wa"></div><button type="button" id="ac_r" class="acarr" hidden>▶</button></div></div></div>
         </div></div>
-        <div class="bar" id="wp" hidden></div>
+        
         </div>
     <div id="closet" hidden>
     <div class="card"><div class="tabs" id="tabs"></div><div class="grid" id="grid"></div></div>
@@ -961,7 +962,7 @@ const OLD2NEW=[[2,3],[4,5],[6,7],[0,1]],ob=a=>[...new Set(a.flatMap(b=>OLD2NEW[b
 // 이 WORLD 데이터는 나중에 Supabase 테이블(장소/인물/이벤트/경로)로 옮길 수 있는 모양이에요.
 /* 동네(지도) 목록 — 순서가 곧 왼쪽→오른쪽이에요. 이름·파일명은 여기서 바꿔요. 지도 이미지는 repo에 올려요 */
 const TOWNS=[{id:'town1',name:'네온타운',file:'map-town1.webp'},{id:'town2',name:'비비타운',file:'map-town2.webp'},{id:'town3',name:'영타운',file:'map-town3.webp'}],DEFTOWN='town2';
-const WORLD={townMin:15,moveMin:15,innerMin:5,talkMin:30,skipMin:60,wakeMin:360,sleepRegen:12,   // 이동 15분 · 건물 안 이동 5분 · 대화 30분 · 수면 회복은 한 시간에 12
+const WORLD={townMin:30,moveMin:15,innerMin:5,talkMin:30,skipMin:60,wakeMin:360,sleepRegen:12,   // 이동 15분 · 건물 안 이동 5분 · 대화 30분 · 수면 회복은 한 시간에 12
   start:{y:2027,m:3,d:1,money:30000,place:'home',allowance:0},   // 게임 시작일, 시작 금액, 하루 용돈(0 = 없음. 돈은 행동으로만 벌어요)
   birthday:'03-08',                                                  // 내 캐릭터 생일 (월-일)
   places:{
@@ -1039,7 +1040,7 @@ const clampE=v=>Math.max(0,Math.min(100,v));
 function newDay(){const a=WORLD.start.allowance||0;if(a){G.money+=a;G.log=`새 하루가 시작됐어요. 용돈 +₩${a.toLocaleString()}`}}
 function pass(mins){G.min+=Math.max(0,Math.round(mins||0));while(G.min>=DAY){G.min-=DAY;G.day++;newDay()}}   // 자정을 넘기면 다음 날
 const advance=mins=>pass(mins==null?WORLD.moveMin:mins);
-function travelMin(a,b){const A=WORLD.places[a]||{},B=WORLD.places[b]||{},ta=A.parent||a,tb=B.parent||b;return (A.parent?(A.inner||WORLD.innerMin):0)+(ta!==tb?WORLD.moveMin+(townOf(ta)!==townOf(tb)?WORLD.townMin:0):0)+(B.parent?(B.inner||WORLD.innerMin):0)}
+function travelMin(a,b){const A=WORLD.places[a]||{},B=WORLD.places[b]||{},ta=A.parent||a,tb=B.parent||b;return (A.parent?(A.inner||WORLD.innerMin):0)+(ta!==tb?WORLD.moveMin:0)+(B.parent?(B.inner||WORLD.innerMin):0)}
 const townOf=pid=>{const q=WORLD.places[WORLD.places[pid]&&WORLD.places[pid].parent||pid]||{};return q.town||DEFTOWN};
 const topOf=pid=>(WORLD.places[pid]||{}).parent||pid;
 let PARTNER='';   // 지금 함께 하는 인물(행동 장면의 {npc}에 들어가요)
@@ -1089,8 +1090,8 @@ function greetAt(pid){
   const n=WORLD.npcs[k],ln=(n.lines||[]).filter(x=>x&&x!=='…'),t=ln.length?ln[Math.floor(Math.random()*ln.length)]:'어서 오세요!';
   runScene([{who:k,t}],()=>{saveGame()})}
 function go(p,reopen){if(p===G.place){if(viewTown||viewTownId){viewTown=false;viewTownId=null;renderWorld()}return}if(!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;viewSt=false;viewBk=false;viewMv=false;viewTown=false;viewTownId=null;G.log='';after();greetAt(p)}
-$('#tw_l').onclick=()=>{const i=TOWNS.findIndex(t=>t.id===curTown());if(i>0){viewTownId=TOWNS[i-1].id;renderWorld()}};
-$('#tw_r').onclick=()=>{const i=TOWNS.findIndex(t=>t.id===curTown());if(i<TOWNS.length-1){viewTownId=TOWNS[i+1].id;renderWorld()}};
+function stepTown(d){const i=TOWNS.findIndex(t=>t.id===curTown()),j=i+d;if(j<0||j>=TOWNS.length)return;viewTownId=TOWNS[j].id;pass(WORLD.townMin);G.log='';after();msg(`${TOWNS[j].name}으로 이동 · ⏱ ${durText(WORLD.townMin)}`)}   // 마을을 옮기는 순간 30분이 흐른다
+$('#tw_l').onclick=()=>stepTown(-1);$('#tw_r').onclick=()=>stepTown(1);
 function renderShop(pid){
   const box=$('#shl');box.innerHTML='';
   WORLD.sources.filter(s=>s.type==='shop'&&s.place===pid).forEach(s=>{
@@ -1164,8 +1165,14 @@ function doAction(a,who){
   const sc=a.code==='talk'&&who?talkScene(who):a.scene;sc&&sc.length?runScene(sc,done):done();
 }
 function talkScene(who){const n=WORLD.npcs[who]||{},L=n.lines||[];return[{who,t:L.length?L[Math.floor(Math.random()*L.length)]:'...'}]}
-function updActArrows(){const w=$('#wa'),l=$('#ac_l'),r=$('#ac_r');if(!w)return;const ov=w.scrollWidth>w.clientWidth+2;l.hidden=r.hidden=!ov;l.disabled=w.scrollLeft<=1;r.disabled=w.scrollLeft+w.clientWidth>=w.scrollWidth-1}
-$('#ac_l').onclick=()=>{const w=$('#wa');w.scrollBy({left:-w.clientWidth*.8})};$('#ac_r').onclick=()=>{const w=$('#wa');w.scrollBy({left:w.clientWidth*.8})};$('#wa').addEventListener('scroll',()=>updActArrows());
+function updActArrows(){const w=$('#wa'),l=$('#ac_l'),r=$('#ac_r');if(!w)return;l.disabled=w.scrollLeft<=1;r.disabled=w.scrollLeft+w.clientWidth>=w.scrollWidth-1}
+// 버튼이 잘려 보이지 않도록: 한 페이지에 들어가는 개수(n)를 구해, n개가 칸을 딱 채우는 너비로 맞춘다
+function layActs(){const w=$('#wa'),l=$('#ac_l'),r=$('#ac_r');if(!w)return;const K=[...w.children].filter(c=>!c.classList.contains('noact')),B=250,GP=8;
+  l.hidden=r.hidden=true;w.style.removeProperty('--aw');w.dataset.pg='';
+  if(K.length*(B+GP)-GP>w.clientWidth+1){l.hidden=r.hidden=false;const W=w.clientWidth,n=Math.max(1,Math.floor((W+GP)/(B+GP)));w.style.setProperty('--aw',((W+GP)/n-GP)+'px');w.dataset.pg=W+GP}
+  updActArrows()}
+const pgStep=d=>{const w=$('#wa'),pg=+w.dataset.pg||w.clientWidth;w.scrollBy({left:d*pg})};
+$('#ac_l').onclick=()=>pgStep(-1);$('#ac_r').onclick=()=>pgStep(1);$('#wa').addEventListener('scroll',updActArrows);addEventListener('resize',layActs);
 let ACTPID=null;
 function renderActs(){
   const pid=G.place,p=WORLD.places[pid],box=$('#wa');const keepSl=(ACTPID===pid)?box.scrollLeft:0;ACTPID=pid;box.innerHTML='';if(!p)return;
@@ -1182,7 +1189,7 @@ function renderActs(){
   vars.forEach(([a,who])=>{const st=actState(a,who),b=document.createElement('button'),ch=chips(a),wn=who?(WORLD.npcs[who]||{}).n:'';b.className='act'+(st.ok?'':' off');
     b.innerHTML=`<b>${esc(a.icon||'▪')} ${esc(a.name)}${wn?' · '+esc(wn)+josa(wn):''}</b>${ch||!st.ok?`<small>${esc(ch)}${!st.ok?(ch?' · ':'')+'🔒 '+esc(st.why):''}</small>`:''}`;b.onclick=()=>doAction(a,who);box.append(b)});
   if(!box.children.length)box.innerHTML='<div class="noact">할 수 있는 행동이 없어요.</div>';
-  box.style.scrollBehavior='auto';box.scrollLeft=keepSl;requestAnimationFrame(()=>{box.style.scrollBehavior='';updActArrows()});
+  box.style.scrollBehavior='auto';layActs();box.scrollLeft=keepSl;requestAnimationFrame(()=>{box.style.scrollBehavior='';updActArrows()});
 }
 function renderStatus(){
   const aff=Object.entries(G.aff).filter(([,v])=>v).map(([k,v])=>`<div class="srow"><span>${esc((WORLD.npcs[k]||{}).n||k)}</span><b>♥ ${v}</b></div>`).join('')||'<div class="tag">아직 호감도가 쌓인 사람이 없어요</div>';
@@ -1203,17 +1210,16 @@ function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
    <b class="clk">${fmtT(G.min).replace(":","<i>:</i>")}</b>
    <div class="tl"><div class="bands">${BR.map(([n,i,a,b])=>`<span class="bd${n===bn?' on':''}" style="flex:${b-a} 1 0"><i>${i}</i><em>${n}</em></span>`).join('')}</div><div class="scale">${Array.from({length:47},(_,k)=>{const n=k+1;return `<i class="tk ${n%4===0?'l':n%2===0?'m':'s'}" style="left:${n/48*100}%"></i>`}).join('')}<b class="dot" style="left:${Math.min(97,Math.max(3,np))}%"></b></div></div>
    <div class="vit"><div class="led en"><i>EN</i><b>${Math.round(G.energy)}<small>/100</small></b></div><div class="led mo"><i>₩</i><b>${(G.money||0).toLocaleString()}</b></div></div>`;applyTint();
+  const imG=placeImg(G.place),mapOnly=!!imG&&viewTown||curTown()!==townOf(G.place);   // 마을 지도만 보는 중: 특정 장소를 가리키지 않고 '마을'로 취급
   buildTownMap();
-  document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===topOf(G.place));b.classList.toggle('closed',!openNow(id));});
-  const p=WORLD.places[G.place];$('#mapcurrent').innerHTML=`<div class="loc">${p.parent&&WORLD.places[p.parent]?`<span class="pp">${esc(WORLD.places[p.parent].n)} › </span>`:''}<b>${esc(p.i||'')} ${esc(p.n)}</b></div>${p.desc?`<div class="ld">${esc(p.desc.length>30?p.desc.slice(0,30)+'…':p.desc)}</div>`:''}`;
-  const pl=$('#wp');pl.innerHTML='';
-  for(const [k,p] of Object.entries(WORLD.places)){if(p.parent)continue;const b=document.createElement('button');b.textContent=p.i+' '+p.n;if(k===G.place)b.className='on';else b.title='이동하면 15분이 지나가요';b.onclick=()=>go(k);pl.append(b)}
+  document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===topOf(G.place)&&!mapOnly);b.classList.toggle('closed',!openNow(id));});
+  const p=WORLD.places[G.place];$('#mapcurrent').hidden=mapOnly;$('#mapcurrent').innerHTML=`<div class="loc">${p.parent&&WORLD.places[p.parent]?`<span class="pp">${esc(WORLD.places[p.parent].n)} › </span>`:''}<b>${esc(p.i||'')} ${esc(p.n)}</b></div>${p.desc?`<div class="ld">${esc(p.desc.length>30?p.desc.slice(0,30)+'…':p.desc)}</div>`:''}`;
   renderActs();
   const co=G.place==='home'&&G.closet,vw=co?'closet':(viewSt?'status':(viewBk?'bk':(viewMv?'mv':'')));$('#closet').hidden=!co;$('#cbar').hidden=!co;$('#bkview').hidden=vw!=='bk';$('#mvview').hidden=vw!=='mv';$('#mapview').hidden=!!vw;$('#stview').hidden=vw!=='status';$('#endbar').hidden=!vw;if(vw==='status')renderStatus();
   {const im=placeImg(G.place),si=!!im&&!viewTown,el=$('#intimg');$('#townmap').hidden=si;$('#interior').hidden=!si;$('#townbar').hidden=si;$('#vtbar').hidden=!im||!!vw||viewTown;$('.mapov').classList.toggle('int',si);$('#actov').hidden=!!vw||curTown()!==townOf(G.place)||(!!im&&viewTown);
     if(si&&el.dataset.src!==im){el.dataset.src=im;el.onerror=()=>{IMGBAD.add(im);el.dataset.src='';renderWorld()};el.src=im}
     $('#viewtog').textContent='🗺 마을 지도 보기';$('#viewtog').onclick=()=>{viewTown=!viewTown;renderWorld()}}
-  $('#wl').textContent=G.log||'';document.querySelector('.stagewrap').classList.toggle('bare',!co);try{bgmUpdate()}catch(e){}
+  document.querySelector('.stagewrap').classList.toggle('bare',!co);try{bgmUpdate()}catch(e){}
 }
 $('#shc').onclick=()=>{$('#shop').close();refresh()};
 
