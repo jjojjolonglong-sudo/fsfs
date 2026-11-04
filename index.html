@@ -125,7 +125,6 @@ dialog::backdrop{background:rgba(32,27,23,.55)}
 .townmap{border:2px solid var(--ink);border-radius:6px;box-shadow:none}
 .interior{position:relative;border:2px solid var(--ink);border-radius:6px;overflow:hidden;background:#111;line-height:0}
 .interior img{width:100%;height:auto;max-height:82vh;object-fit:contain;display:block;margin:0 auto}
-#vtbar{display:flex;justify-content:flex-end;margin:6px 0 0}#vtbar[hidden]{display:none}
 
 .map-building{border:2px solid var(--ink);border-radius:3px;background:var(--p);color:var(--ink);font-weight:700;box-shadow:0 3px 0 var(--ink)}
 .map-building::before{border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);border-radius:0;bottom:-6px}
@@ -423,6 +422,10 @@ html{overflow:hidden}
 .mapov{position:absolute;inset:0;z-index:7;pointer-events:none}.mapov>*{pointer-events:auto}
 .mapov .descbox{position:absolute;left:12px;top:12px;margin:0;padding:7px 16px;max-width:380px;text-align:left;border:0;border-radius:6px;background:rgba(24,20,16,.58);color:#fff;box-shadow:none;pointer-events:none;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 .mapov .descbox[hidden]{display:none}
+.sign{position:relative;display:inline-block;margin:10px 0 2px;padding:4px 16px 5px;border:2px solid #cdb98e;border-radius:4px;background:#2a2218;box-shadow:inset 0 0 0 2px #0007,0 2px 4px #0006;text-align:center;line-height:1.15}
+.sign::before,.sign::after{content:"";position:absolute;top:-9px;width:2px;height:9px;background:#cdb98e}.sign::before{left:14px}.sign::after{right:14px}
+.sign b{display:block;font:400 20px/1.1 "DotGothic16","Do Hyeon",sans-serif;letter-spacing:.16em;text-shadow:none}.sign span{display:block;font-size:12px;color:#e8e2d8;letter-spacing:.04em}
+.sign.o b{color:#7dff9a;text-shadow:0 0 7px #2e6}.sign.c b{color:#ff7a6a;text-shadow:0 0 7px #f43}
 .mapov.int .descbox{left:50%;transform:translateX(-50%);text-align:center;max-width:70%}
 .mapov .descbox .loc{display:block;font-size:20px;font-weight:800;line-height:1.25;color:#fff;text-shadow:0 1px 3px #0008}.mapov .descbox .loc b{font-size:20px}.mapov .descbox .loc .pp{font-size:12px;color:#ddd}
 .mapov .descbox .ld{margin-top:2px;font-size:13px;line-height:1.35;color:#e8e2d8;text-shadow:0 1px 2px #0008}
@@ -433,12 +436,11 @@ html{overflow:hidden}
 .twi.on{background:var(--ink);color:var(--hi);opacity:1}.twi.here::before{content:"📍 "}
 .twarr{padding:7px 12px;border:2px solid var(--ink);border-radius:4px;background:var(--p);color:var(--ink);font-weight:800;box-shadow:0 3px 0 var(--ink);cursor:pointer}
 .twarr:hover:not(:disabled){background:var(--hi)}.twarr:disabled{opacity:.35;box-shadow:none;cursor:default}
-#vtbar{position:absolute;right:12px;top:12px;margin:0}
 .mapov>#actov{position:absolute;left:12px;right:12px;bottom:12px;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
 #actov[hidden]{display:none}
 #actov .actrow{width:100%;min-height:62px}
 #actov button,#actov .noact{pointer-events:auto}
-#actov .noact{flex:0 0 auto;display:flex;align-items:center;justify-content:center;min-height:58px;margin:0 auto;padding:0 28px;border-radius:4px;background:rgba(24,20,16,.7);color:#fff;font-weight:700}
+#actov .noact{flex:1 1 auto;display:flex;align-items:center;justify-content:center;min-height:58px;margin:0;padding:0 28px;border-radius:4px;background:rgba(24,20,16,.7);color:#fff;font-weight:700}
 #actov button.act{box-shadow:0 3px 8px rgba(0,0,0,.35)}
 .actrow{display:flex;gap:8px;align-items:center}
 #game #wa{display:flex!important;flex-wrap:nowrap;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;margin:0;flex:1;min-width:0;scroll-behavior:smooth}
@@ -500,7 +502,7 @@ html{overflow:hidden}
           <div id="interior" class="interior" hidden><img id="intimg" alt=""><div id="inttint"></div></div>
           <div class="mapov"><div class="descbox" id="mapcurrent"></div>
             <div id="townbar" class="townbar"><button type="button" id="tw_l" class="twarr">◀</button><span id="tw_items" class="twitems"></span><button type="button" id="tw_r" class="twarr">▶</button></div>
-            <div id="vtbar" hidden><button type="button" id="viewtog"></button></div>
+            
             <div id="actov"><div class="actrow"><button type="button" id="ac_l" class="acarr" hidden>◀</button><div class="acts" id="wa"></div><button type="button" id="ac_r" class="acarr" hidden>▶</button></div></div></div>
         </div></div>
         
@@ -1168,11 +1170,12 @@ function talkScene(who){const n=WORLD.npcs[who]||{},L=n.lines||[];return[{who,t:
 function updActArrows(){const w=$('#wa'),l=$('#ac_l'),r=$('#ac_r');if(!w)return;l.disabled=w.scrollLeft<=1;r.disabled=w.scrollLeft+w.clientWidth>=w.scrollWidth-1}
 // 버튼이 잘려 보이지 않도록: 한 페이지에 들어가는 개수(n)를 구해, n개가 칸을 딱 채우는 너비로 맞춘다
 function layActs(){const w=$('#wa'),l=$('#ac_l'),r=$('#ac_r');if(!w)return;const K=[...w.children].filter(c=>!c.classList.contains('noact')),B=250,GP=8;
+  if(w.clientWidth<300)return;   // 숨겨져 있어 폭을 못 잴 때는 건드리지 않는다(버튼이 찌그러지는 원인)
   l.hidden=r.hidden=true;w.style.removeProperty('--aw');w.dataset.pg='';
-  if(K.length*(B+GP)-GP>w.clientWidth+1){l.hidden=r.hidden=false;const W=w.clientWidth,n=Math.max(1,Math.floor((W+GP)/(B+GP)));w.style.setProperty('--aw',((W+GP)/n-GP)+'px');w.dataset.pg=W+GP}
+  if(K.length*(B+GP)-GP>w.clientWidth+1){l.hidden=r.hidden=false;const W=w.clientWidth,n=Math.max(1,Math.floor((W+GP)/(B+GP)));w.style.setProperty('--aw',(Math.max(180,(W+GP)/n-GP))+'px');w.dataset.pg=W+GP}
   updActArrows()}
 const pgStep=d=>{const w=$('#wa'),pg=+w.dataset.pg||w.clientWidth;w.scrollBy({left:d*pg})};
-$('#ac_l').onclick=()=>pgStep(-1);$('#ac_r').onclick=()=>pgStep(1);$('#wa').addEventListener('scroll',updActArrows);addEventListener('resize',layActs);
+$('#ac_l').onclick=()=>pgStep(-1);$('#ac_r').onclick=()=>pgStep(1);$('#wa').addEventListener('scroll',updActArrows);addEventListener('resize',layActs);try{new ResizeObserver(layActs).observe($('#wa'))}catch(e){}
 let ACTPID=null;
 function renderActs(){
   const pid=G.place,p=WORLD.places[pid],box=$('#wa');const keepSl=(ACTPID===pid)?box.scrollLeft:0;ACTPID=pid;box.innerHTML='';if(!p)return;
@@ -1189,6 +1192,7 @@ function renderActs(){
   vars.forEach(([a,who])=>{const st=actState(a,who),b=document.createElement('button'),ch=chips(a),wn=who?(WORLD.npcs[who]||{}).n:'';b.className='act'+(st.ok?'':' off');
     b.innerHTML=`<b>${esc(a.icon||'▪')} ${esc(a.name)}${wn?' · '+esc(wn)+josa(wn):''}</b>${ch||!st.ok?`<small>${esc(ch)}${!st.ok?(ch?' · ':'')+'🔒 '+esc(st.why):''}</small>`:''}`;b.onclick=()=>doAction(a,who);box.append(b)});
   if(!box.children.length)box.innerHTML='<div class="noact">할 수 있는 행동이 없어요.</div>';
+  {const x=document.createElement('button');x.className='act nav exit';x.innerHTML='<b>🚪 나가기</b><small>마을 지도로</small>';x.onclick=()=>{viewTown=true;renderWorld()};box.append(x)}
   box.style.scrollBehavior='auto';layActs();box.scrollLeft=keepSl;requestAnimationFrame(()=>{box.style.scrollBehavior='';updActArrows()});
 }
 function renderStatus(){
@@ -1204,21 +1208,22 @@ $('#closetx').hidden=true;$('#endview').onclick=()=>{G.closet=false;viewSt=false
 let viewSt=false,viewBk=false,viewMv=false;
 let viewTown=false;const IMGBAD=new Set();
 const placeImg=pid=>{const q=WORLD.places[pid];if(!q)return'';const u=q.img||(q.parent&&(WORLD.places[q.parent]||{}).img)||'';return u&&!IMGBAD.has(u)?u:''};
+const signHtml=pid=>{const q=WORLD.places[pid],o=openNow(pid),h=q.open&&q.open.length?q.open.map(([a,b])=>fmtT(a)+' ~ '+fmtB(b)).join(', '):'24H';return `<div class="sign ${o?'o':'c'}"><b>${o?'OPEN':'CLOSED'}</b><span>${h}</span></div>`};
 function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const d=dateOf();const bn=bandOf(G.min),BR=[['아침','🌅',300,420],['오전','🌤',420,780],['오후','☀️',780,1020],['저녁','🌇',1020,1140],['밤','🌙',1140,1740]],wd=d.getDay(),np=((G.min-300+1440)%1440)/1440*100; 
   $('#wt').innerHTML=`<div class="cal${wd===0?' sun':wd===6?' sat':''}"><span class="mo">${d.getMonth()+1}월</span><b class="dy">${d.getDate()}</b><span class="wk">${DOW[wd]}요일</span></div>
    <b class="clk">${fmtT(G.min).replace(":","<i>:</i>")}</b>
    <div class="tl"><div class="bands">${BR.map(([n,i,a,b])=>`<span class="bd${n===bn?' on':''}" style="flex:${b-a} 1 0"><i>${i}</i><em>${n}</em></span>`).join('')}</div><div class="scale">${Array.from({length:47},(_,k)=>{const n=k+1;return `<i class="tk ${n%4===0?'l':n%2===0?'m':'s'}" style="left:${n/48*100}%"></i>`}).join('')}<b class="dot" style="left:${Math.min(97,Math.max(3,np))}%"></b></div></div>
    <div class="vit"><div class="led en"><i>EN</i><b>${Math.round(G.energy)}<small>/100</small></b></div><div class="led mo"><i>₩</i><b>${(G.money||0).toLocaleString()}</b></div></div>`;applyTint();
-  const imG=placeImg(G.place),mapOnly=!!imG&&viewTown||curTown()!==townOf(G.place);   // 마을 지도만 보는 중: 특정 장소를 가리키지 않고 '마을'로 취급
+  const mapOnly=viewTown||curTown()!==townOf(G.place);   // 마을 지도만 보는 중: 특정 장소를 가리키지 않고 '마을'로 취급
   buildTownMap();
   document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===topOf(G.place)&&!mapOnly);b.classList.toggle('closed',!openNow(id));});
-  const p=WORLD.places[G.place];$('#mapcurrent').hidden=mapOnly;$('#mapcurrent').innerHTML=`<div class="loc">${p.parent&&WORLD.places[p.parent]?`<span class="pp">${esc(WORLD.places[p.parent].n)} › </span>`:''}<b>${esc(p.i||'')} ${esc(p.n)}</b></div>${p.desc?`<div class="ld">${esc(p.desc.length>30?p.desc.slice(0,30)+'…':p.desc)}</div>`:''}`;
+  const p=WORLD.places[G.place];$('#mapcurrent').hidden=mapOnly;$('#mapcurrent').innerHTML=`<div class="loc">${p.parent&&WORLD.places[p.parent]?`<span class="pp">${esc(WORLD.places[p.parent].n)} › </span>`:''}<b>${esc(p.i||'')} ${esc(p.n)}</b></div>${signHtml(G.place)}${p.desc?`<div class="ld">${esc(p.desc.length>30?p.desc.slice(0,30)+'…':p.desc)}</div>`:''}`;
   renderActs();
   const co=G.place==='home'&&G.closet,vw=co?'closet':(viewSt?'status':(viewBk?'bk':(viewMv?'mv':'')));$('#closet').hidden=!co;$('#cbar').hidden=!co;$('#bkview').hidden=vw!=='bk';$('#mvview').hidden=vw!=='mv';$('#mapview').hidden=!!vw;$('#stview').hidden=vw!=='status';$('#endbar').hidden=!vw;if(vw==='status')renderStatus();
-  {const im=placeImg(G.place),si=!!im&&!viewTown,el=$('#intimg');$('#townmap').hidden=si;$('#interior').hidden=!si;$('#townbar').hidden=si;$('#vtbar').hidden=!im||!!vw||viewTown;$('.mapov').classList.toggle('int',si);$('#actov').hidden=!!vw||curTown()!==townOf(G.place)||(!!im&&viewTown);
-    if(si&&el.dataset.src!==im){el.dataset.src=im;el.onerror=()=>{IMGBAD.add(im);el.dataset.src='';renderWorld()};el.src=im}
-    $('#viewtog').textContent='🗺 마을 지도 보기';$('#viewtog').onclick=()=>{viewTown=!viewTown;renderWorld()}}
+  {const im=placeImg(G.place),si=!viewTown,el=$('#intimg');$('#townmap').hidden=si;$('#interior').hidden=!si;$('#townbar').hidden=si;$('.mapov').classList.toggle('int',si);$('#actov').hidden=!!vw||mapOnly;
+    el.hidden=!im;if(!im){el.removeAttribute('src');el.dataset.src=''}else if(si&&el.dataset.src!==im){el.dataset.src=im;el.onerror=()=>{IMGBAD.add(im);el.dataset.src='';renderWorld()};el.src=im}}
+  requestAnimationFrame(layActs);
   document.querySelector('.stagewrap').classList.toggle('bare',!co);try{bgmUpdate()}catch(e){}
 }
 $('#shc').onclick=()=>{$('#shop').close();refresh()};
