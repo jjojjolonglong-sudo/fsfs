@@ -123,6 +123,10 @@ dialog::backdrop{background:rgba(32,27,23,.55)}
 
 /* 지도 간판: 네모 간판 + 나무 기둥 */
 .townmap{border:2px solid var(--ink);border-radius:6px;box-shadow:none}
+.interior{position:relative;border:2px solid var(--ink);border-radius:6px;overflow:hidden;background:#111;line-height:0}
+.interior img{width:100%;height:auto;max-height:82vh;object-fit:contain;display:block;margin:0 auto}
+#vtbar{display:flex;justify-content:flex-end;margin:6px 0 0}#vtbar[hidden]{display:none}
+
 .map-building{border:2px solid var(--ink);border-radius:3px;background:var(--p);color:var(--ink);font-weight:700;box-shadow:0 3px 0 var(--ink)}
 .map-building::before{border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);border-radius:0;bottom:-6px}
 .map-building:hover{background:var(--hi);transform:translate(-50%,-52%);box-shadow:0 5px 0 var(--ink)}
@@ -394,6 +398,14 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 .mvp span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:6px;text-align:center;font-size:12px;font-weight:700;color:#fff;text-shadow:0 1px 2px #000}
 .mvshelf.sh .mvp{animation:mvsl .6s ease-out}@keyframes mvsl{from{transform:translateX(calc(100% + 12px))}to{transform:none}}
 .mvshelf.sh .mvp:last-child{animation:mvnew .6s ease-out}@keyframes mvnew{from{transform:translateX(160%);opacity:0}to{transform:none;opacity:1}}
+/* 게임 전체 박스 */
+.app{width:min(1800px,calc(100% - 32px));max-width:none;margin:18px auto;background:var(--p);border:3px solid var(--ink);border-radius:12px;box-shadow:8px 8px 0 var(--ink);padding:22px}
+.stagewrap{padding:4px 6px 4px 4px}
+#townmap{width:min(100%,calc((100vh - 300px)*var(--mr,1.5)));margin-left:auto;margin-right:auto}
+.twarr{position:absolute;top:50%;transform:translateY(-50%);z-index:6;padding:8px 12px;border:2px solid var(--ink);border-radius:4px;background:var(--p);color:var(--ink);font-weight:800;box-shadow:0 3px 0 var(--ink);cursor:pointer}
+.twarr.l{left:8px}.twarr.r{right:8px}.twarr:hover{background:var(--hi);transform:translateY(-52%)}.twarr[hidden]{display:none}
+.twname{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:6;padding:4px 14px;border:2px solid var(--ink);border-radius:4px;background:var(--ink);color:var(--hi);font-weight:800;letter-spacing:.02em;pointer-events:none}
+@media(max-width:800px){.app{padding:12px;width:calc(100% - 16px);margin:8px auto}.twarr{padding:5px 8px;font-size:11px}}
 #dev input:disabled,#dev textarea:disabled,#dev select:disabled{background:#e2ded5!important;color:#8b8478;cursor:not-allowed;border-color:#b9b3a6}
 .t24{width:70px!important;text-align:center;font-variant-numeric:tabular-nums}
 .sp{min-width:140px;flex:1}.schr{flex-wrap:wrap}
@@ -437,6 +449,7 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
       <div id="mvview" hidden><div class="bkbar"><div class="tag" id="mv_i"></div></div><div id="mv_g"></div></div>
       <div id="mapview">
             <div id="townmap" class="townmap" aria-label="쿼터뷰 마을 지도"></div>
+      <div id="interior" class="interior" hidden><img id="intimg" alt=""></div><div id="vtbar" hidden><button type="button" id="viewtog"></button></div>
       <div class="descbox" id="mapcurrent"></div>
       <div class="bar" id="wp" hidden></div><div class="actbox"><div class="boxlab">뭐 할까</div><div class="acts" id="wa"></div><div class="tag" id="wl"></div></div></div>
     <div id="closet" hidden>
@@ -489,9 +502,9 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
     <details class="sec" open><summary><b>배경음악</b><span class="grow"></span><button class="pri" id="bnew">+ 새 규칙</button></summary>
       <div class="card"><div class="tag" style="margin-bottom:6px">cdcd의 재생목록을 장소·시간대·인물·계절에 연결해요. 조건이 많이 맞는 규칙이 먼저 골라지고(인물 &gt; 장소 &gt; 시간대 &gt; 계절), 조건을 비워 두면 "상관없음"이에요.</div><div id="blist"></div></div></details>
     <details class="sec" open><summary><b>장소</b><span class="grow"></span><button id="pimp">내장 가져오기</button></summary>
-      <div class="cols2"><div class="card"><div id="pmap" class="townmap"></div>
+      <div class="cols2"><div class="card"><div class="tabs" id="ptabs"></div><div id="pmap" class="townmap"></div>
         <div class="tag" style="margin-top:6px">빈 곳 더블클릭 = 새 장소 · 장소 더블클릭 후 끌기 = 위치 옮기기</div>
-        <details class="mini"><summary>지도 이미지 바꾸기 <span class="tag" id="mapinfo"></span></summary><div class="row"><input id="mapf" type="file" accept="image/*"><button class="pri" id="mapup">업로드</button></div></details></div>
+        <div class="tag">지도 이미지는 repo의 map-town1 · 2 · 3.webp예요 (동네 이름·순서는 코드의 TOWNS에서 바꿔요)</div></div>
         <div class="card" id="ped"></div></div></details>
   </div>
   <div id="dv-npc" hidden>
@@ -894,7 +907,9 @@ document.addEventListener('click',e=>{const x=e.target.closest('.rgx');if(x){x.c
   const g=e.target.closest('.sga');if(g)g.insertAdjacentHTML('beforebegin',schRow({a:0,b:0,p:''}))});
 const OLD2NEW=[[2,3],[4,5],[6,7],[0,1]],ob=a=>[...new Set(a.flatMap(b=>OLD2NEW[b]))].sort((x,y)=>x-y),obAt=o=>{const r={};Object.entries(o).forEach(([b,v])=>OLD2NEW[b].forEach(x=>r[x]=v));return r};
 // 이 WORLD 데이터는 나중에 Supabase 테이블(장소/인물/이벤트/경로)로 옮길 수 있는 모양이에요.
-const WORLD={moveMin:15,innerMin:5,talkMin:30,skipMin:60,wakeMin:360,sleepRegen:12,   // 이동 15분 · 건물 안 이동 5분 · 대화 30분 · 수면 회복은 한 시간에 12
+/* 동네(지도) 목록 — 순서가 곧 왼쪽→오른쪽이에요. 이름·파일명은 여기서 바꿔요. 지도 이미지는 repo에 올려요 */
+const TOWNS=[{id:'town1',name:'네온타운',file:'map-town1.webp'},{id:'town2',name:'비비타운',file:'map-town2.webp',old:'town-map.webp'},{id:'town3',name:'영타운',file:'map-town3.webp'}],DEFTOWN='town2';
+const WORLD={townMin:15,moveMin:15,innerMin:5,talkMin:30,skipMin:60,wakeMin:360,sleepRegen:12,   // 이동 15분 · 건물 안 이동 5분 · 대화 30분 · 수면 회복은 한 시간에 12
   start:{y:2027,m:3,d:1,money:30000,place:'home',allowance:0},   // 게임 시작일, 시작 금액, 하루 용돈(0 = 없음. 돈은 행동으로만 벌어요)
   birthday:'03-08',                                                  // 내 캐릭터 생일 (월-일)
   places:{
@@ -972,7 +987,8 @@ const clampE=v=>Math.max(0,Math.min(100,v));
 function newDay(){const a=WORLD.start.allowance||0;if(a){G.money+=a;G.log=`새 하루가 시작됐어요. 용돈 +₩${a.toLocaleString()}`}}
 function pass(mins){G.min+=Math.max(0,Math.round(mins||0));while(G.min>=DAY){G.min-=DAY;G.day++;newDay()}}   // 자정을 넘기면 다음 날
 const advance=mins=>pass(mins==null?WORLD.moveMin:mins);
-function travelMin(a,b){const A=WORLD.places[a]||{},B=WORLD.places[b]||{},ta=A.parent||a,tb=B.parent||b;return (A.parent?(A.inner||WORLD.innerMin):0)+(ta!==tb?WORLD.moveMin:0)+(B.parent?(B.inner||WORLD.innerMin):0)}
+function travelMin(a,b){const A=WORLD.places[a]||{},B=WORLD.places[b]||{},ta=A.parent||a,tb=B.parent||b;return (A.parent?(A.inner||WORLD.innerMin):0)+(ta!==tb?WORLD.moveMin+(townOf(ta)!==townOf(tb)?WORLD.townMin:0):0)+(B.parent?(B.inner||WORLD.innerMin):0)}
+const townOf=pid=>{const q=WORLD.places[WORLD.places[pid]&&WORLD.places[pid].parent||pid]||{};return q.town||DEFTOWN};
 const topOf=pid=>(WORLD.places[pid]||{}).parent||pid;
 let PARTNER='';   // 지금 함께 하는 인물(행동 장면의 {npc}에 들어가요)
 const fmt=t=>String(t||'').replace(/\{player\}/g,WORLD.playerName||'레오').replace(/\{npc\}/g,PARTNER?((WORLD.npcs[PARTNER]||{}).n||''):'');
@@ -1020,7 +1036,7 @@ function greetAt(pid){
   G.greet=G.greet||{};const k=ids.find(id=>G.greet[id]!==G.day);if(!k)return;G.greet[k]=G.day;
   const n=WORLD.npcs[k],ln=(n.lines||[]).filter(x=>x&&x!=='…'),t=ln.length?ln[Math.floor(Math.random()*ln.length)]:'어서 오세요!';
   runScene([{who:k,t}],()=>{saveGame()})}
-function go(p,reopen){if(p===G.place||!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;viewSt=false;viewBk=false;viewMv=false;G.log='';after();greetAt(p)}
+function go(p,reopen){if(p===G.place||!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;viewSt=false;viewBk=false;viewMv=false;viewTown=false;viewTownId=null;G.log='';after();greetAt(p)}
 function renderShop(pid){
   const box=$('#shl');box.innerHTML='';
   WORLD.sources.filter(s=>s.type==='shop'&&s.place===pid).forEach(s=>{
@@ -1032,14 +1048,24 @@ function renderShop(pid){
   $('#shm').textContent=WORLD.places[pid].n+' · 보유 금액 ₩'+G.money.toLocaleString();redraw();
 }
 function openShop(pid){if(!openNow(pid))return say('지금은 문을 닫았어요',1);renderShop(pid);$('#shop').showModal()}
+let viewTownId=null;const curTown=()=>viewTownId||townOf(G.place);
+function setTownBg(el,T){
+  const set=u=>{const im=new Image();im.onload=()=>{if(im.naturalWidth){el.style.aspectRatio=im.naturalWidth+'/'+im.naturalHeight;el.style.setProperty('--mr',(im.naturalWidth/im.naturalHeight).toFixed(4))}};im.onerror=()=>{if(T.old&&u!==T.old)set(T.old)};im.src=u};
+  el.style.backgroundImage=[T.file,T.old].filter(Boolean).map(f=>`url("${f}")`).join(',');set(T.file)}
 function buildTownMap(){
-  const map=$('#townmap');if(!map||map.dataset.built)return;map.dataset.built='1';
-  // 핫스팟은 지도 일러스트에 그려진 장소 라벨 위치에 맞춰 배치합니다.
-  const hitspots=HITSPOTS;
+  const map=$('#townmap');if(!map)return;const tid=curTown();
+  if(!$('#tw_l')){[['l','◀'],['r','▶']].forEach(([k,a])=>{const b=document.createElement('button');b.type='button';b.id='tw_'+k;b.className='twarr '+k;b.onclick=()=>{const i=TOWNS.findIndex(t=>t.id===curTown()),t=TOWNS[i+(k==='l'?-1:1)];if(t){viewTownId=t.id;renderWorld()}};map.append(b)});
+    const n=document.createElement('div');n.id='tw_n';n.className='twname';map.append(n)}
+  {const i=TOWNS.findIndex(t=>t.id===tid),L=TOWNS[i-1],R=TOWNS[i+1],T=TOWNS[i]||TOWNS[0];
+   $('#tw_l').hidden=!L;$('#tw_r').hidden=!R;if(L)$('#tw_l').textContent='◀ '+L.name;if(R)$('#tw_r').textContent=R.name+' ▶';
+   $('#tw_n').textContent=(townOf(G.place)===tid?'📍 ':'')+T.name}
+  if(map.dataset.built===tid)return;map.dataset.built=tid;
+  map.querySelectorAll('.map-building').forEach(b=>b.remove());
+  setTownBg(map,TOWNS.find(t=>t.id===tid)||TOWNS[0]);
   if(!$('#maptint')){const t=document.createElement('div');t.id='maptint';map.prepend(t)}
   Object.entries(WORLD.places).forEach(([id,p])=>{
-    if(p.parent)return;const b=document.createElement('button');b.type='button';b.className='map-building';b.dataset.place=id;
-    const pos=p.db?p.pos:(hitspots[id]||p.pos||[50,50]);b.style.setProperty('--x',pos[0]+'%');b.style.setProperty('--y',pos[1]+'%');
+    if(p.parent||townOf(id)!==tid)return;const b=document.createElement('button');b.type='button';b.className='map-building';b.dataset.place=id;
+    const pos=p.db?p.pos:(HITSPOTS[id]||p.pos||[50,50]);b.style.setProperty('--x',pos[0]+'%');b.style.setProperty('--y',pos[1]+'%');
     b.setAttribute('aria-label',p.n+'으로 이동');b.title=p.n+'으로 이동';b.textContent=(p.i?p.i+' ':'')+p.n;b.onclick=()=>go(id);map.append(b);
   });
 }
@@ -1113,6 +1139,8 @@ function renderStatus(){
 $('#closetx').hidden=true;$('#endview').onclick=()=>{G.closet=false;viewSt=false;viewBk=false;viewMv=false;after()};
 
 let viewSt=false,viewBk=false,viewMv=false;
+let viewTown=false;const IMGBAD=new Set();
+const placeImg=pid=>{const q=WORLD.places[pid];if(!q)return'';const u=q.img||(q.parent&&(WORLD.places[q.parent]||{}).img)||'';return u&&!IMGBAD.has(u)?u:''};
 function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const d=dateOf();const bn=bandOf(G.min),BR=[['아침','🌅',300,420],['오전','🌤',420,780],['오후','☀️',780,1020],['저녁','🌇',1020,1140],['밤','🌙',1140,1740]],wd=d.getDay(),np=((G.min-300+1440)%1440)/1440*100; 
   $('#wt').innerHTML=`<div class="cal${wd===0?' sun':wd===6?' sat':''}"><span class="mo">${d.getMonth()+1}월</span><b class="dy">${d.getDate()}</b><span class="wk">${DOW[wd]}요일</span></div>
@@ -1125,6 +1153,9 @@ function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   for(const [k,p] of Object.entries(WORLD.places)){if(p.parent)continue;const b=document.createElement('button');b.textContent=p.i+' '+p.n;if(k===G.place)b.className='on';else b.title='이동하면 15분이 지나가요';b.onclick=()=>go(k);pl.append(b)}
   renderActs();
   const co=G.place==='home'&&G.closet,vw=co?'closet':(viewSt?'status':(viewBk?'bk':(viewMv?'mv':'')));$('#closet').hidden=!co;$('#cbar').hidden=!co;$('#bkview').hidden=vw!=='bk';$('#mvview').hidden=vw!=='mv';$('#mapview').hidden=!!vw;$('#stview').hidden=vw!=='status';$('#endbar').hidden=!vw;if(vw==='status')renderStatus();
+  {const im=placeImg(G.place),si=!!im&&!viewTown,el=$('#intimg');$('#townmap').hidden=si;$('#interior').hidden=!si;$('#vtbar').hidden=!im||!!vw;
+    if(si&&el.dataset.src!==im){el.dataset.src=im;el.onerror=()=>{IMGBAD.add(im);el.dataset.src='';renderWorld()};el.src=im}
+    $('#viewtog').textContent=si?'🗺 마을 지도 보기':'↩ '+(WORLD.places[G.place].n)+' 안으로';$('#viewtog').onclick=()=>{viewTown=!viewTown;renderWorld()}}
   $('#wl').textContent=G.log||'';document.querySelector('.stagewrap').classList.toggle('bare',!co);try{bgmUpdate()}catch(e){}
 }
 $('#shc').onclick=()=>{$('#shop').close();refresh()};
@@ -1140,16 +1171,16 @@ const PLACES0=WORLD.places,NPCS0=WORLD.npcs;  // DB가 비어 있을 때 쓰는 
 const startPlace=()=>WORLD.places.home?'home':Object.keys(WORLD.places)[0];
 const mainMap=()=>(DB.maps||[]).find(x=>x.is_main)||(DB.maps||[])[0];
 const MAPFILE='town-map.webp';
-const bgUrls=m=>[`url("${MAPFILE}")`].concat(m&&cfg.pub?[`url("${pubUrl(m.file_key)}")`]:[]).join(',');
-const mapSize=el=>{const im=new Image();im.onload=()=>{if(im.naturalWidth)el.style.aspectRatio=im.naturalWidth+'/'+im.naturalHeight};im.src=MAPFILE};
+const bgUrls=m=>(m&&cfg.pub?[`url("${pubUrl(m.file_key)}")`]:[]).concat([`url("${MAPFILE}")`]).join(',');
+const mapSize=(el,m)=>{if(m&&m.w&&cfg.pub){el.style.aspectRatio=m.w+'/'+m.h;return}const im=new Image();im.onload=()=>{if(im.naturalWidth)el.style.aspectRatio=im.naturalWidth+'/'+im.naturalHeight};im.src=MAPFILE};
 function applyWorld(){
   if(DB.places.length){WORLD.places={};const codes=new Set(DB.places.map(r=>r.code));DB.places.forEach(r=>WORLD.places[r.code]={n:r.name,i:r.icon||'📍',kind:r.kind||'',pos:[+r.x,+r.y],shop:r.is_shop,
-    type:r.type_code||'basic',open:Array.isArray(r.open_ranges)?r.open_ranges:slotRanges(r.open_slots||[]),parent:(r.parent_code&&r.parent_code!==r.code&&codes.has(r.parent_code))?r.parent_code:null,inner:0,desc:r.descr||'',db:true})}else WORLD.places=PLACES0;
+    type:r.type_code||'basic',town:r.town||'',img:r.img_key?pubUrl(r.img_key):'',open:Array.isArray(r.open_ranges)?r.open_ranges:slotRanges(r.open_slots||[]),parent:(r.parent_code&&r.parent_code!==r.code&&codes.has(r.parent_code))?r.parent_code:null,inner:0,desc:r.descr||'',db:true})}else WORLD.places=PLACES0;
   applyActions();
   if(DB.npcs.length){WORLD.npcs={};DB.npcs.forEach(r=>WORLD.npcs[r.code]={n:r.name,i:r.icon||'🙂',img:r.file_key?pubUrl(r.file_key):'',sch:Array.isArray(r.sched)&&r.sched.length?r.sched:schedFromSlots(r.schedule||{}),lines:r.lines&&r.lines.length?r.lines:['…'],birthday:r.birthday||'',job:r.job||'',intro:r.intro||'',personality:r.personality||'',role:r.role||'resident',work:r.workplace||'',db:true})}else WORLD.npcs=NPCS0;
   WORLD.events=DB.events.length?DB.events.filter(r=>r.enabled!==false).map(evFromRow):EVENTS0;
-  const m=mainMap(),map=$('#townmap');
-  if(map){map.style.backgroundImage=bgUrls(m);if(m&&m.w)map.style.aspectRatio=m.w+'/'+m.h;mapSize(map);map.dataset.built='';map.querySelectorAll('.map-building').forEach(b=>b.remove())}
+  const map=$('#townmap');
+  if(map){map.dataset.built='';map.querySelectorAll('.map-building').forEach(b=>b.remove())}
   if(G&&!WORLD.places[G.place])G.place=startPlace();
 }
 function actFromRow(r){return{code:r.code,name:r.name,icon:r.icon||'',descr:r.descr||'',kind:r.kind==='sleep'?'normal':(r.kind||'normal'),mins:r.time_min!=null?+r.time_min:(+r.time_cost||0)*SLOTLEN,endAt:r.end_min!=null?+r.end_min:(r.kind==='sleep'?WORLD.wakeMin:null),minMins:+r.min_mins||0,energy:+r.energy||0,money:+r.money||0,cond:r.cond||{},effects:(()=>{const e={...(r.effects||{})};if(r.kind==='sleep'&&e.eph==null)e.eph=WORLD.sleepRegen||12;return e})(),scene:r.scene||[]}}
@@ -1180,13 +1211,17 @@ document.querySelectorAll('#devtabs button').forEach(b=>b.onclick=()=>{
 
 // ---- 지도 · 장소
 let pcur=null;
+let atown=DEFTOWN;
+const hasTownCol=()=>!DB.places.length||'town' in DB.places[0];
+const dbTown=r=>{if(r.parent_code){const q=DB.places.find(x=>x.code===r.parent_code);if(q)return q.town||DEFTOWN}return r.town||DEFTOWN};
 function renderMapAdmin(){
-  const m=mainMap(),pm=$('#pmap');
-  pm.style.backgroundImage=bgUrls(m);pm.style.aspectRatio=m&&m.w?m.w+'/'+m.h:'';mapSize(pm);
-  $('#mapinfo').textContent=m?`현재 지도 ${m.w}×${m.h}`:(cfg.pub?'아직 지도가 없어요':'연결 설정에서 에셋 공개 주소를 먼저 넣어주세요');
-  pm.innerHTML='';DB.places.forEach(r=>pm.append(bubble(r.id===(pcur&&pcur.id)?pcur:r)));if(pcur&&!pcur.id)pm.append(bubble(pcur));
+  const pm=$('#pmap'),T=TOWNS.find(t=>t.id===atown)||TOWNS[0];
+  $('#ptabs').innerHTML=TOWNS.map(t=>`<button type="button" data-t="${t.id}" class="${t.id===atown?'on':''}">${esc(t.name)}</button>`).join('');
+  setTownBg(pm,T);
+  pm.innerHTML='';DB.places.forEach(r=>{const x=r.id===(pcur&&pcur.id)?pcur:r;if(dbTown(x)===atown)pm.append(bubble(x))});if(pcur&&!pcur.id&&dbTown(pcur)===atown)pm.append(bubble(pcur));
   renderPlaceForm();
 }
+$('#ptabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;atown=b.dataset.t;renderMapAdmin()};
 let armed=null,lastTap={t:0,x:0,y:0,k:''};
 const isDbl=(k,e)=>{const n=Date.now(),d=n-lastTap.t<380&&lastTap.k===k&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<14;lastTap={t:d?0:n,x:e.clientX,y:e.clientY,k};return d};
 function bubble(r){
@@ -1209,7 +1244,7 @@ function bubbleDown(e,b,r){
 $('#pmap').onpointerdown=e=>{
   if(e.target!==$('#pmap'))return;const rc=e.currentTarget.getBoundingClientRect();
   if(!isDbl('map',e)){armed=null;document.querySelectorAll('#pmap .map-building').forEach(x=>x.classList.remove('armed'));return}
-  pcur={code:'p'+Date.now().toString(36),name:'새 장소',icon:'📍',descr:'',open_ranges:[],
+  pcur={code:'p'+Date.now().toString(36),name:'새 장소',icon:'📍',descr:'',open_ranges:[],town:atown,
     x:+((e.clientX-rc.left)/rc.width*100).toFixed(2),y:+((e.clientY-rc.top)/rc.height*100).toFixed(2)};armed=null;renderMapAdmin();
 };
 const typeList=()=>Object.entries(WORLD.types).map(([k,t])=>({k,n:(t.icon||'')+' '+t.name}));
@@ -1218,6 +1253,7 @@ function fillPlaceActs(){
   ov.add.forEach(c=>{if(!codes.includes(c))codes.push(c)});codes=codes.filter(c=>!ov.remove.includes(c));
   $('#p_ac').innerHTML='이 장소에서 할 수 있는 행동: '+(codes.map(c=>{const a=WORLD.actions[c];return a?esc((a.icon||'')+' '+a.name):''}).filter(Boolean).join(' · ')||'없음');
 }
+const hasImgCol=()=>!DB.places.length||'img_key' in DB.places[0];
 function renderPlaceForm(){
   const e=$('#ped'),p=pcur;if(!p){e.innerHTML='<div class="tag">왼쪽 지도에서 장소를 누르면 여기서 편집해요</div>';return}
   const orr=Array.isArray(p.open_ranges)?p.open_ranges:slotRanges(p.open_slots||[]),tops=DB.places.filter(r=>!r.parent_code&&r.code!==p.code).map(r=>({k:r.code,n:(r.icon||'')+' '+r.name})),kids=DB.places.filter(r=>r.parent_code===p.code).map(r=>`<span class="chip">${esc((r.icon||'')+' '+r.name)}</span>`).join('');
@@ -1226,32 +1262,29 @@ function renderPlaceForm(){
     <label class="f"><span>유형${tip('유형에 묶인 행동을 이 장소에서 할 수 있어요. 행동을 더하거나 빼는 건 위 "행동" 편집에서 해요')}</span><select id="p_ty">${opts(typeList(),'k','n',p.type_code,'(없음)')}</select></label></div>
   <div class="f"><span>영업 시간${tip('비워 두면 하루 종일 열려 있어요. 밤을 넘기려면 22:00 ~ 02:00처럼 적어요 (24시간 표기)')}</span>${rgHtml('p_rg',orr)}</div>
   <input id="p_d" placeholder="설명 — 장소창에 보여요" value="${esc(p.descr)}">
+  ${p.parent_code?'':(hasTownCol()?`<label class="f"><span>동네${tip('이 장소가 있는 지도예요. 바꾸면 그 동네 지도에서 위치를 다시 잡아 주세요')}</span><select id="p_town">${opts(TOWNS.map(t=>({k:t.id,n:t.name})),'k','n',p.town||atown)}</select></label>`:'<div class="tag">⚠ fsfs_place_town.sql을 먼저 실행해 주세요 (동네 구분)</div>')}
   <div class="fr"><label class="f"><span>상위 장소${tip('건물 안 공간이면 고르세요. 고르면 지도에는 안 보이고, 상위 장소의 장소창에서 들어가요 (안쪽 이동은 5분)')}</span><select id="p_par">${opts(tops,'k','n',p.parent_code,'(없음)')}</select></label>
     <div class="f"><span>하위 장소</span>${p.id&&!p.parent_code?`<div class="row">${kids}<button type="button" id="p_sub">+ 하위 장소</button></div>`:`<div class="tag">${p.parent_code?'이 장소는 하위 장소예요':'저장한 뒤에 추가할 수 있어요'}</div>`}</div></div>
+  <div class="f"><span>내부 일러스트${tip('장소에 도착하면 마을 지도 대신 이 그림이 나와요. 올리면 자동으로 웹용 크기(가로 최대 1600px, webp)로 줄여서 R2에 저장해요')}</span>${hasImgCol()?`<div class="row">${p.img_key&&!p._rm?`<img src="${esc(pubUrl(p.img_key))}" style="height:56px;border:1px solid var(--line);border-radius:3px">`:'<span class="tag">'+(p._rm?'저장하면 그림이 지워져요':'그림 없음')+'</span>'}<input id="p_f" type="file" accept="image/*" style="flex:1"><button type="button" id="p_fx">그림 지우기</button></div>`:'<div class="tag">⚠ fsfs_place_image.sql을 먼저 실행해 주세요</div>'}</div>
   <div class="tag" id="p_ac"></div>
   <div class="tag">위치 ${p.x}%, ${p.y}% · ID ${esc(p.code)}</div>
   <div class="row"><button class="pri" id="p_save">저장</button>${p.id?'<button id="p_del">삭제</button>':''}</div></div>`;
   fillPlaceActs();$('#p_ty').onchange=fillPlaceActs;$('#p_save').onclick=savePlace;if(p.id)$('#p_del').onclick=delPlace;
+  if($('#p_fx'))$('#p_fx').onclick=()=>{if(p.img_key){p._rm=true;renderPlaceForm()}};
   if($('#p_sub'))$('#p_sub').onclick=()=>{pcur={code:'p'+Date.now().toString(36),name:'새 하위 장소',icon:'📍',descr:'',x:p.x,y:p.y,parent_code:p.code,open_ranges:[]};renderMapAdmin()};
 }
 async function savePlace(){
-  try{const p=pcur,m=mainMap(),o=rgRead('p_rg');
-    const row={code:p.code,name:$('#p_n').value.trim()||'이름 없음',icon:$('#p_i').dataset.v||'',descr:$('#p_d').value,x:p.x,y:p.y,map_id:m?m.id:null,open_slots:null,open_ranges:o,parent_code:$('#p_par').value||null,type_code:$('#p_ty').value||null};
+  try{const p=pcur,m=mainMap(),o=rgRead('p_rg');let ik=p.img_key||null;const pf=$('#p_f')&&$('#p_f').files[0];
+    if(pf){msg('그림 올리는 중…');const r=await putPlain('maps',crypto.randomUUID(),pf,1600,0.82);if(ik&&ik!==r.key)wdel(ik);ik=r.key}else if(p._rm){wdel(ik);ik=null}
+    const row={code:p.code,name:$('#p_n').value.trim()||'이름 없음',icon:$('#p_i').dataset.v||'',descr:$('#p_d').value,x:p.x,y:p.y,map_id:m?m.id:null,open_slots:null,open_ranges:o,parent_code:$('#p_par').value||null,type_code:$('#p_ty').value||null};if(hasImgCol())row.img_key=ik;if(hasTownCol()&&$('#p_town'))row.town=$('#p_town').value||null;
     p.id?await post('/rest/v1/fsfs_place?id=eq.'+p.id,row,'PATCH'):await post('/rest/v1/fsfs_place',row);
     pcur=null;await loadCatalog();renderMapAdmin();msg('저장했어요');
   }catch(e){msg(e.message,1)}
 }
 async function delPlace(){
   if(!confirm(`"${pcur.name}" 장소를 삭제할까요?`))return;
-  try{await post('/rest/v1/fsfs_place?parent_code=eq.'+encodeURIComponent(pcur.code),{parent_code:null},'PATCH');await sb('/rest/v1/fsfs_place?id=eq.'+pcur.id,{m:'DELETE'});pcur=null;await loadCatalog();renderMapAdmin();msg('삭제했어요')}catch(e){msg(e.message,1)}
+  try{await post('/rest/v1/fsfs_place?parent_code=eq.'+encodeURIComponent(pcur.code),{parent_code:null},'PATCH');await sb('/rest/v1/fsfs_place?id=eq.'+pcur.id,{m:'DELETE'});if(pcur.img_key)wdel(pcur.img_key);pcur=null;await loadCatalog();renderMapAdmin();msg('삭제했어요')}catch(e){msg(e.message,1)}
 }
-$('#mapup').onclick=async()=>{
-  const f=$('#mapf').files[0];if(!f)return msg('지도 이미지를 선택해주세요',1);
-  try{msg('지도 올리는 중…');const old=mainMap(),id=old?old.id:crypto.randomUUID(),r=await putPlain('maps',id,f,1600,0.85);
-    old?await post('/rest/v1/fsfs_map?id=eq.'+id,{file_key:r.key,w:r.w,h:r.h},'PATCH'):await post('/rest/v1/fsfs_map',{id,name:'마을',file_key:r.key,w:r.w,h:r.h,is_main:true});
-    if(old&&old.file_key!==r.key)wdel(old.file_key);$('#mapf').value='';await loadCatalog();renderMapAdmin();msg('지도를 저장했어요');
-  }catch(e){msg(e.message,1)}
-};
 $('#pimp').onclick=async()=>{
   if(DB.places.length)return msg('이미 장소가 있어요. 내장 장소는 비어 있을 때만 가져와요',1);
   try{const m=mainMap(),rows=Object.entries(PLACES0).map(([code,p],i)=>{const h=HITSPOTS[code]||p.pos||[50,50];
