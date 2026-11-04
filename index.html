@@ -405,24 +405,26 @@ html{overflow:hidden}
   display:grid;grid-template-columns:340px minmax(0,1fr);grid-template-rows:56px minmax(0,1fr);gap:14px 22px;align-items:stretch;background:var(--p);border:3px solid var(--ink);border-radius:12px;box-shadow:none}
 #game .side{display:contents}
 #game .side>.card:first-child{grid-column:2;grid-row:1;padding:8px 14px;display:flex;align-items:center}#game .side>.card:first-child>.bar{width:100%;flex-wrap:nowrap}#game #cbar{flex-wrap:nowrap;width:auto}#game .side>.card:first-child button{white-space:nowrap}
-.gtitle{grid-column:1;grid-row:1;display:flex;align-items:center;justify-content:center;background:var(--ink);color:var(--hi);border-radius:4px;font:400 29px/1 "DotGothic16","Do Hyeon",sans-serif;letter-spacing:.03em;text-shadow:0 0 8px rgba(255,225,74,.35)}
 #game .stagewrap{grid-column:1;grid-row:2;position:static;padding:0;min-height:0;display:flex;justify-content:center;align-items:flex-start}
 #game .stage{height:924px;margin:0}
 #game .card.world{grid-column:2;grid-row:2;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+#game.app{border-radius:0 12px 12px 12px}
+.gtitle{position:absolute;left:0;top:0;z-index:5;grid-column:auto;grid-row:auto;display:inline-flex;align-items:center;height:28px;padding:0 26px 0 12px;background:var(--ink);color:var(--hi);border-radius:0;clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%);font:400 21px/1 "DotGothic16","Do Hyeon",sans-serif;letter-spacing:.02em;text-shadow:none;white-space:nowrap}
 #game .card.world>.wt{flex:none}
 #game .card.world>#stview,#game .card.world>#bkview,#game .card.world>#mvview,#game .card.world>#closet{flex:1;min-height:0;overflow:auto}
 #game .card.world>#endbar{flex:none}
 #mapview{flex:1;min-height:0;display:flex;flex-direction:column}
 #mapview[hidden]{display:none}
-#mapstage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding-bottom:6px}
+#mapstage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
 #mapframe{position:relative;height:100%;max-width:100%;aspect-ratio:1.5}
 #mapframe>.townmap,#mapframe>.interior{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;min-height:0;margin:0}
 .interior img{position:absolute;inset:0;width:100%;height:100%;max-height:none;object-fit:cover}
 #inttint{position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;transition:background 1.2s ease}
 .mapov{position:absolute;inset:0;z-index:7;pointer-events:none}.mapov>*{pointer-events:auto}
-.mapov .descbox{position:absolute;left:12px;top:12px;margin:0;padding:8px 14px;max-width:290px;text-align:left;box-shadow:0 3px 0 var(--ink);pointer-events:none}
-.mapov .descbox .loc{display:block;font-size:20px;font-weight:800;line-height:1.25}.mapov .descbox .loc b{font-size:20px}.mapov .descbox .loc .pp{font-size:12px}
-.mapov .descbox .ld{margin-top:2px;font-size:13px;line-height:1.35;color:var(--mute)}
+.mapov .descbox{position:absolute;left:12px;top:12px;margin:0;padding:7px 16px;max-width:380px;text-align:left;border:0;border-radius:6px;background:rgba(24,20,16,.58);color:#fff;box-shadow:none;pointer-events:none;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.mapov.int .descbox{left:50%;transform:translateX(-50%);text-align:center;max-width:70%}
+.mapov .descbox .loc{display:block;font-size:20px;font-weight:800;line-height:1.25;color:#fff;text-shadow:0 1px 3px #0008}.mapov .descbox .loc b{font-size:20px}.mapov .descbox .loc .pp{font-size:12px;color:#ddd}
+.mapov .descbox .ld{margin-top:2px;font-size:13px;line-height:1.35;color:#e8e2d8;text-shadow:0 1px 2px #0008}
 .townbar{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;align-items:stretch;gap:8px}
 .townbar[hidden]{display:none}
 .twitems{display:flex;gap:6px}
@@ -431,10 +433,14 @@ html{overflow:hidden}
 .twarr{padding:7px 12px;border:2px solid var(--ink);border-radius:4px;background:var(--p);color:var(--ink);font-weight:800;box-shadow:0 3px 0 var(--ink);cursor:pointer}
 .twarr:hover:not(:disabled){background:var(--hi)}.twarr:disabled{opacity:.35;box-shadow:none;cursor:default}
 #vtbar{position:absolute;right:12px;top:12px;margin:0}
-.actbox{margin-top:-6px;padding:20px 10px 10px;flex:none;z-index:8}
-.actbox .boxlab{top:-13px}
-.actbox #wl{position:absolute;top:-10px;right:14px;margin:0;max-width:62%;padding:0 8px;background:var(--p);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.actrow{display:flex;gap:8px;align-items:stretch}
+.mapov>#actov{position:absolute;left:12px;right:12px;bottom:12px;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
+#actov[hidden]{display:none}
+#actov #wl{margin:0;padding:3px 12px;border-radius:4px;background:rgba(24,20,16,.7);color:#fff;font-size:12px;max-width:80%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}#actov #wl:empty{display:none}
+#actov .actrow{width:100%;min-height:62px}
+#actov button,#actov .noact{pointer-events:auto}
+#actov .noact{flex:0 0 auto;display:flex;align-items:center;justify-content:center;min-height:58px;margin:0 auto;padding:0 28px;border-radius:4px;background:rgba(24,20,16,.7);color:#fff;font-weight:700}
+#actov button.act{box-shadow:0 3px 8px rgba(0,0,0,.35)}
+.actrow{display:flex;gap:8px;align-items:center}
 #game #wa{display:flex!important;flex-wrap:nowrap;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;margin:0;flex:1;min-width:0;scroll-behavior:smooth}
 #game #wa::-webkit-scrollbar{display:none}
 #game #wa button.act,#game #wa .lockmsg{flex:0 0 250px;width:250px;min-height:58px}#game #wa .lockmsg{display:flex;align-items:center;justify-content:center}
@@ -493,10 +499,11 @@ html{overflow:hidden}
           <div id="interior" class="interior" hidden><img id="intimg" alt=""><div id="inttint"></div></div>
           <div class="mapov"><div class="descbox" id="mapcurrent"></div>
             <div id="townbar" class="townbar"><button type="button" id="tw_l" class="twarr">◀</button><span id="tw_items" class="twitems"></span><button type="button" id="tw_r" class="twarr">▶</button></div>
-            <div id="vtbar" hidden><button type="button" id="viewtog"></button></div></div>
+            <div id="vtbar" hidden><button type="button" id="viewtog"></button></div>
+            <div id="actov"><div class="tag" id="wl"></div><div class="actrow"><button type="button" id="ac_l" class="acarr" hidden>◀</button><div class="acts" id="wa"></div><button type="button" id="ac_r" class="acarr" hidden>▶</button></div></div></div>
         </div></div>
         <div class="bar" id="wp" hidden></div>
-        <div class="actbox"><div class="boxlab">뭐 할까</div><div class="tag" id="wl"></div><div class="actrow"><button type="button" id="ac_l" class="acarr" hidden>◀</button><div class="acts" id="wa"></div><button type="button" id="ac_r" class="acarr" hidden>▶</button></div></div></div>
+        </div>
     <div id="closet" hidden>
     <div class="card"><div class="tabs" id="tabs"></div><div class="grid" id="grid"></div></div>
     <div class="card" id="colorcard" hidden><h2>색상 (외곽선은 고정이에요)</h2><div id="colors"></div></div>
@@ -1081,7 +1088,7 @@ function greetAt(pid){
   G.greet=G.greet||{};const k=ids.find(id=>G.greet[id]!==G.day);if(!k)return;G.greet[k]=G.day;
   const n=WORLD.npcs[k],ln=(n.lines||[]).filter(x=>x&&x!=='…'),t=ln.length?ln[Math.floor(Math.random()*ln.length)]:'어서 오세요!';
   runScene([{who:k,t}],()=>{saveGame()})}
-function go(p,reopen){if(p===G.place||!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;viewSt=false;viewBk=false;viewMv=false;viewTown=false;viewTownId=null;G.log='';after();greetAt(p)}
+function go(p,reopen){if(p===G.place){if(viewTown||viewTownId){viewTown=false;viewTownId=null;renderWorld()}return}if(!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;viewSt=false;viewBk=false;viewMv=false;viewTown=false;viewTownId=null;G.log='';after();greetAt(p)}
 $('#tw_l').onclick=()=>{const i=TOWNS.findIndex(t=>t.id===curTown());if(i>0){viewTownId=TOWNS[i-1].id;renderWorld()}};
 $('#tw_r').onclick=()=>{const i=TOWNS.findIndex(t=>t.id===curTown());if(i<TOWNS.length-1){viewTownId=TOWNS[i+1].id;renderWorld()}};
 function renderShop(pid){
@@ -1159,8 +1166,9 @@ function doAction(a,who){
 function talkScene(who){const n=WORLD.npcs[who]||{},L=n.lines||[];return[{who,t:L.length?L[Math.floor(Math.random()*L.length)]:'...'}]}
 function updActArrows(){const w=$('#wa'),l=$('#ac_l'),r=$('#ac_r');if(!w)return;const ov=w.scrollWidth>w.clientWidth+2;l.hidden=r.hidden=!ov;l.disabled=w.scrollLeft<=1;r.disabled=w.scrollLeft+w.clientWidth>=w.scrollWidth-1}
 $('#ac_l').onclick=()=>{const w=$('#wa');w.scrollBy({left:-w.clientWidth*.8})};$('#ac_r').onclick=()=>{const w=$('#wa');w.scrollBy({left:w.clientWidth*.8})};$('#wa').addEventListener('scroll',()=>updActArrows());
+let ACTPID=null;
 function renderActs(){
-  const pid=G.place,p=WORLD.places[pid],box=$('#wa');box.innerHTML='';if(!p)return;
+  const pid=G.place,p=WORLD.places[pid],box=$('#wa');const keepSl=(ACTPID===pid)?box.scrollLeft:0;ACTPID=pid;box.innerHTML='';if(!p)return;
   if(!openNow(pid)){box.innerHTML=`<div class="lockmsg">🔒 지금은 문을 닫았어요${p.open&&p.open.length?' · 영업 '+rngText(p.open):''}</div>`}
   const conn=[];
   if(p.parent){conn.push(p.parent);Object.keys(WORLD.places).filter(k=>WORLD.places[k].parent===p.parent&&k!==pid).forEach(k=>conn.push(k))}
@@ -1173,7 +1181,8 @@ function renderActs(){
     if(!sp)vars.push([a,null]);else if(sp==='*')here().forEach(id=>vars.push([a,id]));else if(npcAt(sp))vars.push([a,sp])});
   vars.forEach(([a,who])=>{const st=actState(a,who),b=document.createElement('button'),ch=chips(a),wn=who?(WORLD.npcs[who]||{}).n:'';b.className='act'+(st.ok?'':' off');
     b.innerHTML=`<b>${esc(a.icon||'▪')} ${esc(a.name)}${wn?' · '+esc(wn)+josa(wn):''}</b>${ch||!st.ok?`<small>${esc(ch)}${!st.ok?(ch?' · ':'')+'🔒 '+esc(st.why):''}</small>`:''}`;b.onclick=()=>doAction(a,who);box.append(b)});
-  box.scrollLeft=0;setTimeout(updActArrows,30);
+  if(!box.children.length)box.innerHTML='<div class="noact">할 수 있는 행동이 없어요.</div>';
+  box.style.scrollBehavior='auto';box.scrollLeft=keepSl;requestAnimationFrame(()=>{box.style.scrollBehavior='';updActArrows()});
 }
 function renderStatus(){
   const aff=Object.entries(G.aff).filter(([,v])=>v).map(([k,v])=>`<div class="srow"><span>${esc((WORLD.npcs[k]||{}).n||k)}</span><b>♥ ${v}</b></div>`).join('')||'<div class="tag">아직 호감도가 쌓인 사람이 없어요</div>';
@@ -1196,14 +1205,14 @@ function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
    <div class="vit"><div class="led en"><i>EN</i><b>${Math.round(G.energy)}<small>/100</small></b></div><div class="led mo"><i>₩</i><b>${(G.money||0).toLocaleString()}</b></div></div>`;applyTint();
   buildTownMap();
   document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===topOf(G.place));b.classList.toggle('closed',!openNow(id));});
-  const p=WORLD.places[G.place];$('#mapcurrent').innerHTML=`<div class="loc">${p.parent&&WORLD.places[p.parent]?`<span class="pp">${esc(WORLD.places[p.parent].n)} › </span>`:''}<b>${esc(p.i||'')} ${esc(p.n)}</b></div>${p.desc?`<div class="ld">${esc(p.desc.length>20?p.desc.slice(0,20)+'…':p.desc)}</div>`:''}`;
+  const p=WORLD.places[G.place];$('#mapcurrent').innerHTML=`<div class="loc">${p.parent&&WORLD.places[p.parent]?`<span class="pp">${esc(WORLD.places[p.parent].n)} › </span>`:''}<b>${esc(p.i||'')} ${esc(p.n)}</b></div>${p.desc?`<div class="ld">${esc(p.desc.length>30?p.desc.slice(0,30)+'…':p.desc)}</div>`:''}`;
   const pl=$('#wp');pl.innerHTML='';
   for(const [k,p] of Object.entries(WORLD.places)){if(p.parent)continue;const b=document.createElement('button');b.textContent=p.i+' '+p.n;if(k===G.place)b.className='on';else b.title='이동하면 15분이 지나가요';b.onclick=()=>go(k);pl.append(b)}
   renderActs();
   const co=G.place==='home'&&G.closet,vw=co?'closet':(viewSt?'status':(viewBk?'bk':(viewMv?'mv':'')));$('#closet').hidden=!co;$('#cbar').hidden=!co;$('#bkview').hidden=vw!=='bk';$('#mvview').hidden=vw!=='mv';$('#mapview').hidden=!!vw;$('#stview').hidden=vw!=='status';$('#endbar').hidden=!vw;if(vw==='status')renderStatus();
-  {const im=placeImg(G.place),si=!!im&&!viewTown,el=$('#intimg');$('#townmap').hidden=si;$('#interior').hidden=!si;$('#townbar').hidden=si;$('#vtbar').hidden=!im||!!vw;
+  {const im=placeImg(G.place),si=!!im&&!viewTown,el=$('#intimg');$('#townmap').hidden=si;$('#interior').hidden=!si;$('#townbar').hidden=si;$('#vtbar').hidden=!im||!!vw||viewTown;$('.mapov').classList.toggle('int',si);$('#actov').hidden=!!vw||curTown()!==townOf(G.place)||(!!im&&viewTown);
     if(si&&el.dataset.src!==im){el.dataset.src=im;el.onerror=()=>{IMGBAD.add(im);el.dataset.src='';renderWorld()};el.src=im}
-    $('#viewtog').textContent=si?'🗺 마을 지도 보기':'↩ '+(WORLD.places[G.place].n)+' 안으로';$('#viewtog').onclick=()=>{viewTown=!viewTown;renderWorld()}}
+    $('#viewtog').textContent='🗺 마을 지도 보기';$('#viewtog').onclick=()=>{viewTown=!viewTown;renderWorld()}}
   $('#wl').textContent=G.log||'';document.querySelector('.stagewrap').classList.toggle('bare',!co);try{bgmUpdate()}catch(e){}
 }
 $('#shc').onclick=()=>{$('#shop').close();refresh()};
@@ -1309,7 +1318,7 @@ function renderPlaceForm(){
   <div class="fr id3"><label class="f"><span>아이콘</span>${emoBtn('p_i',p.icon||'')}</label><label class="f"><span>이름</span><input id="p_n" value="${esc(p.name)}"></label>
     <label class="f"><span>유형${tip('유형에 묶인 행동을 이 장소에서 할 수 있어요. 행동을 더하거나 빼는 건 위 "행동" 편집에서 해요')}</span><select id="p_ty">${opts(typeList(),'k','n',p.type_code,'(없음)')}</select></label></div>
   <div class="f"><span>영업 시간${tip('비워 두면 하루 종일 열려 있어요. 밤을 넘기려면 22:00 ~ 02:00처럼 적어요 (24시간 표기)')}</span>${rgHtml('p_rg',orr)}</div>
-  <input id="p_d" maxlength="20" placeholder="설명 (20자까지) — 지도 위 장소 블록에 보여요" value="${esc(p.descr)}">
+  <input id="p_d" maxlength="30" placeholder="설명 (30자까지) — 지도 위 장소 블록에 보여요" value="${esc(p.descr)}">
   ${p.parent_code?'':(hasTownCol()?`<label class="f"><span>동네${tip('이 장소가 있는 지도예요. 바꾸면 그 동네 지도에서 위치를 다시 잡아 주세요')}</span><select id="p_town">${opts(TOWNS.map(t=>({k:t.id,n:t.name})),'k','n',p.town||atown)}</select></label>`:'<div class="tag">⚠ fsfs_place_town.sql을 먼저 실행해 주세요 (동네 구분)</div>')}
   <div class="fr"><label class="f"><span>상위 장소${tip('건물 안 공간이면 고르세요. 고르면 지도에는 안 보이고, 상위 장소의 장소창에서 들어가요 (안쪽 이동은 5분)')}</span><select id="p_par">${opts(tops,'k','n',p.parent_code,'(없음)')}</select></label>
     <div class="f"><span>하위 장소</span>${p.id&&!p.parent_code?`<div class="row">${kids}<button type="button" id="p_sub">+ 하위 장소</button></div>`:`<div class="tag">${p.parent_code?'이 장소는 하위 장소예요':'저장한 뒤에 추가할 수 있어요'}</div>`}</div></div>
