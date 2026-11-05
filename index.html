@@ -395,18 +395,19 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 .mvp{position:relative;flex:1 1 0;max-width:190px;aspect-ratio:2/3;cursor:pointer;overflow:hidden;border-radius:2px;box-shadow:0 6px 18px rgba(0,0,0,.6);transition:transform .15s,filter .15s}
 .mvp:hover{transform:translateY(-6px);filter:brightness(1.12)}.mvp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 .mvp span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:6px;text-align:center;font-size:12px;font-weight:700;color:#fff;text-shadow:0 1px 2px #000}
+.mvbg{background-size:cover;background-position:center;border-radius:6px}#mvview.mvbg .mvshelf{background:rgba(0,0,0,.18);border-color:transparent}#mvview.mvbg .bkbar{background:rgba(0,0,0,.55);color:#fff;padding:6px 10px}#mvview.mvbg .bkbar .tag{color:#fff}
 .mvshelf.sh .mvp{animation:mvsl .6s ease-out}@keyframes mvsl{from{transform:translateX(calc(100% + 12px))}to{transform:none}}
 .mvshelf.sh .mvp:last-child{animation:mvnew .6s ease-out}@keyframes mvnew{from{transform:translateX(160%);opacity:0}to{transform:none;opacity:1}}
 /* ===== 고정 화면: 1920×1080 비율, 화면에 맞춰 통째로 확대·축소 (최소 절반) ===== */
 html{overflow:hidden}
 #gamefit{position:relative;margin:0 auto}
 #game.app{position:absolute;left:0;top:0;width:1920px;height:1080px;max-width:none;margin:0;box-sizing:border-box;padding:22px 26px;transform-origin:0 0;
-  display:grid;grid-template-columns:340px minmax(0,1fr);grid-template-rows:56px minmax(0,1fr);gap:14px 22px;align-items:stretch;background:var(--p);border:3px solid var(--ink);border-radius:12px;box-shadow:none}
+  display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:56px minmax(0,1fr);gap:14px 22px;align-items:stretch;background:var(--p);border:3px solid var(--ink);border-radius:12px;box-shadow:none}
 #game .side{display:contents}
 #game .side>.card:first-child{grid-column:2;grid-row:1;padding:8px 14px;display:flex;align-items:center}#game .side>.card:first-child>.bar{width:100%;flex-wrap:nowrap}#game #cbar{flex-wrap:nowrap;width:auto}#game .side>.card:first-child button{white-space:nowrap}
 #game .stagewrap{grid-column:1;grid-row:2;position:static;padding:0;min-height:0;display:flex;justify-content:center;align-items:flex-start}
-#game .stage{height:924px;margin:0}
-#game .card.world{grid-column:2;grid-row:2;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+#game .stage{height:924px;margin:0;width:440px;aspect-ratio:auto}#game .stage canvas{left:50%;width:312px;transform:translateX(-50%)}
+#game .card.world{grid-column:2;justify-self:end;grid-row:2;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 #game.app{border-radius:0 12px 12px 12px}
 .gtitle{position:absolute;left:0;top:0;z-index:5;grid-column:auto;grid-row:auto;display:inline-flex;align-items:center;height:28px;padding:0 26px 0 12px;background:var(--ink);color:var(--hi);border-radius:0;clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%);font:400 21px/1 "DotGothic16","Do Hyeon",sans-serif;letter-spacing:.02em;text-shadow:none;white-space:nowrap}
 #game .card.world>.wt{flex:none}
@@ -650,7 +651,7 @@ html{overflow:hidden}
     <div class="card"><div class="row"><select id="fp"></select><input id="q" placeholder="이름 검색" style="flex:1;min-width:80px"></div><div class="list" id="dlist"></div></div>
     <div class="card" id="ed"></div>
   </div></div>
-  <div id="dv-goods" hidden><div class="cols"><div class="card lcard"><div class="row"><button class="pri" id="gnew">+ 새 아이템</button></div><div class="list" id="glist"></div></div><div class="card" id="ged"></div></div></div>
+  <div id="dv-goods" hidden><div class="cols"><div class="card"><div class="row" style="margin-bottom:8px"><button class="pri" id="gnew">+ 새 아이템</button></div><div class="list" id="glist"></div></div><div class="card" id="ged"></div></div></div>
   <div id="dv-map" hidden>
     <details class="sec" open><summary><b>행동</b><span class="grow"></span><button class="pri" id="anew">+ 새 행동</button><button id="aimp">내장 가져오기</button></summary>
       <div class="cols"><div class="card lcard"><div class="list" id="alist"></div></div><div class="card" id="aed"></div></div></details>
@@ -942,8 +943,8 @@ function renderLys(){$('#lys').innerHTML=lysHtml()}
 // 장소·인물·이벤트를 가리키는 칸은 직접 쓰지 않고 목록에서 고르게 해요
 function srcField(s,f){
   const v=String((s.params&&s.params[f.key])??''),L=f.label;let list=null;
-  if(L==='상점 이름')list=Object.values(WORLD.places).map(p=>p.n);
-  else if(L==='NPC'||L==='의뢰인')list=Object.values(WORLD.npcs).map(n=>n.n);
+  if(L==='상점 이름')list=['모든 상점',...Object.values(WORLD.places).map(p=>p.n)];
+  else if(L==='NPC'||L==='의뢰인')list=['모든 NPC',...Object.values(WORLD.npcs).map(n=>n.n)];
   else if(L==='이벤트 이름')list=(WORLD.events||[]).map(e=>e.title);
   if(list){const set=[...new Set(list.filter(Boolean))];if(v&&!set.includes(v))set.unshift(v);
     return `<label>${esc(L)}<select class="pf" data-k="${esc(f.key)}"><option value="">(선택)</option>${set.map(x=>`<option${x===v?' selected':''}>${esc(x)}</option>`).join('')}</select></label>`}
@@ -1043,10 +1044,11 @@ const TINT=[[0,[18,28,78,.56]],[240,[18,28,78,.52]],[300,[255,196,186,.30]],[360
 function tintAt(m){const j=TINT.findIndex(k=>k[0]>m),lo=TINT[Math.max(1,j)-1],hi=TINT[Math.max(1,j)],t=(m-lo[0])/(hi[0]-lo[0]),c=lo[1].map((v,i)=>v+(hi[1][i]-v)*t);return `rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${c[3].toFixed(3)})`}
 function applyTint(){if(!G)return;const c=tintAt(G.min),t=$('#maptint'),u=$('#inttint');if(t)t.style.background=c;if(u)u.style.background=c}
 const emoBtn=(id,v)=>`<button type="button" class="emo" id="${id}" data-v="${esc(v||'')}" title="눌러서 고르기">${esc(v||'＋')}</button>`;
-const EMO={'장소·가게':'🏠 🏡 🏢 🏪 🏬 🏫 🏥 🏦 🏨 🏰 ⛪ 🏭 ⛺ 🌳 🌲 🌴 🌷 🌸 🌺 🌻 🌹 💐 🪴 🍀 🌿 ⛲ 🌅 🌆 🌇 🌉 🛍 👗 👚 👕 👖 👔 🧥 👘 👠 👟 👜 👒 🎩 💍 💄 💇 💅 🪞 📚 📖 🛒',
+const EMO0={'장소·가게':'🏠 🏡 🏢 🏪 🏬 🏫 🏥 🏦 🏨 🏰 ⛪ 🏭 ⛺ 🌳 🌲 🌴 🌷 🌸 🌺 🌻 🌹 💐 🪴 🍀 🌿 ⛲ 🌅 🌆 🌇 🌉 🛍 👗 👚 👕 👖 👔 🧥 👘 👠 👟 👜 👒 🎩 💍 💄 💇 💅 🪞 📚 📖 🛒',
   '먹을 것':'☕ 🍵 🧋 🥤 🍺 🍷 🍸 🍰 🎂 🧁 🍩 🍪 🍫 🍬 🍭 🍮 🍞 🥐 🥖 🥨 🧀 🍳 🥞 🍔 🍟 🍕 🌭 🥪 🌮 🍜 🍝 🍛 🍣 🍱 🍙 🍚 🍎 🍓 🍇 🍉 🍌 🍑 🍿',
   '활동':'💤 😴 🛏 🚿 🛁 💼 💻 📝 ✏ 🎨 🎵 🎶 🎤 🎧 🎮 🎬 📷 🎁 🎉 🏃 🚶 💃 🕺 🧘 🧹 🧺 🔑 📋 📞 📱 🚌 🚗 🚲 🛵 ✈ 🌙 ⭐ ☀ 🌤 ⛅ 🌧 ❄ 🔥 💧 💪 ❤ 💗 💬 👀 ✨',
   '사람·동물':'🙂 😊 😄 😍 🥰 😎 🤔 😢 😠 😳 🤗 👧 👦 👩 👨 🧑 👵 👴 👸 🤴 🧙 🧛 🧚 🐶 🐱 🐰 🐻 🦊 🐸'};
+const EMO=Object.assign({},EMO0,{"표정·사람·손":"😀 😁 😂 😃 😄 😅 😆 😇 😈 😉 😊 😋 😌 😍 😎 😏 😐 😑 😒 😓 😔 😕 😖 😗 😘 😙 😚 😛 😜 😝 😞 😟 😠 😡 😢 😣 😤 😥 😦 😧 😨 😩 😪 😫 😬 😭 😮 😯 😰 😱 😲 😳 😴 😵 😶 😷 😸 😹 😺 😻 😼 😽 😾 😿 🙀 🙁 🙂 🙃 🙄 🙅 🙆 🙇 🙈 🙉 🙊 🙋 🙌 🙍 🙎 🙏 👦 👧 👨 👩 👪 👫 👬 👭 👮 👯 👰 👱 👲 👳 👴 👵 👶 👷 👸 👹 👺 👻 👼 👽 👾 👿 💀 💁 💂 💃 💄 💅 💆 💇 👀 👁️ 👂 👃 👄 👅 👆 👇 👈 👉 👊 👋 👌 👍 👎 👏 👐 👑 👒 👓 👔 👕 👖 👗 👘 👙 👚 👛 👜 👝 👞 👟 👠 👡 👢 👣 👤 👥 🤌 🤍 🤎 🤏 🤐 🤑 🤒 🤓 🤔 🤕 🤖 🤗 🤘 🤙 🤚 🤛 🤜 🤝 🤞 🤟 🤠 🤡 🤢 🤣 🤤 🤥 🤦 🤧 🤨 🤩 🤪 🤫 🤬 🤭 🤮 🤯 🤰 🤱 🤲 🤳 🤴 🤵 🤶 🤷 🤸 🤹 🤺 🦰 🦱 🦲 🦳 🦴 🦵 🦶 🦷 🦸 🦹 🦺 🦻 🦼 🦽 🦾 🦿 🧐 🧑 🧒 🧓 🧔 🧕 🧖 🧗 🧘 🧙 🧚 🧛 🧜 🧝 🧞 🧟 🧠 🧡 🧢 🧣 🧤 🧥 🧦 🧧 🧨 🧩 🧪 🧫 🧬 🧭 🧮 🧯 🧰 🧱 🧲 🧳 🧴 🧵 🧶 🧷 🧸 🧹 🧺 🧻 🧼 🧽 🧾 🧿 ☝️ ✊ ✋ ✌️ ✍️ ☠️","동물·자연·날씨":"🐀 🐁 🐂 🐃 🐄 🐅 🐆 🐇 🐈 🐉 🐊 🐋 🐌 🐍 🐎 🐏 🐐 🐑 🐒 🐓 🐔 🐕 🐖 🐗 🐘 🐙 🐚 🐛 🐜 🐝 🐞 🐟 🐠 🐡 🐢 🐣 🐤 🐥 🐦 🐧 🐨 🐩 🐪 🐫 🐬 🐭 🐮 🐯 🐰 🐱 🐲 🐳 🐴 🐵 🐶 🐷 🐸 🐹 🐺 🐻 🐼 🐽 🐾 🐿️ 🦀 🦁 🦂 🦃 🦄 🦅 🦆 🦇 🦈 🦉 🦊 🦋 🦌 🦍 🦎 🦏 🦐 🦑 🦒 🦓 🦔 🦕 🦖 🦗 🦘 🦙 🦚 🦛 🦜 🦝 🦞 🦟 🦠 🦡 🦢 🦣 🦤 🦥 🦦 🦧 🦨 🦩 🦪 🦫 🦬 🦭 🦮 🦯 🌀 🌁 🌂 🌃 🌄 🌅 🌆 🌇 🌈 🌉 🌊 🌋 🌌 🌍 🌎 🌏 🌐 🌑 🌒 🌓 🌔 🌕 🌖 🌗 🌘 🌙 🌚 🌛 🌜 🌝 🌞 🌟 🌠 🌰 🌱 🌲 🌳 🌴 🌵 🌷 🌸 🌹 🌺 🌻 🌼 🌽 🌾 🌿 🍀 🍁 🍂 🍃 🍄 🕊️ 🪰 🪱 🪲 🪳 🪴 🪵 🪶 🪷 🪸 🪹 🪺 🪻 🪼 🪽 🪿 ☀️ ☁️ ☂️ ☃️ ☄️ ☔ ⚡ ⛄ ⛅ ❄️","음식·음료":"🌭 🌮 🌯 🍅 🍆 🍇 🍈 🍉 🍊 🍋 🍌 🍍 🍎 🍏 🍐 🍑 🍒 🍓 🍔 🍕 🍖 🍗 🍘 🍙 🍚 🍛 🍜 🍝 🍞 🍟 🍠 🍡 🍢 🍣 🍤 🍥 🍦 🍧 🍨 🍩 🍪 🍫 🍬 🍭 🍮 🍯 🍰 🍱 🍲 🍳 🍴 🍵 🍶 🍷 🍸 🍹 🍺 🍻 🍼 🍽️ 🍾 🍿 🥐 🥑 🥒 🥓 🥔 🥕 🥖 🥗 🥘 🥙 🥚 🥛 🥜 🥝 🥞 🥟 🥠 🥡 🥢 🥣 🥤 🥥 🥦 🥧 🥨 🥩 🥪 🥫 🥬 🥭 🥮 🥯 🥰 🥱 🥲 🥳 🥴 🥵 🥶 🥷 🥸 🥹 🥺 🥻 🥼 🥽 🥾 🥿 🧀 🧁 🧂 🧃 🧄 🧅 🧆 🧇 🧈 🧉 🧊 🧋 🫐 🫑 🫒 🫓 🫔 🫕 🫖 🫗 🫘 🫙 🫚 🫛 ☕","활동·스포츠·축하":"🎀 🎁 🎂 🎃 🎄 🎅 🎆 🎇 🎈 🎉 🎊 🎋 🎌 🎍 🎎 🎏 🎐 🎑 🎒 🎓 🎖️ 🎗️ 🎙️ 🎚️ 🎛️ 🎞️ 🎟️ 🎠 🎡 🎢 🎣 🎤 🎥 🎦 🎧 🎨 🎩 🎪 🎫 🎬 🎭 🎮 🎯 🎰 🎱 🎲 🎳 🎴 🎵 🎶 🎷 🎸 🎹 🎺 🎻 🎼 🎽 🎾 🎿 🏀 🏁 🏂 🏃 🏄 🏅 🏆 🏇 🏈 🏉 🏊 🏏 🏐 🏑 🏒 🏓 🏸 🏹 🏺 🤼 🤽 🤾 🤿 🥀 🥁 🥂 🥃 🥄 🥅 🥇 🥈 🥉 🥊 🥋 🥌 🥍 🥎 🥏 ⚽ ⚾ ⛳ ⛴️","장소·탈것·건물":"🏔️ 🏕️ 🏖️ 🏗️ 🏘️ 🏙️ 🏚️ 🏛️ 🏜️ 🏝️ 🏞️ 🏟️ 🏠 🏡 🏢 🏣 🏤 🏥 🏦 🏧 🏨 🏩 🏪 🏫 🏬 🏭 🏮 🏯 🏰 🚀 🚁 🚂 🚃 🚄 🚅 🚆 🚇 🚈 🚉 🚊 🚋 🚌 🚍 🚎 🚏 🚐 🚑 🚒 🚓 🚔 🚕 🚖 🚗 🚘 🚙 🚚 🚛 🚜 🚝 🚞 🚟 🚠 🚡 🚢 🚣 🚤 🚥 🚦 🚧 🚨 🚩 🚪 🚫 🚬 🚭 🚮 🚯 🚰 🚱 🚲 🚳 🚴 🚵 🚶 🚷 🚸 🚹 🚺 🚻 🚼 🚽 🚾 🚿 🛀 🛁 🛂 🛃 🛄 🛅 🛋️ 🛌 🛍️ 🛎️ 🛏️ 🛐 🛑 🛒 🛕 🛖 🛗 🛜 🛝 🛞 🛟 🛠️ 🛡️ 🛢️ 🛣️ 🛤️ 🛥️ 🛩️ 🛫 🛬 🛰️ 🛳️ 🛴 🛵 🛶 🛷 🛸 🛹 🛺 🛻 🛼 🗺️ 🗻 🗼 🗽 🗾 🗿 ⛪ ⛰️ ⛱️ ⛲ ⛵ ⛷️ ⛸️ ⛹️ ⛺ ✈️ ⚓","사물·옷·도구":"💈 💉 💊 💋 💌 💍 💎 💏 💐 💑 💒 💓 💔 💕 💖 💗 💘 💙 💚 💛 💜 💝 💞 💟 💠 💡 💢 💣 💤 💥 💦 💧 💨 💩 💪 💫 💬 💭 💮 💯 💰 💱 💲 💳 💴 💵 💶 💷 💸 💹 💺 💻 💼 💽 💾 💿 📀 📁 📂 📃 📄 📅 📆 📇 📈 📉 📊 📋 📌 📍 📎 📏 📐 📑 📒 📓 📔 📕 📖 📗 📘 📙 📚 📛 📜 📝 📞 📟 📠 📡 📢 📣 📤 📥 📦 📧 📨 📩 📪 📫 📬 📭 📮 📯 📰 📱 📲 📳 📴 📵 📶 📷 📸 📹 📺 📻 📼 📽️ 📿 🔈 🔉 🔊 🔋 🔌 🔍 🔎 🔏 🔐 🔑 🔒 🔓 🔔 🔕 🔖 🔗 🔘 🔙 🔚 🔛 🔜 🔝 🔞 🔟 🔠 🔡 🔢 🔣 🔤 🔥 🔦 🔧 🔨 🔩 🔪 🔫 🔬 🔭 🔮 🔯 🔰 🔱 🔲 🔳 🔴 🔵 🔶 🔷 🔸 🔹 🔺 🔻 🔼 🔽 🕯️ 🕰️ 🕳️ 🕴️ 🕵️ 🕶️ 🕷️ 🕸️ 🕹️ 🕺 🖇️ 🖊️ 🖋️ 🖌️ 🖍️ 🖐️ 🖕 🖖 🖤 🩰 🩱 🩲 🩳 🩴 🩵 🩶 🩷 🩸 🩹 🩺 🩻 🩼 🪀 🪁 🪂 🪃 🪄 🪅 🪆 🪇 🪈 🪐 🪑 🪒 🪓 🪔 🪕 🪖 🪗 🪘 🪙 🪚 🪛 🪜 🪝 🪞 🪟 🪠 🪡 🪢 🪣 🪤 🪥 🪦 🪧 🪨 🪩 🪪 🪫 🪬 🪭 🪮 🪯 ⌚ ⌛ ⏰ ⏱️ ⏲️ ⏳ ⌨️ ⚒️ ⚔️ ⚕️ ⚖️ ⚗️ ⚙️ ⛏️ ⛑️ ⛓️ ⛔ ✂️ ✅ ✉️ ✏️ ✒️","하트·기호·도형":"↔️ ↕️ ↖️ ↗️ ↘️ ↙️ ↩️ ↪️ ⏏️ ⏩ ⏪ ⏫ ⏬ ⏭️ ⏮️ ⏯️ ⏸️ ⏹️ ⏺️ ☎️ ☑️ ☘️ ☢️ ☣️ ☦️ ☪️ ☮️ ☯️ ☸️ ☹️ ☺️ ♀️ ♂️ ♈ ♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓ ♟️ ♠️ ♣️ ♥️ ♦️ ♨️ ♻️ ♾️ ♿ ⚛️ ⚜️ ⚠️ ⚧️ ⚪ ⚫ ⚰️ ⚱️ ⛈️ ⛎ ⛩️ ⛽ ✔️ ✖️ ✝️ ✡️ ✨ ✳️ ✴️ ❇️ ❌ ❎ ❓ ❔ ❕ ❗ ❣️ ❤️ ➕ ➖ ➗ ➡️ ➰ ➿ ⬅️ ⬆️ ⬇️ ⬛ ⬜ ⭐ ⭕ 〰️ 〽️ ㊗️ ㊙️ 🅰️ 🅱️ 🅾️ 🅿️ 🆎 🆑 🆒 🆓 🆔 🆕 🆖 🆗 🆘 🆙 🆚 🈁 🈂️ 🈚 🈯 🈲 🈳 🈴 🈵 🈶 🈷️ 🈸 🈹 🈺 🉐 🉑 🔀 🔁 🔂 🔃 🔄 🔅 🔆 🔇 🟠 🟡 🟢 🟣 🟤 🟥 🟦 🟧 🟨 🟩 🟪 🟫 ⁉️ ‼️ ™️ ℹ️ Ⓜ️ ▪️ ▫️ ▶️ ◀️ ◻️ ◼️ ◽ ◾","기타":"⤴️ ⤵️ 🀄 🃏 🌡️ 🌤️ 🌥️ 🌦️ 🌧️ 🌨️ 🌩️ 🌪️ 🌫️ 🌬️ 🌶️ 🏋️ 🏌️ 🏍️ 🏎️ 🏳️ 🏴 🏵️ 🏷️ 🕉️ 🕋 🕌 🕍 🕎 🕐 🕑 🕒 🕓 🕔 🕕 🕖 🕗 🕘 🕙 🕚 🕛 🕜 🕝 🕞 🕟 🕠 🕡 🕢 🕣 🕤 🕥 🕦 🕧 🖥️ 🖨️ 🖱️ 🖲️ 🖼️ 🗂️ 🗃️ 🗄️ 🗑️ 🗒️ 🗓️ 🗜️ 🗝️ 🗞️ 🗡️ 🗣️ 🗨️ 🗯️ 🗳️ 🟰 🧌 🧍 🧎 🧏 🫀 🫁 🫂 🫃 🫄 🫅 🫎 🫏 🫠 🫡 🫢 🫣 🫤 🫥 🫦 🫧 🫨 🫰 🫱 🫲 🫳 🫴 🫵 🫶 🫷 🫸","국기":"🇦🇨 🇦🇩 🇦🇪 🇦🇫 🇦🇬 🇦🇮 🇦🇱 🇦🇲 🇦🇴 🇦🇷 🇦🇸 🇦🇹 🇦🇺 🇦🇼 🇦🇽 🇦🇿 🇧🇦 🇧🇧 🇧🇩 🇧🇪 🇧🇫 🇧🇬 🇧🇭 🇧🇮 🇧🇯 🇧🇲 🇧🇳 🇧🇴 🇧🇷 🇧🇸 🇧🇹 🇧🇼 🇧🇾 🇧🇿 🇨🇦 🇨🇨 🇨🇩 🇨🇫 🇨🇬 🇨🇭 🇨🇮 🇨🇰 🇨🇱 🇨🇲 🇨🇳 🇨🇴 🇨🇷 🇨🇺 🇨🇻 🇨🇼 🇨🇽 🇨🇾 🇨🇿 🇩🇪 🇩🇯 🇩🇰 🇩🇲 🇩🇴 🇩🇿 🇪🇨 🇪🇪 🇪🇬 🇪🇷 🇪🇸 🇪🇹 🇪🇺 🇫🇮 🇫🇯 🇫🇰 🇫🇲 🇫🇴 🇫🇷 🇬🇦 🇬🇧 🇬🇩 🇬🇪 🇬🇫 🇬🇬 🇬🇭 🇬🇮 🇬🇱 🇬🇲 🇬🇳 🇬🇵 🇬🇶 🇬🇷 🇬🇹 🇬🇺 🇬🇼 🇬🇾 🇭🇰 🇭🇳 🇭🇷 🇭🇹 🇭🇺 🇮🇩 🇮🇪 🇮🇱 🇮🇲 🇮🇳 🇮🇴 🇮🇶 🇮🇷 🇮🇸 🇮🇹 🇯🇪 🇯🇲 🇯🇴 🇯🇵 🇰🇪 🇰🇬 🇰🇭 🇰🇮 🇰🇲 🇰🇳 🇰🇵 🇰🇷 🇰🇼 🇰🇾 🇰🇿 🇱🇦 🇱🇧 🇱🇨 🇱🇮 🇱🇰 🇱🇷 🇱🇸 🇱🇹 🇱🇺 🇱🇻 🇱🇾 🇲🇦 🇲🇨 🇲🇩 🇲🇪 🇲🇬 🇲🇭 🇲🇰 🇲🇱 🇲🇲 🇲🇳 🇲🇴 🇲🇵 🇲🇶 🇲🇷 🇲🇸 🇲🇹 🇲🇺 🇲🇻 🇲🇼 🇲🇽 🇲🇾 🇲🇿 🇳🇦 🇳🇨 🇳🇪 🇳🇫 🇳🇬 🇳🇮 🇳🇱 🇳🇴 🇳🇵 🇳🇷 🇳🇺 🇳🇿 🇴🇲 🇵🇦 🇵🇪 🇵🇫 🇵🇬 🇵🇭 🇵🇰 🇵🇱 🇵🇲 🇵🇳 🇵🇷 🇵🇸 🇵🇹 🇵🇼 🇵🇾 🇶🇦 🇷🇪 🇷🇴 🇷🇸 🇷🇺 🇷🇼 🇸🇦 🇸🇧 🇸🇨 🇸🇩 🇸🇪 🇸🇬 🇸🇭 🇸🇮 🇸🇰 🇸🇱 🇸🇲 🇸🇳 🇸🇴 🇸🇷 🇸🇸 🇸🇹 🇸🇻 🇸🇽 🇸🇾 🇸🇿 🇹🇨 🇹🇩 🇹🇬 🇹🇭 🇹🇯 🇹🇰 🇹🇱 🇹🇲 🇹🇳 🇹🇴 🇹🇷 🇹🇹 🇹🇻 🇹🇼 🇹🇿 🇺🇦 🇺🇬 🇺🇳 🇺🇸 🇺🇾 🇺🇿 🇻🇦 🇻🇨 🇻🇪 🇻🇬 🇻🇮 🇻🇳 🇻🇺 🇼🇫 🇼🇸 🇽🇰 🇾🇪 🇾🇹 🇿🇦 🇿🇲 🇿🇼"});
 let emoTarget=null;
 document.addEventListener('click',e=>{const b=e.target.closest('.emo');if(b){emoTarget=b;let d=$('#emopick');if(!d){d=document.createElement('dialog');d.id='emopick';
     d.innerHTML=Object.entries(EMO).map(([k,v])=>`<h2>${k}</h2><div class="eg">${v.split(' ').map(x=>`<button type="button" class="ep" data-e="${x}">${x}</button>`).join('')}</div>`).join('')+'<div class="bar" style="margin-top:10px;justify-content:space-between"><button type="button" id="ep_clear">지우기</button><button type="button" id="ep_x">닫기</button></div>';
@@ -1133,14 +1135,16 @@ WORLD.actions={};ACT0.forEach(a=>WORLD.actions[a.code]=a);WORLD.types=structured
 const ACQ={};
 const FIXTYPE={home:{name:'주거',icon:'🏠',acts:['sleep','closet','status'],lock:[]},library:{name:'도서관',icon:'📚',acts:['bkbk'],lock:['bkbk']},cinema:{name:'영화관',icon:'🎬',acts:['mvmv'],lock:['mvmv']}};
 // 관리자에서 의상마다 적은 획득 경로(DB)를 게임 경로로 바꿔요. 종류 이름·칸 이름은 DB의 경로 종류 정의를 그대로 따라요
+const shopPlaces=()=>Object.keys(WORLD.places).filter(k=>((WORLD.types[WORLD.places[k].type]||{actions:[]}).actions||[]).some(c=>(WORLD.actions[c]||{}).kind==='shop'));
+const placesFor=nm=>nm==='모든 상점'?shopPlaces():Object.keys(WORLD.places).filter(k=>WORLD.places[k].n===nm);
 function dbSrc(){
   const out=[],T=Object.fromEntries((DB.types||[]).map(t=>[t.code,t])),pv=(t,s,label)=>{const f=((t&&t.param_schema)||[]).find(x=>x.label===label);return f&&s.params?s.params[f.key]:undefined};
   for(const it of DB.items||[])for(const s of it.fsfs_source||[]){
     const t=T[s.type],lb=(t&&t.label)||String(s.type),ref=it.id;
     if(/기본/.test(lb)){out.push({ref,type:'starter',db:1});continue}
-    if(/상점/.test(lb)){const nm=String(pv(t,s,'상점 이름')||'').trim(),price=+pv(t,s,'가격')||0,pl=Object.keys(WORLD.places).find(k=>WORLD.places[k].n===nm);
-      out.push(pl?{ref,type:'shop',place:pl,price,db:1}:{ref,type:'etc',text:`${nm||'상점'} · ₩${price.toLocaleString()}`,db:1});continue}
-    if(/NPC/.test(lb)){const nm=String(pv(t,s,'NPC')||'').trim(),min=+pv(t,s,'필요 호감도')||0,k=Object.keys(WORLD.npcs).find(k=>k===nm||WORLD.npcs[k].n===nm);
+    if(/상점/.test(lb)){const nm=String(pv(t,s,'상점 이름')||'').trim(),price=+pv(t,s,'가격')||0,pls=placesFor(nm);
+      if(pls.length)pls.forEach(pl=>out.push({ref,type:'shop',place:pl,price,db:1}));else out.push({ref,type:'etc',text:`${nm||'상점'} · ₩${price.toLocaleString()}`,db:1});continue}
+    if(/NPC/.test(lb)){const nm=String(pv(t,s,'NPC')||'').trim(),min=+pv(t,s,'필요 호감도')||0,k=nm==='모든 NPC'?'*':Object.keys(WORLD.npcs).find(k=>k===nm||WORLD.npcs[k].n===nm);
       out.push({ref,type:'gift',npc:k||'',min,db:1,text:`${nm||'NPC'} · 호감도 ${min} 이상이면 선물로 받아요`});continue}
     const ex=((t&&t.param_schema)||[]).map(f=>pv(t,s,f.label)).filter(v=>v!==''&&v!=null).join(' · ');
     out.push({ref,type:'etc',text:lb+(ex?' · '+ex:''),db:1});
@@ -1150,11 +1154,11 @@ function dbSrc(){
 function goodsSrc(){const T=Object.fromEntries((DB.types||[]).map(t=>[t.code,t])),out=[];
   for(const g of DB.goods||[])for(const s of g.fsfs_source||[]){const t=T[s.type],lb=(t&&t.label)||'';if(!/상점/.test(lb))continue;
     const pv=l=>{const f=((t&&t.param_schema)||[]).find(x=>x.label===l);return f&&s.params?s.params[f.key]:undefined};
-    const nm=String(pv('상점 이름')||'').trim(),pl=Object.keys(WORLD.places).find(k=>WORLD.places[k].n===nm);if(pl)out.push({goods:g.id,place:pl,price:+pv('가격')||0})}
+    const nm=String(pv('상점 이름')||'').trim();placesFor(nm).forEach(pl=>out.push({goods:g.id,place:pl,price:+pv('가격')||0}))}
   return out}
 const GOODS=id=>(DB.goods||[]).find(g=>g.id===id),shopHas=pid=>WORLD.sources.some(s=>s.type==='shop'&&s.place===pid)||(WORLD.gsrc||[]).some(s=>s.place===pid);
 function grantStarters(){if(!G)return;WORLD.sources.filter(s=>s.type==='starter').forEach(s=>{const id=rid(s.ref);if(BY[id]&&!G.owned[id])G.owned[id]=1})}
-function checkGifts(){let n=0;WORLD.sources.filter(s=>s.db&&s.type==='gift'&&s.npc).forEach(s=>{const id=rid(s.ref);if(BY[id]&&!G.owned[id]&&(G.aff[s.npc]||0)>=s.min){giveItem(id);n++}});return n}   // 호감도가 조건에 닿으면 선물로 받아요
+function checkGifts(){let n=0;WORLD.sources.filter(s=>s.db&&s.type==='gift'&&s.npc).forEach(s=>{const id=rid(s.ref);if(BY[id]&&!G.owned[id]&&(s.npc==='*'?Math.max(0,...Object.values(G.aff||{})):(G.aff[s.npc]||0))>=s.min){giveItem(id);n++}});return n}   // 호감도가 조건에 닿으면 선물로 받아요
 function rebuildAcq(){   // 획득 경로: 코드에 적은 경로 + 관리자에서 적은 경로 + 이벤트 보상으로 주는 의상(받기 전엔 잠김)
   WORLD.src0=WORLD.src0||WORLD.sources.slice();WORLD.sources=WORLD.src0.concat(dbSrc());WORLD.gsrc=goodsSrc();
   for(const k in ACQ)delete ACQ[k];
@@ -1337,9 +1341,9 @@ function renderActs(){
     b.onclick=()=>{if(!ok)return msg('지금은 문을 닫았어요',1);go(k)};box.append(b)});
   const open=openNow(pid);
   const vars=[];actionsAt(pid).filter(availAct).forEach(a=>{const sp=partnerOf(a);if(!open&&!sp)return;
-    if(!sp)vars.push([a,null]);else if(sp==='*')here().forEach(id=>vars.push([a,id]));else if(npcAt(sp))vars.push([a,sp])});
+    if(!sp)vars.push([a,null]);else{if(sp==='*')here().forEach(id=>vars.push([a,id]));else if(npcAt(sp))vars.push([a,sp]);if((a.cond||{}).solo)vars.push([a,null])}});
   vars.forEach(([a,who])=>{const st=actState(a,who),b=document.createElement('button'),ch=chips(a),wn=who?(WORLD.npcs[who]||{}).n:'';b.className='act'+(st.ok?'':' off');
-    b.innerHTML=`<b>${wn?esc(wn)+josa(wn)+' '+esc(a.code==='talk'?'대화하기':a.name):esc(a.name)}</b>${ch||!st.ok?`<small>${esc(ch)}${!st.ok?(ch?' · ':'')+'🔒 '+esc(st.why):''}</small>`:''}`;b.onclick=()=>doAction(a,who);box.append(b)});
+    b.innerHTML=`<b>${wn?esc(wn)+josa(wn)+' '+esc(a.code==='talk'?'대화하기':a.name):esc(a.name)+(who===undefined?'':'')}</b>`;b.onclick=()=>doAction(a,who);box.append(b)});
   {const x=document.createElement('button');x.className='act nav exit';x.innerHTML='<b>나가기</b><small>마을 지도로</small>';x.onclick=()=>{viewTown=true;renderWorld()};box.append(x)}
   box.style.scrollBehavior='auto';layActs();box.scrollLeft=keepSl;requestAnimationFrame(()=>{box.style.scrollBehavior='';updActArrows()});
 }
@@ -1374,7 +1378,7 @@ function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===topOf(G.place)&&!mapOnly);b.classList.toggle('closed',!openNow(id));});
   const p=WORLD.places[G.place];$('#mapcurrent').hidden=mapOnly;$('#mapcurrent').innerHTML=`<div class="pn">${p.i?`<i>${esc(p.i)}</i>`:''}<span>${esc(p.n)}</span>${p.i?`<i>${esc(p.i)}</i>`:''}</div>${signHtml(G.place)}`;$('#pdesc').textContent=p.desc||'';
   renderActs();
-  const co=G.place==='home'&&G.closet,vw=co?'closet':(viewSt?'status':(viewBk?'bk':(viewMv?'mv':'')));$('#closet').hidden=!co;$('#cbar').hidden=!co;$('#bkview').hidden=vw!=='bk';$('#mvview').hidden=vw!=='mv';$('#mapview').hidden=!!vw;$('#stview').hidden=vw!=='status';$('#endbar').hidden=!vw;if(vw==='status')renderStatus();
+  const co=G.place==='home'&&G.closet,vw=co?'closet':(viewSt?'status':(viewBk?'bk':(viewMv?'mv':'')));$('#closet').hidden=!co;$('#cbar').hidden=!co;$('#bkview').hidden=vw!=='bk';$('#mvview').hidden=vw!=='mv';{const mb=vw==='mv'?placeImg(G.place):'';$('#mvview').style.backgroundImage=mb?`url("${mb}")`:'';$('#mvview').classList.toggle('mvbg',!!mb)}$('#mapview').hidden=!!vw;$('#stview').hidden=vw!=='status';$('#endbar').hidden=!vw;if(vw==='status')renderStatus();
   {const im=placeImg(G.place),si=!viewTown,el=$('#intimg');$('#townmap').hidden=si;$('#interior').hidden=!si;$('#townbar').hidden=si;$('.mapov').classList.toggle('int',si);$('#actov').hidden=!!vw||mapOnly;
     el.hidden=!im;if(!im){el.removeAttribute('src');el.dataset.src=''}else if(si&&el.dataset.src!==im){el.dataset.src=im;el.onerror=()=>{IMGBAD.add(im);el.dataset.src='';renderWorld()};el.src=im}}
   requestAnimationFrame(()=>{layActs();sizeWorld();fitText()});
@@ -1436,7 +1440,7 @@ let gcur=null;const GK={food:'🍙 음식',book:'📖 책',video:'📼 비디오
 function renderGoodsAdmin(){
   $('#glist').innerHTML=(DB.goods||[]).map(g=>`<div class="li${gcur&&gcur.id===g.id?' on':''}" data-id="${g.id}"><b>${esc(g.icon||'📦')} ${esc(g.name)}</b><div class="tag">${GK[g.kind]||g.kind} · 경로 ${(g.fsfs_source||[]).length}</div></div>`).join('')||'<div class="tag">등록한 아이템이 없어요 (SQL fsfs_goods.sql 실행 필요)</div>';
   const e=$('#ged');if(!gcur){e.innerHTML='<div class="tag">왼쪽에서 아이템을 고르거나 새로 만드세요</div>';return}
-  e.innerHTML=`<div style="display:grid;gap:8px"><div class="row"><label>이모지<input id="g_ic" value="${esc(gcur.icon)}" style="width:70px"></label><label style="flex:1">이름<input id="g_n" value="${esc(gcur.name)}"></label>
+  e.innerHTML=`<div style="display:grid;gap:8px"><div class="row"><label>이모지${emoBtn('g_ic',gcur.icon)}</label><label style="flex:1">이름<input id="g_n" value="${esc(gcur.name)}"></label>
     <label>종류<select id="g_k">${Object.entries(GK).map(([k,v])=>`<option value="${k}"${k===gcur.kind?' selected':''}>${v}</option>`).join('')}</select></label></div>
     <label>설명<input id="g_d" value="${esc(gcur.descr)}"></label>
     <div class="row"><label><input type="checkbox" id="g_c"${gcur.consume?' checked':''}> 사용하면 사라짐 (음식)</label><label>에너지 회복<input type="number" id="g_e" value="${esc(gcur.energy)}" style="width:80px"></label></div>
@@ -1444,7 +1448,7 @@ function renderGoodsAdmin(){
     <div class="row"><button id="g_as">+ 경로</button><span class="grow"></span><button class="pri" id="g_sv">저장</button><button id="g_dl">삭제</button></div></div>`;
 }
 function gPick(g){gcur={id:g.id,name:g.name,kind:g.kind,icon:g.icon||'📦',descr:g.descr||'',consume:!!g.consume,energy:(g.effects&&g.effects.energy!=null)?g.effects.energy:10,S:(g.fsfs_source||[]).map(s=>({...s})),orig:(g.fsfs_source||[]).map(s=>s.id)};renderGoodsAdmin()}
-function gRead(){if(!gcur)return;const v=i=>$(i)&&$(i).value;gcur.icon=v('#g_ic');gcur.name=v('#g_n');gcur.kind=v('#g_k');gcur.descr=v('#g_d');gcur.consume=$('#g_c').checked;gcur.energy=v('#g_e')}
+function gRead(){if(!gcur)return;const v=i=>$(i)&&$(i).value;gcur.icon=$('#g_ic').dataset.v||'📦';gcur.name=v('#g_n');gcur.kind=v('#g_k');gcur.descr=v('#g_d');gcur.consume=$('#g_c').checked;gcur.energy=v('#g_e')}
 $('#gnew').onclick=()=>{gcur={id:null,name:'',kind:'food',icon:'🍙',descr:'',consume:true,energy:10,S:[],orig:[]};renderGoodsAdmin()};
 $('#glist').onclick=ev=>{const li=ev.target.closest('.li');if(!li)return;const g=GOODS(li.dataset.id);if(g)gPick(g)};
 $('#ged').onclick=async ev=>{
@@ -1548,7 +1552,7 @@ $('#pimp').onclick=async()=>{
 // ---- 인물
 let ncur=null;
 const nimg=n=>n.file_key&&cfg.pub?`<img src="${esc(pubUrl(n.file_key))}">`:esc(n.icon||'🙂');
-const lnRow=(x,dis)=>{const l=parseLine(x);return `<div class="row lnr" style="flex-wrap:nowrap;margin-bottom:4px"><label class="tag" style="white-space:nowrap">호감도 ≥</label><input class="lm" type="number" min="0" value="${l.min}" style="width:64px"${dis?' disabled':''}><input class="lt" value="${esc(l.t)}" style="flex:1;min-width:0"${dis?' disabled':''}>${dis?'':'<button type="button" class="lx">✕</button>'}</div>`};
+const lnRow=(x,dis)=>{const l=parseLine(x);return `<div class="row lnr" style="flex-wrap:nowrap;margin-bottom:4px"><label class="tag" style="white-space:nowrap">호감도 ≥</label><input class="lm" type="number" min="0" value="${l.min}" style="width:64px"><input class="lt" value="${esc(l.t)}" style="flex:1;min-width:0"${dis?' disabled':''}>${dis?'':'<button type="button" class="lx">✕</button>'}</div>`};
 const readLines=()=>[...document.querySelectorAll('#n_lrows .lnr')].map(r=>{const m=Math.max(0,parseInt(r.querySelector('.lm').value,10)||0),t=r.querySelector('.lt').value.trim();return t?(m>0?`[${m}] `:'')+t:''}).filter(Boolean);
 function renderNpcAdmin(){
   $('#nlist').innerHTML=DB.npcs.map(n=>`<div class="it${ncur&&ncur.id===n.id?' on':''}" data-id="${n.id}"><div class="npi">${nimg(n)}</div><div><div>${esc(n.name)}</div><div class="tag">${n.workplace&&WORLD.places[n.workplace]?'💼 '+esc(WORLD.places[n.workplace].n):''}${n.birthday?' 🎂'+esc(n.birthday):''}</div></div></div>`).join('')||'<div class="tag">등록한 인물이 없어요</div>';
@@ -1559,7 +1563,7 @@ function renderNpcForm(){
   const e=$('#ned'),n=ncur;if(!n){e.innerHTML='<div class="tag">왼쪽에서 인물을 고르거나 "+ 새 인물"을 눌러요</div>';return}
   const pl=Object.entries(WORLD.places).map(([k,p])=>({k,n:(p.i||'')+' '+p.n})),sc=n.schedule||{};
   e.innerHTML=`<div style="display:grid;gap:8px"><div class="row"><div class="npi" style="width:72px;height:72px">${nimg(n)}</div>
-  ${n.lv?'<div class="tag" style="width:100%">🔗 덕질노트(lvlv)에서 읽어오는 인물이에요. 이름·소개·대사·키워드는 lvlv에서 고쳐 주세요</div>':''}<label style="flex:1">이름<input id="n_n" value="${esc(n.name)}"${n.lv?' disabled':''}></label><label>이모지${emoBtn('n_i',n.icon||'')}</label></div>
+  ${n.lv?'<div class="tag" style="width:100%">🔗 덕질노트(lvlv)에서 읽어오는 인물이에요. 이름·소개·대사·키워드는 lvlv에서 고쳐 주세요 (대사별 필요 호감도는 여기서 정할 수 있어요)</div>':''}<label style="flex:1">이름<input id="n_n" value="${esc(n.name)}"${n.lv?' disabled':''}></label><label>이모지${emoBtn('n_i',n.icon||'')}</label></div>
   <div class="row"><label>생일 (월-일)<input id="n_b" placeholder="03-08" value="${esc(n.birthday||'')}" style="width:90px"></label><label style="flex:1">직장 (방문하면 인사해요)<select id="n_wp"${'workplace' in n?'':' disabled'}>${opts(Object.entries(WORLD.places).map(([k,p])=>({k,n:(p.parent?'↳ ':'')+(p.i||'')+' '+p.n})),'k','n',n.workplace||'','(없음)')}</select></label>
   <label>ID (이벤트 연결용)<input id="n_c" value="${esc(n.code)}" style="width:120px"></label></div>
   <label>소개<input id="n_t" value="${esc(n.intro||'')}"${n.lv?' disabled':''}></label><label>성격·말투<input id="n_p" value="${esc(n.personality||'')}"></label>
@@ -1727,7 +1731,8 @@ function renderActForm(){
       ${F('시간당 에너지','잠자기처럼 오래 할수록 회복될 때 써요. 위 에너지와 더해져요',`<input id="a_eph" type="number" value="${eph}">`)}
       ${F('돈','마이너스는 지출이에요',`<input id="a_m" type="number" step="500" value="${a.money||0}">`)}</div>
     <div class="fr"><div class="f"><span>가능한 시간${tip('비워 두면 아무 때나 할 수 있어요')}</span>${rgHtml('a_rg',c.ranges||slotRanges(c.slots||[]))}</div>
-      <label class="chip" style="align-self:end"><input id="a_dy" type="checkbox"${c.daily?' checked':''}>하루 한 번만</label></div>
+      <label class="chip" style="align-self:end"><input id="a_dy" type="checkbox"${c.daily?' checked':''}>하루 한 번만</label>
+      <label class="chip" style="align-self:end"><input id="a_so" type="checkbox"${c.solo?' checked':''}>혼자서도 할 수 있음 (인물을 정했을 때 「혼자 하기」 버튼도 같이)</label></div>
     <div class="fr">${F('함께하는 인물','고르면 그 인물이 이 장소에 있을 때만 버튼이 보여요. 「모든 인물」은 만난 사람마다 버튼이 따로 나와요. 장면 대사에 {npc}라고 쓰면 그 사람 이름으로 바뀌어요',nsel('a_an',pn,'없음 (혼자)',[{k:'*',n:'👥 모든 인물'}]))}
       ${F('필요 호감도','이 값 이상일 때만 할 수 있어요',`<input id="a_am" type="number" min="0" value="${ca.min||0}">`)}
       ${F('호감도 변화','하고 나면 그 인물의 호감도가 이만큼 올라요',`<input id="a_ev" type="number" value="${ea.v||0}">`)}</div>
@@ -1745,7 +1750,7 @@ async function saveAct(){
   try{const a=acur,code=(a.id||a.virtual)?a.code:$('#a_c').value.trim();if(!code)throw new Error('ID를 입력하세요');
     if(!a.id&&DB.actions.some(x=>x.code===code))throw new Error('같은 ID의 행동이 이미 있어요');
     const sl=rgRead('a_rg'),mins=Math.max(0,parseInt($('#a_t').value,10)||0),an=$('#a_an').value,en=an,ev=+$('#a_ev').value||0;
-    const cond={ranges:sl,slots:[],daily:$('#a_dy').checked,aff:an?[{npc:an,min:+$('#a_am').value||0}]:[]},effects={...(a.effects||{}),aff:en&&ev?[{npc:en,v:ev}]:[],eph:parseInt($('#a_eph').value,10)||0};
+    const cond={ranges:sl,slots:[],daily:$('#a_dy').checked,solo:!!($('#a_an').value&&$('#a_so').checked),aff:an?[{npc:an,min:+$('#a_am').value||0}]:[]},effects={...(a.effects||{}),aff:en&&ev?[{npc:en,v:ev}]:[],eph:parseInt($('#a_eph').value,10)||0};
     const scene=$('#a_sc').disabled?a.scene:$('#a_sc').value.split('\n').map(x=>x.trim()).filter(Boolean).map(t=>({t}));
     const row={code,name:$('#a_n').value.trim()||'이름 없음',icon:$('#a_i').dataset.v||'',descr:$('#a_d').value,kind:FIXED[a.kind]?a.kind:'normal',time_min:mins,time_cost:Math.ceil(mins/SLOTLEN),end_min:toMin($('#a_end').value),min_mins:Math.max(0,parseInt($('#a_mm').value,10)||0),energy:parseInt($('#a_e').value,10)||0,money:parseInt($('#a_m').value,10)||0,cond,effects,scene,sort:Math.max(0,a.sort||0)};
     a.id?await post('/rest/v1/fsfs_action?id=eq.'+a.id,row,'PATCH'):await post('/rest/v1/fsfs_action',row);
@@ -1844,7 +1849,7 @@ async function applyLvlv(){
     L.forEach(n=>{const c=all.find(x=>x.id===String(n.source_id));if(!c){n.lv_missing=true;return}
       const short=c.quotes.filter(q=>q.length<=120);
       Object.assign(n,{lv:true,name:c.name,sex:c.sex,traits:c.traits,looks:[],kwgroups:c.kwgroups,quotes:c.quotes.map(text=>({text,src:'actual'})),profile_text:c.profile||null});
-      const ln=(short.length?short:c.quotes).slice(0,15);if(ln.length)n.lines=ln;
+      const mm=new Map((n.lines||[]).map(x=>{const l=parseLine(x);return[l.t,l.min]})),ln=(short.length?short:c.quotes).slice(0,15).map(t=>(mm.get(t)>0?`[${mm.get(t)}] `:'')+t);if(ln.length)n.lines=ln;
       if(c.profile)n.intro=c.profile.slice(0,60)});
   }catch(e){console.warn('lvlv 읽기 실패 — 저장된 복사본을 써요',e)}
 }
@@ -2067,8 +2072,8 @@ function cinePick(L,C){
   const fresh=pool.filter(m=>!kn.has(m.id)).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
   const m=fresh.length?fresh[0]:pool[Math.floor(Math.random()*pool.length)];C.kn.push(m.id);return m.id}
 function cineSync(L){
-  const wk=Math.floor(G.day/7),n=Math.min(5,L.length),ids=new Set(L.map(m=>m.id));let C=G.cine,shifted=0;
-  if(!C||!Array.isArray(C.s)){C=G.cine={w:wk,s:[],kn:L.map(m=>m.id)};const sh=L.slice().sort(()=>Math.random()-.5);C.s=sh.slice(0,n).map(m=>m.id)}
+  const wk=G.day,n=Math.min(5,L.length),ids=new Set(L.map(m=>m.id));let C=G.cine,shifted=0;
+  if(C&&C.d==null){C.d=1;C.w=wk}if(!C||!Array.isArray(C.s)){C=G.cine={d:1,w:wk,s:[],kn:L.map(m=>m.id)};const sh=L.slice().sort(()=>Math.random()-.5);C.s=sh.slice(0,n).map(m=>m.id)}
   C.s=C.s.filter(id=>ids.has(id));
   for(let k=Math.min(Math.max(0,wk-C.w),60);k>0;k--){if(C.s.length)C.s.shift();C.s.push(cinePick(L,C));shifted++}
   C.w=wk;while(C.s.length<n)C.s.push(cinePick(L,C));C.s=C.s.slice(0,n);
@@ -2079,7 +2084,7 @@ async function openMovies(){
   let L;try{L=await mvLoad()}catch(e){g.innerHTML=`<div class="tag">영화 기록을 불러오지 못했어요. ${esc(String(e.message||e).slice(0,120))}</div>`;return}
   if(!L.length){g.innerHTML='<div class="tag">걸어 둘 포스터가 아직 없어요. (mvmv에서 본 날짜가 있고 포스터가 있는 작품만 걸려요. ⚙ 설정·로그인에서 로그인했는지도 확인해 주세요)</div>';return}
   const {ids,shifted}=cineSync(L),by=new Map(L.map(m=>[m.id,m]));
-  $('#mv_i').textContent=`이번 주 상영작 · 포스터를 누르면 기록한 장면이 차례로 나와요 · 한 번 볼 때마다 ⏱ ${MOVIE_MIN}분`;
+  $('#mv_i').textContent=`오늘의 상영작 · 포스터를 누르면 기록한 장면이 차례로 나와요 · 한 번 볼 때마다 ⏱ ${MOVIE_MIN}분`;
   g.innerHTML=`<div class="mvshelf${shifted?' sh':''}" style="min-height:${Math.max(300,BKMH-44)}px">${ids.map(id=>{const m=by.get(id);return `<div class="mvp" data-id="${esc(id)}" title="${esc(m.name)}" style="background:${esc(m.c1||'#2a2a3a')}"><img src="${esc(mediaUrl(m.poster))}" alt="${esc(m.name)}" onerror="this.remove()"><span>${esc(m.name)}</span></div>`}).join('')}</div>`}
 $('#mv_g').onclick=e=>{const el=e.target.closest('.mvp');if(!el||!MV)return;const m=MV.find(x=>x.id===el.dataset.id);if(m)runFilm(m,()=>{pass(MOVIE_MIN);G.log='';after()})};
 const fTime=v=>{v=Math.abs(Math.round(+v||0));const p=n=>String(n).padStart(2,'0');return p(Math.floor(v/3600))+':'+p(Math.floor(v%3600/60))+':'+p(v%60)};
