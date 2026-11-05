@@ -640,7 +640,7 @@ html{overflow:hidden}
 
 <div id="dev" hidden><div class="wrap">
   <div class="row"><h2 style="flex:1;font-size:16px;color:var(--ink)">🛠 관리자 모드</h2><button id="devclose">게임으로 돌아가기</button></div>
-  <div class="tabs" id="devtabs"><button data-t="items" class="on">👗 의상</button><button data-t="map">🗺 마을</button><button data-t="npc">🧑 인물</button><button data-t="event">📖 이벤트</button></div>
+  <div class="tabs" id="devtabs"><button data-t="items" class="on">👗 의상</button><button data-t="map">🗺 마을</button><button data-t="npc">🧑 인물</button><button data-t="event">📖 이벤트</button><button data-t="goods">🧺 아이템</button></div>
   <div id="dv-items"><div class="card" style="margin-bottom:12px">
     <div class="hd"><b>빠른 등록</b><i class="tip" tabindex="0" data-tip="전체 캔버스 크기 PNG를 레이어별로 한꺼번에 선택하세요. 파일명: 이름_outline.png, 이름_fill1.png, 이름_fill2.png, 이름_static.png (_ 하나나 __ 둘 다 돼요. 레이어 이름이 없으면 static 한 장짜리)">?</i></div>
     <div class="row"><label>파츠<select id="np"></select></label><label>PNG 파일<input id="nf" type="file" accept="image/png" multiple></label>
@@ -650,6 +650,7 @@ html{overflow:hidden}
     <div class="card"><div class="row"><select id="fp"></select><input id="q" placeholder="이름 검색" style="flex:1;min-width:80px"></div><div class="list" id="dlist"></div></div>
     <div class="card" id="ed"></div>
   </div></div>
+  <div id="dv-goods" hidden><div class="cols"><div class="card lcard"><div class="row"><button class="pri" id="gnew">+ 새 아이템</button></div><div class="list" id="glist"></div></div><div class="card" id="ged"></div></div></div>
   <div id="dv-map" hidden>
     <details class="sec" open><summary><b>행동</b><span class="grow"></span><button class="pri" id="anew">+ 새 행동</button><button id="aimp">내장 가져오기</button></summary>
       <div class="cols"><div class="card lcard"><div class="list" id="alist"></div></div><div class="card" id="aed"></div></div></details>
@@ -839,6 +840,7 @@ async function loadCatalog(){
     sb('/rest/v1/fsfs_map?select=*&order=created_at').catch(()=>[]),sb('/rest/v1/fsfs_place?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_npc?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_event?select=*&order=created_at').catch(()=>[]),sb('/rest/v1/fsfs_keymap?select=*&order=keyword').catch(()=>[]),
     sb('/rest/v1/fsfs_action?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_place_type?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_place_type_action?select=*').catch(()=>[]),sb('/rest/v1/fsfs_place_action?select=*').catch(()=>[])]);
   DB.ptypes.forEach(t=>{if(t.code==='home'&&t.name==='집'){t.name='주거';if(typeof S!=='undefined'&&S)try{post('/rest/v1/fsfs_place_type?id=eq.'+t.id,{name:'주거'},'PATCH').catch(()=>{})}catch(e){}}});
+  DB.goods=await sb('/rest/v1/fsfs_goods?select=*,fsfs_source(*)&order=sort').catch(()=>[]);
   await applyLvlv();
   applyWorld();
   buildModel();rebuildAcq();grantStarters();try{applyLook()}catch(e){}pruneSel();refresh();renderWorld();if(!$('#dev').hidden)renderDevList();try{loadBgm()}catch(e){}
@@ -1145,10 +1147,16 @@ function dbSrc(){
   }
   return out;
 }
+function goodsSrc(){const T=Object.fromEntries((DB.types||[]).map(t=>[t.code,t])),out=[];
+  for(const g of DB.goods||[])for(const s of g.fsfs_source||[]){const t=T[s.type],lb=(t&&t.label)||'';if(!/상점/.test(lb))continue;
+    const pv=l=>{const f=((t&&t.param_schema)||[]).find(x=>x.label===l);return f&&s.params?s.params[f.key]:undefined};
+    const nm=String(pv('상점 이름')||'').trim(),pl=Object.keys(WORLD.places).find(k=>WORLD.places[k].n===nm);if(pl)out.push({goods:g.id,place:pl,price:+pv('가격')||0})}
+  return out}
+const GOODS=id=>(DB.goods||[]).find(g=>g.id===id),shopHas=pid=>WORLD.sources.some(s=>s.type==='shop'&&s.place===pid)||(WORLD.gsrc||[]).some(s=>s.place===pid);
 function grantStarters(){if(!G)return;WORLD.sources.filter(s=>s.type==='starter').forEach(s=>{const id=rid(s.ref);if(BY[id]&&!G.owned[id])G.owned[id]=1})}
 function checkGifts(){let n=0;WORLD.sources.filter(s=>s.db&&s.type==='gift'&&s.npc).forEach(s=>{const id=rid(s.ref);if(BY[id]&&!G.owned[id]&&(G.aff[s.npc]||0)>=s.min){giveItem(id);n++}});return n}   // 호감도가 조건에 닿으면 선물로 받아요
 function rebuildAcq(){   // 획득 경로: 코드에 적은 경로 + 관리자에서 적은 경로 + 이벤트 보상으로 주는 의상(받기 전엔 잠김)
-  WORLD.src0=WORLD.src0||WORLD.sources.slice();WORLD.sources=WORLD.src0.concat(dbSrc());
+  WORLD.src0=WORLD.src0||WORLD.sources.slice();WORLD.sources=WORLD.src0.concat(dbSrc());WORLD.gsrc=goodsSrc();
   for(const k in ACQ)delete ACQ[k];
   const ev=WORLD.events.flatMap(e=>(e.give||[]).filter(r=>!WORLD.sources.some(s=>s.ref===r)).map(ref=>({ref,type:'gift',event:e.id})));
   WORLD.sources.concat(ev).forEach(s=>(ACQ[rid(s.ref)]=ACQ[rid(s.ref)]||[]).push(s));
@@ -1238,6 +1246,12 @@ function renderShop(pid){
     const b=document.createElement('button'),has=!!G.owned[it.id];b.textContent=has?'보유':`₩${s.price.toLocaleString()} 구매`;b.disabled=has;
     b.onclick=()=>{if(G.money<s.price)return msg('돈이 부족해요',1);earn(-s.price,it.name+' 구매');G.owned[it.id]=1;G.log=`${it.name}을(를) 샀어요`;deltaCheck();saveGame();renderWorld();renderShop(pid);refresh()};
     row.append(b);box.append(row)});
+  (WORLD.gsrc||[]).filter(s=>s.place===pid).forEach(s=>{const g=GOODS(s.goods);if(!g)return;const row=document.createElement('div');row.className='shi';
+    const ic=document.createElement('div');ic.style.cssText='width:44px;font-size:30px;text-align:center';ic.textContent=g.icon||'📦';row.append(ic);
+    const nm=document.createElement('div');nm.className='nm2';nm.innerHTML=esc(g.name)+(g.descr?`<br><small style="opacity:.7">${esc(g.descr)}</small>`:'');row.append(nm);
+    const keep=g.kind==='book'||g.kind==='video',has=keep&&(G.bag||{})[g.id],b=document.createElement('button');b.textContent=has?'보유':`₩${s.price.toLocaleString()} 구매`;b.disabled=!!has;
+    b.onclick=()=>{if(G.money<s.price)return msg('돈이 부족해요',1);earn(-s.price,g.name+' 구매');G.bag=G.bag||{};G.bag[g.id]=(G.bag[g.id]||0)+1;G.log=`${g.name}을(를) 샀어요`;saveGame();renderWorld();renderShop(pid)};
+    row.append(b);box.append(row)});
   $('#shm').textContent=WORLD.places[pid].n+' · 보유 금액 ₩'+G.money.toLocaleString();redraw();
 }
 function openShop(pid){if(!openNow(pid))return say('지금은 문을 닫았어요',1);renderShop(pid);$('#shop').showModal()}
@@ -1267,7 +1281,7 @@ const say=(t,e)=>msg(t,e);
 function actionsAt(pid){
   const p=WORLD.places[pid];if(!p)return[];const T=WORLD.types[p.type]||{actions:[]},o=WORLD.placeActs[pid]||{add:[],remove:[]};
   let codes=[...T.actions];o.add.forEach(c=>{if(!codes.includes(c))codes.push(c)});codes=codes.filter(c=>!o.remove.includes(c));
-  if(WORLD.sources.some(s=>s.type==='shop'&&s.place===pid)&&!codes.some(c=>(WORLD.actions[c]||{}).kind==='shop'))codes.unshift('shop');
+  if(shopHas(pid)&&!codes.some(c=>(WORLD.actions[c]||{}).kind==='shop'))codes.unshift('shop');
   codes=codes.filter(c=>c!=='look'&&(WORLD.actions[c]||{}).kind!=='look');
   if(here().length&&WORLD.actions.talk&&!codes.includes('talk')&&!o.remove.includes('talk'))codes.push('talk');
   return codes.map(c=>WORLD.actions[c]).filter(Boolean);
@@ -1292,7 +1306,7 @@ function doAction(a,who){
   const st=actState(a,who);if(!st.ok)return say(st.why,1);if(!availAct(a))return say('지금은 시간이 부족해요',1);const pid=G.place;
   if(a.kind==='closet'){G.closet=true;after();setTimeout(()=>$('#closet').scrollIntoView({behavior:'smooth',block:'start'}),50);return}
   if(a.kind==='status'){viewSt=true;renderStatus();after();return}
-  if(a.kind==='shop'){if(!WORLD.sources.some(s=>s.type==='shop'&&s.place===pid))return say('아직 파는 물건이 없어요');return openShop(pid)}
+  if(a.kind==='shop'){if(!shopHas(pid))return say('아직 파는 물건이 없어요');return openShop(pid)}
   if(a.kind==='bkbk')return openShelf();
   if(a.kind==='mvmv'){MOVIE_MIN=a.mins>0?a.mins:30;return openMovies()}
   earn(a.money||0,a.name+(who?' · '+((WORLD.npcs[who]||{}).n||''):''));G.energy=clampE(G.energy+enOf(a));
@@ -1329,11 +1343,17 @@ function renderActs(){
   {const x=document.createElement('button');x.className='act nav exit';x.innerHTML='<b>나가기</b><small>마을 지도로</small>';x.onclick=()=>{viewTown=true;renderWorld()};box.append(x)}
   box.style.scrollBehavior='auto';layActs();box.scrollLeft=keepSl;requestAnimationFrame(()=>{box.style.scrollBehavior='';updActArrows()});
 }
+function bagHtml(){const e=Object.entries(G.bag||{}).filter(([id,n])=>n>0&&GOODS(id));if(!e.length)return '<div class="tag">가방이 비었어요</div>';
+  return e.map(([id,n])=>{const g=GOODS(id),food=g.kind==='food'||g.consume;return `<div class="srow"><span>${esc(g.icon||'📦')} ${esc(g.name)}${n>1?' × '+n:''}${g.descr?`<br><small style="opacity:.7">${esc(g.descr)}</small>`:''}</span>${food?`<button class="eat" data-g="${id}">사용</button>`:'<b>보관 중</b>'}</div>`}).join('')}
+function useGoods(id){const g=GOODS(id);if(!g||!(G.bag||{})[id])return;const en=+((g.effects||{}).energy);const add=Number.isFinite(en)&&g.effects&&'energy' in g.effects?en:10;
+  G.bag[id]--;if(G.bag[id]<=0)delete G.bag[id];G.energy=clampE(G.energy+add);pass(5);G.log=`${g.name}을(를) 먹었어요 · ⚡ ${add>0?'+':''}${add}`;after();renderStatus()}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button.eat');if(b)useGoods(b.dataset.g)});
 function renderStatus(){
   const aff=Object.entries(G.aff).filter(([,v])=>v).map(([k,v])=>`<div class="srow"><span>${esc((WORLD.npcs[k]||{}).n||k)}</span><b>♥ ${v}</b></div>`).join('')||'<div class="tag">아직 호감도가 쌓인 사람이 없어요</div>';
   $('#st_b').innerHTML=`<div class="srow"><span>날짜·시간</span><b>${dateText()} ${timeText()}</b></div><div class="srow"><span>돈</span><b>₩${G.money.toLocaleString()}</b></div>
     <div class="srow" style="border:0"><span>에너지</span><b>${G.energy} / 100</b></div><div class="ebar"><i style="width:${G.energy}%"></i></div>
     <h2 style="margin-top:12px">호감도</h2>${aff}<div class="srow" style="margin-top:8px"><span>모은 옷</span><b>${Object.keys(G.owned).length}벌</b></div>
+    <h2 style="margin-top:12px">🎒 가방</h2>${bagHtml()}
     <h2 style="margin-top:12px">최근 돈 내역 (최대 20건)</h2>${(G.ledger||[]).map(e=>{const d=new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+e.d);return `<div class="srow"><span>${d.getMonth()+1}/${d.getDate()} ${fmtT(e.t)} · ${esc(e.n)}</span><b style="color:${e.v>0?'#2f7d4f':'#b4452f'}">${e.v>0?'+':'−'}₩${Math.abs(e.v).toLocaleString()}</b></div>`}).join('')||'<div class="tag">아직 돈이 오간 기록이 없어요</div>'}`;
 }
 
@@ -1408,8 +1428,38 @@ async function putPlain(dir,id,file,max,q=0.88){
 const post=(path,b,m='POST')=>sb(path,{m,h:{Prefer:'return=minimal'},b});
 document.querySelectorAll('#devtabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('#devtabs button').forEach(x=>x.classList.toggle('on',x===b));
-  for(const t of ['items','map','npc','event'])$('#dv-'+t).hidden=b.dataset.t!==t;
+  for(const t of ['items','map','npc','event','goods'])$('#dv-'+t).hidden=b.dataset.t!==t;if(b.dataset.t==='goods')renderGoodsAdmin();
   if(b.dataset.t==='map'){renderActAdmin();renderMapAdmin();renderBgmAdmin()}if(b.dataset.t==='npc'){renderNpcAdmin();lvAuto()}if(b.dataset.t==='event')renderEvAdmin();});
+
+// ---- 아이템(goods)
+let gcur=null;const GK={food:'🍙 음식',book:'📖 책',video:'📼 비디오',misc:'📦 잡화'};
+function renderGoodsAdmin(){
+  $('#glist').innerHTML=(DB.goods||[]).map(g=>`<div class="li${gcur&&gcur.id===g.id?' on':''}" data-id="${g.id}"><b>${esc(g.icon||'📦')} ${esc(g.name)}</b><div class="tag">${GK[g.kind]||g.kind} · 경로 ${(g.fsfs_source||[]).length}</div></div>`).join('')||'<div class="tag">등록한 아이템이 없어요 (SQL fsfs_goods.sql 실행 필요)</div>';
+  const e=$('#ged');if(!gcur){e.innerHTML='<div class="tag">왼쪽에서 아이템을 고르거나 새로 만드세요</div>';return}
+  e.innerHTML=`<div style="display:grid;gap:8px"><div class="row"><label>이모지<input id="g_ic" value="${esc(gcur.icon)}" style="width:70px"></label><label style="flex:1">이름<input id="g_n" value="${esc(gcur.name)}"></label>
+    <label>종류<select id="g_k">${Object.entries(GK).map(([k,v])=>`<option value="${k}"${k===gcur.kind?' selected':''}>${v}</option>`).join('')}</select></label></div>
+    <label>설명<input id="g_d" value="${esc(gcur.descr)}"></label>
+    <div class="row"><label><input type="checkbox" id="g_c"${gcur.consume?' checked':''}> 사용하면 사라짐 (음식)</label><label>에너지 회복<input type="number" id="g_e" value="${esc(gcur.energy)}" style="width:80px"></label></div>
+    <b>획득 경로</b><div id="gsrcs">${gcur.S.map((s,i)=>srcHtml(s,i)).join('')||'<div class="tag">경로가 없어요</div>'}</div>
+    <div class="row"><button id="g_as">+ 경로</button><span class="grow"></span><button class="pri" id="g_sv">저장</button><button id="g_dl">삭제</button></div></div>`;
+}
+function gPick(g){gcur={id:g.id,name:g.name,kind:g.kind,icon:g.icon||'📦',descr:g.descr||'',consume:!!g.consume,energy:(g.effects&&g.effects.energy!=null)?g.effects.energy:10,S:(g.fsfs_source||[]).map(s=>({...s})),orig:(g.fsfs_source||[]).map(s=>s.id)};renderGoodsAdmin()}
+function gRead(){if(!gcur)return;const v=i=>$(i)&&$(i).value;gcur.icon=v('#g_ic');gcur.name=v('#g_n');gcur.kind=v('#g_k');gcur.descr=v('#g_d');gcur.consume=$('#g_c').checked;gcur.energy=v('#g_e')}
+$('#gnew').onclick=()=>{gcur={id:null,name:'',kind:'food',icon:'🍙',descr:'',consume:true,energy:10,S:[],orig:[]};renderGoodsAdmin()};
+$('#glist').onclick=ev=>{const li=ev.target.closest('.li');if(!li)return;const g=GOODS(li.dataset.id);if(g)gPick(g)};
+$('#ged').onclick=async ev=>{
+  if(ev.target.id==='g_as'){gRead();gcur.S.push({type:DB.types[0].code,params:{},note:''});renderGoodsAdmin();return}
+  if(ev.target.matches('#gsrcs .rm')){gRead();gcur.S.splice(ev.target.closest('.src').dataset.i,1);renderGoodsAdmin();return}
+  if(ev.target.id==='g_dl'){if(!gcur.id||!confirm('이 아이템을 삭제할까요?'))return;try{await sb('/rest/v1/fsfs_goods?id=eq.'+gcur.id,{m:'DELETE'});gcur=null;await loadCatalog();renderGoodsAdmin()}catch(x){msg(x.message,1)}return}
+  if(ev.target.id==='g_sv'){gRead();if(!gcur.name.trim())return msg('이름을 적어주세요',1);
+    try{const row={name:gcur.name.trim(),kind:gcur.kind,icon:gcur.icon||'📦',descr:gcur.descr||null,consume:gcur.kind==='food'?gcur.consume:false,effects:gcur.energy!==''?{energy:+gcur.energy}:{}};
+      let id=gcur.id;if(id)await sb('/rest/v1/fsfs_goods?id=eq.'+id,{m:'PATCH',h:{Prefer:'return=minimal'},b:row});else{const r=await sb('/rest/v1/fsfs_goods',{m:'POST',h:{Prefer:'return=representation'},b:row});id=r[0].id}
+      const ks=gcur.S.filter(s=>s.id).map(s=>s.id),gone=gcur.orig.filter(i=>!ks.includes(i));if(gone.length)await sb('/rest/v1/fsfs_source?id=in.('+gone.join(',')+')',{m:'DELETE'});
+      for(const s of gcur.S){const r2={type:s.type,params:s.params||{},note:s.note||null};if(s.id)await sb('/rest/v1/fsfs_source?id=eq.'+s.id,{m:'PATCH',h:{Prefer:'return=minimal'},b:r2});else await sb('/rest/v1/fsfs_source',{m:'POST',h:{Prefer:'return=minimal'},b:{...r2,goods_id:id}})}
+      await loadCatalog();gPick(GOODS(id));msg('저장했어요')}catch(x){msg(x.message,1)}}};
+$('#ged').onchange=ev=>{if(ev.target.matches('#gsrcs .st')){gRead();const s=gcur.S[ev.target.closest('.src').dataset.i];s.type=ev.target.value;s.params={};renderGoodsAdmin()}};
+$('#ged').oninput=ev=>{const el=ev.target.closest('#gsrcs .src');if(!el)return;const s=gcur.S[el.dataset.i];
+  if(ev.target.matches('.pf')){const v=ev.target.value;s.params=s.params||{};s.params[ev.target.dataset.k]=ev.target.type==='number'&&v!==''?Number(v):v}if(ev.target.matches('.sn'))s.note=ev.target.value};
 
 // ---- 지도 · 장소
 let pcur=null;
@@ -2055,7 +2105,7 @@ var SLOTS=5,SAVE={slot:(()=>{try{return Math.min(SLOTS,Math.max(1,+localStorage.
 function normG(){
   if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}
   if(typeof G.min!=='number')G.min=WORLD.wakeMin;if(!Array.isArray(G.ledger))G.ledger=[];
-  if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.aff=G.aff||{};G.done=G.done||{};G.talked=G.talked||{};G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.closet=false;G.log=G.log||''}
+  if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.talked=G.talked||{};G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.closet=false;G.log=G.log||''}
 const lookPack=()=>({sel,colors,iord});
 function lookSave(){if(LOOKP)return;clearTimeout(SAVE.lt);SAVE.lt=setTimeout(()=>{try{localStorage.setItem('fsfsLook',JSON.stringify(lookPack()));localStorage.setItem('fsfsLocalAt',Date.now())}catch(e){}try{pushSoon()}catch(e){}},800)}
 function applyLook(l){const d=l||LOOKP;if(!d||!d.sel)return;if(!l&&!DB.items.length)return;sel={...sel,...d.sel};colors=d.colors||{};iord=Array.isArray(d.iord)?d.iord.slice():[];if(!l)LOOKP=null}
