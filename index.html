@@ -542,6 +542,35 @@ html{overflow:hidden}
 #mapview,#mapstage{padding:0}
 #mapframe>.townmap,#mapframe>.interior{border:0;border-radius:0}
 .mapov .descbox .pn{display:flex;align-items:center;justify-content:center;gap:8px;line-height:1}.pn i{font-style:normal;flex:none}.pn span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ===== v45 ===== */
+.mapov .descbox .pn{box-shadow:0 0 0 2px var(--ink),inset 0 0 0 2px var(--ink)}
+.mapov>#actov{align-items:stretch}
+#actov #pdesc{height:44px;min-height:0;line-height:22px;text-align:left;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#actov .actrow{height:58px;min-height:0}
+#game #wa{scroll-behavior:auto!important;height:58px}
+#game #wa button.act{height:58px;min-height:0}
+#actov .acarr{height:58px;width:46px;align-self:stretch;background:var(--hi);color:var(--ink);box-shadow:none;border-radius:4px}
+#actov .acarr:disabled{opacity:.45}
+#actov button.act small{-webkit-line-clamp:1}
+/* 상단 HUD 재정렬: 날짜 · 시간띠 | 시계 · 음악 · 돈/에너지(전광판) */
+#game #wt{display:contents}
+#game #wt .cal{order:1}#game #wt .tl{order:2}#game #wt .clk{order:3}#game .mp{order:4}#game #wt .vit{order:5}
+#game #wt .cal{display:flex;flex-direction:column;align-items:stretch;justify-content:stretch;width:76px;background:var(--p)}
+#game #wt .cal .mo{flex:none;height:22px;line-height:22px;padding:0;font-size:12px}
+#game #wt .cal .dy{flex:1;display:flex;align-items:center;justify-content:center;font-size:38px;line-height:1;padding:0}
+#game #wt .cal .wk{flex:none;height:22px;line-height:22px;padding:0;font-size:12px}
+#game #wt .clk,#game #wt .led,#game .mp{background:#16100f;font-family:"DotGothic16","Malgun Gothic",monospace!important}
+#game #wt .clk{width:200px;font-size:44px;font-weight:400;padding:0;letter-spacing:0;white-space:nowrap;overflow:hidden}
+#game #wt .clk i{font-family:inherit}
+#game .mp{width:230px;display:flex;flex-direction:column;--neon:#7dff6a}
+#game .mp,#game .mp *{font-family:"DotGothic16","Malgun Gothic",monospace!important}
+#game .mp-lcd{flex-direction:column;align-items:stretch;justify-content:center;gap:3px;padding:0 12px}
+#game .mp-time{font-size:26px;line-height:1;letter-spacing:.04em}
+#game .mp-mq{flex:none;width:100%;font-size:15px;line-height:18px;height:18px}
+#game .mp-seek{flex:none;height:6px}
+#game #wt .vit{width:200px}
+#game #wt .led{font-size:22px;font-weight:400}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -799,6 +828,7 @@ async function loadCatalog(){
     sb('/rest/v1/fsfs_set?select=*&order=name'),sb('/rest/v1/fsfs_item?select=*,fsfs_asset(*),fsfs_source(*)&order=created_at.desc'),
     sb('/rest/v1/fsfs_map?select=*&order=created_at').catch(()=>[]),sb('/rest/v1/fsfs_place?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_npc?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_event?select=*&order=created_at').catch(()=>[]),sb('/rest/v1/fsfs_keymap?select=*&order=keyword').catch(()=>[]),
     sb('/rest/v1/fsfs_action?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_place_type?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_place_type_action?select=*').catch(()=>[]),sb('/rest/v1/fsfs_place_action?select=*').catch(()=>[])]);
+  DB.ptypes.forEach(t=>{if(t.code==='home'&&t.name==='집'){t.name='주거';if(typeof S!=='undefined'&&S)try{post('/rest/v1/fsfs_place_type?id=eq.'+t.id,{name:'주거'},'PATCH').catch(()=>{})}catch(e){}}});
   await applyLvlv();
   applyWorld();
   buildModel();rebuildAcq();try{applyLook()}catch(e){}pruneSel();refresh();renderWorld();if(!$('#dev').hidden)renderDevList();try{loadBgm()}catch(e){}
@@ -1076,9 +1106,10 @@ const ACT0=[
   {code:'read',name:'책 읽어보기',icon:'📖',kind:'normal',descr:'마음에 드는 책을 골라 한참 읽어요.',mins:60,energy:-3,money:0,scene:[{t:'서서 읽다 보니 어느새 한 챕터가 끝났다.'}]}
 ];
 const PLACEACT0={convenience:{add:['job_conv','snack'],remove:[]},cafe:{add:['job_cafe'],remove:[]},flower:{add:['job_flower','flowerbuy'],remove:[]},bookstore:{add:['job_book','read'],remove:[]},bakery:{add:['job_bakery','bread'],remove:[]}};
-const TYPES0={home:{name:'집',icon:'🏠',actions:['sleep','closet','status']},clothes:{name:'옷가게',icon:'👗',actions:['shop']},cafe:{name:'카페',icon:'☕',actions:['drink']},restaurant:{name:'식당',icon:'🍝',actions:['meal']},salon:{name:'미용실',icon:'💇',actions:['hair']},park:{name:'공원',icon:'🌳',actions:['walk']},basic:{name:'일반',icon:'📍',actions:[]},library:{name:'도서관',icon:'📚',actions:['bkbk']},cinema:{name:'영화관',icon:'🎬',actions:['mvmv']}};
+const TYPES0={home:{name:'주거',icon:'🏠',actions:['sleep','closet','status']},clothes:{name:'옷가게',icon:'👗',actions:['shop']},cafe:{name:'카페',icon:'☕',actions:['drink']},restaurant:{name:'식당',icon:'🍝',actions:['meal']},salon:{name:'미용실',icon:'💇',actions:['hair']},park:{name:'공원',icon:'🌳',actions:['walk']},basic:{name:'일반',icon:'📍',actions:[]},library:{name:'도서관',icon:'📚',actions:['bkbk']},cinema:{name:'영화관',icon:'🎬',actions:['mvmv']}};
 WORLD.actions={};ACT0.forEach(a=>WORLD.actions[a.code]=a);WORLD.types=structuredClone(TYPES0);WORLD.placeActs=structuredClone(PLACEACT0);
 const ACQ={};
+const FIXTYPE={home:{name:'주거',icon:'🏠',acts:['sleep','closet','status'],lock:[]},library:{name:'도서관',icon:'📚',acts:['bkbk'],lock:['bkbk']},cinema:{name:'영화관',icon:'🎬',acts:['mvmv'],lock:['mvmv']}};
 function rebuildAcq(){   // 획득 경로: 코드에 적은 경로 + 이벤트 보상으로 주는 의상(받기 전엔 잠김)
   for(const k in ACQ)delete ACQ[k];
   const ev=WORLD.events.flatMap(e=>(e.give||[]).filter(r=>!WORLD.sources.some(s=>s.ref===r)).map(ref=>({ref,type:'gift',event:e.id})));
@@ -1155,9 +1186,9 @@ function greetAt(pid){
   if($('#scene').open||$('#film').open)return;
   const ids=Object.keys(WORLD.npcs).filter(k=>{const n=WORLD.npcs[k];return n.work===pid&&((n.sch||[]).length?npcAt(k):openNow(pid))});
   G.greet=G.greet||{};const k=ids.find(id=>G.greet[id]!==G.day);if(!k)return;G.greet[k]=G.day;
-  const n=WORLD.npcs[k],ln=(n.lines||[]).filter(x=>x&&x!=='…'),t=ln.length?ln[Math.floor(Math.random()*ln.length)]:'어서 오세요!';
+  const t=pickLine(k)||'어서 오세요!';
   runScene([{who:k,t}],()=>{saveGame()})}
-function go(p,reopen){if(p===G.place){if(viewTown||viewTownId){viewTown=false;viewTownId=null;renderWorld()}return}if(!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;viewSt=false;viewBk=false;viewMv=false;viewTown=false;viewTownId=null;G.log='';after();greetAt(p)}
+function go(p,reopen){if(p===G.place){if(viewTown||viewTownId){pass(WORLD.moveMin);viewTown=false;viewTownId=null;G.log='';after()}return}/* 지도에서 같은 장소에 다시 들어가도 15분 */if(!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;viewSt=false;viewBk=false;viewMv=false;viewTown=false;viewTownId=null;G.log='';after();greetAt(p)}
 function stepTown(d){const i=TOWNS.findIndex(t=>t.id===curTown()),j=i+d;if(j<0||j>=TOWNS.length)return;viewTownId=TOWNS[j].id;pass(WORLD.townMin);G.log='';after();msg(`${TOWNS[j].name}으로 이동 · ⏱ ${durText(WORLD.townMin)}`)}   // 마을을 옮기는 순간 30분이 흐른다
 $('#tw_l').onclick=()=>stepTown(-1);$('#tw_r').onclick=()=>stepTown(1);
 function renderShop(pid){
@@ -1232,7 +1263,9 @@ function doAction(a,who){
   const done=()=>{PARTNER='';after();if(!openNow(G.place))msg('문 닫을 시간이 됐어요')};
   const sc=a.code==='talk'&&who?talkScene(who):a.scene;sc&&sc.length?runScene(sc,done):done();
 }
-function talkScene(who){const n=WORLD.npcs[who]||{},L=n.lines||[];return[{who,t:L.length?L[Math.floor(Math.random()*L.length)]:'...'}]}
+const parseLine=x=>{const m=/^\[(\d+)\]\s*([\s\S]*)$/.exec(String(x||''));return m?{min:+m[1],t:m[2]}:{min:0,t:String(x||'')}};
+const pickLine=who=>{const n=WORLD.npcs[who]||{},a=(G.aff||{})[who]||0,L=(n.lines||[]).map(parseLine).filter(l=>l.t&&l.t!=='…'&&l.min<=a);return L.length?L[Math.floor(Math.random()*L.length)].t:''};   // 호감도가 조건 이상인 대사 중 무작위
+function talkScene(who){return[{who,t:pickLine(who)||'...'}]}
 function updActArrows(){const w=$('#wa'),l=$('#ac_l'),r=$('#ac_r');if(!w)return;l.disabled=w.scrollLeft<=1;r.disabled=w.scrollLeft+w.clientWidth>=w.scrollWidth-1}
 // 버튼이 잘려 보이지 않도록: 한 페이지에 들어가는 개수(n)를 구해, n개가 칸을 딱 채우는 너비로 맞춘다
 function layActs(){const w=$('#wa'),l=$('#ac_l'),r=$('#ac_r');if(!w)return;const K=[...w.children].filter(c=>!c.classList.contains('noact')),N=5,GP=8;   // 한 줄 5개
@@ -1243,7 +1276,6 @@ $('#ac_l').onclick=()=>pgStep(-1);$('#ac_r').onclick=()=>pgStep(1);$('#wa').addE
 let ACTPID=null;
 function renderActs(){
   const pid=G.place,p=WORLD.places[pid],box=$('#wa');const keepSl=(ACTPID===pid)?box.scrollLeft:0;ACTPID=pid;box.innerHTML='';if(!p)return;
-  if(!openNow(pid)){box.innerHTML=`<div class="lockmsg">🔒 지금은 문을 닫았어요${p.open&&p.open.length?' · 영업 '+rngText(p.open):''}</div>`}
   const conn=[];
   if(p.parent){conn.push(p.parent);Object.keys(WORLD.places).filter(k=>WORLD.places[k].parent===p.parent&&k!==pid).forEach(k=>conn.push(k))}
   Object.keys(WORLD.places).filter(k=>WORLD.places[k].parent===pid).forEach(k=>conn.push(k));
@@ -1255,7 +1287,6 @@ function renderActs(){
     if(!sp)vars.push([a,null]);else if(sp==='*')here().forEach(id=>vars.push([a,id]));else if(npcAt(sp))vars.push([a,sp])});
   vars.forEach(([a,who])=>{const st=actState(a,who),b=document.createElement('button'),ch=chips(a),wn=who?(WORLD.npcs[who]||{}).n:'';b.className='act'+(st.ok?'':' off');
     b.innerHTML=`<b>${wn?esc(wn)+josa(wn)+' '+esc(a.code==='talk'?'대화하기':a.name):esc(a.name)}</b>${ch||!st.ok?`<small>${esc(ch)}${!st.ok?(ch?' · ':'')+'🔒 '+esc(st.why):''}</small>`:''}`;b.onclick=()=>doAction(a,who);box.append(b)});
-  if(!box.children.length)box.innerHTML='<div class="noact">할 수 있는 행동이 없어요.</div>';
   {const x=document.createElement('button');x.className='act nav exit';x.innerHTML='<b>나가기</b><small>마을 지도로</small>';x.onclick=()=>{viewTown=true;renderWorld()};box.append(x)}
   box.style.scrollBehavior='auto';layActs();box.scrollLeft=keepSl;requestAnimationFrame(()=>{box.style.scrollBehavior='';updActArrows()});
 }
@@ -1272,7 +1303,7 @@ $('#closetx').hidden=true;$('#endview').onclick=()=>{G.closet=false;viewSt=false
 let viewSt=false,viewBk=false,viewMv=false;
 let viewTown=false;const IMGBAD=new Set();
 const placeImg=pid=>{const q=WORLD.places[pid];if(!q)return'';const u=q.img||(q.parent&&(WORLD.places[q.parent]||{}).img)||'';return u&&!IMGBAD.has(u)?u:''};
-const signHtml=pid=>{const q=WORLD.places[pid],o=openNow(pid),h=q.open&&q.open.length?q.open.map(([a,b])=>fmtT(a)+' ~ '+fmtB(b)).join(', '):'24H';return `<div class="sign ${o?'o':'c'}"><b>${o?'OPEN':'CLOSED'}</b><span>${h}</span></div>`};
+const signHtml=pid=>{const q=WORLD.places[pid];if(!q||q.type==='home')return '';const o=openNow(pid),h=q.open&&q.open.length?q.open.map(([a,b])=>fmtT(a)+' ~ '+fmtB(b)).join(', '):'24H';return `<div class="sign ${o?'o':'c'}"><b>${o?'OPEN':'CLOSED'}</b><span>${h}</span></div>`};
 function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const d=dateOf();const bn=bandOf(G.min),BR=[['아침','🌅',300,420],['오전','🌤',420,780],['오후','☀️',780,1020],['저녁','🌇',1020,1140],['밤','🌙',1140,1740]],wd=d.getDay(),np=((G.min-300+1440)%1440)/1440*100; 
   $('#wt').innerHTML=`<div class="cal${wd===0?' sun':wd===6?' sat':''}"><span class="mo">${d.getMonth()+1}월</span><b class="dy">${d.getDate()}</b><span class="wk">${DOW[wd]}요일</span></div>
@@ -1282,7 +1313,7 @@ function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const mapOnly=viewTown||curTown()!==townOf(G.place);   // 마을 지도만 보는 중: 특정 장소를 가리키지 않고 '마을'로 취급
   buildTownMap();
   document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===topOf(G.place)&&!mapOnly);b.classList.toggle('closed',!openNow(id));});
-  const p=WORLD.places[G.place];$('#mapcurrent').hidden=mapOnly;$('#mapcurrent').innerHTML=`<div class="pn">${p.i?`<i>${esc(p.i)}</i>`:''}<span>${esc(p.n)}</span>${p.i?`<i>${esc(p.i)}</i>`:''}</div>${signHtml(G.place)}`;$('#pdesc').textContent=p.desc?(p.desc.length>30?p.desc.slice(0,30)+'…':p.desc):'';
+  const p=WORLD.places[G.place];$('#mapcurrent').hidden=mapOnly;$('#mapcurrent').innerHTML=`<div class="pn">${p.i?`<i>${esc(p.i)}</i>`:''}<span>${esc(p.n)}</span>${p.i?`<i>${esc(p.i)}</i>`:''}</div>${signHtml(G.place)}`;$('#pdesc').textContent=p.desc||'';
   renderActs();
   const co=G.place==='home'&&G.closet,vw=co?'closet':(viewSt?'status':(viewBk?'bk':(viewMv?'mv':'')));$('#closet').hidden=!co;$('#cbar').hidden=!co;$('#bkview').hidden=vw!=='bk';$('#mvview').hidden=vw!=='mv';$('#mapview').hidden=!!vw;$('#stview').hidden=vw!=='status';$('#endbar').hidden=!vw;if(vw==='status')renderStatus();
   {const im=placeImg(G.place),si=!viewTown,el=$('#intimg');$('#townmap').hidden=si;$('#interior').hidden=!si;$('#townbar').hidden=si;$('.mapov').classList.toggle('int',si);$('#actov').hidden=!!vw||mapOnly;
@@ -1324,7 +1355,7 @@ function applyActions(){
   else Object.entries(TYPES0).forEach(([k,t])=>WORLD.types[k]={...t,actions:[...t.actions]});
   if(!WORLD.actions.bkbk)WORLD.actions.bkbk=ACT0.find(a=>a.code==='bkbk');
   if(!WORLD.actions.mvmv)WORLD.actions.mvmv=ACT0.find(a=>a.code==='mvmv');
-  WORLD.types.library={name:'도서관',icon:'📚',actions:['bkbk'],fixed:true};WORLD.types.cinema={name:'영화관',icon:'🎬',actions:['mvmv'],fixed:true};   // 고정 유형: bkbk 책장 연동
+  Object.entries(FIXTYPE).forEach(([k,f])=>{const t=WORLD.types[k]||(WORLD.types[k]={name:f.name,icon:f.icon,actions:[...f.acts]});t.fixed=true;if(k==='home'&&t.name==='집')t.name='주거';f.lock.forEach(c=>{if(!t.actions.includes(c))t.actions.unshift(c)})});   // 고정 유형: 주거 · 도서관(bkbk) · 영화관(mvmv)
   WORLD.placeActs=DB.actions.length?{}:structuredClone(PLACEACT0);DB.pacts.forEach(x=>{const o=WORLD.placeActs[x.place_code]=WORLD.placeActs[x.place_code]||{add:[],remove:[]};(x.mode==='remove'?o.remove:o.add).push(x.action_code)});
 }
 async function putPlain(dir,id,file,max,q=0.88){
@@ -1393,7 +1424,7 @@ function renderPlaceForm(){
   <div class="fr id3"><label class="f"><span>아이콘</span>${emoBtn('p_i',p.icon||'')}</label><label class="f"><span>이름</span><input id="p_n" value="${esc(p.name)}"></label>
     <label class="f"><span>유형${tip('유형에 묶인 행동을 이 장소에서 할 수 있어요. 행동을 더하거나 빼는 건 위 "행동" 편집에서 해요')}</span><select id="p_ty">${opts(typeList(),'k','n',p.type_code,'(없음)')}</select></label></div>
   <div class="f"><span>영업 시간${tip('비워 두면 하루 종일 열려 있어요. 밤을 넘기려면 22:00 ~ 02:00처럼 적어요 (24시간 표기)')}</span>${rgHtml('p_rg',orr)}</div>
-  <input id="p_d" maxlength="30" placeholder="설명 (30자까지) — 지도 위 장소 블록에 보여요" value="${esc(p.descr)}">
+  <input id="p_d" placeholder="설명 — 화면 아래 검은 띠 위쪽에 보여요(두 줄까지)" value="${esc(p.descr)}">
   ${p.parent_code?'':(hasTownCol()?`<label class="f"><span>동네${tip('이 장소가 있는 지도예요. 바꾸면 그 동네 지도에서 위치를 다시 잡아 주세요')}</span><select id="p_town">${opts(TOWNS.map(t=>({k:t.id,n:t.name})),'k','n',p.town||atown)}</select></label>`:'<div class="tag">⚠ fsfs_place_town.sql을 먼저 실행해 주세요 (동네 구분)</div>')}
   <div class="fr"><label class="f"><span>상위 장소${tip('건물 안 공간이면 고르세요. 고르면 지도에는 안 보이고, 상위 장소의 장소창에서 들어가요 (안쪽 이동은 5분)')}</span><select id="p_par">${opts(tops,'k','n',p.parent_code,'(없음)')}</select></label>
     <div class="f"><span>하위 장소</span>${p.id&&!p.parent_code?`<div class="row">${kids}<button type="button" id="p_sub">+ 하위 장소</button></div>`:`<div class="tag">${p.parent_code?'이 장소는 하위 장소예요':'저장한 뒤에 추가할 수 있어요'}</div>`}</div></div>
@@ -1428,6 +1459,8 @@ $('#pimp').onclick=async()=>{
 // ---- 인물
 let ncur=null;
 const nimg=n=>n.file_key&&cfg.pub?`<img src="${esc(pubUrl(n.file_key))}">`:esc(n.icon||'🙂');
+const lnRow=(x,dis)=>{const l=parseLine(x);return `<div class="row lnr" style="flex-wrap:nowrap;margin-bottom:4px"><label class="tag" style="white-space:nowrap">호감도 ≥</label><input class="lm" type="number" min="0" value="${l.min}" style="width:64px"${dis?' disabled':''}><input class="lt" value="${esc(l.t)}" style="flex:1;min-width:0"${dis?' disabled':''}>${dis?'':'<button type="button" class="lx">✕</button>'}</div>`};
+const readLines=()=>[...document.querySelectorAll('#n_lrows .lnr')].map(r=>{const m=Math.max(0,parseInt(r.querySelector('.lm').value,10)||0),t=r.querySelector('.lt').value.trim();return t?(m>0?`[${m}] `:'')+t:''}).filter(Boolean);
 function renderNpcAdmin(){
   $('#nlist').innerHTML=DB.npcs.map(n=>`<div class="it${ncur&&ncur.id===n.id?' on':''}" data-id="${n.id}"><div class="npi">${nimg(n)}</div><div><div>${esc(n.name)}</div><div class="tag">${n.workplace&&WORLD.places[n.workplace]?'💼 '+esc(WORLD.places[n.workplace].n):''}${n.birthday?' 🎂'+esc(n.birthday):''}</div></div></div>`).join('')||'<div class="tag">등록한 인물이 없어요</div>';
   renderNpcForm();
@@ -1442,16 +1475,17 @@ function renderNpcForm(){
   <label>ID (이벤트 연결용)<input id="n_c" value="${esc(n.code)}" style="width:120px"></label></div>
   <label>소개<input id="n_t" value="${esc(n.intro||'')}"${n.lv?' disabled':''}></label><label>성격·말투<input id="n_p" value="${esc(n.personality||'')}"></label>
   <datalist id="pl_dl">${plChoices().map(c=>`<option value="${esc(c.v)}" label="${esc(c.i)}"></option>`).join('')}</datalist><h2>출몰 장소 — 어디에, 몇 시에 나타나는지</h2><div id="n_sch">${(Array.isArray(n.sched)&&n.sched.length?n.sched:schedFromSlots(n.schedule||{})).map(schRow).join('')}<button type="button" class="sga">+ 일정 추가</button></div><div class="tag">시간은 24시간으로 적어요 (00:00 ~ 00:00이면 하루 종일). 장소 칸에 이름을 치면 목록이 나와요. 「모든 …」을 고르면 그 유형의 모든 장소에 나타나요. 어느 줄에도 없는 시간에는 만날 수 없어요</div>
-  <label>대사 (한 줄에 하나씩, 대화할 때 무작위로 나와요)<textarea id="n_l" rows="5"${n.lv?' disabled':''} style="background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font:inherit">${esc((n.lines||[]).join('\n'))}</textarea></label>
+  <div class="f"><span>대사 (대화할 때 무작위로 나와요)${tip('줄마다 "필요 호감도"를 정할 수 있어요. 0이면 처음부터, 3이면 호감도 3 이상일 때부터 나와요')}</span><div id="n_lrows">${(n.lines||[]).map(x=>lnRow(x,n.lv)).join('')}</div>${n.lv?'':'<button type="button" id="n_ladd">+ 대사 추가</button>'}</div>
   ${npcExtra(n)}<label>프로필 이미지 교체<input id="n_f" type="file" accept="image/*"></label>
   <div class="row"><button class="pri" id="n_save">저장</button><button id="n_del">삭제</button></div></div>`;
   $('#n_save').onclick=saveNpc;$('#n_del').onclick=delNpc;
+  {const lr=$('#n_lrows'),ad=$('#n_ladd');if(ad)ad.onclick=()=>{lr.insertAdjacentHTML('beforeend',lnRow('',false))};lr.onclick=e=>{const x=e.target.closest('.lx');if(x)x.closest('.lnr').remove()}}
 }
 async function saveNpc(){
   try{const n=ncur,f=$('#n_f').files[0];let key=n.file_key;const sched=schRead();if(SCHBAD.length)throw new Error('장소를 찾을 수 없어요: '+SCHBAD.join(', '));
     if(f){const r=await putPlain('npcs',n.id,f,320);if(key&&key!==r.key)wdel(key);key=r.key}
     await post('/rest/v1/fsfs_npc?id=eq.'+n.id,{name:$('#n_n').value.trim()||n.name,icon:$('#n_i').dataset.v||null,birthday:$('#n_b').value.trim()||null,
-      code:$('#n_c').value.trim()||n.code,intro:$('#n_t').value||null,personality:$('#n_p').value||null,sched,schedule:{},lines:$('#n_l').value.split('\n').map(s=>s.trim()).filter(Boolean),file_key:key,role:$('#n_role').value||'resident',...(('workplace' in n)?{workplace:$('#n_wp').value||null}:{})},'PATCH');
+      code:$('#n_c').value.trim()||n.code,intro:$('#n_t').value||null,personality:$('#n_p').value||null,sched,schedule:{},lines:readLines(),file_key:key,role:$('#n_role').value||'resident',...(('workplace' in n)?{workplace:$('#n_wp').value||null}:{})},'PATCH');
     await loadCatalog();ncur=structuredClone(DB.npcs.find(x=>x.id===n.id));renderNpcAdmin();msg('저장했어요');
   }catch(e){msg(e.message,1)}
 }
@@ -1650,21 +1684,31 @@ $('#aimp').onclick=async()=>{
   }catch(e){msg(e.message,1)}
 };
 function renderTypeList(){
-  $('#tlist').innerHTML=DB.ptypes.slice().sort(sortBy).map(t=>`<div class="it${tcur&&tcur.id===t.id?' on':''}" data-id="${t.id}"><div style="font-size:20px">${esc(t.icon||'📍')}</div><div><div>${esc(t.name)}</div><div class="tag">행동 ${DB.ptacts.filter(x=>x.type_code===t.code).length}개 · 장소 ${DB.places.filter(p=>p.type_code===t.code).length}곳</div></div></div>`).join('')+`<div class="it" style="cursor:default;opacity:.8"><div style="font-size:20px">📚</div><div><div>도서관 🔒</div><div class="tag">고정 · 추천작 살펴보기(bkbk) 연동</div></div></div><div class="it" style="cursor:default;opacity:.8"><div style="font-size:20px">🎬</div><div><div>영화관 🔒</div><div class="tag">고정 · 영화 보기(mvmv) 연동</div></div></div>`;
+  const rows=DB.ptypes.slice().sort(sortBy).map(t=>({t,k:t.code,fix:!!FIXTYPE[t.code]}));
+  Object.keys(FIXTYPE).forEach(k=>{if(!DB.ptypes.some(t=>t.code===k))rows.push({t:null,k,fix:true})});
+  rows.sort((a,b)=>(b.fix-a.fix)||0);
+  $('#tlist').innerHTML=rows.map(r=>{const f=FIXTYPE[r.k],name=r.t?r.t.name:f.name,icon=r.t?(r.t.icon||'📍'):f.icon,nA=r.t?DB.ptacts.filter(x=>x.type_code===r.k).length:f.acts.length;
+    return `<div class="it${tcur&&tcur.code===r.k?' on':''}" data-id="${r.t?r.t.id:''}" data-k="${esc(r.k)}"><div style="font-size:20px">${esc(icon)}</div><div><div>${esc(name)}${r.fix?' 🔒':''}</div><div class="tag">${r.fix?'고정 · ':''}행동 ${nA}개 · 장소 ${DB.places.filter(p=>p.type_code===r.k).length}곳</div></div></div>`}).join('');
 }
-$('#tlist').onclick=e=>{const d=e.target.closest('.it');if(!d)return;tcur=structuredClone(DB.ptypes.find(t=>t.id===d.dataset.id));tcur._acts=DB.ptacts.filter(x=>x.type_code===tcur.code).sort(sortBy).map(x=>x.action_code);renderTypeList();renderTypeForm()};
+$('#tlist').onclick=e=>{const d=e.target.closest('.it');if(!d)return;const k=d.dataset.k,row=DB.ptypes.find(t=>t.code===k);
+  if(row){tcur=structuredClone(row);tcur._acts=DB.ptacts.filter(x=>x.type_code===tcur.code).sort(sortBy).map(x=>x.action_code)}
+  else{const f=FIXTYPE[k];tcur={code:k,name:f.name,icon:f.icon,sort:DB.ptypes.length,_acts:[...f.acts],_virt:true}}
+  if(FIXTYPE[k])FIXTYPE[k].lock.forEach(c=>{if(!tcur._acts.includes(c))tcur._acts.unshift(c)});
+  renderTypeList();renderTypeForm()};
 $('#tnew').onclick=()=>{tcur={code:'t'+Date.now().toString(36),name:'새 유형',icon:'📍',sort:DB.ptypes.length,_acts:[]};renderTypeList();renderTypeForm()};
 function renderTypeForm(){
   const e=$('#ted'),t=tcur;if(!t){e.innerHTML='<div class="tag">왼쪽에서 유형을 고르거나 "+ 새 유형"을 눌러요</div>';return}
-  e.innerHTML=`<div class="form"><div class="fr id3"><label class="f"><span>아이콘</span>${emoBtn('t_i',t.icon||'')}</label><label class="f"><span>이름</span><input id="t_n" value="${esc(t.name)}"></label><label class="f"><span>ID</span><input id="t_c" value="${esc(t.code)}"${t.id?' disabled':''}></label></div>
-  <div class="f"><span>이 유형의 행동${tip('체크한 행동이 이 유형의 모든 장소에서 나와요')}</span><div class="chips">${DB.actions.slice().sort(sortBy).map(a=>`<label class="chip"><input type="checkbox" class="t_a" value="${esc(a.code)}"${(t._acts||[]).includes(a.code)?' checked':''}>${esc(a.icon||'')} ${esc(a.name)}</label>`).join('')||'<span class="tag">먼저 행동을 만들어 주세요</span>'}</div></div>
-  <div class="row"><button class="pri" id="t_save">저장</button>${t.id?'<button id="t_del">삭제</button>':''}</div></div>`;
-  $('#t_save').onclick=saveType;if(t.id)$('#t_del').onclick=delType;
+  const fx=FIXTYPE[t.code],lock=fx?fx.lock:[];
+  e.innerHTML=`<div class="form"><div class="fr id3"><label class="f"><span>아이콘</span>${emoBtn('t_i',t.icon||'')}</label><label class="f"><span>이름</span><input id="t_n" value="${esc(t.name)}"></label><label class="f"><span>ID</span><input id="t_c" value="${esc(t.code)}"${t.id||t._virt?' disabled':''}></label></div>
+  ${fx?`<div class="tag" style="margin-bottom:6px">🔒 고정 유형이에요. 삭제할 수 없고${lock.length?', 연동 행동은 체크를 풀 수 없어요':''}. 나머지는 고칠 수 있어요</div>`:''}
+  <div class="f"><span>이 유형의 행동${tip('체크한 행동이 이 유형의 모든 장소에서 나와요')}</span><div class="chips">${actRows().map(a=>`<label class="chip"><input type="checkbox" class="t_a" value="${esc(a.code)}"${(t._acts||[]).includes(a.code)?' checked':''}${lock.includes(a.code)?' disabled':''}>${esc(a.icon||'')} ${esc(a.name)}${lock.includes(a.code)?' 🔒':''}</label>`).join('')||'<span class="tag">먼저 행동을 만들어 주세요</span>'}</div></div>
+  <div class="row"><button class="pri" id="t_save">저장</button>${t.id&&!fx?'<button id="t_del">삭제</button>':''}</div></div>`;
+  $('#t_save').onclick=saveType;if(t.id&&!fx)$('#t_del').onclick=delType;
 }
 async function saveType(){
-  try{const t=tcur,code=t.id?t.code:$('#t_c').value.trim();if(!code)throw new Error('ID를 입력하세요');
+  try{const t=tcur,code=(t.id||t._virt)?t.code:$('#t_c').value.trim();if(!code)throw new Error('ID를 입력하세요');
     if(!t.id&&DB.ptypes.some(x=>x.code===code))throw new Error('같은 ID의 유형이 이미 있어요');
-    const row={code,name:$('#t_n').value.trim()||'이름 없음',icon:$('#t_i').dataset.v||'',sort:t.sort||0},chk=[...document.querySelectorAll('.t_a')].filter(c=>c.checked).map(c=>c.value);
+    const row={code,name:$('#t_n').value.trim()||'이름 없음',icon:$('#t_i').dataset.v||'',sort:t.sort||0},chk=[...document.querySelectorAll('.t_a')].filter(c=>c.checked||c.disabled).map(c=>c.value);
     t.id?await post('/rest/v1/fsfs_place_type?id=eq.'+t.id,row,'PATCH'):await post('/rest/v1/fsfs_place_type',row);
     await sb('/rest/v1/fsfs_place_type_action?type_code=eq.'+encodeURIComponent(code),{m:'DELETE'});
     if(chk.length)await post('/rest/v1/fsfs_place_type_action',chk.map((ac,i)=>({type_code:code,action_code:ac,sort:i})));
