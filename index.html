@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>옷갈아입히기</title><script src="https://jjojjolonglong-sudo.github.io/mnmn/fonts.v1.js" data-app="fsfs"></script>
+<title>옷갈아입히기</title><script src="https://jjojjolonglong-sudo.github.io/mnmn/fonts.v1.js" data-app="fsfs"></script><script src="https://jjojjolonglong-sudo.github.io/mnmn/mvtape.v1.js"></script>
 <style>
 :root{--bg:#f6f4f1;--p:#fff;--ink:#2b2622;--mute:#8a8078;--line:#e4dfd9;--acc:#e07a5f;--accbg:#fbe9e3;--chk:#efeae4}
 @media(prefers-color-scheme:dark){:root{--bg:#1e1c1a;--p:#292623;--ink:#efeae4;--mute:#a39a91;--line:#3b3733;--acc:#f0917a;--accbg:#4a312a;--chk:#33302c}}
@@ -395,6 +395,8 @@ dialog.onmap{inset:auto;margin:0;transform:translate(-50%,-50%)}
 .mvp{position:relative;flex:1 1 0;max-width:190px;aspect-ratio:2/3;cursor:pointer;overflow:hidden;border-radius:2px;box-shadow:0 6px 18px rgba(0,0,0,.6);transition:transform .15s,filter .15s}
 .mvp:hover{transform:translateY(-6px);filter:brightness(1.12)}.mvp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 .mvp span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:6px;text-align:center;font-size:12px;font-weight:700;color:#fff;text-shadow:0 1px 2px #000}
+.tapes{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;padding:10px 4px;background:linear-gradient(180deg,#2a2233,#171320);border-radius:6px}
+.tapes .tpc{display:flex;flex-direction:column;align-items:center;gap:6px;width:calc(var(--tw,26px) + 40px)}.tapes .tpn{font-size:11px;color:#fff;text-align:center;line-height:1.25;max-width:90px;word-break:keep-all}
 .mvbg{background-size:cover;background-position:center;border-radius:6px}#mvview.mvbg .mvshelf{background:rgba(0,0,0,.18);border-color:transparent}#mvview.mvbg .bkbar{background:rgba(0,0,0,.55);color:#fff;padding:6px 10px}#mvview.mvbg .bkbar .tag{color:#fff}
 .mvshelf.sh .mvp{animation:mvsl .6s ease-out}@keyframes mvsl{from{transform:translateX(calc(100% + 12px))}to{transform:none}}
 .mvshelf.sh .mvp:last-child{animation:mvnew .6s ease-out}@keyframes mvnew{from{transform:translateX(160%);opacity:0}to{transform:none;opacity:1}}
@@ -1114,6 +1116,8 @@ const WORLD={townMin:30,moveMin:15,innerMin:5,talkMin:30,skipMin:60,wakeMin:360,
 const DOW='일월화수목금토',rid=r=>BY[r]?r:'b:'+r;
 const ACT0=[
   {code:'bookbuy',name:'책 구경하기',icon:'📚',kind:'bookbuy',descr:'서가를 둘러보고 마음에 드는 책을 사요. 올 때마다 진열된 책이 달라요. (bkbk 연동)',mins:0,energy:0,money:0},
+  {code:'videobuy',name:'비디오 구경하기',icon:'📼',kind:'videobuy',descr:'진열대의 비디오테이프를 둘러보고 사요. 올 때마다 진열이 달라요. (mvmv 연동)',mins:0,energy:0,money:0},
+  {code:'myvideos',name:'내 비디오',icon:'📼',kind:'myvideos',descr:'산 비디오를 꺼내 봐요.',mins:0,energy:0,money:0},
   {code:'mybooks',name:'내 책장',icon:'📕',kind:'mybooks',descr:'산 책을 꽂아 두고 발췌문을 읽어요.',mins:0,energy:0,money:0},
   {code:'mvmv',name:'영화 보기',icon:'🎬',kind:'mvmv',descr:'포스터를 골라 기록해 둔 장면을 처음부터 끝까지 따라가 봐요. (mvmv 연동)',mins:0,energy:0,money:0},
   {code:'bkbk',name:'추천작 살펴보기',icon:'📖',kind:'bkbk',descr:'책장에서 책을 골라 발췌문을 읽어요. (bkbk 연동)',mins:0,energy:0,money:0},
@@ -1137,10 +1141,10 @@ const ACT0=[
   {code:'read',name:'책 읽어보기',icon:'📖',kind:'normal',descr:'마음에 드는 책을 골라 한참 읽어요.',mins:60,energy:-3,money:0,scene:[{t:'서서 읽다 보니 어느새 한 챕터가 끝났다.'}]}
 ];
 const PLACEACT0={convenience:{add:['job_conv','snack'],remove:[]},cafe:{add:['job_cafe'],remove:[]},flower:{add:['job_flower','flowerbuy'],remove:[]},bookstore:{add:['job_book','read'],remove:[]},bakery:{add:['job_bakery','bread'],remove:[]}};
-const TYPES0={home:{name:'주거',icon:'🏠',actions:['sleep','closet','status','mybooks']},bookstore:{name:'서점',icon:'📚',actions:['bookbuy']},clothes:{name:'옷가게',icon:'👗',actions:['shop']},cafe:{name:'카페',icon:'☕',actions:['drink']},restaurant:{name:'식당',icon:'🍝',actions:['meal']},salon:{name:'미용실',icon:'💇',actions:['hair']},park:{name:'공원',icon:'🌳',actions:['walk']},basic:{name:'일반',icon:'📍',actions:[]},library:{name:'도서관',icon:'📚',actions:['bkbk']},cinema:{name:'영화관',icon:'🎬',actions:['mvmv']}};
+const TYPES0={home:{name:'주거',icon:'🏠',actions:['sleep','closet','status','mybooks','myvideos']},videostore:{name:'비디오 가게',icon:'📼',actions:['videobuy']},bookstore:{name:'서점',icon:'📚',actions:['bookbuy']},clothes:{name:'옷가게',icon:'👗',actions:['shop']},cafe:{name:'카페',icon:'☕',actions:['drink']},restaurant:{name:'식당',icon:'🍝',actions:['meal']},salon:{name:'미용실',icon:'💇',actions:['hair']},park:{name:'공원',icon:'🌳',actions:['walk']},basic:{name:'일반',icon:'📍',actions:[]},library:{name:'도서관',icon:'📚',actions:['bkbk']},cinema:{name:'영화관',icon:'🎬',actions:['mvmv']}};
 WORLD.actions={};ACT0.forEach(a=>WORLD.actions[a.code]=a);WORLD.types=structuredClone(TYPES0);WORLD.placeActs=structuredClone(PLACEACT0);
 const ACQ={};
-const FIXTYPE={home:{name:'주거',icon:'🏠',acts:['sleep','closet','status','mybooks'],lock:['mybooks']},bookstore:{name:'서점',icon:'📚',acts:['bookbuy'],lock:['bookbuy']},library:{name:'도서관',icon:'📚',acts:['bkbk'],lock:['bkbk']},cinema:{name:'영화관',icon:'🎬',acts:['mvmv'],lock:['mvmv']}};
+const FIXTYPE={home:{name:'주거',icon:'🏠',acts:['sleep','closet','status','mybooks','myvideos'],lock:['mybooks','myvideos']},videostore:{name:'비디오 가게',icon:'📼',acts:['videobuy'],lock:['videobuy']},bookstore:{name:'서점',icon:'📚',acts:['bookbuy'],lock:['bookbuy']},library:{name:'도서관',icon:'📚',acts:['bkbk'],lock:['bkbk']},cinema:{name:'영화관',icon:'🎬',acts:['mvmv'],lock:['mvmv']}};
 // 관리자에서 의상마다 적은 획득 경로(DB)를 게임 경로로 바꿔요. 종류 이름·칸 이름은 DB의 경로 종류 정의를 그대로 따라요
 const shopPlaces=()=>Object.keys(WORLD.places).filter(k=>((WORLD.types[WORLD.places[k].type]||{actions:[]}).actions||[]).some(c=>(WORLD.actions[c]||{}).kind==='shop'));
 const placesFor=nm=>{const m=/^모든 (.+)$/.exec(nm||'');if(m){const ts=Object.keys(WORLD.types).filter(k=>WORLD.types[k].name===m[1]);if(ts.length)return Object.keys(WORLD.places).filter(k=>ts.includes(WORLD.places[k].type));if(m[1]==='상점')return shopPlaces()}return Object.keys(WORLD.places).filter(k=>WORLD.places[k].n===nm)};
@@ -1258,7 +1262,7 @@ function go(p,reopen){if(p===G.place){if(viewTown||viewTownId){pass(WORLD.moveMi
 function stepTown(d){const i=TOWNS.findIndex(t=>t.id===curTown()),j=i+d;if(j<0||j>=TOWNS.length)return;viewTownId=TOWNS[j].id;pass(WORLD.townMin);G.log='';after();msg(`${TOWNS[j].name}으로 이동 · ⏱ ${durText(WORLD.townMin)}`)}   // 마을을 옮기는 순간 30분이 흐른다
 $('#tw_l').onclick=()=>stepTown(-1);$('#tw_r').onclick=()=>stepTown(1);
 function renderShop(pid){
-  const box=$('#shl');box.innerHTML='';
+  const box=$('#shl');box.innerHTML='';box.classList.remove('tapes');
   WORLD.sources.filter(s=>s.type==='shop'&&s.place===pid).forEach(s=>{
     const it=BY[rid(s.ref)];if(!it)return;const row=document.createElement('div');row.className='shi';row.append(thumb([it],44,56));
     const nm=document.createElement('div');nm.className='nm2';nm.textContent=it.name;row.append(nm);
@@ -1328,6 +1332,8 @@ function doAction(a,who){
   if(a.kind==='shop'){if(!shopHas(pid))return say('아직 파는 물건이 없어요');return openShop(pid)}
   if(a.kind==='bookbuy')return openBookShop(pid);
   if(a.kind==='mybooks')return openMyBooks();
+  if(a.kind==='videobuy')return openVideoShop(pid);
+  if(a.kind==='myvideos')return openMyVideos();
   if(a.kind==='bkbk')return openShelf();
   if(a.kind==='mvmv'){MOVIE_MIN=a.mins>0?a.mins:30;return openMovies()}
   earn(a.money||0,a.name+(who?' · '+((WORLD.npcs[who]||{}).n||''):''));G.energy=clampE(G.energy+enOf(a));
@@ -1428,7 +1434,7 @@ function applyWorld(){
 }
 function actFromRow(r){return{code:r.code,name:r.name,icon:r.icon||'',descr:r.descr||'',kind:r.kind==='sleep'?'normal':(r.kind||'normal'),mins:r.time_min!=null?+r.time_min:(+r.time_cost||0)*SLOTLEN,endAt:r.end_min!=null?+r.end_min:(r.kind==='sleep'?WORLD.wakeMin:null),minMins:+r.min_mins||0,energy:+r.energy||0,money:+r.money||0,cond:r.cond||{},effects:(()=>{const e={...(r.effects||{})};if(r.kind==='sleep'&&e.eph==null)e.eph=WORLD.sleepRegen||12;return e})(),scene:r.scene||[]}}
 function applyActions(){
-  WORLD.actions={};const keep=['shop','talk','bkbk','mvmv','bookbuy','mybooks'];
+  WORLD.actions={};const keep=['shop','talk','bkbk','mvmv','bookbuy','mybooks','videobuy','myvideos'];
   if(DB.actions.length){ACT0.filter(a=>keep.includes(a.code)).forEach(a=>WORLD.actions[a.code]=a);DB.actions.forEach(r=>WORLD.actions[r.code]=actFromRow(r))}else ACT0.forEach(a=>WORLD.actions[a.code]=a);
   WORLD.types={};
   if(DB.ptypes.length)DB.ptypes.forEach(t=>WORLD.types[t.code]={name:t.name,icon:t.icon||'📍',actions:DB.ptacts.filter(x=>x.type_code===t.code).sort((a,b)=>(a.sort||0)-(b.sort||0)).map(x=>x.action_code)});
@@ -1734,7 +1740,7 @@ async function delEv(){
 }
 
 // ================= 관리자: 행동 · 장소 유형 =================
-const FIXED={closet:'옷장 열기',status:'내 상태 보기',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',bookbuy:'서점 열기',mybooks:'내 책장 열기',mvmv:'mvmv 포스터 벽 열기'};
+const FIXED={closet:'옷장 열기',status:'내 상태 보기',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',bookbuy:'서점 열기',mybooks:'내 책장 열기',videobuy:'비디오 가게 열기',myvideos:'내 비디오 열기',mvmv:'mvmv 포스터 벽 열기'};
 const isFix=a=>!!FIXED[a.kind]||a.code==='talk';
 const actRows=()=>{const have=new Set(DB.actions.map(a=>a.code)),v=ACT0.filter(a=>(FIXED[a.kind]||a.code==='talk')&&!have.has(a.code)).map(a=>({code:a.code,name:a.name,icon:a.icon,descr:a.descr||'',kind:a.kind,mins:a.mins||0,endAt:a.endAt,minMins:a.minMins||0,energy:a.energy||0,money:a.money||0,cond:a.cond||{},effects:a.effects||{},scene:a.scene||[],sort:0,virtual:true}));
   return [...v,...DB.actions].sort((a,b)=>(isFix(b)-isFix(a))||sortBy(a,b))};
@@ -2019,7 +2025,7 @@ const BOOK_PRICE=12000,BOOK_SHOW=5;
 const bkSw=b=>`<div style="width:44px;height:56px;border-radius:3px;background:${esc(b.c1||'#888')};border-right:8px solid ${esc(b.c2||'#ddd')};flex:none"></div>`;
 async function openBookShop(pid){
   if(!openNow(pid))return say('지금은 문을 닫았어요',1);
-  $('#shm').textContent='서점을 둘러보는 중…';$('#shl').innerHTML='';$('#shop').showModal();
+  $('#shm').textContent='서점을 둘러보는 중…';$('#shl').innerHTML='';$('#shl').classList.remove('tapes');$('#shop').showModal();
   let L;try{L=await bkLoad()}catch(e){$('#shl').innerHTML='<div class="tag">책 목록을 불러오지 못했어요 (로그인 확인)</div>';return}
   G.books=G.books||{};const pool=L.filter(b=>!G.books[b.id]).sort(()=>Math.random()-.5).slice(0,BOOK_SHOW),box=$('#shl');box.innerHTML='';
   if(!pool.length)box.innerHTML='<div class="tag">오늘은 새로 들어온 책이 없어요</div>';
@@ -2028,8 +2034,26 @@ async function openBookShop(pid){
     bt.onclick=()=>{if(G.money<BOOK_PRICE)return msg('돈이 부족해요',1);earn(-BOOK_PRICE,b.name+' 구매');G.books[b.id]={id:b.id,name:b.name,c1:b.color1,c2:b.color2};G.log=`${b.name}을(를) 샀어요`;bt.textContent='보유';bt.disabled=true;saveGame();renderWorld();$('#shm').textContent='서점 · 보유 금액 ₩'+G.money.toLocaleString()};
     row.append(bt);box.append(row)});
   $('#shm').textContent='서점 · 보유 금액 ₩'+G.money.toLocaleString()}
+/* 비디오 가게: mvmv의 영화 목록을 mvmv와 같은 비디오테이프 그림(mvtape.v1.js)으로 진열. 올 때마다 일부만 무작위, 산 것만 G.videos에 저장 */
+const VIDEO_PRICE=15000,VIDEO_SHOW=5,VIDEO_MIN=30;
+const tapeHtml=m=>window.MvTape?MvTape.html(m,{}):`<div class="tag" style="padding:30px 6px;background:${esc(m.c1||'#333')};color:#fff">${esc(m.name)}</div>`;
+function tapeGrid(L,label,fn){const box=$('#shl');box.classList.add('tapes');box.innerHTML='';
+  if(window.MvTape)Object.entries(MvTape.size(150)).forEach(([k,v])=>box.style.setProperty(k,v));
+  L.forEach(m=>{const c=document.createElement('div');c.className='tpc';c.innerHTML=tapeHtml(m)+`<div class="tpn">${esc(m.name)}</div>`;const b=document.createElement('button');b.textContent=label(m);b.onclick=()=>fn(m,b);c.append(b);box.append(c)})}
+async function openVideoShop(pid){
+  if(!openNow(pid))return say('지금은 문을 닫았어요',1);
+  $('#shm').textContent='진열대를 둘러보는 중…';$('#shl').innerHTML='';$('#shop').showModal();
+  try{await mvLoad()}catch(e){$('#shl').innerHTML='<div class="tag">영화 목록을 불러오지 못했어요 (로그인 확인)</div>';return}
+  G.videos=G.videos||{};const pool=MVA.filter(m=>!G.videos[m.id]).sort(()=>Math.random()-.5).slice(0,VIDEO_SHOW);
+  if(!pool.length){$('#shl').classList.remove('tapes');$('#shl').innerHTML='<div class="tag">오늘은 새로 들어온 비디오가 없어요</div>'}
+  else tapeGrid(pool,()=>`₩${VIDEO_PRICE.toLocaleString()} 구매`,(m,b)=>{if(G.money<VIDEO_PRICE)return msg('돈이 부족해요',1);earn(-VIDEO_PRICE,m.name+' 비디오 구매');G.videos[m.id]={id:m.id,name:m.name,c1:m.c1,c2:m.c2,c3:m.c3,c4:m.c4};G.log=`${m.name} 비디오를 샀어요`;b.textContent='보유';b.disabled=true;saveGame();renderWorld();$('#shm').textContent='비디오 가게 · 보유 금액 ₩'+G.money.toLocaleString()});
+  $('#shm').textContent='비디오 가게 · 보유 금액 ₩'+G.money.toLocaleString()}
+async function openMyVideos(){
+  const L=Object.values(G.videos||{});$('#shm').textContent=`내 비디오 · ${L.length}개 · 누르면 처음부터 봐요 (⏱ ${VIDEO_MIN}분)`;$('#shop').showModal();
+  if(!L.length){$('#shl').classList.remove('tapes');$('#shl').innerHTML='<div class="tag">아직 산 비디오가 없어요. 비디오 가게에서 사 보세요</div>';return}
+  tapeGrid(L,()=>'보기',async m=>{try{await mvLoad();const f=MVA.find(x=>x.id===m.id);if(!f)return msg('mvmv에서 이 작품을 찾지 못했어요');$('#shop').close();runFilm(f,()=>{pass(VIDEO_MIN);G.log='';after()})}catch(e){msg('영화 기록을 불러오지 못했어요',1)}})}
 function openMyBooks(){
-  const L=Object.values(G.books||{}),box=$('#shl');$('#shm').textContent=`내 책장 · ${L.length}권 · 누르면 발췌문 (⏱ ${READ_MIN}분)`;box.innerHTML='';
+  const L=Object.values(G.books||{}),box=$('#shl');$('#shm').textContent=`내 책장 · ${L.length}권 · 누르면 발췌문 (⏱ ${READ_MIN}분)`;box.innerHTML='';box.classList.remove('tapes');
   if(!L.length)box.innerHTML='<div class="tag">아직 산 책이 없어요. 서점에서 사 보세요</div>';
   L.forEach(b=>{const row=document.createElement('div');row.className='shi';row.innerHTML=bkSw(b);const nm=document.createElement('div');nm.className='nm2';nm.textContent=b.name;row.append(nm);
     const bt=document.createElement('button');bt.textContent='읽기';bt.onclick=()=>showExcerpt(b);row.append(bt);box.append(row)});
@@ -2112,14 +2136,16 @@ let MOVIE_MIN=30;const MEDIA_BASE='https://media.jjojjolonglong.workers.dev',med
 let MV=null,MVT=0;
 async function mvAll(tb,cols){const out=[];for(let off=0;;off+=1000){const j=await sb(`/rest/v1/${tb}?select=${cols}&order=id.asc&limit=1000&offset=${off}`);out.push(...(j||[]));if(!j||j.length<1000)break}return out}
 async function mvLoad(){
-  if(MV&&Date.now()-MVT<300000)return MV;
-  const [mv,ep,sc]=await Promise.all([mvAll('mvmv_movie','id,name,poster,date,countdown,c1'),mvAll('mvmv_episode','id,movie,episode'),mvAll('mvmv_scene','id,movie,episode,timectup,timectdown,image,line')]);
+  if(MV&&MVA.length>=0&&Date.now()-MVT<300000)return MV;
+  const [mv,ep,sc]=await Promise.all([mvAll('mvmv_movie','id,name,poster,date,countdown,c1,c2,c3,c4'),mvAll('mvmv_episode','id,movie,episode'),mvAll('mvmv_scene','id,movie,episode,timectup,timectdown,image,line')]);
   const EP=new Map(ep.map(e=>[String(e.id),+e.episode||0])),by=new Map();
   sc.forEach(x=>{const k=String(x.movie);(by.get(k)||by.set(k,[]).get(k)).push({...x,ep:EP.get(String(x.episode))||0})});
   const key=x=>x.timectup!=null&&x.timectup!==''?+x.timectup:x.timectdown!=null&&x.timectdown!==''?-x.timectdown:0;
   // 본 작품(날짜가 있고 상영 예정이 아닌 것)만, 포스터가 있는 것만
   const list=mv.filter(m=>mediaUrl(m.poster)&&!m.countdown&&String(m.date||'').trim()).map(m=>({...m,id:String(m.id),scenes:(by.get(String(m.id))||[]).sort((a,b)=>a.ep-b.ep||key(a)-key(b))}));
+  MVA=mv.filter(m=>!m.countdown&&String(m.date||'').trim()).map(m=>({...m,id:String(m.id),scenes:(by.get(String(m.id))||[]).sort((a,b)=>a.ep-b.ep||key(a)-key(b))}));
   MV=list;MVT=Date.now();return list}
+let MVA=[];
 /* 상영작 5칸: G.cine={w:주,s:[id…],kn:[이미 알고 있는 id…]} — 새로 '본' 작품이 생기면 다음 신작으로 먼저 걸어요 */
 function cinePick(L,C){
   const inS=new Set(C.s),kn=new Set(C.kn);let pool=L.filter(m=>!inS.has(m.id));if(!pool.length)pool=L.slice();
@@ -2164,7 +2190,7 @@ var SLOTS=5,SAVE={slot:(()=>{try{return Math.min(SLOTS,Math.max(1,+localStorage.
 function normG(){
   if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}
   if(typeof G.min!=='number')G.min=WORLD.wakeMin;if(!Array.isArray(G.ledger))G.ledger=[];
-  if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.talked=G.talked||{};G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.closet=false;G.log=G.log||''}
+  if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.closet=false;G.log=G.log||''}
 const lookPack=()=>({sel,colors,iord});
 function lookSave(){if(LOOKP)return;clearTimeout(SAVE.lt);SAVE.lt=setTimeout(()=>{try{localStorage.setItem('fsfsLook',JSON.stringify(lookPack()));localStorage.setItem('fsfsLocalAt',Date.now())}catch(e){}try{pushSoon()}catch(e){}},800)}
 function applyLook(l){const d=l||LOOKP;if(!d||!d.sel)return;if(!l&&!DB.items.length)return;sel={...sel,...d.sel};colors=d.colors||{};iord=Array.isArray(d.iord)?d.iord.slice():[];if(!l)LOOKP=null}
