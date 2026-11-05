@@ -632,7 +632,7 @@ html{overflow:hidden}
   <div class="row"><h2 style="flex:1;font-size:16px;color:var(--ink)">🛠 관리자 모드</h2><button id="devclose">게임으로 돌아가기</button></div>
   <div class="tabs" id="devtabs"><button data-t="items" class="on">👗 의상</button><button data-t="map">🗺 마을</button><button data-t="npc">🧑 인물</button><button data-t="event">📖 이벤트</button></div>
   <div id="dv-items"><div class="card" style="margin-bottom:12px">
-    <div class="hd"><b>빠른 등록</b><i class="tip" tabindex="0" data-tip="전체 캔버스 크기 PNG를 레이어별로 한꺼번에 선택하세요. 파일명: 이름__outline.png, 이름__fill1.png, 이름__fill2.png, 이름__static.png (__ 가 없으면 static 한 장짜리)">?</i></div>
+    <div class="hd"><b>빠른 등록</b><i class="tip" tabindex="0" data-tip="전체 캔버스 크기 PNG를 레이어별로 한꺼번에 선택하세요. 파일명: 이름_outline.png, 이름_fill1.png, 이름_fill2.png, 이름_static.png (_ 하나나 __ 둘 다 돼요. 레이어 이름이 없으면 static 한 장짜리)">?</i></div>
     <div class="row"><label>파츠<select id="np"></select></label><label>PNG 파일<input id="nf" type="file" accept="image/png" multiple></label>
       <button class="pri" id="bulk">등록</button><button id="exp">JSON 백업</button></div>
   </div>
@@ -900,7 +900,7 @@ async function putAsset(id,file,layer,z,color){
 $('#bulk').onclick=async()=>{
   const files=[...$('#nf').files];if(!files.length)return msg('PNG 파일을 선택해주세요',1);
   const grp={};
-  for(const f of files){const b=f.name.replace(/\.[^.]+$/,''),k=b.lastIndexOf('__'),n=k>0?b.slice(0,k):b,l=k>0?b.slice(k+2).toLowerCase():'static';(grp[n]=grp[n]||[]).push({f,layer:l})}
+  for(const f of files){const b=f.name.replace(/\.[^.]+$/,''),m=/^(.+?)[_-]{1,2}(outline|static|fill\d*)$/i.exec(b),n=m?m[1]:b,l=m?m[2].toLowerCase():'static';(grp[n]=grp[n]||[]).push({f,layer:l})}   // 이름_레이어 · 이름__레이어 모두 인식
   const names=Object.keys(grp);let done=0;
   for(const n of names){
     const ls=grp[n].sort((a,b)=>(a.layer==='outline')-(b.layer==='outline')||a.layer.localeCompare(b.layer,undefined,{numeric:true}));
