@@ -406,7 +406,7 @@ html{overflow:hidden}
 #game .side{display:contents}
 #game .side>.card:first-child{grid-column:2;grid-row:1;padding:8px 14px;display:flex;align-items:center}#game .side>.card:first-child>.bar{width:100%;flex-wrap:nowrap}#game #cbar{flex-wrap:nowrap;width:auto}#game .side>.card:first-child button{white-space:nowrap}
 #game .stagewrap{grid-column:1;grid-row:2;position:static;padding:0;min-height:0;display:flex;justify-content:center;align-items:flex-start}
-#game .stage{height:924px;margin:0;width:440px;aspect-ratio:auto}#game .stage canvas{left:50%;width:312px;transform:translateX(-50%)}
+#game .stage{height:924px;margin:0;width:384px;aspect-ratio:auto;border-radius:206px 206px 10px 10px}#game .stage canvas{left:50%;width:312px;transform:translateX(-50%)}
 #game .card.world{grid-column:2;justify-self:end;grid-row:2;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 #game.app{border-radius:0 12px 12px 12px}
 .gtitle{position:absolute;left:0;top:0;z-index:5;grid-column:auto;grid-row:auto;display:inline-flex;align-items:center;height:28px;padding:0 26px 0 12px;background:var(--ink);color:var(--hi);border-radius:0;clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%);font:400 21px/1 "DotGothic16","Do Hyeon",sans-serif;letter-spacing:.02em;text-shadow:none;white-space:nowrap}
@@ -419,6 +419,10 @@ html{overflow:hidden}
 #mapframe{position:relative;height:100%;max-width:100%;aspect-ratio:1.5}
 #mapframe>.townmap,#mapframe>.interior{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;min-height:0;margin:0}
 .interior img{position:absolute;inset:0;width:100%;height:100%;max-height:none;object-fit:cover}
+#intlight{position:absolute;inset:0;pointer-events:none;transition:background 1.2s ease}
+#intlight[data-s=dc]{background:rgba(12,14,28,.38)}
+#intlight[data-s=no]{background:radial-gradient(ellipse at 50% 30%,rgba(255,214,150,.45),rgba(255,190,110,.2) 62%,rgba(255,170,90,.08));mix-blend-mode:screen}
+#intlight[data-s=nc]{background:rgba(4,6,30,.5)}
 #inttint{position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;transition:background 1.2s ease}
 .mapov{position:absolute;inset:0;z-index:7;pointer-events:none}.mapov>*{pointer-events:auto}
 .mapov .descbox{position:absolute;left:12px;top:12px;margin:0;padding:7px 16px;max-width:380px;text-align:left;border:0;border-radius:6px;background:rgba(24,20,16,.58);color:#fff;box-shadow:none;pointer-events:none;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
@@ -586,7 +590,7 @@ html{overflow:hidden}
 </head>
 <body>
 <div id="gamefit"><div class="app" id="game">
-  <div class="gtitle">시티 오브 레트로</div><div class="gstitch"></div>
+  <div class="gtitle">시티 오브 레트로</div>
   <div class="stagewrap"><div class="stage"><canvas id="cv"></canvas></div></div>
   <div class="side">
     <div class="card"><div class="bar">
@@ -600,7 +604,7 @@ html{overflow:hidden}
       <div id="mapview">
         <div id="mapstage"><div id="mapframe">
           <div id="townmap" class="townmap" aria-label="쿼터뷰 마을 지도"></div>
-          <div id="interior" class="interior" hidden><img id="intimg" alt=""><div id="inttint"></div></div>
+          <div id="interior" class="interior" hidden><img id="intimg" alt=""><div id="inttint"></div><div id="intlight"></div></div>
           <div class="mapov"><div class="descbox" id="mapcurrent"></div>
             <div id="townbar" class="townbar"><button type="button" id="tw_l" class="twarr">◀</button><span id="tw_items" class="twitems"></span><button type="button" id="tw_r" class="twarr">▶</button></div>
             
@@ -943,8 +947,8 @@ function renderLys(){$('#lys').innerHTML=lysHtml()}
 // 장소·인물·이벤트를 가리키는 칸은 직접 쓰지 않고 목록에서 고르게 해요
 function srcField(s,f){
   const v=String((s.params&&s.params[f.key])??''),L=f.label;let list=null;
-  if(L==='상점 이름')list=['모든 상점',...Object.values(WORLD.places).map(p=>p.n)];
-  else if(L==='NPC'||L==='의뢰인')list=['모든 NPC',...Object.values(WORLD.npcs).map(n=>n.n)];
+  if(L==='상점 이름')list=[...Object.values(WORLD.types).map(t=>'모든 '+t.name),...Object.values(WORLD.places).map(p=>p.n)];
+  else if(L==='NPC'||L==='의뢰인')list=npcGroups().concat(Object.values(WORLD.npcs).map(n=>n.n));
   else if(L==='이벤트 이름')list=(WORLD.events||[]).map(e=>e.title);
   if(list){const set=[...new Set(list.filter(Boolean))];if(v&&!set.includes(v))set.unshift(v);
     return `<label>${esc(L)}<select class="pf" data-k="${esc(f.key)}"><option value="">(선택)</option>${set.map(x=>`<option${x===v?' selected':''}>${esc(x)}</option>`).join('')}</select></label>`}
@@ -1042,7 +1046,8 @@ const bandOf=m=>(BANDS.find(([a,b])=>a<b?(m>=a&&m<b):(m>=a||m<b))||BANDS[4])[2];
 // 시간대별 배경 색 덧씌우기 (시각, [r,g,b,투명도]) — 사이는 부드럽게 이어져요
 const TINT=[[0,[18,28,78,.56]],[240,[18,28,78,.52]],[300,[255,196,186,.30]],[360,[255,222,205,.18]],[420,[255,255,255,0]],[780,[255,240,200,.08]],[960,[255,232,170,.18]],[1020,[255,160,96,.32]],[1110,[255,132,92,.34]],[1170,[62,54,130,.45]],[1260,[22,32,86,.54]],[1440,[18,28,78,.56]]];
 function tintAt(m){const j=TINT.findIndex(k=>k[0]>m),lo=TINT[Math.max(1,j)-1],hi=TINT[Math.max(1,j)],t=(m-lo[0])/(hi[0]-lo[0]),c=lo[1].map((v,i)=>v+(hi[1][i]-v)*t);return `rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${c[3].toFixed(3)})`}
-function applyTint(){if(!G)return;const c=tintAt(G.min),t=$('#maptint'),u=$('#inttint');if(t)t.style.background=c;if(u)u.style.background=c}
+function lightApply(){const el=$('#intlight');if(!el||!G)return;const p=WORLD.places[G.place],open=!p||p.type==='home'||openNow(G.place),h=G.min/60,night=h>=19||h<6;el.dataset.s=night?(open?'no':'nc'):(open?'':'dc')}
+function applyTint(){if(!G)return;lightApply();const c=tintAt(G.min),t=$('#maptint'),u=$('#inttint');if(t)t.style.background=c;if(u)u.style.background=c}
 const emoBtn=(id,v)=>`<button type="button" class="emo" id="${id}" data-v="${esc(v||'')}" title="눌러서 고르기">${esc(v||'＋')}</button>`;
 const EMO0={'장소·가게':'🏠 🏡 🏢 🏪 🏬 🏫 🏥 🏦 🏨 🏰 ⛪ 🏭 ⛺ 🌳 🌲 🌴 🌷 🌸 🌺 🌻 🌹 💐 🪴 🍀 🌿 ⛲ 🌅 🌆 🌇 🌉 🛍 👗 👚 👕 👖 👔 🧥 👘 👠 👟 👜 👒 🎩 💍 💄 💇 💅 🪞 📚 📖 🛒',
   '먹을 것':'☕ 🍵 🧋 🥤 🍺 🍷 🍸 🍰 🎂 🧁 🍩 🍪 🍫 🍬 🍭 🍮 🍞 🥐 🥖 🥨 🧀 🍳 🥞 🍔 🍟 🍕 🌭 🥪 🌮 🍜 🍝 🍛 🍣 🍱 🍙 🍚 🍎 🍓 🍇 🍉 🍌 🍑 🍿',
@@ -1056,7 +1061,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('.emo');if(b){emo
       if(ev.target.id==='ep_clear'&&emoTarget){emoTarget.dataset.v='';emoTarget.textContent='＋';d.close()}if(ev.target.id==='ep_x')d.close()}}
   d.showModal()}});
 const tip=t=>`<i class="tip" tabindex="0" data-tip="${esc(t)}">?</i>`;
-const t24=(v,ex='')=>`<input class="t24" inputmode="numeric" maxlength="5" placeholder="00:00" value="${v}"${ex}>`;
+const t24=(v,ex='')=>{const m=/^(\d{1,2}):(\d{2})$/.exec(v||''),h=m?Math.min(24,Math.round((+m[1]*60+ +m[2])/60)):'';return `<select class="t24"${ex}><option value="">--</option>${Array.from({length:25},(_,i)=>`<option value="${String(i).padStart(2,'0')}:00"${i===h?' selected':''}>${i}시</option>`).join('')}</select>`};
 document.addEventListener('input',e=>{const t=e.target;if(!t.classList||!t.classList.contains('t24'))return;const d=t.value.replace(/\D/g,'').slice(0,4);t.value=d.length>2?d.slice(0,2)+':'+d.slice(2):d});
 document.addEventListener('change',e=>{const t=e.target;if(!t.classList||!t.classList.contains('t24'))return;const d=t.value.replace(/\D/g,'');if(!d){t.value='';return}
   let h,m;if(d.length<=2){h=+d;m=0}else{h=+d.slice(0,-2);m=+d.slice(-2)}if(h>24||m>59||(h===24&&m)){t.value='';msg('시간은 00:00 ~ 24:00으로 적어 주세요',1);return}t.value=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')});
@@ -1138,7 +1143,11 @@ const ACQ={};
 const FIXTYPE={home:{name:'주거',icon:'🏠',acts:['sleep','closet','status','mybooks'],lock:['mybooks']},bookstore:{name:'서점',icon:'📚',acts:['bookbuy'],lock:['bookbuy']},library:{name:'도서관',icon:'📚',acts:['bkbk'],lock:['bkbk']},cinema:{name:'영화관',icon:'🎬',acts:['mvmv'],lock:['mvmv']}};
 // 관리자에서 의상마다 적은 획득 경로(DB)를 게임 경로로 바꿔요. 종류 이름·칸 이름은 DB의 경로 종류 정의를 그대로 따라요
 const shopPlaces=()=>Object.keys(WORLD.places).filter(k=>((WORLD.types[WORLD.places[k].type]||{actions:[]}).actions||[]).some(c=>(WORLD.actions[c]||{}).kind==='shop'));
-const placesFor=nm=>nm==='모든 상점'?shopPlaces():Object.keys(WORLD.places).filter(k=>WORLD.places[k].n===nm);
+const placesFor=nm=>{const m=/^모든 (.+)$/.exec(nm||'');if(m){const ts=Object.keys(WORLD.types).filter(k=>WORLD.types[k].name===m[1]);if(ts.length)return Object.keys(WORLD.places).filter(k=>ts.includes(WORLD.places[k].type));if(m[1]==='상점')return shopPlaces()}return Object.keys(WORLD.places).filter(k=>WORLD.places[k].n===nm)};
+function npcGroups(){const g=['모든 NPC'];try{Object.values(ROLES).forEach(v=>g.push('모든 '+v))}catch(e){}Object.values(WORLD.types).forEach(t=>{if(Object.values(WORLD.npcs).some(n=>n.work&&(WORLD.places[n.work]||{}).type&&WORLD.types[WORLD.places[n.work].type]===t))g.push('모든 '+t.name+' 직원')});return g}
+function npcSetFor(nm){const r=String(nm||'').replace(/^모든 /,'');if(r==='NPC')return Object.keys(WORLD.npcs);
+  try{const ro=Object.entries(ROLES).find(([k,v])=>v===r);if(ro)return Object.keys(WORLD.npcs).filter(k=>WORLD.npcs[k].role===ro[0])}catch(e){}
+  const m=/^(.+) 직원$/.exec(r);if(m){const ts=Object.keys(WORLD.types).filter(k=>WORLD.types[k].name===m[1]);return Object.keys(WORLD.npcs).filter(k=>{const pl=WORLD.places[WORLD.npcs[k].work];return pl&&ts.includes(pl.type)})}return null}
 function dbSrc(){
   const out=[],T=Object.fromEntries((DB.types||[]).map(t=>[t.code,t])),pv=(t,s,label)=>{const f=((t&&t.param_schema)||[]).find(x=>x.label===label);return f&&s.params?s.params[f.key]:undefined};
   for(const it of DB.items||[])for(const s of it.fsfs_source||[]){
@@ -1146,8 +1155,8 @@ function dbSrc(){
     if(/기본/.test(lb)){out.push({ref,type:'starter',db:1});continue}
     if(/상점/.test(lb)){const nm=String(pv(t,s,'상점 이름')||'').trim(),price=+pv(t,s,'가격')||0,pls=placesFor(nm);
       if(pls.length)pls.forEach(pl=>out.push({ref,type:'shop',place:pl,price,db:1}));else out.push({ref,type:'etc',text:`${nm||'상점'} · ₩${price.toLocaleString()}`,db:1});continue}
-    if(/NPC/.test(lb)){const nm=String(pv(t,s,'NPC')||'').trim(),min=+pv(t,s,'필요 호감도')||0,k=nm==='모든 NPC'?'*':Object.keys(WORLD.npcs).find(k=>k===nm||WORLD.npcs[k].n===nm);
-      out.push({ref,type:'gift',npc:k||'',min,db:1,text:`${nm||'NPC'} · 호감도 ${min} 이상이면 선물로 받아요`});continue}
+    if(/NPC/.test(lb)){const nm=String(pv(t,s,'NPC')||'').trim(),min=+pv(t,s,'필요 호감도')||0,set=/^모든 /.test(nm)?npcSetFor(nm):null,k=set?'*':Object.keys(WORLD.npcs).find(k=>k===nm||WORLD.npcs[k].n===nm);
+      out.push({ref,type:'gift',npc:k||'',npcs:set,min,db:1,text:`${nm||'NPC'} · 호감도 ${min} 이상이면 선물로 받아요`});continue}
     const ex=((t&&t.param_schema)||[]).map(f=>pv(t,s,f.label)).filter(v=>v!==''&&v!=null).join(' · ');
     out.push({ref,type:'etc',text:lb+(ex?' · '+ex:''),db:1});
   }
@@ -1160,7 +1169,7 @@ function goodsSrc(){const T=Object.fromEntries((DB.types||[]).map(t=>[t.code,t])
   return out}
 const GOODS=id=>(DB.goods||[]).find(g=>g.id===id),shopHas=pid=>WORLD.sources.some(s=>s.type==='shop'&&s.place===pid)||(WORLD.gsrc||[]).some(s=>s.place===pid);
 function grantStarters(){if(!G)return;WORLD.sources.filter(s=>s.type==='starter').forEach(s=>{const id=rid(s.ref);if(BY[id]&&!G.owned[id])G.owned[id]=1})}
-function checkGifts(){let n=0;WORLD.sources.filter(s=>s.db&&s.type==='gift'&&s.npc).forEach(s=>{const id=rid(s.ref);if(BY[id]&&!G.owned[id]&&(s.npc==='*'?Math.max(0,...Object.values(G.aff||{})):(G.aff[s.npc]||0))>=s.min){giveItem(id);n++}});return n}   // 호감도가 조건에 닿으면 선물로 받아요
+function checkGifts(){let n=0;WORLD.sources.filter(s=>s.db&&s.type==='gift'&&s.npc).forEach(s=>{const id=rid(s.ref);if(BY[id]&&!G.owned[id]&&Math.max(0,...(s.npc==='*'?(s.npcs||Object.keys(G.aff||{})):[s.npc]).map(k=>G.aff[k]||0))>=s.min){giveItem(id);n++}});return n}   // 호감도가 조건에 닿으면 선물로 받아요
 function rebuildAcq(){   // 획득 경로: 코드에 적은 경로 + 관리자에서 적은 경로 + 이벤트 보상으로 주는 의상(받기 전엔 잠김)
   WORLD.src0=WORLD.src0||WORLD.sources.slice();WORLD.sources=WORLD.src0.concat(dbSrc());WORLD.gsrc=goodsSrc();
   for(const k in ACQ)delete ACQ[k];
@@ -1182,7 +1191,11 @@ const routeText0=s=>s.type==='starter'?'기본 제공':s.type==='shop'?`${WORLD.
 const hint=it=>msg('🔒 '+(ACQ[it.id]||[]).map(routeText).join(' / '));
 const dateOf=()=>new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+G.day);
 const plMatch=(sp,pid)=>sp===pid||(typeof sp==='string'&&sp.startsWith('@type:')&&sp.slice(6)===((WORLD.places[pid]||{}).type||'basic'));
-const npcAt=id=>{const n=WORLD.npcs[id];return !!n&&(n.sch||[]).some(x=>plMatch(x.p,G.place)&&inR([[x.a,x.b]],G.min))},here=()=>Object.keys(WORLD.npcs).filter(npcAt);
+const shiftR=n=>n.wh&&n.wh.length?n.wh:((WORLD.places[n.work]||{}).open||[]);
+const onShift=n=>!!n&&!!n.work&&!!WORLD.places[n.work]&&openNow(n.work)&&inR(shiftR(n),G.min);
+const npcRnd=(id,h)=>{let x=7;for(const c of id+':'+G.day+':'+h)x=(x*31+c.charCodeAt(0))>>>0;return(x%1000)/1000};
+const npcAt=id=>{const n=WORLD.npcs[id];if(!n)return false;if(onShift(n))return G.place===n.work;
+  return (n.sch||[]).some(x=>plMatch(x.p,G.place)&&inR([[x.a,x.b]],G.min))&&npcRnd(id,Math.floor(G.min/60))<(n.appear==null?1:n.appear/100)},here=()=>Object.keys(WORLD.npcs).filter(npcAt);
 const earn=(v,label)=>{v=Math.round(+v||0);if(!v)return;G.money+=v;G.ledger=[{d:G.day,t:G.min,n:label||'',v}].concat(G.ledger||[]).slice(0,20)};   // 돈이 오가면 여기서 기록해요(최근 20건)
 const clampE=v=>Math.max(0,Math.min(100,v));
 function newDay(){const a=WORLD.start.allowance||0;if(a){G.money+=a;G.log=`새 하루가 시작됐어요. 용돈 +₩${a.toLocaleString()}`}}
@@ -1237,8 +1250,8 @@ function checkEvents(){
 function after(){checkGifts();deltaCheck();saveGame();renderWorld();refresh();checkEvents()}
 function greetAt(pid){
   if($('#scene').open||$('#film').open)return;
-  const ids=Object.keys(WORLD.npcs).filter(k=>{const n=WORLD.npcs[k];return n.work===pid&&((n.sch||[]).length?npcAt(k):openNow(pid))});
-  G.greet=G.greet||{};const k=ids.find(id=>G.greet[id]!==G.day);if(!k)return;G.greet[k]=G.day;
+  const ids=Object.keys(WORLD.npcs).filter(k=>{const n=WORLD.npcs[k];return n.work===pid&&onShift(n)});
+  if(!ids.length)return;const k=ids[Math.floor(Math.random()*ids.length)];
   const t=pickLine(k)||'어서 오세요!';
   runScene([{who:k,t}],()=>{saveGame()})}
 function go(p,reopen){if(p===G.place){if(viewTown||viewTownId){pass(WORLD.moveMin);viewTown=false;viewTownId=null;G.log='';after()}return}/* 지도에서 같은 장소에 다시 들어가도 15분 */if(!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;viewSt=false;viewBk=false;viewMv=false;viewTown=false;viewTownId=null;G.log='';after();greetAt(p)}
@@ -1407,7 +1420,7 @@ function applyWorld(){
   if(DB.places.length){WORLD.places={};const codes=new Set(DB.places.map(r=>r.code));DB.places.forEach(r=>WORLD.places[r.code]={n:r.name,i:r.icon||'📍',kind:r.kind||'',pos:[+r.x,+r.y],shop:r.is_shop,
     type:r.type_code||'basic',town:r.town||'',img:r.img_key?pubUrl(r.img_key):'',open:Array.isArray(r.open_ranges)?r.open_ranges:slotRanges(r.open_slots||[]),parent:(r.parent_code&&r.parent_code!==r.code&&codes.has(r.parent_code))?r.parent_code:null,inner:0,desc:r.descr||'',db:true})}else WORLD.places=PLACES0;
   applyActions();
-  if(DB.npcs.length){WORLD.npcs={};DB.npcs.forEach(r=>WORLD.npcs[r.code]={n:r.name,i:r.icon||'🙂',img:r.file_key?pubUrl(r.file_key):'',sch:Array.isArray(r.sched)&&r.sched.length?r.sched:schedFromSlots(r.schedule||{}),lines:r.lines&&r.lines.length?r.lines:['…'],birthday:r.birthday||'',job:r.job||'',intro:r.intro||'',personality:r.personality||'',role:r.role||'resident',work:r.workplace||'',db:true})}else WORLD.npcs=NPCS0;
+  if(DB.npcs.length){WORLD.npcs={};DB.npcs.forEach(r=>WORLD.npcs[r.code]={n:r.name,i:r.icon||'🙂',img:r.file_key?pubUrl(r.file_key):'',sch:Array.isArray(r.sched)&&r.sched.length?r.sched:schedFromSlots(r.schedule||{}),lines:r.lines&&r.lines.length?r.lines:['…'],birthday:r.birthday||'',job:r.job||'',intro:r.intro||'',personality:r.personality||'',role:r.role||'resident',work:r.workplace||'',wh:Array.isArray(r.work_hours)?r.work_hours:[],appear:r.appear==null?75:r.appear,db:true})}else WORLD.npcs=NPCS0;
   WORLD.events=DB.events.length?DB.events.filter(r=>r.enabled!==false).map(evFromRow):EVENTS0;
   const map=$('#townmap');
   if(map){map.dataset.built='';map.querySelectorAll('.map-building').forEach(b=>b.remove())}
@@ -1521,6 +1534,7 @@ function renderPlaceForm(){
   <div class="fr id3"><label class="f"><span>아이콘</span>${emoBtn('p_i',p.icon||'')}</label><label class="f"><span>이름</span><input id="p_n" value="${esc(p.name)}"></label>
     <label class="f"><span>유형${tip('유형에 묶인 행동을 이 장소에서 할 수 있어요. 행동을 더하거나 빼는 건 위 "행동" 편집에서 해요')}</span><select id="p_ty">${opts(typeList(),'k','n',p.type_code,'(없음)')}</select></label></div>
   <div class="f"><span>영업 시간${tip('비워 두면 하루 종일 열려 있어요. 밤을 넘기려면 22:00 ~ 02:00처럼 적어요 (24시간 표기)')}</span>${rgHtml('p_rg',orr)}</div>
+  ${staffHtml(p)}
   <input id="p_d" placeholder="설명 — 화면 아래 검은 띠 위쪽에 보여요(두 줄까지)" value="${esc(p.descr)}">
   ${p.parent_code?'':(hasTownCol()?`<label class="f"><span>동네${tip('이 장소가 있는 지도예요. 바꾸면 그 동네 지도에서 위치를 다시 잡아 주세요')}</span><select id="p_town">${opts(TOWNS.map(t=>({k:t.id,n:t.name})),'k','n',p.town||atown)}</select></label>`:'<div class="tag">⚠ fsfs_place_town.sql을 먼저 실행해 주세요 (동네 구분)</div>')}
   <div class="fr"><label class="f"><span>상위 장소${tip('건물 안 공간이면 고르세요. 고르면 지도에는 안 보이고, 상위 장소의 장소창에서 들어가요 (안쪽 이동은 5분)')}</span><select id="p_par">${opts(tops,'k','n',p.parent_code,'(없음)')}</select></label>
@@ -1533,12 +1547,23 @@ function renderPlaceForm(){
   if($('#p_fx'))$('#p_fx').onclick=()=>{if(p.img_key){p._rm=true;renderPlaceForm()}};
   if($('#p_sub'))$('#p_sub').onclick=()=>{pcur={code:'p'+Date.now().toString(36),name:'새 하위 장소',icon:'📍',descr:'',x:p.x,y:p.y,parent_code:p.code,open_ranges:[]};renderMapAdmin()};
 }
+const NPCCOL=()=>DB.npcs.length&&('workplace' in DB.npcs[0]),WHCOL=()=>DB.npcs.length&&('work_hours' in DB.npcs[0]);
+const staffRow=n=>`<div class="staff" data-id="${n.id}"><div class="row"><b style="min-width:80px">${esc(n.icon||'🙂')} ${esc(n.name)}</b>${WHCOL()?rgHtml('sw_'+n.id,n.work_hours||[]):''}<button type="button" class="swx">직원에서 빼기</button></div></div>`;
+function staffHtml(p){if(!p.id||!NPCCOL())return `<div class="tag">직원은 장소를 저장한 뒤에(그리고 fsfs_npc_workplace.sql 실행 후) 지정할 수 있어요</div>`;
+  const st=DB.npcs.filter(n=>n.workplace===p.code),rest=DB.npcs.filter(n=>n.workplace!==p.code);
+  return `<div class="f"><span>직원${tip('직원은 근무 시간에 이 장소에서 손님을 맞아요(방문하면 무조건 인사, 같은 시간에 여럿이면 그중 한 명이 무작위로). 근무 시간을 비우면 영업 시간 전체(풀타임)예요. 이 시간은 인물의 출몰 일정에 고정돼요')}</span><div id="p_staff">${st.map(staffRow).join('')}</div>
+    <div class="row"><select id="p_sadd">${opts(rest.map(n=>({k:n.id,n:(n.icon||'')+' '+n.name+(n.workplace?' (다른 직장에서 옮겨 와요)':'')})),'k','n','','+ 직원 추가')}</select></div></div>`}
+document.addEventListener('change',e=>{if(e.target.id!=='p_sadd'||!e.target.value)return;const n=DB.npcs.find(x=>x.id===e.target.value);if(n)$('#p_staff').insertAdjacentHTML('beforeend',staffRow({...n,work_hours:[]}));e.target.querySelector(`option[value="${e.target.value}"]`).remove();e.target.value=''});
+document.addEventListener('click',e=>{if(e.target.classList&&e.target.classList.contains('swx'))e.target.closest('.staff').remove()});
+async function saveStaff(p){if(!p.id||!NPCCOL()||!$('#p_staff'))return;const now=[...document.querySelectorAll('#p_staff .staff')].map(r=>r.dataset.id);
+  for(const n of DB.npcs.filter(n=>n.workplace===p.code&&!now.includes(n.id)))await post('/rest/v1/fsfs_npc?id=eq.'+n.id,{workplace:null,...(WHCOL()?{work_hours:[]}:{})},'PATCH');
+  for(const id of now)await post('/rest/v1/fsfs_npc?id=eq.'+id,{workplace:p.code,...(WHCOL()?{work_hours:rgRead('sw_'+id)}:{})},'PATCH')}
 async function savePlace(){
   try{const p=pcur,m=mainMap(),o=rgRead('p_rg');let ik=p.img_key||null;const pf=$('#p_f')&&$('#p_f').files[0];
     if(pf){msg('그림 올리는 중…');const r=await putPlain('maps',crypto.randomUUID(),pf,1600,0.82);if(ik&&ik!==r.key)wdel(ik);ik=r.key}else if(p._rm){wdel(ik);ik=null}
     const row={code:p.code,name:$('#p_n').value.trim()||'이름 없음',icon:$('#p_i').dataset.v||'',descr:$('#p_d').value,x:p.x,y:p.y,map_id:m?m.id:null,open_slots:null,open_ranges:o,parent_code:$('#p_par').value||null,type_code:$('#p_ty').value||null};if(hasImgCol())row.img_key=ik;if(hasTownCol()&&$('#p_town'))row.town=$('#p_town').value||null;
     p.id?await post('/rest/v1/fsfs_place?id=eq.'+p.id,row,'PATCH'):await post('/rest/v1/fsfs_place',row);
-    pcur=null;await loadCatalog();renderMapAdmin();msg('저장했어요');
+    await saveStaff(p);pcur=null;await loadCatalog();renderMapAdmin();msg('저장했어요');
   }catch(e){msg(e.message,1)}
 }
 async function delPlace(){
@@ -1568,8 +1593,10 @@ function renderNpcForm(){
   const pl=Object.entries(WORLD.places).map(([k,p])=>({k,n:(p.i||'')+' '+p.n})),sc=n.schedule||{};
   e.innerHTML=`<div style="display:grid;gap:8px"><div class="row"><div class="npi" style="width:72px;height:72px">${nimg(n)}</div>
   ${n.lv?'<div class="tag" style="width:100%">🔗 덕질노트(lvlv)에서 읽어오는 인물이에요. 이름·소개·대사·키워드는 lvlv에서 고쳐 주세요 (대사별 필요 호감도는 여기서 정할 수 있어요)</div>':''}<label style="flex:1">이름<input id="n_n" value="${esc(n.name)}"${n.lv?' disabled':''}></label><label>이모지${emoBtn('n_i',n.icon||'')}</label></div>
-  <div class="row"><label>생일 (월-일)<input id="n_b" placeholder="03-08" value="${esc(n.birthday||'')}" style="width:90px"></label><label style="flex:1">직장 (방문하면 인사해요)<select id="n_wp"${'workplace' in n?'':' disabled'}>${opts(Object.entries(WORLD.places).map(([k,p])=>({k,n:(p.parent?'↳ ':'')+(p.i||'')+' '+p.n})),'k','n',n.workplace||'','(없음)')}</select></label>
+  <div class="row"><label>생일 (월-일)<input id="n_b" placeholder="03-08" value="${esc(n.birthday||'')}" style="width:90px"></label><label style="flex:1">직장 (근무 시간에 방문하면 인사해요)<select id="n_wp"${'workplace' in n?'':' disabled'}>${opts(Object.entries(WORLD.places).map(([k,p])=>({k,n:(p.parent?'↳ ':'')+(p.i||'')+' '+p.n})),'k','n',n.workplace||'','(없음)')}</select></label>
   <label>ID (이벤트 연결용)<input id="n_c" value="${esc(n.code)}" style="width:120px"></label></div>
+  ${'work_hours' in n?`<div class="fr"><div class="f"><span>근무 시간${tip('비워 두면 직장의 영업 시간 전체(풀타임)예요. 이 시간엔 무조건 직장에 있고, 아래 출몰 일정에서는 고를 수 없어요')}</span>${rgHtml('n_wh',n.work_hours||[])}</div>
+    <label class="f"><span>출몰 확률 (%)${tip('출몰 일정 시간에 이 인물이 실제로 나타날 확률이에요. 시간마다 따로 굴려요')}</span><input id="n_ap" type="number" min="0" max="100" step="5" value="${n.appear==null?75:n.appear}" style="width:80px"></label></div>`:'<div class="tag">⚠ fsfs_npc_staff.sql을 실행하면 근무 시간·출몰 확률을 쓸 수 있어요</div>'}
   <label>소개<input id="n_t" value="${esc(n.intro||'')}"${n.lv?' disabled':''}></label><label>성격·말투<input id="n_p" value="${esc(n.personality||'')}"></label>
   <datalist id="pl_dl">${plChoices().map(c=>`<option value="${esc(c.v)}" label="${esc(c.i)}"></option>`).join('')}</datalist><h2>출몰 장소 — 어디에, 몇 시에 나타나는지</h2><div id="n_sch">${(Array.isArray(n.sched)&&n.sched.length?n.sched:schedFromSlots(n.schedule||{})).map(schRow).join('')}<button type="button" class="sga">+ 일정 추가</button></div><div class="tag">시간은 24시간으로 적어요 (00:00 ~ 00:00이면 하루 종일). 장소 칸에 이름을 치면 목록이 나와요. 「모든 …」을 고르면 그 유형의 모든 장소에 나타나요. 어느 줄에도 없는 시간에는 만날 수 없어요</div>
   <div class="f"><span>대사 (대화할 때 무작위로 나와요)${tip('줄마다 "필요 호감도"를 정할 수 있어요. 0이면 처음부터, 3이면 호감도 3 이상일 때부터 나와요')}</span><div id="n_lrows">${(n.lines||[]).map(x=>lnRow(x,n.lv)).join('')}</div>${n.lv?'':'<button type="button" id="n_ladd">+ 대사 추가</button>'}</div>
@@ -1580,9 +1607,11 @@ function renderNpcForm(){
 }
 async function saveNpc(){
   try{const n=ncur,f=$('#n_f').files[0];let key=n.file_key;const sched=schRead();if(SCHBAD.length)throw new Error('장소를 찾을 수 없어요: '+SCHBAD.join(', '));
+    let wh=[];if('work_hours' in n){wh=rgRead('n_wh');const wp=$('#n_wp').value;if(wp){const rs=wh.length?wh:((WORLD.places[wp]||{}).open||[]);
+      for(const x of sched)for(let h=0;h<24;h++)if(inR([[x.a,x.b]],h*60)&&inR(rs,h*60))throw new Error(`출몰 일정이 근무 시간과 겹쳐요 (${h}시). 근무 시간은 고정이라 일정에서 빼 주세요`)}}
     if(f){const r=await putPlain('npcs',n.id,f,320);if(key&&key!==r.key)wdel(key);key=r.key}
     await post('/rest/v1/fsfs_npc?id=eq.'+n.id,{name:$('#n_n').value.trim()||n.name,icon:$('#n_i').dataset.v||null,birthday:$('#n_b').value.trim()||null,
-      code:$('#n_c').value.trim()||n.code,intro:$('#n_t').value||null,personality:$('#n_p').value||null,sched,schedule:{},lines:readLines(),file_key:key,role:$('#n_role').value||'resident',...(('workplace' in n)?{workplace:$('#n_wp').value||null}:{})},'PATCH');
+      code:$('#n_c').value.trim()||n.code,intro:$('#n_t').value||null,personality:$('#n_p').value||null,sched,schedule:{},lines:readLines(),file_key:key,role:$('#n_role').value||'resident',...(('workplace' in n)?{workplace:$('#n_wp').value||null}:{}),...(('work_hours' in n)?{work_hours:wh,appear:Math.max(0,Math.min(100,parseInt($('#n_ap').value,10)||0))}:{})},'PATCH');
     await loadCatalog();ncur=structuredClone(DB.npcs.find(x=>x.id===n.id));renderNpcAdmin();msg('저장했어요');
   }catch(e){msg(e.message,1)}
 }
