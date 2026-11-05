@@ -1108,6 +1108,8 @@ const WORLD={townMin:30,moveMin:15,innerMin:5,talkMin:30,skipMin:60,wakeMin:360,
 };
 const DOW='일월화수목금토',rid=r=>BY[r]?r:'b:'+r;
 const ACT0=[
+  {code:'bookbuy',name:'책 구경하기',icon:'📚',kind:'bookbuy',descr:'서가를 둘러보고 마음에 드는 책을 사요. 올 때마다 진열된 책이 달라요. (bkbk 연동)',mins:0,energy:0,money:0},
+  {code:'mybooks',name:'내 책장',icon:'📕',kind:'mybooks',descr:'산 책을 꽂아 두고 발췌문을 읽어요.',mins:0,energy:0,money:0},
   {code:'mvmv',name:'영화 보기',icon:'🎬',kind:'mvmv',descr:'포스터를 골라 기록해 둔 장면을 처음부터 끝까지 따라가 봐요. (mvmv 연동)',mins:0,energy:0,money:0},
   {code:'bkbk',name:'추천작 살펴보기',icon:'📖',kind:'bkbk',descr:'책장에서 책을 골라 발췌문을 읽어요. (bkbk 연동)',mins:0,energy:0,money:0},
   {code:'talk',name:'이야기하기',icon:'💬',kind:'normal',descr:'',mins:30,energy:0,money:0,effects:{aff:[{npc:'*',v:1}]},scene:[]},
@@ -1130,10 +1132,10 @@ const ACT0=[
   {code:'read',name:'책 읽어보기',icon:'📖',kind:'normal',descr:'마음에 드는 책을 골라 한참 읽어요.',mins:60,energy:-3,money:0,scene:[{t:'서서 읽다 보니 어느새 한 챕터가 끝났다.'}]}
 ];
 const PLACEACT0={convenience:{add:['job_conv','snack'],remove:[]},cafe:{add:['job_cafe'],remove:[]},flower:{add:['job_flower','flowerbuy'],remove:[]},bookstore:{add:['job_book','read'],remove:[]},bakery:{add:['job_bakery','bread'],remove:[]}};
-const TYPES0={home:{name:'주거',icon:'🏠',actions:['sleep','closet','status']},clothes:{name:'옷가게',icon:'👗',actions:['shop']},cafe:{name:'카페',icon:'☕',actions:['drink']},restaurant:{name:'식당',icon:'🍝',actions:['meal']},salon:{name:'미용실',icon:'💇',actions:['hair']},park:{name:'공원',icon:'🌳',actions:['walk']},basic:{name:'일반',icon:'📍',actions:[]},library:{name:'도서관',icon:'📚',actions:['bkbk']},cinema:{name:'영화관',icon:'🎬',actions:['mvmv']}};
+const TYPES0={home:{name:'주거',icon:'🏠',actions:['sleep','closet','status','mybooks']},bookstore:{name:'서점',icon:'📚',actions:['bookbuy']},clothes:{name:'옷가게',icon:'👗',actions:['shop']},cafe:{name:'카페',icon:'☕',actions:['drink']},restaurant:{name:'식당',icon:'🍝',actions:['meal']},salon:{name:'미용실',icon:'💇',actions:['hair']},park:{name:'공원',icon:'🌳',actions:['walk']},basic:{name:'일반',icon:'📍',actions:[]},library:{name:'도서관',icon:'📚',actions:['bkbk']},cinema:{name:'영화관',icon:'🎬',actions:['mvmv']}};
 WORLD.actions={};ACT0.forEach(a=>WORLD.actions[a.code]=a);WORLD.types=structuredClone(TYPES0);WORLD.placeActs=structuredClone(PLACEACT0);
 const ACQ={};
-const FIXTYPE={home:{name:'주거',icon:'🏠',acts:['sleep','closet','status'],lock:[]},library:{name:'도서관',icon:'📚',acts:['bkbk'],lock:['bkbk']},cinema:{name:'영화관',icon:'🎬',acts:['mvmv'],lock:['mvmv']}};
+const FIXTYPE={home:{name:'주거',icon:'🏠',acts:['sleep','closet','status','mybooks'],lock:['mybooks']},bookstore:{name:'서점',icon:'📚',acts:['bookbuy'],lock:['bookbuy']},library:{name:'도서관',icon:'📚',acts:['bkbk'],lock:['bkbk']},cinema:{name:'영화관',icon:'🎬',acts:['mvmv'],lock:['mvmv']}};
 // 관리자에서 의상마다 적은 획득 경로(DB)를 게임 경로로 바꿔요. 종류 이름·칸 이름은 DB의 경로 종류 정의를 그대로 따라요
 const shopPlaces=()=>Object.keys(WORLD.places).filter(k=>((WORLD.types[WORLD.places[k].type]||{actions:[]}).actions||[]).some(c=>(WORLD.actions[c]||{}).kind==='shop'));
 const placesFor=nm=>nm==='모든 상점'?shopPlaces():Object.keys(WORLD.places).filter(k=>WORLD.places[k].n===nm);
@@ -1311,6 +1313,8 @@ function doAction(a,who){
   if(a.kind==='closet'){G.closet=true;after();setTimeout(()=>$('#closet').scrollIntoView({behavior:'smooth',block:'start'}),50);return}
   if(a.kind==='status'){viewSt=true;renderStatus();after();return}
   if(a.kind==='shop'){if(!shopHas(pid))return say('아직 파는 물건이 없어요');return openShop(pid)}
+  if(a.kind==='bookbuy')return openBookShop(pid);
+  if(a.kind==='mybooks')return openMyBooks();
   if(a.kind==='bkbk')return openShelf();
   if(a.kind==='mvmv'){MOVIE_MIN=a.mins>0?a.mins:30;return openMovies()}
   earn(a.money||0,a.name+(who?' · '+((WORLD.npcs[who]||{}).n||''):''));G.energy=clampE(G.energy+enOf(a));
@@ -1411,7 +1415,7 @@ function applyWorld(){
 }
 function actFromRow(r){return{code:r.code,name:r.name,icon:r.icon||'',descr:r.descr||'',kind:r.kind==='sleep'?'normal':(r.kind||'normal'),mins:r.time_min!=null?+r.time_min:(+r.time_cost||0)*SLOTLEN,endAt:r.end_min!=null?+r.end_min:(r.kind==='sleep'?WORLD.wakeMin:null),minMins:+r.min_mins||0,energy:+r.energy||0,money:+r.money||0,cond:r.cond||{},effects:(()=>{const e={...(r.effects||{})};if(r.kind==='sleep'&&e.eph==null)e.eph=WORLD.sleepRegen||12;return e})(),scene:r.scene||[]}}
 function applyActions(){
-  WORLD.actions={};const keep=['shop','talk','bkbk','mvmv'];
+  WORLD.actions={};const keep=['shop','talk','bkbk','mvmv','bookbuy','mybooks'];
   if(DB.actions.length){ACT0.filter(a=>keep.includes(a.code)).forEach(a=>WORLD.actions[a.code]=a);DB.actions.forEach(r=>WORLD.actions[r.code]=actFromRow(r))}else ACT0.forEach(a=>WORLD.actions[a.code]=a);
   WORLD.types={};
   if(DB.ptypes.length)DB.ptypes.forEach(t=>WORLD.types[t.code]={name:t.name,icon:t.icon||'📍',actions:DB.ptacts.filter(x=>x.type_code===t.code).sort((a,b)=>(a.sort||0)-(b.sort||0)).map(x=>x.action_code)});
@@ -1701,7 +1705,7 @@ async function delEv(){
 }
 
 // ================= 관리자: 행동 · 장소 유형 =================
-const FIXED={closet:'옷장 열기',status:'내 상태 보기',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',mvmv:'mvmv 포스터 벽 열기'};
+const FIXED={closet:'옷장 열기',status:'내 상태 보기',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',bookbuy:'서점 열기',mybooks:'내 책장 열기',mvmv:'mvmv 포스터 벽 열기'};
 const isFix=a=>!!FIXED[a.kind]||a.code==='talk';
 const actRows=()=>{const have=new Set(DB.actions.map(a=>a.code)),v=ACT0.filter(a=>(FIXED[a.kind]||a.code==='talk')&&!have.has(a.code)).map(a=>({code:a.code,name:a.name,icon:a.icon,descr:a.descr||'',kind:a.kind,mins:a.mins||0,endAt:a.endAt,minMins:a.minMins||0,energy:a.energy||0,money:a.money||0,cond:a.cond||{},effects:a.effects||{},scene:a.scene||[],sort:0,virtual:true}));
   return [...v,...DB.actions].sort((a,b)=>(isFix(b)-isFix(a))||sortBy(a,b))};
@@ -1974,12 +1978,33 @@ async function openShelf(){
   const H=Math.max(380,BKMH-44);BKRH=Math.round((H-94)/3);BK_SH=BK_SW=Math.min(1,Math.max(.6,(BKRH-6)/168));BKW=Math.max(520,g.clientWidth||690);const caseW=(BKW-14)/2,colW=Math.floor((caseW-3*10-4)/2),SW=Math.max(60,colW-24);
   BKC=bkPlan(L,SW);BKPG=0;bkRender();
 }
-$('#bk_g').onclick=async e=>{const el=e.target.closest('.bks-sp');if(!el||!BK)return;const b=BK[+el.dataset.i];
+async function showExcerpt(b){
   try{const t=await sb('/rest/v1/bkbk_texts?book=eq.'+b.id+'&select=text,page,pct&limit=1000'),L=(t||[]).filter(x=>x.text&&x.text.trim());
     if(!L.length)return msg('이 책엔 아직 발췌문이 없어요');
     const q=L[Math.floor(Math.random()*L.length)],pos=bkHas(q.page)&&String(q.page)!==''?'p.'+q.page:(bkHas(q.pct)&&String(q.pct)!==''?Math.round(bkPC(q.pct))+'%':'');
     runScene([{t:`${q.text.trim()}\n\n— ${b.name}${pos?' · '+pos:''}`}],()=>{pass(READ_MIN);G.log='';after()});
-  }catch(er){msg('발췌문을 불러오지 못했어요',1)}};
+  }catch(er){msg('발췌문을 불러오지 못했어요',1)}}
+$('#bk_g').onclick=e=>{const el=e.target.closest('.bks-sp');if(!el||!BK)return;showExcerpt(BK[+el.dataset.i])};
+/* 서점: 올 때마다 완독한 책 중 일부만 진열 → 산 책만 G.books에 저장 / 주거의 내 책장에서 발췌문 */
+const BOOK_PRICE=12000,BOOK_SHOW=5;
+const bkSw=b=>`<div style="width:44px;height:56px;border-radius:3px;background:${esc(b.c1||'#888')};border-right:8px solid ${esc(b.c2||'#ddd')};flex:none"></div>`;
+async function openBookShop(pid){
+  if(!openNow(pid))return say('지금은 문을 닫았어요',1);
+  $('#shm').textContent='서점을 둘러보는 중…';$('#shl').innerHTML='';$('#shop').showModal();
+  let L;try{L=await bkLoad()}catch(e){$('#shl').innerHTML='<div class="tag">책 목록을 불러오지 못했어요 (로그인 확인)</div>';return}
+  G.books=G.books||{};const pool=L.filter(b=>!G.books[b.id]).sort(()=>Math.random()-.5).slice(0,BOOK_SHOW),box=$('#shl');box.innerHTML='';
+  if(!pool.length)box.innerHTML='<div class="tag">오늘은 새로 들어온 책이 없어요</div>';
+  pool.forEach(b=>{const row=document.createElement('div');row.className='shi';row.innerHTML=bkSw(b);const nm=document.createElement('div');nm.className='nm2';nm.textContent=b.name;row.append(nm);
+    const bt=document.createElement('button');bt.textContent=`₩${BOOK_PRICE.toLocaleString()} 구매`;
+    bt.onclick=()=>{if(G.money<BOOK_PRICE)return msg('돈이 부족해요',1);earn(-BOOK_PRICE,b.name+' 구매');G.books[b.id]={id:b.id,name:b.name,c1:b.color1,c2:b.color2};G.log=`${b.name}을(를) 샀어요`;bt.textContent='보유';bt.disabled=true;saveGame();renderWorld();$('#shm').textContent='서점 · 보유 금액 ₩'+G.money.toLocaleString()};
+    row.append(bt);box.append(row)});
+  $('#shm').textContent='서점 · 보유 금액 ₩'+G.money.toLocaleString()}
+function openMyBooks(){
+  const L=Object.values(G.books||{}),box=$('#shl');$('#shm').textContent=`내 책장 · ${L.length}권 · 누르면 발췌문 (⏱ ${READ_MIN}분)`;box.innerHTML='';
+  if(!L.length)box.innerHTML='<div class="tag">아직 산 책이 없어요. 서점에서 사 보세요</div>';
+  L.forEach(b=>{const row=document.createElement('div');row.className='shi';row.innerHTML=bkSw(b);const nm=document.createElement('div');nm.className='nm2';nm.textContent=b.name;row.append(nm);
+    const bt=document.createElement('button');bt.textContent='읽기';bt.onclick=()=>showExcerpt(b);row.append(bt);box.append(row)});
+  $('#shop').showModal()}
 
 /* ===== 배경음악 (cdcd 재생목록 연결) ===== */
 const SEASONS=[['spring','🌸 봄'],['summer','🌴 여름'],['autumn','🍁 가을'],['winter','❄️ 겨울']],seasonOf=d=>{const m=d.getMonth()+1;return m>=3&&m<=5?'spring':m<=8&&m>=6?'summer':m>=9&&m<=11?'autumn':'winter'};
