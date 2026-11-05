@@ -517,12 +517,37 @@ html{overflow:hidden}
 #game .mp.paused .mp-lcd{opacity:.55}
 #game #wt .cal,#game #wt .tl,#game .mp{box-shadow:none}
 #actov button.act small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ===== v44 ===== */
+.gstitch{position:absolute;left:0;right:0;top:84px;height:3px;z-index:1;background:repeating-linear-gradient(90deg,var(--ink) 0 12px,transparent 12px 19px)}
+#game .side>.card:first-child{border:0;background:none;box-shadow:none;padding:0 2px}#game .side>.card:first-child::before{display:none}
+/* 간판 */
+.mapov .descbox .pn{background:var(--signbg,#ff5a3c);border:4px solid #fff;box-shadow:0 0 0 2px var(--ink);line-height:38px;text-shadow:0 2px 0 rgba(0,0,0,.28)}
+.sign::before,.sign::after{background:#fff;box-shadow:0 0 0 1px var(--ink)}
+/* 마을 선택 */
+.twi,.twarr{border-radius:3px;border:2px solid var(--ink);box-shadow:0 3px 0 var(--ink)}.twi{opacity:1;background:var(--p)}.twi.on{background:var(--ink);color:var(--hi)}
+.twarr:disabled{opacity:.4;box-shadow:none}
+/* HUD + 마을 그림: 한 상자, 각진 모서리, 틈 없이 */
+#game .card.world{padding:0;border:2px solid var(--ink);border-radius:0;box-shadow:none;justify-self:center;max-width:100%;overflow:hidden}
+#game .card.world::before{display:none}
+#game .card.world>#stview,#game .card.world>#bkview,#game .card.world>#mvview,#game .card.world>#closet{padding:14px}
+#game .card.world>#endbar{padding:0 14px 14px}
+#game .card.world>.wt{gap:0;padding:0;margin:0;border-bottom:2px solid var(--ink)}
+#game #wt{gap:0}
+#game #wt>*,#game #wt .cal,#game #wt .clk,#game #wt .tl,#game .mp{border:0;border-right:2px solid var(--ink);border-radius:0;box-shadow:none}
+#game #wt .vit{gap:0;border-right:2px solid var(--ink)}
+#game #wt .led{border:0;border-radius:0}#game #wt .led+.led{border-top:2px solid var(--ink)}
+#game #wt .tl .bands{border:0;border-radius:0}
+#game .mp{border-right:0;margin:0}
+#mapview,#mapstage{padding:0}
+#mapframe>.townmap,#mapframe>.interior{border:0;border-radius:0}
+.mapov .descbox .pn{display:flex;align-items:center;justify-content:center;gap:8px;line-height:1}.pn i{font-style:normal;flex:none}.pn span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 <div id="gamefit"><div class="app" id="game">
-  <div class="gtitle">시티 오브 레트로</div>
+  <div class="gtitle">시티 오브 레트로</div><div class="gstitch"></div>
   <div class="stagewrap"><div class="stage"><canvas id="cv"></canvas></div></div>
   <div class="side">
     <div class="card"><div class="bar">
@@ -1148,7 +1173,7 @@ function renderShop(pid){
 function openShop(pid){if(!openNow(pid))return say('지금은 문을 닫았어요',1);renderShop(pid);$('#shop').showModal()}
 let viewTownId=null;const curTown=()=>viewTownId||townOf(G.place);
 function setTownBg(el,T){
-  const set=u=>{const im=new Image();im.onload=()=>{if(im.naturalWidth){const fr=el.id==='townmap'?$('#mapframe'):el;fr.style.aspectRatio=im.naturalWidth+'/'+im.naturalHeight}};im.onerror=()=>{if(T.old&&u!==T.old)set(T.old)};im.src=u};
+  const set=u=>{const im=new Image();im.onload=()=>{if(im.naturalWidth){const fr=el.id==='townmap'?$('#mapframe'):el;fr.style.aspectRatio=im.naturalWidth+'/'+im.naturalHeight;sizeWorld()}};im.onerror=()=>{if(T.old&&u!==T.old)set(T.old)};im.src=u};
   el.style.backgroundImage=[T.file,T.old].filter(Boolean).map(f=>`url("${f}")`).join(',');set(T.file)}
 function buildTownMap(){
   const map=$('#townmap');if(!map)return;const tid=curTown(),i=TOWNS.findIndex(t=>t.id===tid),home=townOf(G.place);
@@ -1229,7 +1254,7 @@ function renderActs(){
   const vars=[];actionsAt(pid).filter(availAct).forEach(a=>{const sp=partnerOf(a);if(!open&&!sp)return;
     if(!sp)vars.push([a,null]);else if(sp==='*')here().forEach(id=>vars.push([a,id]));else if(npcAt(sp))vars.push([a,sp])});
   vars.forEach(([a,who])=>{const st=actState(a,who),b=document.createElement('button'),ch=chips(a),wn=who?(WORLD.npcs[who]||{}).n:'';b.className='act'+(st.ok?'':' off');
-    b.innerHTML=`<b>${esc(a.name)}${wn?' · '+esc(wn)+josa(wn):''}</b>${ch||!st.ok?`<small>${esc(ch)}${!st.ok?(ch?' · ':'')+'🔒 '+esc(st.why):''}</small>`:''}`;b.onclick=()=>doAction(a,who);box.append(b)});
+    b.innerHTML=`<b>${wn?esc(wn)+josa(wn)+' '+esc(a.code==='talk'?'대화하기':a.name):esc(a.name)}</b>${ch||!st.ok?`<small>${esc(ch)}${!st.ok?(ch?' · ':'')+'🔒 '+esc(st.why):''}</small>`:''}`;b.onclick=()=>doAction(a,who);box.append(b)});
   if(!box.children.length)box.innerHTML='<div class="noact">할 수 있는 행동이 없어요.</div>';
   {const x=document.createElement('button');x.className='act nav exit';x.innerHTML='<b>나가기</b><small>마을 지도로</small>';x.onclick=()=>{viewTown=true;renderWorld()};box.append(x)}
   box.style.scrollBehavior='auto';layActs();box.scrollLeft=keepSl;requestAnimationFrame(()=>{box.style.scrollBehavior='';updActArrows()});
@@ -1257,12 +1282,12 @@ function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const mapOnly=viewTown||curTown()!==townOf(G.place);   // 마을 지도만 보는 중: 특정 장소를 가리키지 않고 '마을'로 취급
   buildTownMap();
   document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===topOf(G.place)&&!mapOnly);b.classList.toggle('closed',!openNow(id));});
-  const p=WORLD.places[G.place];$('#mapcurrent').hidden=mapOnly;$('#mapcurrent').innerHTML=`<div class="pn">${esc(p.i||'')} ${esc(p.n)}</div>${signHtml(G.place)}`;$('#pdesc').textContent=p.desc?(p.desc.length>30?p.desc.slice(0,30)+'…':p.desc):'';
+  const p=WORLD.places[G.place];$('#mapcurrent').hidden=mapOnly;$('#mapcurrent').innerHTML=`<div class="pn">${p.i?`<i>${esc(p.i)}</i>`:''}<span>${esc(p.n)}</span>${p.i?`<i>${esc(p.i)}</i>`:''}</div>${signHtml(G.place)}`;$('#pdesc').textContent=p.desc?(p.desc.length>30?p.desc.slice(0,30)+'…':p.desc):'';
   renderActs();
   const co=G.place==='home'&&G.closet,vw=co?'closet':(viewSt?'status':(viewBk?'bk':(viewMv?'mv':'')));$('#closet').hidden=!co;$('#cbar').hidden=!co;$('#bkview').hidden=vw!=='bk';$('#mvview').hidden=vw!=='mv';$('#mapview').hidden=!!vw;$('#stview').hidden=vw!=='status';$('#endbar').hidden=!vw;if(vw==='status')renderStatus();
   {const im=placeImg(G.place),si=!viewTown,el=$('#intimg');$('#townmap').hidden=si;$('#interior').hidden=!si;$('#townbar').hidden=si;$('.mapov').classList.toggle('int',si);$('#actov').hidden=!!vw||mapOnly;
     el.hidden=!im;if(!im){el.removeAttribute('src');el.dataset.src=''}else if(si&&el.dataset.src!==im){el.dataset.src=im;el.onerror=()=>{IMGBAD.add(im);el.dataset.src='';renderWorld()};el.src=im}}
-  requestAnimationFrame(layActs);
+  requestAnimationFrame(()=>{layActs();sizeWorld()});
   document.querySelector('.stagewrap').classList.toggle('bare',!co);try{bgmUpdate()}catch(e){}
 }
 $('#shc').onclick=()=>{$('#shop').close();refresh()};
@@ -1712,7 +1737,11 @@ function npcExtra(n){
 // ===== 화면 맞춤: 1920×1080 고정 비율을 통째로 확대·축소 (최소 0.5배) =====
 function fitGame(){const g=$('#game'),f=$('#gamefit'),de=document.documentElement,cw=de.clientWidth,ch=de.clientHeight;let k=Math.min(cw/1920,ch/1080);const small=k<0.5;k=Math.max(0.5,k);
   g.style.transform=`scale(${k})`;f.style.width=Math.round(1920*k)+'px';f.style.height=Math.round(1080*k)+'px';f.style.marginTop=Math.max(0,Math.floor((ch-1080*k)/2))+'px';de.style.overflow=small?'auto':'hidden';try{updActArrows()}catch(e){}}
-addEventListener('resize',fitGame);fitGame();
+// 상단 HUD+마을 그림을 한 상자로: 상자 너비를 그림 비율에 맞춘다
+function sizeWorld(){try{const c=document.querySelector('#game .card.world'),f=$('#mapframe'),w=c&&c.querySelector('.wt');if(!c||!f||!w)return;
+  const a=String(getComputedStyle(f).aspectRatio||'1.5').split('/').map(parseFloat),ratio=(a[0]/(a[1]||1))||1.5,fh=c.clientHeight-w.offsetHeight;
+  if(fh>100)c.style.width=Math.floor(fh*ratio)+(c.offsetWidth-c.clientWidth)+'px'}catch(e){}}
+addEventListener('resize',()=>{fitGame();sizeWorld()});fitGame();
 
 // ================= 시작 =================
 loadGame();buildModel();rebuildAcq();initSel();inited=true;refresh();renderWorld();checkEvents();
