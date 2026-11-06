@@ -491,7 +491,7 @@ dialog{border:3px solid var(--ln);box-shadow:none}
 /* 상단 HUD: 날짜·시간띠·시계·음악·재화 = 가장 바깥 틀과 같은 이중 테두리.
    안쪽 흰 띠(5px)가 글자를 가리지 않도록 글자 영역은 위·아래 5px씩 비켜 놓고,
    글자는 폰트 상관없이 가운데 오게(text-box) 맞춤. 구분선은 전부 연보라·같은 높이(안쪽 y=48)이고 흰 띠 위로 지나감 */
-.tx{display:block;text-box:trim-both cap alphabetic}
+.hx{display:block;text-box:trim-both cap alphabetic}
 .world>.wt{background:transparent;border-bottom:0}
 #wt>*,.world .mp{position:relative;border:3px solid var(--ln);border-radius:18px;background:var(--glassw);box-shadow:none}
 #wt .cal::after,#wt .tl::after,#wt .clk::after,.world .mp::after,#wt .vit::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:15px;box-shadow:inset 0 0 0 3px rgba(255,255,255,.75),inset 0 0 0 5px var(--ln2)}
@@ -499,22 +499,21 @@ dialog{border:3px solid var(--ln);box-shadow:none}
 #wt .cal .mo{flex:none;height:24px;box-sizing:border-box;padding-top:5px;display:flex;align-items:center;justify-content:center;line-height:1;font-size:12px;background:linear-gradient(#ffd3ea,#ffb8d6);color:#fff;text-shadow:0 1px 0 #d8639a}
 #wt .cal .dy{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;font-size:25px;line-height:1}
 #wt .cal .wk{flex:none;height:22px;box-sizing:border-box;padding-bottom:5px;display:flex;align-items:center;justify-content:center;line-height:1;font-size:11px;position:relative;z-index:4}
-#wt .cal .wk::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--ln2)}
+#wt .cal .wk::before{content:"";position:absolute;left:5px;right:5px;top:0;height:3px;background:var(--ln2)}
 .bd{border-right:0;padding-top:5px;box-sizing:border-box;gap:10px}.bd.on{box-shadow:none}
 .bd i{line-height:1;font-size:16px}.bd em{line-height:1;font-size:11px}
-.scale{flex:none;position:relative;z-index:4;height:22px;box-sizing:border-box;background:none;border-top:3px solid var(--ln2)}
-.scale>i.tk{background:var(--ln2);opacity:1;width:2px;margin-left:-1px}
-.scale .dot{top:-7px;border:2px solid var(--ln);box-sizing:border-box}
+.scale{flex:none;position:relative;z-index:4;height:22px;box-sizing:border-box;background:none;border-top:0}
+.scale::before{content:"";position:absolute;left:5px;right:5px;top:0;height:3px;background:var(--ln2)}
+.scale>i.tk{background:var(--ln2);opacity:1;width:2px;margin-left:-1px;top:3px}
+.scale .dot{top:-4px;border:2px solid var(--ln);box-sizing:border-box}
 #wt .clk{line-height:1}
 .world .mp{background:linear-gradient(#d6f0ff,#bfe3fb)}
-.mp-lcd{padding:5px 12px 0;box-sizing:border-box;gap:8px}
-.mp-time{font-size:22px;line-height:1;text-box:trim-both cap alphabetic}
-.mp-mq{display:flex;align-items:center;font-size:12px;height:16px;line-height:1}.mp-mq span{flex:none}
-.mp-seek{flex:none;position:relative;z-index:4;height:22px;box-sizing:border-box;background:none;border-top:3px solid var(--ln2);display:flex;align-items:center;padding:0 8px 5px;cursor:pointer}
-.mp-seek::before{content:"";position:absolute;left:8px;right:8px;top:4px;height:6px;border-radius:3px;background:var(--ln2)}
-#mp_seek #mp_bar{position:relative;flex:none;width:0;height:6px;border-radius:3px;background:var(--acc)}
+.mp-lcd{padding:5px 14px;box-sizing:border-box;gap:7px;justify-content:center}
+.mp-time{font-size:26px;line-height:1;text-box:trim-both cap alphabetic}
+.mp-mq{display:flex;align-items:center;font-size:13px;height:18px;line-height:1}.mp-mq span{flex:none}
+.mp-seek{display:none}
 #wt .vit{overflow:hidden;gap:0;border:3px solid var(--ln);border-radius:18px;background:var(--glassw)}
-#wt .vit::before{content:"";position:absolute;left:0;right:0;top:50%;height:3px;margin-top:-1.5px;background:var(--ln2);z-index:4;pointer-events:none}
+#wt .vit::before{content:"";position:absolute;left:5px;right:5px;top:50%;height:3px;margin-top:-1.5px;background:var(--ln2);z-index:4;pointer-events:none}
 #wt .led{border:0;border-radius:0;box-shadow:none;background:none;line-height:1}
 #wt .led.en{padding-top:5px;box-sizing:border-box;background:linear-gradient(90deg,#a9e8d2 var(--p,100%),#e4fbf1 var(--p,100%))}
 #wt .led.mo{padding-bottom:5px;box-sizing:border-box;background:linear-gradient(#fffbe0,#fff1b0)}
@@ -527,11 +526,16 @@ dialog{border:3px solid var(--ln);box-shadow:none}
 .map-building::before{margin-left:-8px;border-width:11px 8px 0;border-top-color:var(--bc)}
 .map-building::after{margin-left:-6px;margin-top:-1px;border-width:9px 6px 0;border-top-color:var(--bf)}
 .mb-t{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1;text-box:trim-both cap alphabetic;padding:.5em 0;margin:-.5em 0}
-.map-building:hover,.map-building:active{transform:translate(-50%,-50%);--bt:#fffbe0;--bf:#fff0b3;--bc:var(--hv-ln);box-shadow:none}
+.map-building:hover,.map-building:active{transform:translate(-50%,-50%);box-shadow:none}
+.map-building,.map-building:hover:not(:disabled){background:linear-gradient(var(--bt),var(--bf));border-color:var(--bc)}
+.map-building:hover:not(:disabled),.map-building.current:hover:not(:disabled),.map-building.closed:hover:not(:disabled),.map-building:active:not(:disabled){--bt:#fffbe0;--bf:#fff0b3;--bc:var(--hv-ln);color:var(--ink)}
 .map-building.current,.map-building.current:hover{--bt:#ffe3f0;--bf:#ffb8d6;--bc:var(--sl-ln)}
 .map-building.closed,.map-building.closed:hover{--bt:var(--of-bg);--bf:var(--of-bg);--bc:var(--of-ln);color:#b9aedb}
 .pn{border:4px solid var(--ln);border-radius:20px;background:var(--signbg,linear-gradient(#fff6c8,#ffe27a));box-shadow:none;color:#7a5aa8;text-shadow:none}
-.sign{border:2px solid var(--ln);box-shadow:none}.sign::before,.sign::after{box-shadow:0 0 0 1.5px var(--ln)}
+.sign{border:2px solid var(--ln);box-shadow:none;background:linear-gradient(#3a2f6b,#27204d)}.sign span{color:#d9d0ff}
+.sign b{font-size:22px;font-weight:900;-webkit-text-stroke:.7px currentColor;letter-spacing:.16em}
+.sign.o b{color:#7dffd0;text-shadow:0 0 3px #fff,0 0 8px #19e0a0,0 0 16px #19e0a0,0 0 26px #19e0a0}
+.sign.c b{color:#ff9cc0;text-shadow:0 0 3px #fff,0 0 8px #ff3d86,0 0 16px #ff3d86,0 0 26px #ff3d86}.sign::before,.sign::after{background:#d9d0ff;box-shadow:0 0 0 1.5px var(--ln)}
 .twi,.twarr{border:3px solid var(--bs-ln);box-shadow:none}
 #actov{background:linear-gradient(175deg,#d6f0ff,#eee2ff 60%,#ffe0f0);border-top:4px solid var(--ln);box-shadow:none}
 /* 액션: 하늘색, 올리면 노랑(다른 버튼과 같은 규칙) */
@@ -544,7 +548,7 @@ button.act b{font-weight:900;font-size:18px;color:var(--ink);-webkit-text-stroke
 .acarr:hover:not(:disabled){background:var(--hv-bg);border-color:var(--hv-ln)}
 .exit{z-index:8;background:var(--sl-bg);border-color:var(--sl-ln);color:var(--sl-ink);box-shadow:none}
 .exit:hover:not(:disabled){background:var(--hv-bg);border-color:var(--hv-ln);color:var(--ink)}
-#sp{border:3px solid var(--ln);border-radius:22px;box-shadow:none;background:none}
+#sp{width:100px;height:100px;margin:6px 0 0 6px;border:2px solid var(--ln2);border-radius:20px;background:var(--ln2);box-shadow:0 0 0 3px rgba(255,255,255,.8),0 0 0 6px var(--ln)}
 #simg{border:3px solid var(--ln);box-shadow:none;border-radius:16px}
 #scene .nm{background:var(--sl-bg);border:3px solid var(--sl-ln);color:#fff;text-shadow:0 2px 0 #d8639a;-webkit-text-stroke:3px var(--sl-ln);paint-order:stroke fill}
 /* 캐릭터: 원래 크기(옷장과 같음), 마을·장소 같은 자리, 허벅지 중간까지만 — 장소창에서는 아래 띠가 가려요 */
@@ -569,6 +573,31 @@ button.act b{font-weight:900;font-size:18px;color:var(--ink);-webkit-text-stroke
 .bk-post{background:linear-gradient(90deg,#f4dccd 0 1px,var(--face) 1px 8px,#8a5a48 8px 9px,var(--dk) 9px)}
 .bk-row::after{background:linear-gradient(to bottom,#f4dccd 0 2px,var(--face) 2px 12px,var(--dk) 12px 14px)}
 .bk-lab{color:#4a2a1f}.bk-vp{padding:0}.bk-tr{width:max-content;margin:0 auto}
+
+/* ---- 2차 보정 ---- */
+#st_b{max-height:none;overflow:visible;display:grid;grid-template-columns:1fr 1fr;gap:0 28px;align-items:start}
+#st_b .stcol>h2{margin-top:0}#st_b .stcol>h2~h2{margin-top:14px}
+#st_b h2{margin-top:12px}
+#bchoice{min-width:300px}
+dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);outline-offset:2px}
+/* 비디오 가게: 테이프를 눕히고 오른쪽에 제목·금액 버튼 */
+.tapes{display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:12px;padding:14px;justify-content:flex-start}
+.tapes .tpr{display:flex;align-items:center;gap:14px}
+.tapes .tpn{flex:1;min-width:0;max-width:none;text-align:left;font-size:14px;line-height:1.35;color:#fff;word-break:keep-all}
+.tapes .tpr>button{flex:none;width:128px;align-self:center}
+.tapes .mvtp{width:220px;height:40px;flex:none;background:linear-gradient(180deg,#fff3,#0000 14%,#0000 84%,#0006),var(--p)}
+.tapes .mvtp::before{left:12.8%;right:auto;top:0;bottom:0;width:1px;height:auto;box-shadow:1px 0 0 #fff3}
+.tapes .mvtp::after{left:auto;right:2.4%;top:0;bottom:0;width:1px;height:auto;box-shadow:1px 0 0 #fff2}
+.tapes .mvt-sm{left:0;top:50%;width:12.8%;height:1px;margin:-.5px 0 0;box-shadow:0 1px 0 #fff3}
+.tapes .mvt-nt{right:auto;left:14px;top:4px;width:14px;height:41%}
+.tapes .mvt-rc{left:15%;right:5%;top:3px;bottom:3px}
+.tapes .mvt-sk{flex-direction:row}
+.tapes .mvtp.d1 .mvt-sk{border-top:0;border-left:6px solid var(--a)}
+.tapes .mvtp.d2 .mvt-sk{box-shadow:inset 6px 0 0 var(--a),inset 9px 0 0 var(--s),inset 12px 0 0 var(--b)}
+.tapes .mvtp.d3 .mvt-sk{background:linear-gradient(180deg,#fff3,#0000 45%,#0003),var(--s)}
+.tapes .mvt-st{writing-mode:horizontal-tb;padding:0 8px;line-height:1.3}
+.tapes .mvtp.d2 .mvt-st{padding:0 8px 0 16px}
+.tapes .mvt-lg{width:34px;height:auto;display:flex;align-items:center;justify-content:center;line-height:1;font-size:6px}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -579,7 +608,7 @@ button.act b{font-weight:900;font-size:18px;color:var(--ink);-webkit-text-stroke
     <div class="card"><div class="bar">
       <span style="flex:1"></span><span class="sysbar"><button id="bgmbtn" title="배경음악 볼륨 (누르면 0~5 순환)">🎵 3</button><button id="sfxbtn" title="볼륨 (누르면 0~5 순환)">🔊 3</button><button id="wnew">💾 세이브</button><button id="adminbtn" hidden>🛠 관리자 모드</button><button id="authbtn">⚙ 설정·로그인</button></span>
     </div></div>
-    <div class="card world"><div class="wt"><span id="wt"></span><div id="mp" class="mp paused" title="누르면 재생/일시정지"><div class="mp-lcd"><div class="mp-time" id="mp_time">00:00</div><div class="mp-mq" id="mp_mq"><span class="tx" id="mp_t">♪ —</span></div></div><div class="mp-seek" id="mp_seek"><div id="mp_bar"></div></div></div></div>
+    <div class="card world"><div class="wt"><span id="wt"></span><div id="mp" class="mp paused" title="누르면 재생/일시정지"><div class="mp-lcd"><div class="mp-time" id="mp_time">00:00</div><div class="mp-mq" id="mp_mq"><span class="hx" id="mp_t">♪ —</span></div></div><div class="mp-seek" id="mp_seek"><div id="mp_bar"></div></div></div></div>
       <div id="stview" hidden><h2>📋 내 상태</h2><div id="st_b"></div></div>
       <div id="mapview">
         <div id="mapstage"><div id="mapframe">
@@ -613,6 +642,7 @@ button.act b{font-weight:900;font-size:18px;color:var(--ink);-webkit-text-stroke
 <dialog id="savedlg"><h2>💾 세이브</h2><div class="tag" id="sv_i" style="margin:6px 0 10px"></div><div id="sv_l"></div><div class="bar" style="margin-top:12px;justify-content:flex-end"><button id="sv_x">닫기</button></div></dialog>
 <dialog id="welcome"><div class="wl1">play the retro music</div></dialog>
 <dialog id="film"></dialog>
+<dialog id="bchoice" style="text-align:center"><p id="bcm" style="margin:6px 0 14px;line-height:1.6"></p><div class="bar" style="justify-content:center;gap:10px"><button id="bc_bag" type="button">🎒 가방에 넣기</button><button id="bc_use" type="button" class="pri">😋 지금 사용하기</button></div></dialog>
 <dialog id="shop"><h2 id="shm"></h2><div id="shl"></div><div class="bar" style="margin-top:10px;justify-content:flex-end"><button id="shc">닫기</button></div></dialog>
 <dialog id="dlg">
   <h2>연결 설정</h2>
@@ -1253,16 +1283,22 @@ function renderShop(pid){
     const it=BY[rid(s.ref)];if(!it)return;const row=document.createElement('div');row.className='shi';row.append(thumb([it],44,56));
     const nm=document.createElement('div');nm.className='nm2';nm.textContent=it.name;row.append(nm);
     const b=document.createElement('button'),has=!!G.owned[it.id];b.textContent=has?'보유':`₩${s.price.toLocaleString()} 구매`;b.disabled=has;
-    b.onclick=()=>{if(G.money<s.price)return msg('돈이 부족해요',1);earn(-s.price,it.name+' 구매');G.owned[it.id]=1;G.log=`${it.name}을(를) 샀어요`;deltaCheck();saveGame();renderWorld();renderShop(pid);refresh()};
+    b.onclick=()=>{if(G.money<s.price)return msg('돈이 부족해요',1);earn(-s.price,it.name+' 구매');G.owned[it.id]=1;G.log=`${it.name}을(를) 샀어요`;msg(`🛍 ${it.name}을(를) 샀어요! · −₩${s.price.toLocaleString()}`);deltaCheck();saveGame();renderWorld();renderShop(pid);refresh()};
     row.append(b);box.append(row)});
   (WORLD.gsrc||[]).filter(s=>s.place===pid).forEach(s=>{const g=GOODS(s.goods);if(!g)return;const row=document.createElement('div');row.className='shi';
     const ic=document.createElement('div');ic.style.cssText='width:44px;font-size:30px;text-align:center';ic.textContent=g.icon||'📦';row.append(ic);
     const nm=document.createElement('div');nm.className='nm2';nm.innerHTML=esc(g.name)+(g.descr?`<br><small style="opacity:.7">${esc(g.descr)}</small>`:'');row.append(nm);
     const keep=g.kind==='book'||g.kind==='video',has=keep&&(G.bag||{})[g.id],b=document.createElement('button');b.textContent=has?'보유':`₩${s.price.toLocaleString()} 구매`;b.disabled=!!has;
-    b.onclick=()=>{if(G.money<s.price)return msg('돈이 부족해요',1);earn(-s.price,g.name+' 구매');G.bag=G.bag||{};G.bag[g.id]=(G.bag[g.id]||0)+1;G.log=`${g.name}을(를) 샀어요`;saveGame();renderWorld();renderShop(pid)};
+    b.onclick=()=>{if(G.money<s.price)return msg('돈이 부족해요',1);earn(-s.price,g.name+' 구매');G.bag=G.bag||{};G.bag[g.id]=(G.bag[g.id]||0)+1;G.log=`${g.name}을(를) 샀어요`;saveGame();renderWorld();renderShop(pid);bought(g,s.price)};
     row.append(b);box.append(row)});
   $('#shm').textContent=WORLD.places[pid].n+' · 보유 금액 ₩'+G.money.toLocaleString();redraw();
 }
+function bought(g,price){const food=g.kind==='food'||g.consume;
+  if(!food){msg(`🎒 ${g.name}을(를) 샀어요! 가방에 넣었어요 · −₩${price.toLocaleString()}`);return}
+  $('#bcm').innerHTML=`<span style="font-size:34px">${esc(g.icon||'📦')}</span><br><b>${esc(g.name)}</b>을(를) 샀어요! <small style="opacity:.7">(−₩${price.toLocaleString()})</small>`;
+  $('#bc_bag').onclick=()=>{$('#bchoice').close();msg(`🎒 ${g.name}을(를) 가방에 넣었어요`)};
+  $('#bc_use').onclick=()=>{$('#bchoice').close();useGoods(g.id)};
+  $('#bchoice').showModal()}
 function openShop(pid){if(!openNow(pid))return say('지금은 문을 닫았어요',1);renderShop(pid);$('#shop').showModal()}
 let viewTownId=null;const curTown=()=>viewTownId||townOf(G.place);
 function setTownBg(el,T){
@@ -1362,11 +1398,11 @@ function useGoods(id){const g=GOODS(id);if(!g||!(G.bag||{})[id])return;const en=
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button.eat');if(b)useGoods(b.dataset.g)});
 function renderStatus(){
   const aff=Object.entries(G.aff).filter(([,v])=>v).map(([k,v])=>`<div class="srow"><span>${esc((WORLD.npcs[k]||{}).n||k)}</span><b>♥ ${v}</b></div>`).join('')||'<div class="tag">아직 호감도가 쌓인 사람이 없어요</div>';
-  $('#st_b').innerHTML=`<div class="srow"><span>날짜·시간</span><b>${dateText()} ${timeText()}</b></div><div class="srow"><span>돈</span><b>₩${G.money.toLocaleString()}</b></div>
+  $('#st_b').innerHTML=`<div class="stcol"><div class="srow"><span>날짜·시간</span><b>${dateText()} ${timeText()}</b></div><div class="srow"><span>돈</span><b>₩${G.money.toLocaleString()}</b></div>
     <div class="srow" style="border:0"><span>에너지</span><b>${G.energy} / 100</b></div><div class="ebar"><i style="width:${G.energy}%"></i></div>
-    <h2 style="margin-top:12px">호감도</h2>${aff}<div class="srow" style="margin-top:8px"><span>모은 옷</span><b>${Object.keys(G.owned).length}벌</b></div>
-    <h2 style="margin-top:12px">🎒 가방</h2>${bagHtml()}
-    <h2 style="margin-top:12px">최근 돈 내역 (최대 20건)</h2>${(G.ledger||[]).map(e=>{const d=new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+e.d);return `<div class="srow"><span>${d.getMonth()+1}/${d.getDate()} ${fmtT(e.t)} · ${esc(e.n)}</span><b style="color:${e.v>0?'#2f7d4f':'#b4452f'}">${e.v>0?'+':'−'}₩${Math.abs(e.v).toLocaleString()}</b></div>`}).join('')||'<div class="tag">아직 돈이 오간 기록이 없어요</div>'}`;
+    <h2 style="margin-top:12px">호감도</h2>${aff}<div class="srow" style="margin-top:8px"><span>모은 옷</span><b>${Object.keys(G.owned).length}벌</b></div></div>
+    <div class="stcol"><h2>🎒 가방</h2>${bagHtml()}
+    <h2 style="margin-top:12px">최근 돈 내역 (최대 20건)</h2>${(G.ledger||[]).map(e=>{const d=new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+e.d);return `<div class="srow"><span>${d.getMonth()+1}/${d.getDate()} ${fmtT(e.t)} · ${esc(e.n)}</span><b style="color:${e.v>0?'#2f7d4f':'#b4452f'}">${e.v>0?'+':'−'}₩${Math.abs(e.v).toLocaleString()}</b></div>`}).join('')||'<div class="tag">아직 돈이 오간 기록이 없어요</div>'}</div>`;
 }
 
 $('#endview').onclick=$('#endview2').onclick=$('#endview3').onclick=()=>{G.closet=false;viewSt=false;viewBk=false;viewMv=false;mvPlace=null;after()};
@@ -1378,9 +1414,9 @@ const placeImg=pid=>{const q=WORLD.places[pid];if(!q)return'';const u=q.img||(q.
 const signHtml=pid=>{const q=WORLD.places[pid];if(!q||q.type==='home')return '';const o=openNow(pid),h=q.open&&q.open.length?q.open.map(([a,b])=>fmtT(a)+' ~ '+fmtB(b)).join(', '):'24H';return `<div class="sign ${o?'o':'c'}"><b>${o?'OPEN':'CLOSED'}</b><span>${h}</span></div>`};
 function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const d=dateOf();const bn=bandOf(G.min),BR=[['아침','🌅',300,420],['오전','🌤',420,780],['오후','☀️',780,1020],['저녁','🌇',1020,1140],['밤','🌙',1140,1740]],wd=d.getDay(),np=((G.min-300+1440)%1440)/1440*100; 
-  $('#wt').innerHTML=`<div class="cal${wd===0?' sun':wd===6?' sat':''}"><span class="mo"><span class="tx">${d.getMonth()+1}월</span></span><b class="dy"><span class="tx">${d.getDate()}</span></b><span class="wk"><span class="tx">${DOW[wd]}요일</span></span></div>
-   <b class="clk"><span class="tx">${fmtT(G.min).replace(":","<i>:</i>")}</span></b>
-   <div class="tl"><div class="bands">${BR.map(([n,i,a,b])=>`<span class="bd${n===bn?' on':''}" style="flex:${b-a} 1 0"><i class="tx">${i}</i><em class="tx">${n}</em></span>`).join('')}</div><div class="scale">${Array.from({length:47},(_,k)=>{const n=k+1;return `<i class="tk ${n%4===0?'l':n%2===0?'m':'s'}" style="left:${n/48*100}%"></i>`}).join('')}<b class="dot" style="left:${Math.min(97,Math.max(3,np))}%"></b></div></div>
+  $('#wt').innerHTML=`<div class="cal${wd===0?' sun':wd===6?' sat':''}"><span class="mo"><span class="hx">${d.getMonth()+1}월</span></span><b class="dy"><span class="hx">${d.getDate()}</span></b><span class="wk"><span class="hx">${DOW[wd]}요일</span></span></div>
+   <b class="clk"><span class="hx">${fmtT(G.min).replace(":","<i>:</i>")}</span></b>
+   <div class="tl"><div class="bands">${BR.map(([n,i,a,b])=>`<span class="bd${n===bn?' on':''}" style="flex:${b-a} 1 0"><i class="hx">${i}</i><em class="hx">${n}</em></span>`).join('')}</div><div class="scale">${Array.from({length:47},(_,k)=>{const n=k+1;return `<i class="tk ${n%4===0?'l':n%2===0?'m':'s'}" style="left:${n/48*100}%"></i>`}).join('')}<b class="dot" style="left:${Math.min(97,Math.max(3,np))}%"></b></div></div>
    <div class="vit"><div class="led en" style="--p:${Math.max(0,Math.min(100,G.energy))}%"><i>EN</i><b>${Math.round(G.energy)}<small>/100</small></b></div><div class="led mo"><i>₩</i><b>${(G.money||0).toLocaleString()}</b></div></div>`;applyTint();setTimeout(posSys,0);
   const mapOnly=viewTown||curTown()!==townOf(G.place);   // 마을 지도만 보는 중: 특정 장소를 가리키지 않고 '마을'로 취급
   buildTownMap();
@@ -1902,11 +1938,12 @@ function sizeWorld(){try{const c=document.querySelector('#game .card.world'),f=$
   const a=String(getComputedStyle(f).aspectRatio||'1.5').split('/').map(parseFloat),ratio=(a[0]/(a[1]||1))||1.5,fh=c.clientHeight-w.offsetHeight;
   if(fh>100)c.style.width=Math.floor(fh*ratio)+(c.offsetWidth-c.clientWidth)+'px';posSys();sizeChar()}catch(e){}}
 var charL=0;function charSide(l){charL=l;const sw=document.querySelector('.stagewrap'),mf=$('#mapframe');if(!sw||!mf)return;sw.style.transform=l&&sw.classList.contains('mini')?`translateX(${-Math.max(0,mf.clientWidth-sw.offsetWidth-160)}px)`:''}
-function sizeChar(){const mf=$('#mapframe'),cv=$('#cv');if(!mf||!cv)return;const H=Math.max(300,Math.round(mf.clientHeight-48)),r=(cv.width&&cv.height)?cv.width/cv.height:596/1796;mf.style.setProperty('--sth',H+'px');mf.style.setProperty('--sw',Math.round(H*r)+'px');mf.style.setProperty('--sch',Math.round(H*.624)+'px');charSide(charL)}
-function charHit(e){const sw=document.querySelector('.stagewrap');if(!sw||!sw.classList.contains('mini')||(e.target.closest&&e.target.closest('.exit,#actov,.twarr,.twi,.dbox')))return false;const cv=$('#cv'),r=cv.getBoundingClientRect(),w=sw.getBoundingClientRect();if(e.clientX<w.left||e.clientX>w.right||e.clientY<w.top||e.clientY>w.bottom||e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)return false;try{const x=Math.floor((e.clientX-r.left)/r.width*cv.width),y=Math.floor((e.clientY-r.top)/r.height*cv.height);return cv.getContext('2d').getImageData(x,y,1,1).data[3]>20}catch(_){const fx=(e.clientX-r.left)/r.width;return fx>.05&&fx<.95}}
+function sizeChar(){const mf=$('#mapframe'),cv=$('#cv');if(!mf||!cv)return;const H=Math.max(300,Math.round(mf.clientHeight*1.3)),r=(cv.width&&cv.height)?cv.width/cv.height:596/1796;mf.style.setProperty('--sth',H+'px');mf.style.setProperty('--sw',Math.round(H*r)+'px');mf.style.setProperty('--sch',Math.round(H*.624)+'px');charSide(charL)}
+function charHit(e){const sw=document.querySelector('.stagewrap');if(!sw||document.querySelector('#game.talking')||!sw.classList.contains('mini')||(e.target.closest&&e.target.closest('.exit,#actov,.twarr,.twi,.dbox')))return false;const cv=$('#cv'),r=cv.getBoundingClientRect(),w=sw.getBoundingClientRect();if(e.clientX<w.left||e.clientX>w.right||e.clientY<w.top||e.clientY>w.bottom||e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)return false;try{const x=Math.floor((e.clientX-r.left)/r.width*cv.width),y=Math.floor((e.clientY-r.top)/r.height*cv.height);return cv.getContext('2d').getImageData(x,y,1,1).data[3]>20}catch(_){const fx=(e.clientX-r.left)/r.width;return fx>.05&&fx<.95}}
 document.addEventListener('click',e=>{if(charHit(e)){e.stopImmediatePropagation();e.preventDefault();charSide(charL?0:1)}},true);
+document.addEventListener('click',e=>{if(!$('#game').classList.contains('talking'))return;const t=e.target;if(!t.closest||t.closest('#scene,#delta,dialog,button,a,input,select,textarea,label,.sysbar'))return;const el=!$('#scene').hidden?$('#scene'):(!$('#delta').hidden?$('#delta'):null);if(el&&el.onclick)el.onclick(e)});
 document.addEventListener('mousemove',e=>{const mf=$('#mapframe');if(mf)mf.style.cursor=charHit(e)?'pointer':''});
-function posSys(){try{const g=$('#game'),v=g.querySelector('.vit'),c=g.querySelector('.side>.card:first-child');if(!v||!c)return;const sc=g.getBoundingClientRect().width/g.offsetWidth||1,gr=g.getBoundingClientRect(),vr=v.getBoundingClientRect();c.style.marginRight=Math.max(0,Math.round((gr.right-(vr.left+vr.width*2/3))/sc-26))+'px'}catch(e){}}
+function posSys(){try{const g=$('#game'),v=g.querySelector('.vit'),c=g.querySelector('.side>.card:first-child');if(!v||!c)return;const sc=g.getBoundingClientRect().width/g.offsetWidth||1,gr=g.getBoundingClientRect(),vr=v.getBoundingClientRect();c.style.marginRight=Math.max(0,Math.round((gr.right-(vr.left+vr.width*2/3))/sc-52))+'px'}catch(e){}}
 addEventListener('resize',()=>{fitGame();sizeWorld();posSys()});fitGame();
 
 // ================= 시작 =================
@@ -2017,22 +2054,23 @@ async function openBookShop(pid){
   if(!pool.length)box.innerHTML='<div class="tag">오늘은 새로 들어온 책이 없어요</div>';
   pool.forEach(b=>{const row=document.createElement('div');row.className='shi';row.innerHTML=bkSw(b);const nm=document.createElement('div');nm.className='nm2';nm.textContent=b.name;row.append(nm);
     const bt=document.createElement('button');bt.textContent=`₩${BOOK_PRICE.toLocaleString()} 구매`;
-    bt.onclick=()=>{if(G.money<BOOK_PRICE)return msg('돈이 부족해요',1);earn(-BOOK_PRICE,b.name+' 구매');G.books[b.id]={id:b.id,name:b.name,c1:b.color1,c2:b.color2};G.log=`${b.name}을(를) 샀어요`;bt.textContent='보유';bt.disabled=true;saveGame();renderWorld();$('#shm').textContent='서점 · 보유 금액 ₩'+G.money.toLocaleString()};
+    bt.onclick=()=>{if(G.money<BOOK_PRICE)return msg('돈이 부족해요',1);earn(-BOOK_PRICE,b.name+' 구매');G.books[b.id]={id:b.id,name:b.name,c1:b.color1,c2:b.color2};G.log=`${b.name}을(를) 샀어요`;msg(`📖 ${b.name}을(를) 샀어요! 내 책장에 꽂았어요 · −₩${BOOK_PRICE.toLocaleString()}`);bt.textContent='보유';bt.disabled=true;saveGame();renderWorld();$('#shm').textContent='서점 · 보유 금액 ₩'+G.money.toLocaleString()};
     row.append(bt);box.append(row)});
   $('#shm').textContent='서점 · 보유 금액 ₩'+G.money.toLocaleString()}
 /* 비디오 가게: mvmv의 영화 목록을 mvmv와 같은 비디오테이프 그림(mvtape.v1.js)으로 진열. 올 때마다 일부만 무작위, 산 것만 G.videos에 저장 */
 const VIDEO_PRICE=15000,VIDEO_SHOW=5,VIDEO_MIN=30;
 const tapeHtml=m=>window.MvTape?MvTape.html(m,{}):`<div class="tag" style="padding:30px 6px;background:${esc(m.c1||'#333')};color:#fff">${esc(m.name)}</div>`;
-function tapeGrid(L,label,fn){const box=$('#shl');box.classList.add('tapes');box.innerHTML='';
-  if(window.MvTape)Object.entries(MvTape.size(150)).forEach(([k,v])=>box.style.setProperty(k,v));
-  L.forEach(m=>{const c=document.createElement('div');c.className='tpc';c.innerHTML=tapeHtml(m)+`<div class="tpn">${esc(m.name)}</div>`;const b=document.createElement('button');b.textContent=label(m);b.onclick=()=>fn(m,b);c.append(b);box.append(c)})}
+function tapeGrid(L,label,fn){const box=$('#shl');box.classList.add('tapes');box.innerHTML='';box.style.setProperty('--sl','104px');
+  L.forEach(m=>{const c=document.createElement('div');c.className='tpr';c.innerHTML=tapeHtml(m)+`<div class="tpn">${esc(m.name)}</div>`;const b=document.createElement('button');b.textContent=label(m);b.onclick=()=>fn(m,b);c.append(b);box.append(c)});
+  tapeFit();try{document.fonts&&document.fonts.ready.then(tapeFit)}catch(e){}}
+function tapeFit(){document.querySelectorAll('#shl .mvt-st').forEach(e=>{e.style.fontSize='';let fs=parseFloat(getComputedStyle(e).fontSize)||13,n=0;while(fs>7&&n++<40&&(e.scrollWidth>e.clientWidth+1||e.scrollHeight>e.clientHeight+1)){fs-=.5;e.style.fontSize=fs+'px'}})}
 async function openVideoShop(pid){
   if(!openNow(pid))return say('지금은 문을 닫았어요',1);
   $('#shm').textContent='진열대를 둘러보는 중…';$('#shl').innerHTML='';$('#shop').showModal();
   try{await mvLoad()}catch(e){$('#shl').innerHTML='<div class="tag">영화 목록을 불러오지 못했어요 (로그인 확인)</div>';return}
   G.videos=G.videos||{};const pool=MVA.filter(m=>!G.videos[m.id]).sort(()=>Math.random()-.5).slice(0,VIDEO_SHOW);
   if(!pool.length){$('#shl').classList.remove('tapes');$('#shl').innerHTML='<div class="tag">오늘은 새로 들어온 비디오가 없어요</div>'}
-  else tapeGrid(pool,()=>`₩${VIDEO_PRICE.toLocaleString()} 구매`,(m,b)=>{if(G.money<VIDEO_PRICE)return msg('돈이 부족해요',1);earn(-VIDEO_PRICE,m.name+' 비디오 구매');G.videos[m.id]={id:m.id,name:m.name,c1:m.c1,c2:m.c2,c3:m.c3,c4:m.c4};G.log=`${m.name} 비디오를 샀어요`;b.textContent='보유';b.disabled=true;saveGame();renderWorld();$('#shm').textContent='비디오 가게 · 보유 금액 ₩'+G.money.toLocaleString()});
+  else tapeGrid(pool,()=>`₩${VIDEO_PRICE.toLocaleString()} 구매`,(m,b)=>{if(G.money<VIDEO_PRICE)return msg('돈이 부족해요',1);earn(-VIDEO_PRICE,m.name+' 비디오 구매');G.videos[m.id]={id:m.id,name:m.name,c1:m.c1,c2:m.c2,c3:m.c3,c4:m.c4};G.log=`${m.name} 비디오를 샀어요`;msg(`📼 ${m.name} 비디오를 샀어요! · −₩${VIDEO_PRICE.toLocaleString()}`);b.textContent='보유';b.disabled=true;saveGame();renderWorld();$('#shm').textContent='비디오 가게 · 보유 금액 ₩'+G.money.toLocaleString()});
   $('#shm').textContent='비디오 가게 · 보유 금액 ₩'+G.money.toLocaleString()}
 async function openMyVideos(){
   const L=Object.values(G.videos||{});$('#shm').textContent=`내 비디오 · ${L.length}개 · 누르면 처음부터 봐요 (⏱ ${VIDEO_MIN}분)`;$('#shop').showModal();
