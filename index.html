@@ -63,6 +63,10 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .dlvq button{width:28px;height:28px;border-radius:50%;padding:0;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center}
 .dlvq .dq-n{min-width:18px;text-align:center}
 .shi.in{background:rgba(255,225,74,.18)}
+.shi.nw{background:rgba(255,225,74,.18);border-radius:6px;margin:0 -6px;padding:6px}
+.shsec{font-weight:700;margin:8px 0 2px}.shsec:first-child{margin-top:0}
+.nwb{display:inline-block;background:#e8325a;color:#fff;font:700 10px/1 sans-serif;padding:2px 4px;border-radius:3px;margin-right:5px;vertical-align:1px}
+.shi .nm2 small{display:block;opacity:.7;font-size:.82em}
 .dlvf{position:sticky;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:8px;padding:10px 12px;border-radius:12px;background:#fff;box-shadow:0 -2px 0 rgba(0,0,0,.06)}
 .dlvsw{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex:none}
 .shi .nm2{flex:1}
@@ -2158,7 +2162,7 @@ async function delType(){
 }
 
 // ================= 덕질노트 가져오기 =================
-const ROLES={fan:'덕질 인물',mayor:'이장'};
+const ROLES={fan:'덕질 인물',author:'대작가 (어디에도 안 나오는 숨은 인물)'};
 // --- 덕질노트(lvlv) 가져오기 ---
 const sexOf=s=>{s=String(s||'').toLowerCase();return s==='m'||s==='f'?s:null};
 const qLinesF=t=>String(t||'').split('\n').map(x=>x.trim()).filter(Boolean);
@@ -2330,6 +2334,7 @@ function runExcerpt(b,text,pos,done){
   if(viewSt||viewBk||viewMv||viewSh){viewSt=viewBk=viewMv=viewSh=false;mvPlace=null;renderWorld()}
   dlg.showModal()}
 async function showExcerpt(b){
+  if(String(b.id).startsWith('wk:'))return readWk(b);
   try{const t=await sb('/rest/v1/bkbk_texts?book=eq.'+b.id+'&select=text,page,pct&limit=1000'),L=(t||[]).filter(x=>x.text&&x.text.trim());
     if(!L.length)return msg('이 책엔 아직 발췌문이 없어요');
     const q=L[Math.floor(Math.random()*L.length)],pos=bkHas(q.page)&&String(q.page)!==''?'p.'+q.page:(bkHas(q.pct)&&String(q.pct)!==''?Math.round(bkPC(q.pct))+'%':'');
@@ -2341,16 +2346,40 @@ const BOOK_PRICE=12000,BOOK_SHOW=5;
 // 표지: bkbk_books.cover (mnmn이 관리하는 키 — 해시 16자 또는 covers/해시.jpg). 없거나 못 불러오면 책 색깔로 보여요
 const bkCov=u=>{u=String(u||'').trim();if(!u)return'';if(/^https?:/.test(u))return u;if(/^[0-9a-f]{16}$/.test(u))return MEDIA_BASE+'/o/images/'+u+'.webp';if(/(^|\/)(covers|images)\/[0-9a-f]+\.jpg$/.test(u))u=u.replace(/\.jpg$/,'_s.jpg');return MEDIA_BASE+'/o/'+u};
 const bkSw=b=>{const cv=bkCov(b.cover||b.cv);return `<div style="position:relative;width:44px;height:56px;border-radius:3px;overflow:hidden;background:${esc(b.c1||b.color1||'#888')};border-right:8px solid ${esc(b.c2||b.color2||'#ddd')};flex:none;box-sizing:border-box">${cv?`<img src="${esc(cv)}" alt="" loading="lazy" onerror="this.remove()" style="position:absolute;left:0;top:0;width:44px;height:56px;object-fit:cover;display:block">`:''}</div>`};
+/* ===== 대작가: wkwk에 입력한 출간작이 서점에 들어와요 (책에는 필명만 보여요) ===== */
+let WKB=null,WKBT=0,WKA=0;
+const wkHex=(n,S,L)=>{let h=hsh('wk'+n);h=Math.imul(h^(h>>>15),2246822507)>>>0;const H=h%360,a=S*Math.min(L,1-L),f=k=>{const q=(k+H/30)%12;return L-a*Math.max(-1,Math.min(q-3,9-q,1))},x=v=>Math.round(v*255).toString(16).padStart(2,'0');return'#'+x(f(0))+x(f(8))+x(f(4))};
+const todayKst=()=>new Date(Date.now()+9*36e5).toISOString().slice(0,10),authorName=()=>{const n=Object.values(WORLD.npcs||{}).find(x=>x.role==='author');return n&&n.n||'대작가'};
+async function wkLoad(){
+  if(WKB&&Date.now()-WKBT<300000)return WKB;
+  const [W,E]=await Promise.all([bkAll('wkwk_work','*'),bkAll('wkwk_event','*')]);const td=todayKst(),t0=Date.parse(td),out=[];
+  W.forEach(w=>{const ev=E.filter(e=>String(e.work_id)===String(w.id)&&e.type==='출간'&&(!e.start_date||e.start_date<=td));if(!ev.length)return;   // 출간일이 아직 안 된 것은 나오지 않아요
+    const pd=ev.map(e=>e.start_date).filter(Boolean).sort()[0]||'',nm=String(w.name||'').trim()||'(제목 없음)',nw=pd&&(t0-Date.parse(pd))/864e5<=30;
+    out.push({id:'wk:'+w.id,wk:1,name:nm,label:'',sr:{name:nm},cover:w.cover||'',pen:String(w.penname||'').trim(),pd,isNew:!!nw,price:+w.price>0?+w.price:BOOK_PRICE,color1:wkHex(nm,.42,.40),color2:wkHex(nm,.5,.82),color3:'#ffffff'})});
+  out.sort((a,b)=>String(b.pd).localeCompare(String(a.pd)));WKB=out;WKBT=Date.now();return out}
+async function wkAnnounce(){
+  if(WKA||!S||!G)return;let W;try{W=await wkLoad()}catch(e){return}WKA=1;
+  const first=!Array.isArray(G.wkSeen),seen=new Set(G.wkSeen||[]),fr=W.filter(x=>!seen.has(x.id)&&(!first||x.isNew));G.wkSeen=W.map(x=>x.id);
+  if(fr.length){const f=fr[0];msg(`📰 [신간] ${authorName()} ${f.pen||'작가'}의 『${f.name}』${fr.length>1?` 외 ${fr.length-1}권`:''} 출간! 서점 신간 코너에 들어왔어요`);saveGame()}else if(first)saveGame()}
+function readWk(b){
+  const pen=(b.x&&b.x.pen)||b.pen||'',T=[`표지를 넘기자 '${pen||'작가'}'라는 이름이 눈에 들어온다. 요즘 가장 잘 나가는 ${authorName()}라고 한다.`,`첫 장을 펼치자 어느새 한 시간이 지나 있었다. ${authorName()}의 책은 정말 손에서 놓기 어렵다.`,`책장을 넘기는 소리만 조용히 들린다. '${pen||'작가'}'의 문장은 오래 곱씹게 된다.`];
+  runExcerpt(b,T[Math.floor(Math.random()*T.length)],pen?pen+' 지음':'',()=>{pass(READ_MIN);G.log='';after()})}
 async function openBookShop(pid){
   if(!openNow(pid))return say('지금은 문을 닫았어요',1);
   $('#shm').textContent='서점을 둘러보는 중…';$('#shl').innerHTML='';$('#shl').classList.remove('tapes');$('#shop').showModal();
-  let L;try{L=await bkLoad()}catch(e){$('#shl').innerHTML='<div class="tag">책 목록을 불러오지 못했어요 (로그인 확인)</div>';return}
-  G.books=G.books||{};const pool=L.filter(b=>!G.books[b.id]).sort(()=>Math.random()-.5).slice(0,BOOK_SHOW),box=$('#shl');box.innerHTML='';
-  if(!pool.length)box.innerHTML='<div class="tag">오늘은 새로 들어온 책이 없어요</div>';
-  pool.forEach(b=>{const row=document.createElement('div');row.className='shi';row.innerHTML=bkSw(b);const nm=document.createElement('div');nm.className='nm2';nm.textContent=b.name;row.append(nm);
-    const bt=document.createElement('button');bt.textContent=`₩${BOOK_PRICE.toLocaleString()} 구매`;
-    bt.onclick=()=>{if(G.money<BOOK_PRICE)return msg('돈이 부족해요',1);earn(-BOOK_PRICE,b.name+' 구매');G.books[b.id]={id:b.id,name:b.name,c1:b.color1,c2:b.color2,cv:b.cover||'',x:{label:b.label||'',color1:b.color1,color2:b.color2,color3:b.color3,height:b.height,thickness:b.thickness,page:b.page,sr:b.sr?b.sr.name:''}};G.log=`${b.name}을(를) 샀어요`;msg(`📖 ${b.name}을(를) 샀어요! 내 책장에 꽂았어요 · −₩${BOOK_PRICE.toLocaleString()}`);bt.textContent='보유';bt.disabled=true;saveGame();renderWorld();$('#shm').textContent='서점 · 보유 금액 ₩'+G.money.toLocaleString()};
-    row.append(bt);box.append(row)});
+  let L=[],W=[],er=null;try{L=await bkLoad()}catch(e){er=e}try{W=await wkLoad()}catch(e){}
+  if(er&&!W.length){$('#shl').innerHTML='<div class="tag">책 목록을 불러오지 못했어요 (로그인 확인)</div>';return}
+  G.books=G.books||{};
+  const box=$('#shl'),NW=W.filter(b=>b.isNew).slice(0,3),nwIds=new Set(NW.map(b=>b.id));
+  const pool=[...L,...W.filter(b=>!nwIds.has(b.id))].filter(b=>!G.books[b.id]).sort(()=>Math.random()-.5).slice(0,BOOK_SHOW);box.innerHTML='';
+  const mk=(b,nw)=>{const price=b.wk?b.price:BOOK_PRICE,row=document.createElement('div');row.className='shi'+(nw?' nw':'');row.innerHTML=bkSw(b);const nm=document.createElement('div');nm.className='nm2';
+    nm.innerHTML=(nw?'<span class="nwb">NEW</span>':'')+esc(b.name)+(b.wk&&b.pen?`<small>${esc(b.pen)}</small>`:'');row.append(nm);
+    const bt=document.createElement('button'),own=!!G.books[b.id];bt.textContent=own?'보유':`₩${price.toLocaleString()} 구매`;bt.disabled=own;
+    bt.onclick=()=>{if(G.money<price)return msg('돈이 부족해요',1);earn(-price,b.name+' 구매');G.books[b.id]={id:b.id,name:b.name,c1:b.color1,c2:b.color2,cv:b.cover||'',x:{label:b.label||'',color1:b.color1,color2:b.color2,color3:b.color3,height:b.height,thickness:b.thickness,page:b.page,sr:b.sr?b.sr.name:'',...(b.wk?{pen:b.pen}:{})}};G.log=`${b.name}을(를) 샀어요`;msg(`📖 ${b.name}을(를) 샀어요! 내 책장에 꽂았어요 · −₩${price.toLocaleString()}`);bt.textContent='보유';bt.disabled=true;saveGame();renderWorld();$('#shm').textContent='서점 · 보유 금액 ₩'+G.money.toLocaleString()};
+    row.append(bt);box.append(row)};
+  if(NW.length){const h=document.createElement('div');h.className='tag shsec';h.textContent=`🆕 신간 · ${authorName()}`;box.append(h);NW.forEach(b=>mk(b,true))}
+  if(pool.length){if(NW.length){const h=document.createElement('div');h.className='tag shsec';h.textContent='📚 서가';box.append(h)}pool.forEach(b=>mk(b,false))}
+  else if(!NW.length)box.innerHTML='<div class="tag">오늘은 새로 들어온 책이 없어요</div>';
   $('#shm').textContent='서점 · 보유 금액 ₩'+G.money.toLocaleString()}
 /* 비디오 가게: mvmv의 영화 목록을 mvmv와 같은 비디오테이프 그림(mvtape.v1.js)으로 진열. 올 때마다 일부만 무작위, 산 것만 G.videos에 저장 */
 const VIDEO_PRICE=15000,VIDEO_SHOW=5,VIDEO_MIN=30;
@@ -2390,7 +2419,7 @@ async function openMixShelf(){
     return `<button type="button" class="shfi shfv shfk" data-t="v" data-i="${esc(o.id)}" title="${esc(o.name)}" style="width:${x.w}px;height:112px;background:linear-gradient(90deg,${esc(o.c1||'#222')},${esc(o.c2||'#333')});--st:${esc(o.c3||'#ddd')}"><i></i><span>${esc(o.name)}</span></button>`}).join('')}</div><div class="shfp"></div>`).join('')}</div><div class="shfn" id="shfn"><span class="tag">꽂힌 것을 눌러 보세요</span></div>`;
   box.onclick=e=>{const el=e.target.closest('.shfk');if(!el)return;box.querySelectorAll('.shfk.on').forEach(x=>x.classList.remove('on'));el.classList.add('on');
     const isB=el.dataset.t==='b',o=isB?G.books[el.dataset.i]:G.videos[el.dataset.i];if(!o)return;SHF={b:isB,o};
-    $('#shfn').innerHTML=`<b>${isB?'📕':'📼'} ${esc(o.name)}</b><span class="tag">${isB?`발췌문 읽기 · ⏱ ${READ_MIN}분`:`처음부터 보기 · ⏱ ${VIDEO_MIN}분`}</span><button type="button" id="shfgo" class="pri">${isB?'읽기':'보기'}</button>`;
+    $('#shfn').innerHTML=`<b>${isB?'📕':'📼'} ${esc(o.name)}${isB&&o.x&&o.x.pen?` <small style="opacity:.7;font-weight:400">${esc(o.x.pen)}</small>`:''}</b><span class="tag">${isB?`발췌문 읽기 · ⏱ ${READ_MIN}분`:`처음부터 보기 · ⏱ ${VIDEO_MIN}분`}</span><button type="button" id="shfgo" class="pri">${isB?'읽기':'보기'}</button>`;
     $('#shfgo').onclick=()=>{const q=SHF;if(!q)return;$('#shop').close();
       if(q.b)showExcerpt(q.o);else(async()=>{try{await mvLoad();const f=MVA.find(x=>x.id===q.o.id);if(!f)return msg('mvmv에서 이 작품을 찾지 못했어요');runFilm(f,()=>{pass(VIDEO_MIN);G.log='';after()})}catch(er){msg('영화 기록을 불러오지 못했어요',1)}})()}}}
 function openMyBooks(){
@@ -2477,7 +2506,7 @@ $('#mp').onclick=e=>{if(e.target.closest('#mp_seek'))return;if(!BGM.ready)return
 setInterval(()=>{if(!BGM.ready)return;try{const d=BGM.yt.getDuration(),c=BGM.yt.getCurrentTime();$('#mp_bar').style.width=d?Math.min(100,c/d*100)+'%':'0';$('#mp_time').textContent=mpTm(c)}catch(e){}},500);
 function bgmStart(){BGM.started=true;bgmInit();bgmUpdate(true)}
 // 시작 화면: 한 번 눌러야 브라우저가 소리를 허용해요
-(function(){const w=$('#welcome');if(location.hash==='#dev')return;w.showModal();w.onclick=()=>{w.close();bgmStart();ensureMe()};w.oncancel=e=>{e.preventDefault()}})();
+(function(){const w=$('#welcome');if(location.hash==='#dev')return;w.showModal();w.onclick=()=>{w.close();bgmStart();ensureMe();setTimeout(()=>{try{wkAnnounce()}catch(e){}},900)};w.oncancel=e=>{e.preventDefault()}})();
 // 관리자: 규칙 편집
 let BGMPL=null;
 async function renderBgmAdmin(){
@@ -2576,7 +2605,8 @@ async function syncSave(){
   const cur=SAVE.list.find(r=>r.slot===SAVE.slot);let la=0;try{la=+localStorage.getItem('fsfsLocalAt')||0}catch(e){}
   if(!cur){await cloudPut();return}
   if(Date.parse(cur.updated_at)>la+5000&&cur.data&&cur.data.G){G=cur.data.G;normG();applyLook(cur.data.look);pruneSel();LAST=null;saveGameLocal();refresh();renderWorld();msg(`슬롯 ${SAVE.slot}의 저장을 불러왔어요`)}
-  else await cloudPut()}
+  else await cloudPut();
+  try{wkAnnounce()}catch(e){}}
 function saveGameLocal(){try{localStorage.setItem('fsfsGame',JSON.stringify(G));localStorage.setItem('fsfsLocalAt',Date.now());if(sel)localStorage.setItem('fsfsLook',JSON.stringify(lookPack()))}catch(e){}}
 const ago=t=>{const m=Math.round((Date.now()-Date.parse(t))/60000);return m<1?'방금':m<60?m+'분 전':m<1440?Math.round(m/60)+'시간 전':Math.round(m/1440)+'일 전'};
 async function renderSave(){
