@@ -1486,7 +1486,7 @@ function renderActs(){
     b.innerHTML=`<b>${k===p.parent?'← ':'→ '}${esc(q.n)}</b><small>⏱ ${mn}분${ok?'':' · 지금은 닫았어요'}</small>`;
     b.onclick=()=>{if(!ok)return msg('지금은 문을 닫았어요',1);go(k)};box.append(b)});
   const open=openNow(pid);
-  const vars=[];(gA?childrenOf(gA.code):actionsAt(pid)).filter(availAct).forEach(a=>{const sp=a.kind==='call'?'':partnerOf(a);if(!open&&!sp)return;
+  const vars=[];(gA?childrenOf(gA.code):actionsAt(pid)).filter(availAct).forEach(a=>{const sp=(a.kind==='call'||(FIXED[a.kind]&&a.code!=='talk'))?'':partnerOf(a);   // 옷장·영화·서점 같은 고정 기능은 인물이 없어도 보여요if(!open&&!sp)return;
     if(!sp)vars.push([a,null]);else{if(sp==='*')here().forEach(id=>vars.push([a,id]));else if(npcAt(sp))vars.push([a,sp]);if((a.cond||{}).solo)vars.push([a,null])}});
   vars.forEach(([a,who])=>{const st=actState(a,who),b=document.createElement('button'),ch=chips(a),wn=who?(WORLD.npcs[who]||{}).n:'';b.className='act'+(st.ok?'':' off');
     b.innerHTML=`<b>${wn?esc(wn)+josa(wn)+' '+esc(a.code==='talk'?'대화하기':a.name):esc(a.name)+(a.kind==='group'?' ▸':'')}</b>`;b.onclick=()=>doAction(a,who);box.append(b)});
