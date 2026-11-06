@@ -46,8 +46,8 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .shfr{display:flex;align-items:flex-end;gap:3px;min-height:136px;padding:8px 6px 0}
 .shfp{height:12px;margin:0 -6px 8px;border-radius:2px;background:linear-gradient(#d2a468,#a97a42);box-shadow:0 3px 0 rgba(0,0,0,.18)}
 .shfi{border:0;padding:0;border-radius:3px 3px 1px 1px;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;font:inherit;position:relative;transition:transform .12s;box-shadow:inset -3px 0 0 rgba(0,0,0,.16),inset 2px 0 0 rgba(255,255,255,.25)}
-.shfi:hover,.shfi.on{transform:translateY(-8px)}
-.shfi.on{outline:2px solid #ff2e97}
+.shfk.on{transform:translateY(-8px);outline:2px solid #ff2e97}
+.shfi:hover{transform:translateY(-8px)}
 .shfi span{writing-mode:vertical-rl;font-size:11px;line-height:1.1;max-height:calc(100% - 10px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
 .shfv{color:#fff}.shfv i{position:absolute;left:0;right:0;top:12px;height:10px;background:var(--st);opacity:.9}.shfv span{text-shadow:0 1px 2px #000}
 .shfn{display:flex;align-items:center;gap:10px;justify-content:center;min-height:34px;margin-top:8px;flex-wrap:wrap}
@@ -59,6 +59,11 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .dlvs small{opacity:.8}
 .dlvh{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;margin:4px 0 6px}
 .dlvh .dlvb{border:1.5px solid currentColor;background:transparent;color:inherit;border-radius:999px;padding:3px 10px;font:inherit;font-size:12px;cursor:pointer}
+.dlvq{display:flex;align-items:center;gap:6px;flex:none}
+.dlvq button{width:28px;height:28px;border-radius:50%;padding:0;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center}
+.dlvq .dq-n{min-width:18px;text-align:center}
+.shi.in{background:rgba(255,225,74,.18)}
+.dlvf{position:sticky;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:8px;padding:10px 12px;border-radius:12px;background:#fff;box-shadow:0 -2px 0 rgba(0,0,0,.06)}
 .dlvsw{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex:none}
 .shi .nm2{flex:1}
 @media(max-width:800px){.cols{grid-template-columns:1fr}}
@@ -353,10 +358,10 @@ html{overflow:hidden}
 .scale>i.tk.m{height:6px}
 .scale>i.tk.s{height:3px}
 .scale .dot{position:absolute;top:2px;width:11px;height:11px;margin-left:-5.5px;border-radius:50%;background:var(--acc);border:2px solid var(--ink);box-sizing:border-box;z-index:2}
-#wt .clk{order:3;flex:none;width:176px;display:flex;align-items:center;justify-content:center;background:#fff;font:400 48px/1 "DotGothic16","Malgun Gothic",monospace;letter-spacing:0;white-space:nowrap}
+#wt .clk{order:3;flex:none;width:232px;display:flex;align-items:center;justify-content:center;background:#fff;font:400 48px/1 "DotGothic16","Malgun Gothic",monospace;letter-spacing:0;white-space:nowrap}
 #wt .clk i{font-style:normal;animation:blk 1s steps(1) infinite}
 @keyframes blk{50%{opacity:.25}}
-.world .mp{order:4;flex:none;width:196px;display:flex;flex-direction:column;background:var(--skyl);cursor:pointer}
+.world .mp{order:4;flex:none;width:240px;display:flex;flex-direction:column;background:var(--skyl);cursor:pointer}
 .world .mp,.world .mp *{font-family:"DotGothic16","Malgun Gothic",monospace}
 .mp-lcd{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:0 12px}
 .mp.paused .mp-lcd{opacity:.55}
@@ -515,9 +520,9 @@ dialog{border:3px solid var(--ln);box-shadow:none}
 #wt>*,.world .mp{position:relative;border:3px solid var(--ln);border-radius:18px;background:var(--glassw);box-shadow:none}
 #wt .cal::after,#wt .tl::after,#wt .clk::after,.world .mp::after,#wt .vit::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:15px;box-shadow:inset 0 0 0 3px rgba(255,255,255,.75),inset 0 0 0 5px var(--ln2)}
 #wt .cal{display:flex;flex-direction:column}
-#wt .cal .mo{flex:none;height:24px;box-sizing:border-box;padding-top:5px;display:flex;align-items:center;justify-content:center;line-height:1;font-size:12px;background:linear-gradient(#ffd3ea,#ffb8d6);color:#fff;text-shadow:0 1px 0 #d8639a}
-#wt .cal .dy{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;font-size:25px;line-height:1}
-#wt .cal .wk{flex:none;height:22px;box-sizing:border-box;padding-bottom:5px;display:flex;align-items:center;justify-content:center;line-height:1;font-size:11px;position:relative;z-index:4}
+#wt .cal .mo{flex:none;height:22px;box-sizing:border-box;padding-top:4px;display:flex;align-items:center;justify-content:center;line-height:1;font-size:12px;background:linear-gradient(#ffd3ea,#ffb8d6);color:#fff;text-shadow:0 1px 0 #d8639a}
+#wt .cal .dy{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;font-size:23px;line-height:1}
+#wt .cal .wk{flex:none;height:25px;box-sizing:border-box;padding:4px 0 3px;display:flex;align-items:center;justify-content:center;line-height:1;font-size:11px;position:relative;z-index:4}
 #wt .cal .wk::before{content:"";position:absolute;left:5px;right:5px;top:0;height:3px;background:var(--ln2)}
 .bd{border-right:0;padding-top:5px;box-sizing:border-box;gap:10px}.bd.on{box-shadow:none}
 .bd i{line-height:1;font-size:16px}.bd em{line-height:1;font-size:11px}
@@ -525,10 +530,13 @@ dialog{border:3px solid var(--ln);box-shadow:none}
 .scale::before{content:"";position:absolute;left:5px;right:5px;top:0;height:3px;background:var(--ln2)}
 .scale>i.tk{background:var(--ln2);opacity:1;width:2px;margin-left:-1px;top:3px}
 .scale .dot{top:-4px;border:2px solid var(--ln);box-sizing:border-box}
-#wt .clk{line-height:1}
+#wt .clk{line-height:1;gap:10px}
+#wt .clk .ap{display:flex;flex-direction:column;gap:4px;font:400 14px/1 "DotGothic16","Malgun Gothic",monospace}
+#wt .clk .ap span{opacity:.25}
+#wt .clk .ap span.on{opacity:1;color:var(--thr)}
 .world .mp{background:linear-gradient(#d6f0ff,#bfe3fb)}
 .mp-lcd{padding:5px 14px;box-sizing:border-box;gap:7px;justify-content:center}
-.mp-time{font-size:26px;line-height:1;text-box:trim-both cap alphabetic}
+.mp-time{font-size:26px;line-height:1;text-box:trim-both cap alphabetic;position:relative;top:4px}
 .mp-mq{display:flex;align-items:center;font-size:13px;height:18px;line-height:1}.mp-mq span{flex:none}
 .mp-seek{display:none}
 #wt .vit{overflow:hidden;gap:0;border:3px solid var(--ln);border-radius:18px;background:var(--glassw)}
@@ -571,7 +579,7 @@ button.act b{font-weight:900;font-size:18px;color:var(--ink);-webkit-text-stroke
 #simg{border:3px solid var(--ln);box-shadow:none;border-radius:16px}
 #scene .nm{background:var(--sl-bg);border:3px solid var(--sl-ln);color:#fff;text-shadow:0 2px 0 #d8639a;-webkit-text-stroke:3px var(--sl-ln);paint-order:stroke fill}
 /* 캐릭터: 원래 크기(옷장과 같음), 마을·장소 같은 자리, 허벅지 중간까지만 — 장소창에서는 아래 띠가 가려요 */
-.stagewrap.mini{right:80px;bottom:0;width:var(--sw,275px);height:var(--sch,518px);overflow:hidden}
+.stagewrap.mini{right:40px;bottom:0;width:var(--sw,275px);height:var(--sch,518px);overflow:hidden}
 .stagewrap.mini .stage{width:var(--sw,275px);height:var(--sth,830px);margin-top:var(--sdn,0px)}
 /* 옷장: 아치 거울(가로 넓힘, 좌우 여백 같게) */
 .stagewrap.big{left:25px;width:310px}
@@ -638,7 +646,7 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
   <div class="gtitle">시티 오브 레트로</div>
   <div class="side">
     <div class="card"><div class="bar">
-      <span style="flex:1"></span><span class="sysbar"><button id="bgmbtn" title="배경음악 볼륨 (누르면 0~5 순환)">🎵 3</button><button id="fxbtn" title="계절 효과 켜기/끄기 (눈·벚꽃·단풍·비)">✨ 켬</button><button id="sfxbtn" title="볼륨 (누르면 0~5 순환)">🔊 3</button><button id="wnew">💾 세이브</button><button id="adminbtn" hidden>🛠 관리자 모드</button><button id="authbtn">⚙ 설정·로그인</button></span>
+      <span style="flex:1"></span><span class="sysbar"><button id="bgmbtn" title="배경음악 볼륨 (누르면 0~5 순환)">🎵 3</button><button id="sfxbtn" title="볼륨 (누르면 0~5 순환)">🔊 3</button><button id="fxbtn" title="계절 효과 켜기/끄기 (눈·벚꽃·단풍·비)">✨ 켬</button><button id="wnew">💾 세이브</button><button id="adminbtn" hidden>🛠 관리자 모드</button><button id="authbtn">⚙ 설정·로그인</button></span>
     </div></div>
     <div class="card world"><div class="wt"><span id="wt"></span><div id="mp" class="mp paused" title="누르면 재생/일시정지"><div class="mp-lcd"><div class="mp-time" id="mp_time">00:00</div><div class="mp-mq" id="mp_mq"><span class="hx" id="mp_t">♪ —</span></div></div><div class="mp-seek" id="mp_seek"><div id="mp_bar"></div></div></div></div>
       <div id="stview" hidden><h2>📋 내 상태</h2><div id="st_b"></div></div>
@@ -791,7 +799,10 @@ const uiParts=()=>{const all=[...TAB_ORDER,...PARTS.map(p=>p.code).filter(c=>!TA
 const tabParts=()=>{const l=uiParts().filter(c=>!P(c).fixed||ITEMS.filter(i=>i.part===c).length>1);return CL&&CL.parts.length?l.filter(c=>CL.parts.includes(c)):l};
 const canWear=it=>owned(it)||!!(CL&&CL.try);   // 피팅룸(입어보기)에서는 아직 없는 옷도 입어 볼 수 있어요
 const lockTile=(t,u)=>{if(!u)return;if(!(CL&&CL.try))t.classList.add('locked');t.append(' 🔒')};
-function closeCl(){if(CL&&CL.snap){sel=CL.snap.sel;colors=CL.snap.colors;iord=CL.snap.iord}CL=null;G.closet=false}   // 입어보기를 마치면 원래 옷차림으로
+function closeCl(){const f=CL&&CL.fee;let paid=false;
+  if(f&&CL.base&&JSON.stringify({sel,colors,iord})!==JSON.stringify(CL.base))paid=true;   // 아무것도 안 바꿨으면 값도 시간도 들지 않아요
+  if(CL&&CL.snap){sel=CL.snap.sel;colors=CL.snap.colors;iord=CL.snap.iord}CL=null;G.closet=false;
+  if(paid){earn(f.money,f.name);G.energy=clampE(G.energy+f.en);pass(f.dur);G.log=`${f.icon||''} ${f.name}`+(f.ch?` (${f.ch})`:'')}return paid}   // 입어보기를 마치면 원래 옷차림으로
 
 // ================= 그리기 =================
 const cv=$('#cv'),g=cv.getContext('2d');cv.width=Math.round(CROP.w*CVS);cv.height=Math.round(CROP.h*CVS);
@@ -1260,7 +1271,7 @@ function actRoutes(a,who){   // 알바 단계·의뢰 보상: 행동을 하고 �
     if(s.type==='job'){if((s.job===a.name||s.job===a.code)&&jobRank(a.code)>=s.rank){giveItem(id)}}
     else if((s.quest===a.name||s.quest===a.code)&&npcMatch(s.npc,who))giveItem(id)})}
 function eventRoutes(e){WORLD.sources.filter(s=>s.db&&s.type==='event'&&s.evt&&s.evt===e.title).forEach(s=>{const id=rid(s.ref);if(BY[id]&&!G.owned[id])giveItem(id)})}
-function checkOrders(){checkDlv();const o=G.orders||{};Object.keys(o).forEach(k=>{if(nowAbs()>=o[k].due){const id=rid(o[k].ref),on=o[k].on;delete o[k];if(BY[id]&&!G.owned[id]){G.owned[id]=1;msg(on?'📦 택배가 왔어요! '+BY[id].name:'📦 공동구매한 '+BY[id].name+'이(가) 도착했어요!')}}})}
+function checkOrders(){const o=G.orders||{};Object.keys(o).forEach(k=>{if(nowAbs()>=o[k].due){const id=rid(o[k].ref);delete o[k];if(BY[id]&&!G.owned[id]){G.wait=G.wait||[];G.wait.push({cloth:id,name:BY[id].name});if(atHome())collectWait(true);else msg('💬 [메시지] 주문하신 물건이 도착했어요.')}}});checkDlv()}
 function checkGifts(){checkOrders();let n=0;
   G.gdone=G.gdone||{};(WORLD.ggift||[]).forEach(s=>{if(G.gdone[s.sid])return;const a=Math.max(0,...(s.npc==='*'?(s.npcs||Object.keys(G.aff||{})):[s.npc]).map(k=>G.aff[k]||0));if(a>=s.min&&s.min>0||(s.min===0&&a>0)){G.gdone[s.sid]=1;giveGoods(s.goods);n++}});WORLD.sources.filter(s=>s.db&&s.type==='gift'&&s.npc).forEach(s=>{const id=rid(s.ref);if(BY[id]&&!G.owned[id]&&Math.max(0,...(s.npc==='*'?(s.npcs||Object.keys(G.aff||{})):[s.npc]).map(k=>G.aff[k]||0))>=s.min){giveItem(id);n++}});return n}   // 호감도가 조건에 닿으면 선물로 받아요
 function rebuildAcq(){   // 획득 경로: 코드에 적은 경로 + 관리자에서 적은 경로 + 이벤트 보상으로 주는 의상(받기 전엔 잠김)
@@ -1462,8 +1473,9 @@ function doAction(a,who){
   if(a.kind==='soon')return msg('🚧 '+a.name+' — 아직 준비 중이에요');
   if(a.kind!=='call'||who)ACTGRP=null;
   if(a.kind==='closet'){const ef=a.effects||{},spec=(ef.parts&&ef.parts.length)||ef.try||ef.mode;
-    if(spec){earn(a.money||0,a.name);G.energy=clampE(G.energy+enOf(a));pass(durOf(a));const ch=chips(a);G.log=`${a.icon||''} ${a.name}`+(ch?` (${ch})`:'');
-      CL={parts:ef.parts||[],mode:ef.mode||'both',try:!!ef.try,snap:ef.try?structuredClone({sel,colors,iord}):null}}
+    if(spec){const ch=chips(a);
+      if(ef.try){earn(a.money||0,a.name);G.energy=clampE(G.energy+enOf(a));pass(durOf(a));G.log=`${a.icon||''} ${a.name}`+(ch?` (${ch})`:'');CL={parts:ef.parts||[],mode:ef.mode||'both',try:true,snap:structuredClone({sel,colors,iord})}}
+      else CL={parts:ef.parts||[],mode:ef.mode||'both',try:false,snap:null,base:structuredClone({sel,colors,iord}),fee:{money:a.money||0,en:enOf(a),dur:durOf(a),ch,icon:a.icon,name:a.name}}}
     G.closet=true;after();setTimeout(()=>$('#closet').scrollIntoView({behavior:'smooth',block:'start'}),50);return}
   if(a.kind==='status'){viewSt=true;renderStatus();after();return}
   if(a.kind==='shop'){if(!shopHas(pid))return say('아직 파는 물건이 없어요');return openShop(pid)}
@@ -1532,8 +1544,20 @@ async function dlvList(){const out=[],ov=new Map((DB.dlv||[]).map(r=>[r.k,r]));l
     const pv=l=>{const f=(t.param_schema||[]).find(x=>x.label===l);return f&&sr.params?sr.params[f.key]:undefined},kind=dlvKind(pv('음식 종류'));
     out.push({gid:g.id,store:String(pv('가게 이름')||'').trim()||'배달 가게',color:String(pv('가게 색')||'').trim()||'#888888',name:g.name,kind,price:+pv('가격')>0?+pv('가격'):DLV_DEF[kind],icon:g.icon||DLV_IC[kind]})}
   return{L:out,err}}
-function checkDlv(){const L=G.dlv||[];if(!L.length)return;const keep=[];L.forEach(o=>{if(nowAbs()>=o.due){G.bag=G.bag||{};G.bag[o.gid]=(G.bag[o.gid]||0)+1;msg(o.pkg?`📦 택배가 왔어요! ${o.name} — 가방에 넣어 뒀어요`:`🛵 ${o.store} 배달이 왔어요! ${o.name} — 가방에 넣어 뒀어요`)}else keep.push(o)});G.dlv=keep}
-let DLVL=[],DLVS=null;
+const dlvItems=o=>o.items||[{gid:o.gid,name:o.name,qty:1}],dlvSum=o=>{const L=dlvItems(o),n=L.reduce((a,x)=>a+(x.qty||1),0);return L[0].name+(n>1?` 외 ${n-1}개`:'')};
+const atHome=()=>{const t=WORLD.places[topOf(G.place)];return !!t&&t.type==='home'};
+const waitCat=x=>{if(x.cloth)return'물건';const g=GOODS(x.gid);return g&&g.kind==='food'?'음식':'물건'};
+function collectWait(now){const W=G.wait||[];if(!W.length||!atHome())return;G.wait=[];const food=[],thing=[],cl=[];
+  W.forEach(x=>{if(x.cloth){if(BY[x.cloth]&&!G.owned[x.cloth])G.owned[x.cloth]=1;cl.push(x.name)}else{G.bag=G.bag||{};G.bag[x.gid]=(G.bag[x.gid]||0)+(x.qty||1);(waitCat(x)==='음식'?food:thing).push(x)}});
+  const sm=L=>{const n=L.reduce((a,x)=>a+(x.qty||1),0);return L[0].name+(n>1?` 외 ${n-1}개`:'')},vb=now?'도착했어요':'도착해 있어요';
+  const P=[];if(food.length)P.push('음식');if(thing.length||cl.length)P.push('물건');
+  const det=[];if(food.length)det.push(sm(food));if(thing.length)det.push(sm(thing));if(cl.length)det.push('옷 '+cl[0]+(cl.length>1?` 외 ${cl.length-1}벌`:''));
+  const to=cl.length&&!food.length&&!thing.length?'옷장':cl.length?'가방·옷장':'가방';
+  msg(`${food.length&&!thing.length&&!cl.length?'🍱':'📦'} ${P.join('과 ')}이 ${vb}! ${det.join(', ')} — ${to}에 넣어 뒀어요`)}
+function checkDlv(){const L=G.dlv||[];if(!L.length&&!(G.wait||[]).length)return;const keep=[],cats=new Set();G.wait=G.wait||[];
+  L.forEach(o=>{if(nowAbs()>=o.due){dlvItems(o).forEach(x=>{G.wait.push({gid:x.gid,name:x.name,qty:x.qty||1});cats.add(waitCat(x))})}else keep.push(o)});G.dlv=keep;
+  if(cats.size){if(atHome())collectWait(true);else msg(`💬 [메시지] 주문하신 ${[...cats].sort().reverse().join('과 ')}이 도착했어요.`)}else collectWait(false)}
+let DLVL=[],DLVS=null,DLVQ={};
 async function openDelivery(){
   $('#shm').textContent='🛵 배달 앱';const box=$('#shl');box.classList.remove('tapes');box.innerHTML='<div class="tag">메뉴를 불러오는 중…</div>';$('#shop').showModal();
   const r=await dlvList();DLVL=r.L;DLVS=null;
@@ -1541,21 +1565,28 @@ async function openDelivery(){
   dlvRender()}
 function dlvRender(){
   const box=$('#shl');box.innerHTML='';$('#shm').textContent='🛵 배달 앱 · 보유 금액 ₩'+G.money.toLocaleString();
-  const pend=(G.dlv||[]).map(o=>`<div class="tag">🛵 배달 중 · ${esc(o.store)} ${esc(o.name)} (${Math.max(1,o.due-nowAbs())}분 뒤)</div>`).join('');
+  const pend=(G.dlv||[]).map(o=>`<div class="tag">🛵 배달 중 · ${esc(o.store)} ${esc(dlvSum(o))} (${Math.max(1,o.due-nowAbs())}분 뒤)</div>`).join('');
   if(DLVS==null){
     const M=new Map();DLVL.forEach(i=>{(M.get(i.store)||M.set(i.store,{c:i.color,n:0}).get(i.store)).n++});
     box.innerHTML=pend+`<div class="tag">배달비 ₩${DLV_FEE.toLocaleString()} · 30~60분 뒤 가방에 도착해요</div><div class="dlvg">${[...M.entries()].map(([nm,v])=>`<button class="dlvs" data-s="${esc(nm)}" style="background:${esc(v.c)};color:${bkInk(v.c)}"><b>${esc(nm)}</b><small>메뉴 ${v.n}개</small></button>`).join('')}</div>`;
-    box.querySelectorAll('.dlvs').forEach(b=>b.onclick=()=>{DLVS=b.dataset.s;dlvRender()});return}
+    box.querySelectorAll('.dlvs').forEach(b=>b.onclick=()=>{DLVS=b.dataset.s;DLVQ={};dlvRender()});return}
   const items=DLVL.filter(i=>i.store===DLVS),c=(items[0]||{}).color||'#888';
-  const h=document.createElement('div');h.className='dlvh';h.style.cssText=`background:${c};color:${bkInk(c)}`;h.innerHTML=`<button class="dlvb" type="button">← 가게 목록</button><b>${esc(DLVS)}</b>`;h.querySelector('button').onclick=()=>{DLVS=null;dlvRender()};box.append(h);
+  const h=document.createElement('div');h.className='dlvh';h.style.cssText=`background:${c};color:${bkInk(c)}`;h.innerHTML=`<button class="dlvb" type="button">← 가게 목록</button><b>${esc(DLVS)}</b>`;h.querySelector('button').onclick=()=>{DLVS=null;DLVQ={};dlvRender()};box.append(h);
   if(pend)box.insertAdjacentHTML('beforeend',pend);
+  const sum=()=>{let n=0,p=0;items.forEach(it=>{const q=DLVQ[it.gid]||0;n+=q;p+=q*it.price});return{n,p}};
+  const foot=document.createElement('div');foot.className='dlvf';
+  const upd=()=>{const t=sum();foot.innerHTML=t.n?`<span><b>${t.n}개</b> · ₩${t.p.toLocaleString()} + 배달비 ₩${DLV_FEE.toLocaleString()}</span><button type="button" class="pri" id="dlvgo">₩${(t.p+DLV_FEE).toLocaleString()} 주문하기</button>`:`<span class="tag">메뉴를 담아 보세요 · 여러 개를 시켜도 배달비는 한 번만 내요</span>`;
+    const g=$('#dlvgo');if(g)g.onclick=()=>dlvCheckout(items)};
   items.forEach(it=>{const row=document.createElement('div');row.className='shi';
-    row.innerHTML=`<div class="dlvsw" style="background:${esc(it.color)};color:${bkInk(it.color)}">${esc(it.icon)}</div><div class="nm2">${esc(it.name)}<br><small style="opacity:.7">${DLV_KL[it.kind]} · ₩${it.price.toLocaleString()} + 배달비 ₩${DLV_FEE.toLocaleString()}</small></div>`;
-    const bt=document.createElement('button');bt.textContent=`₩${(it.price+DLV_FEE).toLocaleString()} 주문`;bt.onclick=()=>dlvOrder(it);row.append(bt);box.append(row)})}
-function dlvOrder(it){const tot=it.price+DLV_FEE;if(G.money<tot)return msg('돈이 부족해요',1);earn(-tot,it.store+' 배달');
-  if(it.mg){G.vgoods=G.vgoods||{};G.vgoods[it.gid]={id:it.gid,kind:'food',name:it.name,icon:it.icon,descr:it.store,consume:true,dk:it.kind,effects:{energy:DLV_EN[it.kind],memo:`${it.store}에서 배달 온 ${it.name}. 잘 먹겠습니다!`}}}
-  const eta=30+Math.floor(Math.random()*31);G.dlv=G.dlv||[];G.dlv.push({gid:it.gid,store:it.store,name:it.name,due:nowAbs()+eta});
-  G.log=`${it.store} 배달을 시켰어요`;msg(`🛵 ${it.store} · ${it.name} 주문! 약 ${eta}분 뒤 도착 · −₩${tot.toLocaleString()}`);saveGame();renderWorld();dlvRender()}
+    row.innerHTML=`<div class="dlvsw" style="background:${esc(it.color)};color:${bkInk(it.color)}">${esc(it.icon)}</div><div class="nm2">${esc(it.name)}<br><small style="opacity:.7">${DLV_KL[it.kind]} · ₩${it.price.toLocaleString()}</small></div><div class="dlvq"><button type="button" class="dq-m" aria-label="빼기">−</button><b class="dq-n">${DLVQ[it.gid]||0}</b><button type="button" class="dq-p" aria-label="담기">＋</button></div>`;
+    const n=row.querySelector('.dq-n'),set=v=>{DLVQ[it.gid]=Math.max(0,Math.min(9,v));n.textContent=DLVQ[it.gid];row.classList.toggle('in',DLVQ[it.gid]>0);upd()};
+    row.querySelector('.dq-m').onclick=()=>set((DLVQ[it.gid]||0)-1);row.querySelector('.dq-p').onclick=()=>set((DLVQ[it.gid]||0)+1);row.classList.toggle('in',(DLVQ[it.gid]||0)>0);box.append(row)});
+  box.append(foot);upd()}
+function dlvCheckout(items){const L=items.filter(it=>(DLVQ[it.gid]||0)>0);if(!L.length)return;const p=L.reduce((a,it)=>a+it.price*DLVQ[it.gid],0),tot=p+DLV_FEE;if(G.money<tot)return msg('돈이 부족해요',1);
+  const store=L[0].store;earn(-tot,store+' 배달');
+  L.forEach(it=>{if(it.mg){G.vgoods=G.vgoods||{};G.vgoods[it.gid]={id:it.gid,kind:'food',name:it.name,icon:it.icon,descr:it.store,consume:true,dk:it.kind,effects:{energy:DLV_EN[it.kind],memo:`${it.store}에서 배달 온 ${it.name}. 잘 먹겠습니다!`}}}});
+  const eta=30+Math.floor(Math.random()*31),o={store,items:L.map(it=>({gid:it.gid,name:it.name,qty:DLVQ[it.gid]})),due:nowAbs()+eta};G.dlv=G.dlv||[];G.dlv.push(o);DLVQ={};
+  G.log=`${store} 배달을 시켰어요`;msg(`🛵 ${store} · ${dlvSum(o)} 주문! 약 ${eta}분 뒤 도착 · −₩${tot.toLocaleString()} (배달비 ₩${DLV_FEE.toLocaleString()} 포함)`);saveGame();renderWorld();dlvRender()}
 /* ===== 온라인 쇼핑: 집에서 주문 → 며칠 뒤 택배로 도착 (옷은 바로 내 옷장, 아이템은 가방). 경로 「온라인 쇼핑」을 넣은 것만 팔아요 ===== */
 const ONL_FEE=2000;
 function onlList(){const out=[],T=(DB.types||[]);
@@ -1640,7 +1671,7 @@ const signHtml=pid=>{const q=WORLD.places[pid];if(!q||q.type==='home')return '';
 function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const d=dateOf();const bn=bandOf(G.min),BR=[['아침','🌅',300,420],['오전','🌤',420,780],['오후','☀️',780,1020],['저녁','🌇',1020,1140],['밤','🌙',1140,1740]],wd=d.getDay(),np=((G.min-300+1440)%1440)/1440*100; 
   $('#wt').innerHTML=`<div class="cal${wd===0?' sun':wd===6?' sat':''}"><span class="mo"><span class="hx">${d.getMonth()+1}월</span></span><b class="dy"><span class="hx">${d.getDate()}</span></b><span class="wk"><span class="hx">${DOW[wd]}요일</span></span></div>
-   <b class="clk"><span class="hx">${fmtT(G.min).replace(":","<i>:</i>")}</span></b>
+   <b class="clk"><span class="ap"><span class="${G.min<720?'on':''}">AM</span><span class="${G.min>=720?'on':''}">PM</span></span><span class="hx">${String((Math.floor(G.min/60)%12)||12).padStart(2,"0")}<i>:</i>${String(G.min%60).padStart(2,"0")}</span></b>
    <div class="tl"><div class="bands">${BR.map(([n,i,a,b])=>`<span class="bd${n===bn?' on':''}" style="flex:${b-a} 1 0"><i class="hx">${i}</i><em class="hx">${n}</em></span>`).join('')}</div><div class="scale">${Array.from({length:47},(_,k)=>{const n=k+1;return `<i class="tk ${n%4===0?'l':n%2===0?'m':'s'}" style="left:${n/48*100}%"></i>`}).join('')}<b class="dot" style="left:${Math.min(97,Math.max(3,np))}%"></b></div></div>
    <div class="vit"><div class="led en" style="--p:${Math.max(0,Math.min(100,G.energy))}%"><i>EN</i><b>${Math.round(G.energy)}<small>/100</small></b></div><div class="led mo"><i>₩</i><b>${(G.money||0).toLocaleString()}</b></div></div>`;applyTint();setTimeout(posSys,0);
   const mapOnly=viewTown||curTown()!==townOf(G.place);   // 마을 지도만 보는 중: 특정 장소를 가리키지 않고 '마을'로 취급
@@ -2188,7 +2219,7 @@ function fitGame(){const g=$('#game'),f=$('#gamefit'),de=document.documentElemen
 function sizeWorld(){try{const c=document.querySelector('#game .card.world'),f=$('#mapframe'),w=c&&c.querySelector('.wt');if(!c||!f||!w)return;
   const a=String(getComputedStyle(f).aspectRatio||'1.5').split('/').map(parseFloat),ratio=(a[0]/(a[1]||1))||1.5,fh=c.clientHeight-w.offsetHeight;
   if(fh>100)c.style.width=Math.floor(fh*ratio)+(c.offsetWidth-c.clientWidth)+'px';posSys();sizeChar()}catch(e){}}
-var charL=0;function charSide(l){charL=l;const sw=document.querySelector('.stagewrap'),mf=$('#mapframe');if(!sw||!mf)return;sw.style.transform=l&&sw.classList.contains('mini')?`translateX(${-Math.max(0,mf.clientWidth-sw.offsetWidth-160)}px)`:''}
+var charL=0;function charSide(l){charL=l;const sw=document.querySelector('.stagewrap'),mf=$('#mapframe');if(!sw||!mf)return;sw.style.transform=l&&sw.classList.contains('mini')?`translateX(${-Math.max(0,mf.clientWidth-sw.offsetWidth-80)}px)`:''}
 function sizeChar(){const mf=$('#mapframe'),cv=$('#cv');if(!mf||!cv)return;const F=mf.clientHeight,H=Math.max(300,Math.round(F*1.3)),r=(cv.width&&cv.height)?cv.width/cv.height:596/1796;mf.style.setProperty('--sth',H+'px');mf.style.setProperty('--sw',Math.round(H*r)+'px');mf.style.setProperty('--sch',F+'px');mf.style.setProperty('--sdn',Math.max(0,Math.round(F-148-780*H/(cv.height||1796)))+'px');charSide(charL)}
 function charHit(e){const sw=document.querySelector('.stagewrap');if(!sw||document.querySelector('#game.talking')||!sw.classList.contains('mini')||(e.target.closest&&e.target.closest('.exit,#actov,.twarr,.twi,.dbox')))return false;const cv=$('#cv'),r=cv.getBoundingClientRect(),w=sw.getBoundingClientRect();if(e.clientX<w.left||e.clientX>w.right||e.clientY<w.top||e.clientY>w.bottom||e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)return false;try{const x=Math.floor((e.clientX-r.left)/r.width*cv.width),y=Math.floor((e.clientY-r.top)/r.height*cv.height);return cv.getContext('2d').getImageData(x,y,1,1).data[3]>20}catch(_){const fx=(e.clientX-r.left)/r.width;return fx>.05&&fx<.95}}
 document.addEventListener('click',e=>{if(charHit(e)){e.stopImmediatePropagation();e.preventDefault();charSide(charL?0:1)}},true);
@@ -2318,7 +2349,7 @@ async function openBookShop(pid){
   if(!pool.length)box.innerHTML='<div class="tag">오늘은 새로 들어온 책이 없어요</div>';
   pool.forEach(b=>{const row=document.createElement('div');row.className='shi';row.innerHTML=bkSw(b);const nm=document.createElement('div');nm.className='nm2';nm.textContent=b.name;row.append(nm);
     const bt=document.createElement('button');bt.textContent=`₩${BOOK_PRICE.toLocaleString()} 구매`;
-    bt.onclick=()=>{if(G.money<BOOK_PRICE)return msg('돈이 부족해요',1);earn(-BOOK_PRICE,b.name+' 구매');G.books[b.id]={id:b.id,name:b.name,c1:b.color1,c2:b.color2,cv:b.cover||''};G.log=`${b.name}을(를) 샀어요`;msg(`📖 ${b.name}을(를) 샀어요! 내 책장에 꽂았어요 · −₩${BOOK_PRICE.toLocaleString()}`);bt.textContent='보유';bt.disabled=true;saveGame();renderWorld();$('#shm').textContent='서점 · 보유 금액 ₩'+G.money.toLocaleString()};
+    bt.onclick=()=>{if(G.money<BOOK_PRICE)return msg('돈이 부족해요',1);earn(-BOOK_PRICE,b.name+' 구매');G.books[b.id]={id:b.id,name:b.name,c1:b.color1,c2:b.color2,cv:b.cover||'',x:{label:b.label||'',color1:b.color1,color2:b.color2,color3:b.color3,height:b.height,thickness:b.thickness,page:b.page,sr:b.sr?b.sr.name:''}};G.log=`${b.name}을(를) 샀어요`;msg(`📖 ${b.name}을(를) 샀어요! 내 책장에 꽂았어요 · −₩${BOOK_PRICE.toLocaleString()}`);bt.textContent='보유';bt.disabled=true;saveGame();renderWorld();$('#shm').textContent='서점 · 보유 금액 ₩'+G.money.toLocaleString()};
     row.append(bt);box.append(row)});
   $('#shm').textContent='서점 · 보유 금액 ₩'+G.money.toLocaleString()}
 /* 비디오 가게: mvmv의 영화 목록을 mvmv와 같은 비디오테이프 그림(mvtape.v1.js)으로 진열. 올 때마다 일부만 무작위, 산 것만 G.videos에 저장 */
@@ -2342,22 +2373,26 @@ async function openMyVideos(){
   tapeGrid(L,()=>'보기',async m=>{try{await mvLoad();const f=MVA.find(x=>x.id===m.id);if(!f)return msg('mvmv에서 이 작품을 찾지 못했어요');$('#shop').close();runFilm(f,()=>{pass(VIDEO_MIN);G.log='';after()})}catch(e){msg('영화 기록을 불러오지 못했어요',1)}})}
 /* ===== 선반: 산 책과 비디오가 섞여서 꽂혀 있어요 (꽂힌 순서는 항상 같고, 처음 보면 랜덤처럼 보여요) ===== */
 let SHF=null;
-function openMixShelf(){
-  const L=[...Object.values(G.books||{}).map(b=>({t:'b',o:b})),...Object.values(G.videos||{}).map(v=>({t:'v',o:v}))];
-  $('#shm').textContent=`🗄 선반 · 책 ${Object.keys(G.books||{}).length}권 · 비디오 ${Object.keys(G.videos||{}).length}개`;const box=$('#shl');box.classList.remove('tapes');SHF=null;
-  if(!L.length){box.innerHTML='<div class="tag">아직 꽂을 게 없어요. 서점에서 책을, 비디오 가게에서 비디오를 사 보세요</div>';$('#shop').showModal();return}
-  L.forEach(x=>{let h=hsh((x.t==='b'?'b':'v')+x.o.id);h=Math.imul(h^(h>>>15),2246822507)>>>0;h=Math.imul(h^(h>>>13),3266489909)>>>0;h=(h^(h>>>16))>>>0;x.k=h;x.h=x.t==='b'?96+h%34:112;x.w=x.t==='b'?22+(h>>3)%16:20});
+async function openMixShelf(){
+  const nb=Object.keys(G.books||{}).length,nv=Object.keys(G.videos||{}).length,box=$('#shl');
+  $('#shm').textContent=`🗄 선반 · 책 ${nb}권 · 비디오 ${nv}개`;box.classList.remove('tapes');SHF=null;
+  if(!nb&&!nv){box.innerHTML='<div class="tag">아직 꽂을 게 없어요. 서점에서 책을, 비디오 가게에서 비디오를 사 보세요</div>';$('#shop').showModal();return}
+  box.innerHTML='<div class="tag">선반을 정리하는 중…</div>';$('#shop').showModal();
+  const full=new Map();if(nb){try{(await bkLoad()).forEach(x=>full.set(String(x.id),x))}catch(e){}}
+  BK_SH=BK_SW=.8;
+  const bkObj=o=>full.get(String(o.id))||(o.x?{...o.x,id:o.id,name:o.name,sr:o.x.sr?{name:o.x.sr}:null}:{id:o.id,name:o.name,color1:o.c1,color2:o.c2,label:o.name});
+  const L=[...Object.values(G.books||{}).map(b=>({t:'b',o:b,b:bkObj(b)})),...Object.values(G.videos||{}).map(v=>({t:'v',o:v}))];
+  L.forEach(x=>{let h=hsh((x.t==='b'?'b':'v')+x.o.id);h=Math.imul(h^(h>>>15),2246822507)>>>0;h=Math.imul(h^(h>>>13),3266489909)>>>0;h=(h^(h>>>16))>>>0;x.k=h;x.w=x.t==='b'?bkW(x.b):22});
   L.sort((a,b)=>a.k-b.k);
   const W=514,rows=[[]];let cur=0;L.forEach(x=>{if(cur+x.w+3>W&&rows[rows.length-1].length){rows.push([]);cur=0}rows[rows.length-1].push(x);cur+=x.w+3});
-  box.innerHTML=`<div class="shfw">${rows.map(r=>`<div class="shfr">${r.map(x=>{const o=x.o,ink=bkInk(o.c1||'#888');
-    return x.t==='b'?`<button type="button" class="shfi shfb" data-t="b" data-i="${esc(o.id)}" title="${esc(o.name)}" style="width:${x.w}px;height:${x.h}px;background:linear-gradient(90deg,${esc(o.c1||'#888')},${esc(o.c2||o.c1||'#888')});color:${ink}"><span>${esc(o.name)}</span></button>`
-      :`<button type="button" class="shfi shfv" data-t="v" data-i="${esc(o.id)}" title="${esc(o.name)}" style="width:${x.w}px;height:${x.h}px;background:linear-gradient(90deg,${esc(o.c1||'#222')},${esc(o.c2||'#333')});--st:${esc(o.c3||'#ddd')}"><i></i><span>${esc(o.name)}</span></button>`}).join('')}</div><div class="shfp"></div>`).join('')}</div><div class="shfn" id="shfn"><span class="tag">꽂힌 것을 눌러 보세요</span></div>`;
-  box.onclick=e=>{const el=e.target.closest('.shfi');if(!el)return;box.querySelectorAll('.shfi.on').forEach(x=>x.classList.remove('on'));el.classList.add('on');
+  box.innerHTML=`<div class="shfw">${rows.map(r=>`<div class="shfr">${r.map(x=>{const o=x.o;
+    if(x.t==='b')return bkSpine(x.b,0).replace('class="bks-sp','data-t="b" data-i="'+esc(o.id)+'" class="shfk bks-sp').replace(/ data-i="0"/,'');
+    return `<button type="button" class="shfi shfv shfk" data-t="v" data-i="${esc(o.id)}" title="${esc(o.name)}" style="width:${x.w}px;height:112px;background:linear-gradient(90deg,${esc(o.c1||'#222')},${esc(o.c2||'#333')});--st:${esc(o.c3||'#ddd')}"><i></i><span>${esc(o.name)}</span></button>`}).join('')}</div><div class="shfp"></div>`).join('')}</div><div class="shfn" id="shfn"><span class="tag">꽂힌 것을 눌러 보세요</span></div>`;
+  box.onclick=e=>{const el=e.target.closest('.shfk');if(!el)return;box.querySelectorAll('.shfk.on').forEach(x=>x.classList.remove('on'));el.classList.add('on');
     const isB=el.dataset.t==='b',o=isB?G.books[el.dataset.i]:G.videos[el.dataset.i];if(!o)return;SHF={b:isB,o};
     $('#shfn').innerHTML=`<b>${isB?'📕':'📼'} ${esc(o.name)}</b><span class="tag">${isB?`발췌문 읽기 · ⏱ ${READ_MIN}분`:`처음부터 보기 · ⏱ ${VIDEO_MIN}분`}</span><button type="button" id="shfgo" class="pri">${isB?'읽기':'보기'}</button>`;
     $('#shfgo').onclick=()=>{const q=SHF;if(!q)return;$('#shop').close();
-      if(q.b)showExcerpt(q.o);else(async()=>{try{await mvLoad();const f=MVA.find(x=>x.id===q.o.id);if(!f)return msg('mvmv에서 이 작품을 찾지 못했어요');runFilm(f,()=>{pass(VIDEO_MIN);G.log='';after()})}catch(er){msg('영화 기록을 불러오지 못했어요',1)}})()}};
-  $('#shop').showModal()}
+      if(q.b)showExcerpt(q.o);else(async()=>{try{await mvLoad();const f=MVA.find(x=>x.id===q.o.id);if(!f)return msg('mvmv에서 이 작품을 찾지 못했어요');runFilm(f,()=>{pass(VIDEO_MIN);G.log='';after()})}catch(er){msg('영화 기록을 불러오지 못했어요',1)}})()}}}
 function openMyBooks(){
   const L=Object.values(G.books||{}),box=$('#shl');$('#shm').textContent=`내 책장 · ${L.length}권 · 누르면 발췌문 (⏱ ${READ_MIN}분)`;box.innerHTML='';box.classList.remove('tapes');
   if(!L.length)box.innerHTML='<div class="tag">아직 산 책이 없어요. 서점에서 사 보세요</div>';
@@ -2527,7 +2562,7 @@ var SLOTS=5,SAVE={slot:(()=>{try{return Math.min(SLOTS,Math.max(1,+localStorage.
 function normG(){applyMe();
   if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}
   if(typeof G.min!=='number')G.min=WORLD.wakeMin;if(!Array.isArray(G.ledger))G.ledger=[];
-  if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.vgoods=G.vgoods||{};G.dlv=Array.isArray(G.dlv)?G.dlv:[];G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
+  if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.wait=Array.isArray(G.wait)?G.wait:[];G.vgoods=G.vgoods||{};G.dlv=Array.isArray(G.dlv)?G.dlv:[];G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
 const lookPack=()=>(CL&&CL.try&&CL.snap?CL.snap:{sel,colors,iord});   // 입어보는 동안에는 저장되지 않아요
 function lookSave(){if(LOOKP)return;clearTimeout(SAVE.lt);SAVE.lt=setTimeout(()=>{try{localStorage.setItem('fsfsLook',JSON.stringify(lookPack()));localStorage.setItem('fsfsLocalAt',Date.now())}catch(e){}try{pushSoon()}catch(e){}},800)}
 function applyLook(l){const d=l||LOOKP;if(!d||!d.sel)return;if(!l&&!DB.items.length)return;sel={...sel,...d.sel};colors=d.colors||{};iord=Array.isArray(d.iord)?d.iord.slice():[];if(!l)LOOKP=null}
