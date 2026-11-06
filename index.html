@@ -459,17 +459,23 @@ button.act.off{opacity:.5;box-shadow:none}
 /* 상태·책장·영화 화면 */
 #stview{padding:4px 2px}
 #st_b{max-height:62vh;overflow:auto}
-/* ===== Cosmic Cute 믹스: 이중 테두리 글래스 + 말랑 버튼 (흰 테두리는 가장 바깥 틀만) ===== */
+/* ===== Cosmic Cute: 이중 테두리 글래스 + 말랑 버튼 =====
+   색 규칙(전체 공통):  기본=연보라 흰 · 마우스 올림=노랑 · 선택/강조=분홍 · 행동=하늘색 · 닫힘/비활성=회보라
+   흰 테두리는 가장 바깥 틀과 날짜·시간·음악·재화 상자에만 둔다 */
 :root{--ln:#a99be8;--ln2:#d8cffa;--ink:#6a5a9e;--mute:#a597c9;--bg:#ffd3e3;--line:#e6defa;--chk:#f6f2ff;
  --glass:linear-gradient(175deg,#d6f0ff 0%,#e6e1ff 55%,#fbdcf0 100%);--glassw:linear-gradient(175deg,#fff 0%,#f3eeff 100%);
- --actbg:linear-gradient(#fffbe0,#ffec9c);--actln:#e8c85e;--sh:none}
+ --bs-bg:linear-gradient(#fff,#f1ecff);--bs-ln:var(--ln);
+ --hv-bg:linear-gradient(#fffbe0,#fff0b3);--hv-ln:#e8c85e;
+ --sl-bg:linear-gradient(#ffe3f0,#ffb8d6);--sl-ln:#f08cbc;--sl-ink:#b53f7e;
+ --ac-bg:linear-gradient(#e6f4ff,#c4e0fa);--ac-ln:#86b9ea;
+ --of-bg:#efeaf8;--of-ln:var(--ln2);--sh:none}
 html,body{background:radial-gradient(circle at 20% 10%,#ffe9f2,transparent 40%),radial-gradient(circle at 85% 90%,#e9e2ff,transparent 45%),#ffd0e1}
-button{border:3px solid var(--ln);border-radius:16px;background:linear-gradient(#fff,#f1ecff);box-shadow:none;text-shadow:none}
-button:hover{background:linear-gradient(#fffbe0,#fff0b3)}button:active{transform:translateY(1px);box-shadow:none}
-button.on,button.pri,.twi.on{background:linear-gradient(#ffe3f0,#ffb8d6);border-color:#f08cbc;color:#b53f7e}
+button{border:3px solid var(--bs-ln);border-radius:16px;background:var(--bs-bg);color:var(--ink);box-shadow:none;text-shadow:none;transition:background .14s,border-color .14s,color .14s}
+button:hover:not(:disabled){background:var(--hv-bg);border-color:var(--hv-ln)}button:active{transform:translateY(1px);box-shadow:none}
+button.on,button.pri,.twi.on{background:var(--sl-bg);border-color:var(--sl-ln);color:var(--sl-ink)}
 input,select,textarea{border-color:var(--line)}input:focus,select:focus,textarea:focus{border-color:var(--ln)}
 .card{border:3px solid var(--ln);border-radius:20px;background:var(--glassw);box-shadow:none}
-h2{background:linear-gradient(#fffbe0,#ffec9c);color:#7a5aa8;border:2px solid #e8c85e}
+h2{background:var(--hv-bg);color:#7a5aa8;border:2px solid var(--hv-ln)}
 dialog{border:3px solid var(--ln);box-shadow:none}
 /* 큰 틀: 이중 테두리(흰 테두리 유지) + 위(타이틀)·아래 탭 */
 #game.app{padding-top:50px;background:var(--glass);border:4px solid var(--ln);border-radius:30px;box-shadow:inset 0 0 0 4px rgba(255,255,255,.75),inset 0 0 0 6px var(--ln2)}
@@ -477,60 +483,67 @@ dialog{border:3px solid var(--ln);box-shadow:none}
 #game.app::after{content:"";position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);width:170px;height:20px;box-sizing:border-box;background:linear-gradient(#ffd3e8,#ffc0dd);border:4px solid var(--ln);border-bottom:0;border-radius:14px 14px 0 0;z-index:6}
 /* 시스템 버튼: 알약 하나 + 세로 구분 + 안쪽으로 눌리는 엠보스 */
 #game .side>.card:first-child{margin-right:77px;height:42px}
-.sysbar{display:inline-flex;align-items:stretch;height:38px;border:3px solid var(--ln);border-radius:999px;overflow:hidden;background:linear-gradient(#fff,#ece6ff)}
-.sysbar button{border:0;border-radius:0;background:none;padding:0 15px;font-size:13px;transition:box-shadow .08s,background .08s}
-.sysbar button:not([hidden])~button:not([hidden]){border-left:2px solid var(--ln2)}
-.sysbar button:hover{background:linear-gradient(#fffbe0,#fff0b3)}
+.sysbar{display:inline-flex;align-items:stretch;height:38px;border:3px solid var(--ln);border-radius:999px;overflow:hidden;background:var(--bs-bg)}
+.sysbar button{border:0;border-radius:0;background:none;padding:0 15px;font-size:13px}
+.sysbar button:not([hidden])~button:not([hidden]){border-left:3px solid var(--ln)}
+.sysbar button:hover:not(:disabled){background:var(--hv-bg)}
 .sysbar button:active{transform:none;background:linear-gradient(#e2dcf7,#efeaff);box-shadow:inset 3px 5px 9px rgba(106,90,158,.5),inset -2px -3px 5px rgba(255,255,255,.95);color:#5a4a8e}
-/* HUD: 흰 테두리·흰 띠 없음 */
+/* 상단 HUD: 날짜·시간띠·시계·음악·재화 = 가장 바깥 틀과 같은 이중 테두리, 구분선은 모두 테두리색·같은 높이 */
 .world>.wt{background:transparent;border-bottom:0}
-#wt>*,.world .mp{border:3px solid var(--ln);border-radius:18px;background:var(--glassw);box-shadow:none}
+#wt>*,.world .mp{position:relative;border:3px solid var(--ln);border-radius:18px;background:var(--glassw);box-shadow:none}
+#wt .cal::after,#wt .tl::after,#wt .clk::after,.world .mp::after,#wt .vit::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:15px;box-shadow:inset 0 0 0 3px rgba(255,255,255,.75),inset 0 0 0 5px var(--ln2)}
 #wt .cal .mo{background:linear-gradient(#ffd3ea,#ffb8d6);color:#fff;text-shadow:0 1px 0 #d8639a}
+#wt .cal .mo{height:20px;line-height:20px}#wt .cal .dy{font-size:26px}
+#wt .cal .wk{flex:none;height:22px;line-height:14px;padding-bottom:5px;box-sizing:border-box;border-top:3px solid var(--ln);font-size:11px}
 .bd{border-right:0}.bd.on{box-shadow:none}
+.scale{flex:none;height:22px;box-sizing:border-box;background:none;border-top:3px solid var(--ln)}
+.scale>i.tk{background:var(--ln);opacity:.7}
+.scale .dot{top:-7px;border:2px solid var(--ln);box-sizing:border-box}
 .world .mp{background:linear-gradient(#d6f0ff,#bfe3fb)}
-#wt .vit{overflow:hidden;gap:0;border:3px solid var(--ln);border-radius:18px;background:var(--glassw);box-shadow:none}
+.mp-seek{flex:none;position:relative;height:22px;box-sizing:border-box;background:none;border-top:3px solid var(--ln)}
+.mp-seek::before{content:"";position:absolute;left:0;right:0;top:50%;height:8px;margin-top:-4px;background:var(--ln2)}
+#mp_seek #mp_bar{position:absolute;left:0;top:50%;height:8px;margin-top:-4px;width:0;background:var(--acc)}
+#wt .vit{overflow:hidden;gap:0;border:3px solid var(--ln);border-radius:18px;background:var(--glassw)}
+.mp-time{font-size:20px}.mp-mq{font-size:12px;height:16px;line-height:16px}
 #wt .led{border:0;border-radius:0;box-shadow:none;background:none}
-#wt .led.en{background:linear-gradient(#e4fbf1,#c9f3e2)}#wt .led.mo{background:linear-gradient(#fffbe0,#fff1b0);border-top:2px solid var(--ln2)}
-/* 마을창·간판·띠 */
+#wt .led.en{background:linear-gradient(90deg,#a9e8d2 var(--p,100%),#e4fbf1 var(--p,100%))}
+#wt .led.mo{background:linear-gradient(#fffbe0,#fff1b0);border-top:3px solid var(--ln)}
+/* 마을창·간판(말풍선)·띠 */
 #game .card.world{background:transparent;border:4px solid var(--ln);border-radius:26px;box-shadow:0 0 0 2px var(--ln2)}
-.map-building{border:3px solid var(--ln);background:linear-gradient(#fff,#f3eeff);box-shadow:none;color:var(--ink);text-shadow:none;transition:background .15s,color .15s,border-color .15s;-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
-.map-building:hover,.map-building:active{transform:translate(-50%,-50%);background:linear-gradient(#fffbe0,#ffec9c);border-color:#e8c85e;box-shadow:none}
-.map-building.current{background:linear-gradient(#ffe3f0,#ffb8d6);border-color:#f08cbc}.map-building.closed{background:#efeaf8;color:#b9aedb}
-.map-building.closed:hover{border-color:var(--ln)}
+.map-building{--bt:#fff;--bf:#f3eeff;--bc:var(--ln);overflow:visible;padding:7px 12px 3px;border:3px solid var(--bc);border-radius:14px;background:linear-gradient(var(--bt),var(--bf));box-shadow:none;color:var(--ink);text-shadow:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none;transition:background .15s,border-color .15s,color .15s}
+.map-building::before,.map-building::after{content:"";position:absolute;left:50%;top:100%;width:0;height:0;border:solid transparent}
+.map-building::before{margin-left:-8px;border-width:11px 8px 0;border-top-color:var(--bc)}
+.map-building::after{margin-left:-6px;margin-top:-1px;border-width:9px 6px 0;border-top-color:var(--bf)}
+.mb-t{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.map-building:hover,.map-building:active{transform:translate(-50%,-50%);--bt:#fffbe0;--bf:#fff0b3;--bc:var(--hv-ln);box-shadow:none}
+.map-building.current,.map-building.current:hover{--bt:#ffe3f0;--bf:#ffb8d6;--bc:var(--sl-ln)}
+.map-building.closed,.map-building.closed:hover{--bt:var(--of-bg);--bf:var(--of-bg);--bc:var(--of-ln);color:#b9aedb}
 .pn{border:4px solid var(--ln);border-radius:20px;background:var(--signbg,linear-gradient(#fff6c8,#ffe27a));box-shadow:none;color:#7a5aa8;text-shadow:none}
-.twi,.twarr{border:3px solid var(--ln);box-shadow:none}
-#actov{background:linear-gradient(175deg,rgba(214,240,255,.94),rgba(238,226,255,.94) 60%,rgba(255,224,240,.94));border-top:4px solid var(--ln);box-shadow:none}
-/* 액션: 한 가지 색, 그림자·흰 테두리 없음 */
-button.act,#wa button.act,button.act.nav{border-radius:18px;background:var(--actbg);border-color:var(--actln);box-shadow:none;color:var(--ink)}
-button.act:hover{background:linear-gradient(#fffdf0,#fff3b8)}
+.sign{border:2px solid var(--ln);box-shadow:none}.sign::before,.sign::after{box-shadow:0 0 0 1.5px var(--ln)}
+.twi,.twarr{border:3px solid var(--bs-ln);box-shadow:none}
+#actov{background:linear-gradient(175deg,#d6f0ff,#eee2ff 60%,#ffe0f0);border-top:4px solid var(--ln);box-shadow:none}
+/* 액션: 하늘색, 올리면 노랑(다른 버튼과 같은 규칙) */
+.actrow{height:64px}#wa{height:64px;padding:3px 0;box-sizing:border-box}#wa button.act,#wa .lockmsg{height:58px}
+button.act,#wa button.act,button.act.nav{border-radius:18px;background:var(--ac-bg);border-color:var(--ac-ln);box-shadow:none;color:var(--ink)}
+button.act:hover:not(.off):not(:disabled),#wa button.act:hover:not(.off):not(:disabled){background:var(--hv-bg);border-color:var(--hv-ln)}
+button.act:active{transform:none}
 button.act b{font-weight:900;font-size:18px;color:var(--ink);-webkit-text-stroke:0}button.act small{color:#8c7fb8}
-/* 좌우 화살표: 세로로 긴 둥근 네모 */
-.acarr{width:34px;height:58px;padding:0;border-radius:12px;background:linear-gradient(#fff,#ece6ff);border-color:var(--ln);box-shadow:none;font-size:13px}
-.acarr:hover:not(:disabled){background:linear-gradient(#fffbe0,#fff0b3)}
-.exit{z-index:8;background:linear-gradient(#ffe3f0,#ffb8d6);border-color:#f08cbc;color:#b53f7e;box-shadow:none}
-#sp{border:4px solid var(--ln);border-radius:22px;box-shadow:none;background:linear-gradient(#e2f2ff,#f3e4ff)}
-#scene .nm{background:linear-gradient(#ffe3f0,#ffb8d6);border:3px solid #f08cbc;color:#fff;text-shadow:0 2px 0 #d8639a;-webkit-text-stroke:3px #f08cbc;paint-order:stroke fill}
-/* 캐릭터: 작은 모습(무릎 위~허벅지 중간)은 마을·장소 모두, 마을 지도에선 클릭하면 좌우로 틱틱 */
-.stagewrap.mini{right:80px;bottom:148px;width:240px;height:452px}
-.stagewrap.mini .stage{width:240px;height:723px}
-.stagewrap.mini{transition:transform .3s steps(5,end)}
-.stagewrap.mini.town{-webkit-mask-image:linear-gradient(to bottom,#000 74%,transparent);mask-image:linear-gradient(to bottom,#000 74%,transparent)}
+.acarr{width:34px;height:58px;padding:0;border-radius:12px;background:var(--bs-bg);border-color:var(--bs-ln);box-shadow:none;font-size:13px}
+.acarr:hover:not(:disabled){background:var(--hv-bg);border-color:var(--hv-ln)}
+.exit{z-index:8;background:var(--sl-bg);border-color:var(--sl-ln);color:var(--sl-ink);box-shadow:none}
+.exit:hover:not(:disabled){background:var(--hv-bg);border-color:var(--hv-ln);color:var(--ink)}
+#sp{border:3px solid var(--ln);border-radius:22px;box-shadow:none;background:none}
+#simg{border:3px solid var(--ln);box-shadow:none;border-radius:16px}
+#scene .nm{background:var(--sl-bg);border:3px solid var(--sl-ln);color:#fff;text-shadow:0 2px 0 #d8639a;-webkit-text-stroke:3px var(--sl-ln);paint-order:stroke fill}
+/* 캐릭터: 원래 크기(옷장과 같음), 마을·장소 같은 자리, 허벅지 중간까지만 — 장소창에서는 아래 띠가 가려요 */
+.stagewrap.mini{right:80px;bottom:0;width:var(--sw,275px);height:var(--sch,518px);overflow:hidden;transition:transform .3s steps(5,end)}
+.stagewrap.mini .stage{width:var(--sw,275px);height:var(--sth,830px)}
 /* 옷장: 아치 거울(가로 넓힘, 좌우 여백 같게) */
 .stagewrap.big{left:25px;width:310px}
 .stagewrap.big .stage{width:100%;aspect-ratio:auto;border:10px solid #c9ddff;border-radius:999px 999px 20px 20px;box-shadow:0 0 0 3px var(--ln),inset 0 0 0 3px var(--ln);background:linear-gradient(170deg,#fff,#e6e1ff 70%,#fbdcf0)}
 .stagewrap.big .stage canvas{width:auto;height:100%;left:50%;top:2.4%;transform:translateX(-50%)}
 #closet{background:var(--glassw);border:4px solid var(--ln);border-radius:24px;box-shadow:none}
 #closet>.cbar{flex:none;display:flex;flex-wrap:wrap;gap:6px}#closet>.cbar[hidden]{display:none}
-
-/* 액션 호버: 살짝 커지며 밝아짐 (위아래 잘리지 않게 여유) */
-.actrow{height:64px}#wa{height:64px;padding:3px 0;box-sizing:border-box}
-#wa button.act,#wa .lockmsg{height:58px}
-button.act{transition:transform .14s ease,background .14s ease,border-color .14s ease}
-button.act:hover:not(.off):not(:disabled){transform:scale(1.035);background:linear-gradient(#fffdf0,#fff1a8);border-color:#e0b93e}
-button.act:active:not(.off):not(:disabled){transform:scale(.98)}
-.acarr{height:58px}
-/* 간판 글자 살짝 아래로 */
-.map-building{padding:7px 12px 3px}
 /* 책장·포스터: 장소 이미지 위에 올라오는 겹침 화면 */
 .ovv{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;padding:14px 14px 58px;overflow:hidden}.ovv[hidden]{display:none}
 .ovv-in{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center}
@@ -544,14 +557,6 @@ button.act:active:not(.off):not(:disabled){transform:scale(.98)}
 .bk-post{background:linear-gradient(90deg,#f4dccd 0 1px,var(--face) 1px 8px,#8a5a48 8px 9px,var(--dk) 9px)}
 .bk-row::after{background:linear-gradient(to bottom,#f4dccd 0 2px,var(--face) 2px 12px,var(--dk) 12px 14px)}
 .bk-lab{color:#4a2a1f}.bk-vp{padding:0}.bk-tr{width:max-content;margin:0 auto}
-
-/* 쿼터뷰 간판: 오른쪽이 카메라에 가깝게(아래로) 기울임. 각도는 마을 지도 오른쪽 위에서 고름 */
-#townmap .map-building,#townmap .map-building:hover,#townmap .map-building:active{transform:translate(-50%,-50%) skewY(var(--tilt,0deg))}
-.tiltsel{position:absolute;top:12px;right:14px;z-index:8;display:flex;flex-direction:row;white-space:nowrap;align-items:center;gap:6px;padding:4px 8px 4px 12px;border:3px solid var(--ln);border-radius:999px;background:linear-gradient(#fff,#ece6ff);font-size:12px;font-weight:800;color:var(--ink)}.tiltsel[hidden]{display:none}
-.tiltsel select{width:auto;border:0;background:none;padding:2px 2px;font-weight:800;color:var(--ink);cursor:pointer}
-/* 인물 썸네일·장면 그림: 흰 테두리 없이 */
-#sp{border:3px solid var(--ln);border-radius:22px;box-shadow:none;background:none}
-#simg{border:3px solid var(--ln);box-shadow:none;border-radius:16px}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -578,7 +583,6 @@ button.act:active:not(.off):not(:disabled){transform:scale(.98)}
     <div class="card"><h2>순서</h2><div id="order"></div></div>
       <button id="endview2" class="pri" type="button">옷장 닫기</button></div>
 <div class="mapov"><div class="descbox" id="mapcurrent"></div>
-            <label id="tiltsel" class="tiltsel" hidden>간판 각도 <select id="tilt"><option value="0">없음</option><option value="20">20°</option><option value="21">21°</option><option value="22">22°</option><option value="23">23°</option><option value="24">24°</option><option value="25">25°</option><option value="26">26°</option><option value="27">27°</option><option value="28">28°</option><option value="29">29°</option><option value="30">30°</option><option value="31">31°</option><option value="32">32°</option><option value="33">33°</option><option value="34">34°</option><option value="35">35°</option><option value="36">36°</option><option value="37">37°</option><option value="38">38°</option><option value="39">39°</option><option value="40">40°</option></select></label>
             <div id="townbar" class="townbar"><button type="button" id="tw_l" class="twarr">◀</button><span id="tw_items" class="twitems"></span><button type="button" id="tw_r" class="twarr">▶</button></div>
             
             <img id="simg" hidden alt="">
@@ -1263,7 +1267,7 @@ function buildTownMap(){
   Object.entries(WORLD.places).forEach(([id,p])=>{
     if(p.parent||townOf(id)!==tid)return;const b=document.createElement('button');b.type='button';b.className='map-building';b.dataset.place=id;
     const pos=p.db?p.pos:(HITSPOTS[id]||p.pos||[50,50]);b.style.setProperty('--x',pos[0]+'%');b.style.setProperty('--y',pos[1]+'%');
-    b.setAttribute('aria-label',p.n+'으로 이동');b.title=p.n+'으로 이동';b.textContent=(p.i?p.i+' ':'')+p.n;b.onclick=()=>go(id);map.append(b);
+    b.setAttribute('aria-label',p.n+'으로 이동');b.title=p.n+'으로 이동';{const t=document.createElement('span');t.className='mb-t';t.textContent=(p.i?p.i+' ':'')+p.n;b.append(t)}b.onclick=()=>go(id);map.append(b);
   });
 }
 // ---- 장소창과 행동: 장소 유형(행동 묶음) + 장소별 추가/제외
@@ -1365,14 +1369,14 @@ function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   $('#wt').innerHTML=`<div class="cal${wd===0?' sun':wd===6?' sat':''}"><span class="mo">${d.getMonth()+1}월</span><b class="dy">${d.getDate()}</b><span class="wk">${DOW[wd]}요일</span></div>
    <b class="clk">${fmtT(G.min).replace(":","<i>:</i>")}</b>
    <div class="tl"><div class="bands">${BR.map(([n,i,a,b])=>`<span class="bd${n===bn?' on':''}" style="flex:${b-a} 1 0"><i>${i}</i><em>${n}</em></span>`).join('')}</div><div class="scale">${Array.from({length:47},(_,k)=>{const n=k+1;return `<i class="tk ${n%4===0?'l':n%2===0?'m':'s'}" style="left:${n/48*100}%"></i>`}).join('')}<b class="dot" style="left:${Math.min(97,Math.max(3,np))}%"></b></div></div>
-   <div class="vit"><div class="led en"><i>EN</i><b>${Math.round(G.energy)}<small>/100</small></b></div><div class="led mo"><i>₩</i><b>${(G.money||0).toLocaleString()}</b></div></div>`;applyTint();setTimeout(posSys,0);
+   <div class="vit"><div class="led en" style="--p:${Math.max(0,Math.min(100,G.energy))}%"><i>EN</i><b>${Math.round(G.energy)}<small>/100</small></b></div><div class="led mo"><i>₩</i><b>${(G.money||0).toLocaleString()}</b></div></div>`;applyTint();setTimeout(posSys,0);
   const mapOnly=viewTown||curTown()!==townOf(G.place);   // 마을 지도만 보는 중: 특정 장소를 가리키지 않고 '마을'로 취급
   buildTownMap();
   document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===topOf(G.place)&&!mapOnly);b.classList.toggle('closed',!openNow(id));});
   const p=WORLD.places[G.place];$('#mapcurrent').hidden=mapOnly||(G.place==='home'&&G.closet);{const SC=['#ffb8cf','#a9e8d2','#fff0a6','#ffbd80','#aed6fb'];let hh=0;for(const c of String(G.place))hh=(hh*31+c.charCodeAt(0))>>>0;$('#mapcurrent').style.setProperty('--signbg',SC[hh%SC.length])}$('#mapcurrent').innerHTML=`<div class="pn">${p.i?`<i>${esc(p.i)}</i>`:''}<span>${esc(p.n)}</span>${p.i?`<i>${esc(p.i)}</i>`:''}</div>${signHtml(G.place)}`;$('#pdesc').textContent=p.desc||'';
   renderActs();
   const co=G.place==='home'&&G.closet,vw=viewSt?'status':(viewBk?'bk':(viewMv?'mv':''));$('#closet').hidden=!co;$('#cbar').hidden=!co;if(vw)$('#mapcurrent').hidden=true;$('#bkview').hidden=vw!=='bk';$('#mvview').hidden=vw!=='mv';$('#mapview').hidden=vw==='status';$('#endview3').hidden=!(vw==='bk'||vw==='mv');$('#stview').hidden=vw!=='status';$('#endbar').hidden=vw!=='status';if(vw==='status')renderStatus();
-  {const im=placeImg(viewMv&&mvPlace||G.place),si=!viewTown,el=$('#intimg');$('#townmap').hidden=si;$('#interior').hidden=!si;$('#townbar').hidden=si;$('#tiltsel').hidden=si;$('.mapov').classList.toggle('int',si);ACTHIDE=!!vw||mapOnly||co;EXITOK=si&&!mapOnly&&!vw&&!co;updBand();
+  {const im=placeImg(viewMv&&mvPlace||G.place),si=!viewTown,el=$('#intimg');$('#townmap').hidden=si;$('#interior').hidden=!si;$('#townbar').hidden=si;$('.mapov').classList.toggle('int',si);ACTHIDE=!!vw||mapOnly||co;EXITOK=si&&!mapOnly&&!vw&&!co;updBand();
     el.hidden=!im;if(!im){el.removeAttribute('src');el.dataset.src=''}else if(si&&el.dataset.src!==im){el.dataset.src=im;el.onerror=()=>{IMGBAD.add(im);el.dataset.src='';renderWorld()};el.src=im}}
   requestAnimationFrame(()=>{layActs();sizeWorld();fitText()});
   {const sw=document.querySelector('.stagewrap');sw.classList.toggle('big',co&&!vw);sw.classList.toggle('mini',!co&&!vw);sw.classList.toggle('town',!co&&!vw&&mapOnly);charSide(charL)}try{bgmUpdate()}catch(e){}
@@ -1884,13 +1888,12 @@ function fitGame(){const g=$('#game'),f=$('#gamefit'),de=document.documentElemen
 // 상단 HUD+마을 그림을 한 상자로: 상자 너비를 그림 비율에 맞춘다
 function sizeWorld(){try{const c=document.querySelector('#game .card.world'),f=$('#mapframe'),w=c&&c.querySelector('.wt');if(!c||!f||!w)return;
   const a=String(getComputedStyle(f).aspectRatio||'1.5').split('/').map(parseFloat),ratio=(a[0]/(a[1]||1))||1.5,fh=c.clientHeight-w.offsetHeight;
-  if(fh>100)c.style.width=Math.floor(fh*ratio)+(c.offsetWidth-c.clientWidth)+'px';posSys()}catch(e){}}
+  if(fh>100)c.style.width=Math.floor(fh*ratio)+(c.offsetWidth-c.clientWidth)+'px';posSys();sizeChar()}catch(e){}}
 var charL=0;function charSide(l){charL=l;const sw=document.querySelector('.stagewrap'),mf=$('#mapframe');if(!sw||!mf)return;sw.style.transform=l&&sw.classList.contains('mini')?`translateX(${-Math.max(0,mf.clientWidth-sw.offsetWidth-160)}px)`:''}
-function charHit(e){const sw=document.querySelector('.stagewrap');if(!sw||!sw.classList.contains('mini')||(e.target.closest&&e.target.closest('.exit,#actov,.twarr,.twi,.dbox')))return false;const cv=$('#cv'),r=cv.getBoundingClientRect(),w=sw.getBoundingClientRect();if(e.clientX<w.left||e.clientX>w.right||e.clientY<w.top||e.clientY>w.bottom||e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)return false;try{const x=Math.floor((e.clientX-r.left)/r.width*cv.width),y=Math.floor((e.clientY-r.top)/r.height*cv.height);return cv.getContext('2d').getImageData(x,y,1,1).data[3]>20}catch(_){return false}}
+function sizeChar(){const mf=$('#mapframe'),cv=$('#cv');if(!mf||!cv)return;const H=Math.max(300,Math.round(mf.clientHeight-48)),r=(cv.width&&cv.height)?cv.width/cv.height:596/1796;mf.style.setProperty('--sth',H+'px');mf.style.setProperty('--sw',Math.round(H*r)+'px');mf.style.setProperty('--sch',Math.round(H*.624)+'px');charSide(charL)}
+function charHit(e){const sw=document.querySelector('.stagewrap');if(!sw||!sw.classList.contains('mini')||(e.target.closest&&e.target.closest('.exit,#actov,.twarr,.twi,.dbox')))return false;const cv=$('#cv'),r=cv.getBoundingClientRect(),w=sw.getBoundingClientRect();if(e.clientX<w.left||e.clientX>w.right||e.clientY<w.top||e.clientY>w.bottom||e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)return false;try{const x=Math.floor((e.clientX-r.left)/r.width*cv.width),y=Math.floor((e.clientY-r.top)/r.height*cv.height);return cv.getContext('2d').getImageData(x,y,1,1).data[3]>20}catch(_){const fx=(e.clientX-r.left)/r.width;return fx>.05&&fx<.95}}
 document.addEventListener('click',e=>{if(charHit(e)){e.stopImmediatePropagation();e.preventDefault();charSide(charL?0:1)}},true);
 document.addEventListener('mousemove',e=>{const mf=$('#mapframe');if(mf)mf.style.cursor=charHit(e)?'pointer':''});
-function setTilt(v){v=+v||0;document.documentElement.style.setProperty('--tilt',v+'deg');const e=$('#tilt');if(e)e.value=String(v)}
-(function(){let v=30;try{const t=localStorage.getItem('fsfsTilt');if(t!==null&&!isNaN(+t))v=+t}catch(e){}setTilt(v);$('#tilt').onchange=e=>{setTilt(e.target.value);try{localStorage.setItem('fsfsTilt',e.target.value)}catch(_){}}})();
 function posSys(){try{const g=$('#game'),v=g.querySelector('.vit'),c=g.querySelector('.side>.card:first-child');if(!v||!c)return;const sc=g.getBoundingClientRect().width/g.offsetWidth||1,gr=g.getBoundingClientRect(),vr=v.getBoundingClientRect();c.style.marginRight=Math.max(0,Math.round((gr.right-(vr.left+vr.width*2/3))/sc-26))+'px'}catch(e){}}
 addEventListener('resize',()=>{fitGame();sizeWorld();posSys()});fitGame();
 
