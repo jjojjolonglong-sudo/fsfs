@@ -634,9 +634,9 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
               <div id="shview" class="ovv" hidden><div id="sh_p" class="ovv-in" style="align-items:center"></div></div>
               <div id="closet" hidden>
     <div id="cbar" class="cbar" hidden><button id="rand">🎲 랜덤</button><button id="crand">🎨 색 랜덤</button><button id="reset">↺ 처음 옷차림</button><button id="strip">👕 전부 벗기</button></div>
-    <div class="card"><div class="tabs" id="tabs"></div><div class="grid" id="grid"></div></div>
+    <div class="card" id="gridcard"><div class="tabs" id="tabs"></div><div class="grid" id="grid"></div></div>
     <div class="card" id="colorcard" hidden><h2>색상 (외곽선은 고정이에요)</h2><div id="colors"></div></div>
-    <div class="card"><h2>순서</h2><div id="order"></div></div>
+    <div class="card" id="ordercard"><h2>순서</h2><div id="order"></div></div>
       <button id="endview2" class="pri" type="button">옷장 닫기</button></div>
 <div class="mapov"><div class="descbox" id="mapcurrent"></div>
             <div id="townbar" class="townbar"><button type="button" id="tw_l" class="twarr">◀</button><span id="tw_items" class="twitems"></span><button type="button" id="tw_r" class="twarr">▶</button></div>
@@ -744,7 +744,7 @@ const START={hair_back:'뒷머리-중단발',hair_front:'앞머리-기본',top:'
 const PAIRS=[['땋은머리','뒷머리-땋은머리','앞머리-땋은머리'],['옆사베기','뒷머리-옆사베기','앞머리-옆사베기'],['미디움롱','뒷머리-미디움롱','앞머리-처피뱅미디움롱'],['단발펌','뒷머리-단발펌','앞머리-단발펌'],['레드숏컷','뒷머리-레드숏컷','앞머리-레드숏컷'],['하이포니테일','뒷머리-하이포니테일','앞머리-하이포니테일'],['중단발','뒷머리-중단발','앞머리-기본']];
 const TAB_ORDER=['hair_back','hair_front','top','outer','bottom','socks','shoes','accessory'];
 let PARTS=PARTS0.slice(),DB={parts:[],types:[],sets:[],items:[],maps:[],places:[],npcs:[],events:[],keymap:[],actions:[],ptypes:[],ptacts:[],pacts:[]},ITEMS=[],BY={},SETS=[];
-let order=[],iord=[],sel={},hidden=new Set(),colors={},tab='세트',S=null,isAdmin=false,inited=false;
+let order=[],iord=[],sel={},hidden=new Set(),colors={},tab='세트',CL=null,ACTGRP=null,S=null,isAdmin=false,inited=false;
 const P=c=>PARTS.find(p=>p.code===c),pz=c=>(P(c)||{z:0}).z;
 const roleOf=n=>n==='outline'?'outline':n==='static'?'static':'fill';
 const pubUrl=k=>cfg.pub?cfg.pub.replace(/\/$/,'')+'/'+k:'';
@@ -769,7 +769,10 @@ function pruneSel(){for(const p of PARTS){sel[p.code]=(sel[p.code]||[]).filter(i
   if(p.fixed&&!sel[p.code].length){const b=ITEMS.find(i=>i.part===p.code);if(b)sel[p.code]=[b.id]}}}
 function initSel(){sel={};for(const [part,key] of Object.entries(START)){const it=ITEMS.find(i=>i.part===part&&i.key===key);if(it)sel[part]=[it.id]}colors={};pruneSel()}
 const uiParts=()=>{const all=[...TAB_ORDER,...PARTS.map(p=>p.code).filter(c=>!TAB_ORDER.includes(c))];return all.filter(c=>P(c))};
-const tabParts=()=>uiParts().filter(c=>!P(c).fixed||ITEMS.filter(i=>i.part===c).length>1);
+const tabParts=()=>{const l=uiParts().filter(c=>!P(c).fixed||ITEMS.filter(i=>i.part===c).length>1);return CL&&CL.parts.length?l.filter(c=>CL.parts.includes(c)):l};
+const canWear=it=>owned(it)||!!(CL&&CL.try);   // 피팅룸(입어보기)에서는 아직 없는 옷도 입어 볼 수 있어요
+const lockTile=(t,u)=>{if(!u)return;if(!(CL&&CL.try))t.classList.add('locked');t.append(' 🔒')};
+function closeCl(){if(CL&&CL.snap){sel=CL.snap.sel;colors=CL.snap.colors;iord=CL.snap.iord}CL=null;G.closet=false}   // 입어보기를 마치면 원래 옷차림으로
 
 // ================= 그리기 =================
 const cv=$('#cv'),g=cv.getContext('2d');cv.width=Math.round(CROP.w*CVS);cv.height=Math.round(CROP.h*CVS);
@@ -809,32 +812,33 @@ function thumb(its,w=76,h=92){const c=document.createElement('canvas');c.width=w
 let rq=0;function redraw(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;drawStage();document.querySelectorAll('canvas.thc').forEach(paintThumb)})}
 
 // ================= 게임 UI =================
-function toggle(it){if(!owned(it))return hint(it);const p=P(it.part),a=sel[it.part]=sel[it.part]||[],i=a.indexOf(it.id);
+function toggle(it){if(!canWear(it))return hint(it);const p=P(it.part),a=sel[it.part]=sel[it.part]||[],i=a.indexOf(it.id);
   if(i>=0){if(!p.fixed)a.splice(i,1)}else if(p.multi)a.push(it.id);else sel[it.part]=[it.id];refresh()}
-function applySet(s){const lk=s.items.find(it=>!owned(it));if(lk)return hint(lk);const on=s.items.every(it=>(sel[it.part]||[]).includes(it.id));
+function applySet(s){const lk=s.items.find(it=>!canWear(it));if(lk)return hint(lk);const on=s.items.every(it=>(sel[it.part]||[]).includes(it.id));
   for(const it of s.items){const p=P(it.part),a=sel[it.part]=sel[it.part]||[];
     if(on){if(!p.fixed)sel[it.part]=a.filter(x=>x!==it.id)}else if(p.multi){if(!a.includes(it.id))a.push(it.id)}else sel[it.part]=[it.id]}refresh()}
 function tile(label,on,node,fn){const d=document.createElement('div');d.className='tile'+(on?' on':'');d.append(node,label);d.onclick=fn;return d}
 function renderTabs(){
-  const tp=tabParts(),all=['세트',...tp];if(!all.includes(tab))tab='세트';
+  const tp=tabParts(),all=(CL&&CL.parts.length&&tp.length)?tp:['세트',...tp];if(!all.includes(tab))tab=all[0];
   const t=$('#tabs');t.innerHTML='';
   for(const n of all){const b=document.createElement('button');b.textContent=n==='세트'?'세트':P(n).label;if(n===tab)b.className='on';b.onclick=()=>{tab=n;refresh()};t.appendChild(b)}
 }
 function renderGrid(){
   const gd=$('#grid');gd.innerHTML='';
-  if(tab==='세트'){SETS.forEach(s=>{const t=tile(s.name,s.items.every(it=>(sel[it.part]||[]).includes(it.id)),thumb(s.items),()=>applySet(s));if(s.items.some(it=>!owned(it))){t.classList.add('locked');t.append(' 🔒')}gd.append(t)});if(!SETS.length)gd.textContent='세트가 없어요';return}
+  if(tab==='세트'){SETS.forEach(s=>{const t=tile(s.name,s.items.every(it=>(sel[it.part]||[]).includes(it.id)),thumb(s.items),()=>applySet(s));lockTile(t,s.items.some(it=>!owned(it)));gd.append(t)});if(!SETS.length)gd.textContent='세트가 없어요';return}
   if(!P(tab).fixed){const n=document.createElement('div');n.className='none';n.textContent='✕';gd.append(tile('없음',!(sel[tab]||[]).length,n,()=>{sel[tab]=[];refresh()}))}
-  ITEMS.filter(i=>i.part===tab).forEach(it=>{const t=tile(it.name+(it.published===false?' (초안)':''),(sel[tab]||[]).includes(it.id),thumb([it]),()=>toggle(it));if(!owned(it)){t.classList.add('locked');t.append(' 🔒')}gd.append(t)});
+  ITEMS.filter(i=>i.part===tab).forEach(it=>{const t=tile(it.name+(it.published===false?' (초안)':''),(sel[tab]||[]).includes(it.id),thumb([it]),()=>toggle(it));lockTile(t,!owned(it));gd.append(t)});
 }
 function renderColors(){
   const box=$('#colors');box.innerHTML='';let any=false;
-  for(const code of uiParts())for(const id of sel[code]||[]){
+  for(const code of (CL&&CL.parts.length?uiParts().filter(c=>CL.parts.includes(c)):uiParts()))for(const id of sel[code]||[]){
     const it=BY[id],fl=it?it.layers.filter(l=>roleOf(l.layer)==='fill'):[];if(!fl.length)continue;any=true;
     const row=document.createElement('div');row.innerHTML=`<div class="ct">${esc(P(code).label)} · ${esc(it.name)}</div>`;
     fl.forEach(l=>{const lb=document.createElement('label');lb.className='cl';lb.append(l.layer);const inp=document.createElement('input');inp.type='color';inp.value=colorOf(it,l);
       inp.oninput=()=>{colors[it.id+':'+l.layer]=inp.value;redraw()};lb.append(inp);row.append(lb)});
     const b=document.createElement('button');b.textContent='기본색';b.onclick=()=>{fl.forEach(l=>delete colors[it.id+':'+l.layer]);refresh()};row.append(b);box.append(row)}
-  $('#colorcard').hidden=!any;
+  if(!any&&CL&&CL.mode==='color'){box.innerHTML='<div class="tag">염색할 수 있는 옷이 없어요</div>';$('#colorcard').hidden=false;return}
+  $('#colorcard').hidden=!any||!!(CL&&CL.mode==='shape');
 }
 function renderOrder(){
   syncOrder();const o=$('#order');o.innerHTML='';const w=document.createElement('div');w.className='ochips';
@@ -1154,7 +1158,7 @@ const WORLD={townMin:30,moveMin:15,innerMin:5,talkMin:30,skipMin:60,wakeMin:420,
 const DOW='일월화수목금토',rid=r=>BY[r]?r:'b:'+r;
 const ACT0=[
   {code:'limited',name:'한정판 오픈런',icon:'🏃',kind:'limited',descr:'한정판 의상을 사러 줄을 서요. 정해진 시각에 열리고 수량이 한정돼요.',mins:0,energy:0,money:0},
-  {code:'groupbuy',name:'공동구매',icon:'🛒',kind:'groupbuy',descr:'사람이 다 모이면 배송돼요. 참여하면 바로 결제돼요.',mins:0,energy:0,money:0},
+  {code:'groupbuy',name:'공동구매',icon:'🛒',kind:'groupbuy',descr:'사람이 다 모이면 배송돼요. 참여하면 바로 결제돼요.',mins:0,energy:0,money:0,effects:{group:'computer'}},
   {code:'shrine',name:'기도하기',icon:'🕯',kind:'shrine',descr:'수호신께 하고 싶은 말을 종이에 적어 남겨요. 대답은 없지만 촛불이 하나 켜져요.',mins:20,energy:0,money:0},
   {code:'bookbuy',name:'책 구경하기',icon:'📚',kind:'bookbuy',descr:'서가를 둘러보고 마음에 드는 책을 사요. 올 때마다 진열된 책이 달라요. (bkbk 연동)',mins:0,energy:0,money:0},
   {code:'videobuy',name:'비디오 구경하기',icon:'📼',kind:'videobuy',descr:'진열대의 비디오테이프를 둘러보고 사요. 올 때마다 진열이 달라요. (mvmv 연동)',mins:0,energy:0,money:0},
@@ -1165,7 +1169,7 @@ const ACT0=[
   {code:'talk',name:'이야기하기',icon:'💬',kind:'normal',descr:'',mins:30,energy:0,money:0,effects:{aff:[{npc:'*',v:1}]},scene:[]},
   {code:'sleep',name:'잠자기',icon:'😴',kind:'normal',descr:'아침 7시까지 푹 자요. 에너지가 채워져요.',mins:0,energy:0,money:0,endAt:420,minMins:240,cond:{ranges:[[1200,120]]},effects:{eph:12}},
   {code:'closet',name:'옷장 열기',icon:'👗',kind:'closet',descr:'옷을 갈아입어요.',mins:0,energy:0,money:0},
-  {code:'status',name:'내 상태 보기',icon:'📋',kind:'status',descr:'돈·에너지·호감도를 확인해요.',mins:0,energy:0,money:0},
+  {code:'status',name:'거울 보기',icon:'🪞',kind:'status',descr:'거울에 비친 내 모습과 돈·에너지·호감도를 확인해요.',mins:0,energy:0,money:0},
   {code:'shop',name:'물건 보기',icon:'🛍',kind:'shop',descr:'파는 물건을 살펴봐요.',mins:0,energy:0,money:0},
   {code:'walk',name:'산책하기',icon:'🚶',kind:'normal',descr:'천천히 걸으며 기분을 풀어요.',mins:30,energy:-5,money:0,scene:[{t:'나무 사이로 바람이 지나간다. 머릿속이 조금 맑아진 것 같다.'}]},
   {code:'drink',name:'음료 마시기',icon:'☕',kind:'normal',descr:'달콤한 음료로 한숨 돌려요.',mins:60,energy:10,money:-4500,scene:[{t:'따뜻한 음료를 천천히 마셨다. 기운이 조금 돌아온다.'}]},
@@ -1257,7 +1261,7 @@ function newGame(){const w=WORLD.start;G={v:3,day:0,min:WORLD.wakeMin,place:w.pl
 function loadGame(){try{G=JSON.parse(localStorage.getItem('fsfsGame')||'null')}catch(e){G=null}if(!G)newGame();
   if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}   // 예전 저장(구간)을 시각으로 옮겨요
   if(typeof G.min!=='number')G.min=WORLD.wakeMin;if(!Array.isArray(G.ledger))G.ledger=[];
-  if(G.energy==null)G.energy=100;G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.closet=!!G.closet}
+  if(G.energy==null)G.energy=100;G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.closet=false}
 const saveGame=()=>{try{localStorage.setItem('fsfsGame',JSON.stringify(G));localStorage.setItem('fsfsLocalAt',Date.now())}catch(e){}try{pushSoon()}catch(e){}};
 const owned=it=>!ACQ[it.id]||G.cheat||!!G.owned[it.id];
 const routeText=s=>s.text||routeText0(s);
@@ -1330,7 +1334,7 @@ function greetAt(pid){
   if(!ids.length)return;const k=ids[Math.floor(Math.random()*ids.length)];
   const t=pickLine(k)||'어서 오세요!';
   runScene([{who:k,t}],()=>{saveGame()})}
-function go(p,reopen){if(p===G.place){if(viewTown||viewTownId){pass(WORLD.moveMin);viewTown=false;viewTownId=null;G.log='';after()}return}/* 지도에서 같은 장소에 다시 들어가도 15분 */if(!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;G.closet=false;viewSt=false;viewBk=false;viewMv=false;viewSh=false;viewTown=false;viewTownId=null;G.log='';after();greetAt(p)}
+function go(p,reopen){if(p===G.place){if(viewTown||viewTownId){pass(WORLD.moveMin);viewTown=false;viewTownId=null;G.log='';after()}return}/* 지도에서 같은 장소에 다시 들어가도 15분 */if(!WORLD.places[p])return;const mn=travelMin(G.place,p);pass(mn);G.place=p;closeCl();ACTGRP=null;viewSt=false;viewBk=false;viewMv=false;viewSh=false;viewTown=false;viewTownId=null;G.log='';after();greetAt(p)}
 function stepTown(d){const i=TOWNS.findIndex(t=>t.id===curTown()),j=i+d;if(j<0||j>=TOWNS.length)return;viewTownId=TOWNS[j].id;pass(WORLD.townMin);G.log='';after();msg(`${TOWNS[j].name}으로 이동 · ⏱ ${durText(WORLD.townMin)}`)}   // 마을을 옮기는 순간 30분이 흐른다
 $('#tw_l').onclick=()=>stepTown(-1);$('#tw_r').onclick=()=>stepTown(1);
 function renderShop(pid){
@@ -1405,14 +1409,17 @@ function actionsAt(pid){
   if(shopHas(pid)&&!codes.some(c=>(WORLD.actions[c]||{}).kind==='shop'))codes.unshift('shop');
   codes=codes.filter(c=>c!=='look'&&(WORLD.actions[c]||{}).kind!=='look');
   if(here().length&&WORLD.actions.talk&&!codes.includes('talk')&&!o.remove.includes('talk'))codes.push('talk');
-  return codes.map(c=>WORLD.actions[c]).filter(Boolean);
+  const acts=codes.map(c=>WORLD.actions[c]).filter(Boolean),gs=new Set(acts.filter(a=>a.kind==='group').map(a=>a.code));
+  return acts.filter(a=>!((a.effects||{}).group&&gs.has(a.effects.group)));   // 묶음 메뉴가 있으면 그 하위 행동은 묶음 안에서만 보여요
 }
+const childrenOf=code=>Object.values(WORLD.actions).filter(a=>(a.effects||{}).group===code);
 const enOf=a=>Math.round((a.energy||0)+(durOf(a)/60)*(+((a.effects||{}).eph)||0));
 const durOf=a=>a.endAt!=null?((a.endAt-G.min+DAY)%DAY||DAY):(a.mins||0),availAct=a=>a.endAt==null||durOf(a)>=Math.max(1,a.minMins||0);
 const chips=a=>[a.endAt!=null?`⏱ ${fmtT(a.endAt)}까지 (${durText(durOf(a))})`:a.mins?`⏱ ${durText(a.mins)}`:'',enOf(a)?`⚡ ${enOf(a)>0?'+':''}${enOf(a)}`:'',a.money?`₩ ${a.money>0?'+':''}${(+a.money).toLocaleString()}`:''].filter(Boolean).join(' · ');
 // 함께하는 인물: 없음('') / 특정 인물(코드) / 지금 여기서 만난 모든 인물('*', 인물마다 따로)
 const partnerOf=a=>{const c=((a.cond||{}).aff||[])[0],e=((a.effects||{}).aff||[])[0],v=(c&&c.npc)||(e&&e.npc)||'';return v==='*any'?'*':v};
 const dk=(a,who)=>a.code+(who?':'+who:'');
+const josaI=n=>{const c=String(n||'').charCodeAt(String(n||'').length-1);return(c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28)?'이':'가'};
 const josa=n=>{const c=String(n||'').charCodeAt(String(n||'').length-1);return(c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28)?'과':'와'};
 function actState(a,who){
   const c=a.cond||{};
@@ -1425,7 +1432,15 @@ function actState(a,who){
 }
 function doAction(a,who){
   const st=actState(a,who);if(!st.ok)return say(st.why,1);if(!availAct(a))return say('지금은 시간이 부족해요',1);const pid=G.place;
-  if(a.kind==='closet'){G.closet=true;after();setTimeout(()=>$('#closet').scrollIntoView({behavior:'smooth',block:'start'}),50);return}
+  if(a.kind==='group'){ACTGRP=a.code;renderActs();return}
+  if(a.kind==='call'&&!who)return openCall(a);
+  if(a.kind==='bagfood')return openBagFood(a);
+  if(a.kind==='soon')return msg('🚧 '+a.name+' — 아직 준비 중이에요');
+  if(a.kind!=='call'||who)ACTGRP=null;
+  if(a.kind==='closet'){const ef=a.effects||{},spec=(ef.parts&&ef.parts.length)||ef.try||ef.mode;
+    if(spec){earn(a.money||0,a.name);G.energy=clampE(G.energy+enOf(a));pass(durOf(a));const ch=chips(a);G.log=`${a.icon||''} ${a.name}`+(ch?` (${ch})`:'');
+      CL={parts:ef.parts||[],mode:ef.mode||'both',try:!!ef.try,snap:ef.try?structuredClone({sel,colors,iord}):null}}
+    G.closet=true;after();setTimeout(()=>$('#closet').scrollIntoView({behavior:'smooth',block:'start'}),50);return}
   if(a.kind==='status'){viewSt=true;renderStatus();after();return}
   if(a.kind==='shop'){if(!shopHas(pid))return say('아직 파는 물건이 없어요');return openShop(pid)}
   if(a.kind==='limited'||a.kind==='groupbuy')return openSpecial(pid,a.kind);
@@ -1438,10 +1453,16 @@ function doAction(a,who){
   if(a.kind==='mvmv'){MOVIE_MIN=a.mins>0?a.mins:30;return openMovies()}
   earn(a.money||0,a.name+(who?' · '+((WORLD.npcs[who]||{}).n||''):''));G.energy=clampE(G.energy+enOf(a));
   const ef=a.effects||{},ev=+((ef.aff||[])[0]||{}).v||0;if(who&&ev)G.aff[who]=(G.aff[who]||0)+ev;(ef.give||[]).forEach(giveItem);actRoutes(a,who);
+  let mate=null;if((a.code||'').startsWith('job_')||(a.money>0&&(a.cond||{}).daily)){   // 알바 인사: 같이 일하던 직원이 말을 걸어요
+    const cs=Object.keys(WORLD.npcs).filter(k=>{const n=WORLD.npcs[k];return n.work===pid&&onShift(n)&&(G.actDay['greet:'+k]!==G.day)});if(cs.length)mate=cs[Math.floor(Math.random()*cs.length)]}
   if((a.cond||{}).daily)G.actDay[dk(a,who)]=G.day;
   const wn=who?(WORLD.npcs[who]||{}).n:'',ch0=chips(a)+(who&&ev?` · ♥ ${ev>0?'+':''}${ev}`:'');pass(durOf(a));G.log=`${a.icon||''} ${a.name}`+(wn?` — ${wn}`:'')+(ch0?` (${ch0})`:'');saveGame();PARTNER=who||'';
   const done=()=>{PARTNER='';after();if(!openNow(G.place))msg('문 닫을 시간이 됐어요')};
-  const sc=a.code==='talk'&&who?talkScene(who):a.scene;sc&&sc.length?runScene(sc,done):done();
+  let sc=a.code==='talk'&&who?talkScene(who):(a.kind==='call'&&who?[...((a.scene&&a.scene.length)?a.scene:[{t:'📞 전화를 걸었다. 신호음이 몇 번 울리고…'}]),...talkScene(who)]:a.scene);
+  if(mate){G.actDay['greet:'+mate]=G.day;G.aff[mate]=(G.aff[mate]||0)+1;const mn=(WORLD.npcs[mate]||{}).n||'';
+    const L=['오늘도 수고했어요!','덕분에 오늘은 한결 수월했어요.','같이 일해서 즐거웠어요. 또 봐요!','수고했어요. 들어가서 푹 쉬어요.'];
+    sc=[...(sc||[]),{t:`일을 마치고 나오는데, 함께 일하던 ${mn}${josaI(mn)} 말을 걸었다.`},{who:mate,t:L[Math.floor(Math.random()*L.length)]}]}
+  sc&&sc.length?runScene(sc,done):done();
 }
 const parseLine=x=>{const m=/^\[(\d+)\]\s*([\s\S]*)$/.exec(String(x||''));return m?{min:+m[1],t:m[2]}:{min:0,t:String(x||'')}};
 const pickLine=who=>{const n=WORLD.npcs[who]||{},a=(G.aff||{})[who]||0,L=(n.lines||[]).map(parseLine).filter(l=>l.t&&l.t!=='…'&&l.min<=a);return L.length?L[Math.floor(Math.random()*L.length)].t:''};   // 호감도가 조건 이상인 대사 중 무작위
@@ -1455,25 +1476,39 @@ const pgStep=d=>{const w=$('#wa'),pg=+w.dataset.pg||w.clientWidth;w.scrollBy({le
 $('#ac_l').onclick=()=>pgStep(-1);$('#ac_r').onclick=()=>pgStep(1);$('#wa').addEventListener('scroll',updActArrows);addEventListener('resize',layActs);try{new ResizeObserver(layActs).observe($('#wa'))}catch(e){}
 let ACTPID=null;
 function renderActs(){
-  const pid=G.place,p=WORLD.places[pid],box=$('#wa');const keepSl=(ACTPID===pid)?box.scrollLeft:0;ACTPID=pid;box.innerHTML='';if(!p)return;
+  const pid=G.place,p=WORLD.places[pid],box=$('#wa');if(ACTPID!==pid)ACTGRP=null;const keepSl=(ACTPID===pid)?box.scrollLeft:0;ACTPID=pid;box.innerHTML='';if(!p)return;
+  const gA=ACTGRP&&actionsAt(pid).some(x=>x.code===ACTGRP)?WORLD.actions[ACTGRP]:null;if(!gA)ACTGRP=null;
   const conn=[];
   if(p.parent){conn.push(p.parent);Object.keys(WORLD.places).filter(k=>WORLD.places[k].parent===p.parent&&k!==pid).forEach(k=>conn.push(k))}
   Object.keys(WORLD.places).filter(k=>WORLD.places[k].parent===pid).forEach(k=>conn.push(k));
-  conn.forEach(k=>{const q=WORLD.places[k],mn=travelMin(pid,k),ok=openNow(k),b=document.createElement('button');b.className='act nav'+(ok?'':' off');
+  if(gA){const b=document.createElement('button');b.className='act nav';b.innerHTML=`<b>← ${esc(gA.name)}</b>`;b.onclick=()=>{ACTGRP=null;renderActs()};box.append(b)}
+  else conn.forEach(k=>{const q=WORLD.places[k],mn=travelMin(pid,k),ok=openNow(k),b=document.createElement('button');b.className='act nav'+(ok?'':' off');
     b.innerHTML=`<b>${k===p.parent?'← ':'→ '}${esc(q.n)}</b><small>⏱ ${mn}분${ok?'':' · 지금은 닫았어요'}</small>`;
     b.onclick=()=>{if(!ok)return msg('지금은 문을 닫았어요',1);go(k)};box.append(b)});
   const open=openNow(pid);
-  const vars=[];actionsAt(pid).filter(availAct).forEach(a=>{const sp=partnerOf(a);if(!open&&!sp)return;
+  const vars=[];(gA?childrenOf(gA.code):actionsAt(pid)).filter(availAct).forEach(a=>{const sp=a.kind==='call'?'':partnerOf(a);if(!open&&!sp)return;
     if(!sp)vars.push([a,null]);else{if(sp==='*')here().forEach(id=>vars.push([a,id]));else if(npcAt(sp))vars.push([a,sp]);if((a.cond||{}).solo)vars.push([a,null])}});
   vars.forEach(([a,who])=>{const st=actState(a,who),b=document.createElement('button'),ch=chips(a),wn=who?(WORLD.npcs[who]||{}).n:'';b.className='act'+(st.ok?'':' off');
-    b.innerHTML=`<b>${wn?esc(wn)+josa(wn)+' '+esc(a.code==='talk'?'대화하기':a.name):esc(a.name)+(who===undefined?'':'')}</b>`;b.onclick=()=>doAction(a,who);box.append(b)});
+    b.innerHTML=`<b>${wn?esc(wn)+josa(wn)+' '+esc(a.code==='talk'?'대화하기':a.name):esc(a.name)+(a.kind==='group'?' ▸':'')}</b>`;b.onclick=()=>doAction(a,who);box.append(b)});
   box.style.scrollBehavior='auto';layActs();box.scrollLeft=keepSl;requestAnimationFrame(()=>{box.style.scrollBehavior='';updActArrows()});
 }
+function openCall(a){const box=$('#shl');box.innerHTML='';box.classList.remove('tapes');$('#shm').textContent=`${a.icon||'📱'} ${a.name} — 누구와 할까요?`;
+  const ids=Object.keys(WORLD.npcs).filter(id=>(G.aff[id]||0)>0);
+  if(!ids.length)box.innerHTML='<div class="tag">아직 연락할 만큼 친해진 사람이 없어요. 먼저 이야기를 나눠 보세요</div>';
+  ids.forEach(id=>{const n=WORLD.npcs[id],st=actState(a,id),row=document.createElement('div');row.className='srow';
+    row.innerHTML=`<span>${esc(n.i||'')} ${esc(n.n)} <small style="opacity:.7">♥ ${G.aff[id]||0}</small>${st.ok?'':`<br><small style="opacity:.7">${esc(st.why)}</small>`}</span>`;
+    const b=document.createElement('button');b.textContent='연결하기';b.disabled=!st.ok;b.onclick=()=>{$('#shop').close();doAction(a,id)};row.append(b);box.append(row)});
+  $('#shop').showModal()}
+function openBagFood(a){const e=Object.entries(G.bag||{}).filter(([id,n])=>n>0&&GOODS(id)&&(GOODS(id).kind==='food'||GOODS(id).consume));
+  if(!e.length)return msg('🎒 가방에 먹을 만한 게 없어요',1);
+  const box=$('#shl');box.innerHTML='';box.classList.remove('tapes');$('#shm').textContent='🎒 무엇을 먹을까요?';
+  box.innerHTML=e.map(([id,n])=>{const g=GOODS(id);return `<div class="srow"><span>${esc(g.icon||'🍽')} ${esc(g.name)}${n>1?' × '+n:''}${g.descr?`<br><small style="opacity:.7">${esc(g.descr)}</small>`:''}</span><button class="eat" data-g="${id}">먹기</button></div>`}).join('');
+  $('#shop').showModal()}
 function bagHtml(){const e=Object.entries(G.bag||{}).filter(([id,n])=>n>0&&GOODS(id));if(!e.length)return '<div class="tag">가방이 비었어요</div>';
   return e.map(([id,n])=>{const g=GOODS(id),food=g.kind==='food'||g.consume;return `<div class="srow"><span>${esc(g.icon||'📦')} ${esc(g.name)}${n>1?' × '+n:''}${g.descr?`<br><small style="opacity:.7">${esc(g.descr)}</small>`:''}</span>${food?`<button class="eat" data-g="${id}">사용</button>`:'<b>보관 중</b>'}</div>`}).join('')}
 function useGoods(id){const g=GOODS(id);if(!g||!(G.bag||{})[id])return;const en=+((g.effects||{}).energy);const add=Number.isFinite(en)&&g.effects&&'energy' in g.effects?en:10;
   G.bag[id]--;if(G.bag[id]<=0)delete G.bag[id];DLBL=`${g.icon||'🍽'} ${esc(g.name)}`;G.energy=clampE(G.energy+add);const mo=Math.max(-G.money,Math.round(+((g.effects||{}).money)||0));if(mo)earn(mo,g.name+' 사용');DLMEMO=((g.effects||{}).memo||'').trim();pass(5);G.log=`${g.name}을(를) 먹었어요 · ⚡ ${add>0?'+':''}${add}`;after();renderStatus()}
-document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button.eat');if(b)useGoods(b.dataset.g)});
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button.eat');if(b){const sh=$('#shop');if(sh.open)sh.close();useGoods(b.dataset.g)}});
 /* ===== 성소: 장소 이미지 위에 종이가 올라오고 직접 타이핑해서 남기는 글 (세이브에 저장: G.notes) ===== */
 let SH_MIN=20,shMode='write',shIdx=0,shDraft='';
 const shDate=n=>{const d=new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+(n.d||0));return `${d.getMonth()+1}월 ${d.getDate()}일 ${DOW[d.getDay()]}요일 · ${fmtT(n.t||0)}`};
@@ -1510,7 +1545,7 @@ function renderStatus(){
     <h2 style="margin-top:12px">최근 돈 내역 (최대 20건)</h2>${(G.ledger||[]).map(e=>{const d=new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+e.d);return `<div class="srow"><span>${d.getMonth()+1}/${d.getDate()} ${fmtT(e.t)} · ${esc(e.n)}</span><b style="color:${e.v>0?'#2f7d4f':'#b4452f'}">${e.v>0?'+':'−'}₩${Math.abs(e.v).toLocaleString()}</b></div>`}).join('')||'<div class="tag">아직 돈이 오간 기록이 없어요</div>'}</div>`;
 }
 
-$('#endview').onclick=$('#endview2').onclick=$('#endview3').onclick=()=>{G.closet=false;viewSt=false;viewBk=false;viewMv=false;viewSh=false;mvPlace=null;after()};
+$('#endview').onclick=$('#endview2').onclick=$('#endview3').onclick=()=>{closeCl();viewSt=false;viewBk=false;viewMv=false;viewSh=false;mvPlace=null;after()};
 $('#exitbtn').onclick=()=>{viewTown=true;renderWorld()};
 
 let viewSt=false,viewBk=false,viewMv=false,viewSh=false,mvPlace=null;
@@ -1526,9 +1561,9 @@ function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const mapOnly=viewTown||curTown()!==townOf(G.place);   // 마을 지도만 보는 중: 특정 장소를 가리키지 않고 '마을'로 취급
   buildTownMap();
   document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===topOf(G.place)&&!mapOnly);b.classList.toggle('closed',!openNow(id));});
-  const p=WORLD.places[G.place];$('#mapcurrent').hidden=mapOnly||(G.place==='home'&&G.closet);{const SC=['#ffb8cf','#a9e8d2','#fff0a6','#ffbd80','#aed6fb'];let hh=0;for(const c of String(G.place))hh=(hh*31+c.charCodeAt(0))>>>0;$('#mapcurrent').style.setProperty('--signbg',SC[hh%SC.length])}$('#mapcurrent').innerHTML=`<div class="pn">${p.i?`<i>${esc(p.i)}</i>`:''}<span>${esc(p.n)}</span>${p.i?`<i>${esc(p.i)}</i>`:''}</div>${signHtml(G.place)}`;$('#pdesc').textContent=p.desc||'';
+  const p=WORLD.places[G.place];$('#mapcurrent').hidden=mapOnly||!!G.closet;{const SC=['#ffb8cf','#a9e8d2','#fff0a6','#ffbd80','#aed6fb'];let hh=0;for(const c of String(G.place))hh=(hh*31+c.charCodeAt(0))>>>0;$('#mapcurrent').style.setProperty('--signbg',SC[hh%SC.length])}$('#mapcurrent').innerHTML=`<div class="pn">${p.i?`<i>${esc(p.i)}</i>`:''}<span>${esc(p.n)}</span>${p.i?`<i>${esc(p.i)}</i>`:''}</div>${signHtml(G.place)}`;$('#pdesc').textContent=p.desc||'';
   renderActs();
-  const co=G.place==='home'&&G.closet,vw=viewSt?'status':(viewBk?'bk':(viewMv?'mv':(viewSh?'sh':'')));$('#closet').hidden=!co;$('#cbar').hidden=!co;if(vw)$('#mapcurrent').hidden=true;$('#bkview').hidden=vw!=='bk';$('#mvview').hidden=vw!=='mv';$('#shview').hidden=vw!=='sh';$('#mapview').hidden=vw==='status';$('#endview3').hidden=!(vw==='bk'||vw==='mv');$('#stview').hidden=vw!=='status';$('#endbar').hidden=vw!=='status';if(vw==='status')renderStatus();
+  const co=!!G.closet,vw=viewSt?'status':(viewBk?'bk':(viewMv?'mv':(viewSh?'sh':'')));$('#closet').hidden=!co;$('#cbar').hidden=!co||!!CL;$('#ordercard').hidden=!!(CL&&CL.parts.length);$('#gridcard').hidden=!!(CL&&CL.mode==='color');$('#endview2').textContent=CL?'다 했어요':'옷장 닫기';if(vw)$('#mapcurrent').hidden=true;$('#bkview').hidden=vw!=='bk';$('#mvview').hidden=vw!=='mv';$('#shview').hidden=vw!=='sh';$('#mapview').hidden=vw==='status';$('#endview3').hidden=!(vw==='bk'||vw==='mv');$('#stview').hidden=vw!=='status';$('#endbar').hidden=vw!=='status';if(vw==='status')renderStatus();
   {const im=placeImg(viewMv&&mvPlace||G.place),si=!viewTown,el=$('#intimg');$('#townmap').hidden=si;$('#interior').hidden=!si;$('#townbar').hidden=si;$('.mapov').classList.toggle('int',si);ACTHIDE=!!vw||mapOnly||co;EXITOK=si&&!mapOnly&&!vw&&!co;updBand();
     el.hidden=!im;if(!im){el.removeAttribute('src');el.dataset.src=''}else if(si&&el.dataset.src!==im){el.dataset.src=im;el.onerror=()=>{IMGBAD.add(im);el.dataset.src='';renderWorld()};el.src=im}}
   requestAnimationFrame(()=>{layActs();sizeWorld();fitText()});
@@ -1566,7 +1601,7 @@ function applyActions(){
   else Object.entries(TYPES0).forEach(([k,t])=>WORLD.types[k]={...t,actions:[...t.actions]});
   if(!WORLD.actions.bkbk)WORLD.actions.bkbk=ACT0.find(a=>a.code==='bkbk');
   if(!WORLD.actions.mvmv)WORLD.actions.mvmv=ACT0.find(a=>a.code==='mvmv');
-  Object.entries(FIXTYPE).forEach(([k,f])=>{const t=WORLD.types[k]||(WORLD.types[k]={name:f.name,icon:f.icon,actions:[...f.acts]});t.fixed=true;if(k==='home'&&t.name==='집')t.name='주거';f.lock.forEach(c=>{if(!t.actions.includes(c))t.actions.unshift(c)})});   // 고정 유형: 주거 · 도서관(bkbk) · 영화관(mvmv)
+  Object.entries(FIXTYPE).forEach(([k,f])=>{const t=WORLD.types[k]||(WORLD.types[k]={name:f.name,icon:f.icon,actions:[...f.acts]});t.fixed=true;if(k==='home'&&t.name==='집')t.name='주거';f.lock.forEach(c=>{if(!t.actions.includes(c))k==='home'?t.actions.push(c):t.actions.unshift(c)})});   // 고정 유형: 주거 · 도서관(bkbk) · 영화관(mvmv)
   WORLD.placeActs=DB.actions.length?{}:structuredClone(PLACEACT0);DB.pacts.forEach(x=>{const o=WORLD.placeActs[x.place_code]=WORLD.placeActs[x.place_code]||{add:[],remove:[]};(x.mode==='remove'?o.remove:o.add).push(x.action_code)});
 }
 async function putPlain(dir,id,file,max,q=0.88){
@@ -1871,8 +1906,9 @@ async function delEv(){
 }
 
 // ================= 관리자: 행동 · 장소 유형 =================
-const FIXED={closet:'옷장 열기',status:'내 상태 보기',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',bookbuy:'서점 열기',mybooks:'내 책장 열기',videobuy:'비디오 가게 열기',myvideos:'내 비디오 열기',mvmv:'mvmv 포스터 벽 열기',shrine:'성소 종이 열기',limited:'한정판 오픈런 열기',groupbuy:'공동구매 열기'};
-const isFix=a=>!!FIXED[a.kind]||a.code==='talk';
+const FIXED={closet:'옷장 열기',status:'거울 보기 (내 상태)',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',bookbuy:'서점 열기',mybooks:'내 책장 열기',videobuy:'비디오 가게 열기',myvideos:'내 비디오 열기',mvmv:'mvmv 포스터 벽 열기',shrine:'성소 종이 열기',limited:'한정판 오픈런 열기',groupbuy:'공동구매 열기'};
+const KSEL=[['normal','일반 행동'],['group','▸ 묶음 메뉴 (누르면 하위 행동이 나와요)'],['call','📞 통화 (아는 인물 목록에서 고르기)'],['bagfood','🎒 가방 속 음식 먹기'],['closet','👗 옷장 (부분 옷장·입어보기)'],['shrine','🕯 성소 글 쓰기'],['soon','🚧 준비 중 (아직 기능 없음)']];
+const isFix=a=>(!!FIXED[a.kind]&&ACT0.some(x=>x.code===a.code))||a.code==='talk';
 const actRows=()=>{const have=new Set(DB.actions.map(a=>a.code)),v=ACT0.filter(a=>(FIXED[a.kind]||a.code==='talk')&&!have.has(a.code)).map(a=>({code:a.code,name:a.name,icon:a.icon,descr:a.descr||'',kind:a.kind,mins:a.mins||0,endAt:a.endAt,minMins:a.minMins||0,energy:a.energy||0,money:a.money||0,cond:a.cond||{},effects:a.effects||{},scene:a.scene||[],sort:0,virtual:true}));
   return [...v,...DB.actions].sort((a,b)=>(isFix(b)-isFix(a))||sortBy(a,b))};
 const actKey=a=>a.id||('v:'+a.code);   // 고정: 앱 기본 기능을 여는 버튼. 나머지는 전부 커스텀
@@ -1893,6 +1929,11 @@ function renderActForm(){
   <div class="fr id3"><label class="f"><span>아이콘</span>${emoBtn('a_i',a.icon||'')}</label>${F('이름','',`<input id="a_n" value="${esc(a.name)}">`)}${F('ID','',`<input id="a_c" value="${esc(a.code)}"${a.id||a.virtual?' disabled':''}>`)}</div>
   ${fixed?`<div class="note">🔒 고정 — 앱 기본 기능이에요. 지우기만 막혀 있고, 나머지는 모두 바꿀 수 있어요</div>`:''}
   <input id="a_d" placeholder="설명 — 버튼 아래 작은 글씨" value="${esc(a.descr||'')}">
+  <div class="fr">${F('종류','일반 행동 말고 특별한 동작이 필요할 때 골라요. 고정 행동은 바꿀 수 없어요',`<select id="a_k"${fixed?' disabled':''}>${fixed?`<option>${esc(FIXED[a.kind]||'이야기하기')}</option>`:KSEL.map(([k,n])=>`<option value="${k}"${k===a.kind?' selected':''}>${esc(n)}</option>`).join('')}</select>`)}
+    ${F('묶음에 넣기','고르면 이 행동은 그 묶음 메뉴 안에서만 보여요 (예: 침대에 눕기 ▸ 잠자기)',`<select id="a_gp">${opts(actRows().filter(x=>x.kind==='group'&&x.code!==a.code).map(x=>({k:x.code,n:(x.icon||'')+' '+x.name})),'k','n',ef.group||'','없음 (바로 보임)')}</select>`)}</div>
+  <div class="fr">${F('옷장 설정 (종류가 「옷장」일 때)','부위를 체크하면 그 부위만 바꿀 수 있어요. 아무것도 안 고르면 전부 가능해요 (예: 미용실 = 앞머리·뒷머리)',`<div class="chips" id="a_cl">${PARTS.filter(p=>!p.fixed).map(p=>`<label class="chip"><input type="checkbox" class="a_clp" value="${esc(p.code)}"${(ef.parts||[]).includes(p.code)?' checked':''}>${esc(p.label)}</label>`).join('')}</div>`)}
+    ${F('바꾸는 방식','모양만: 옷·머리 고르기 / 색만: 염색 / 둘 다',`<select id="a_clm">${opts([{k:'both',n:'모양과 색 둘 다'},{k:'shape',n:'모양만'},{k:'color',n:'색만 (염색)'}],'k','n',ef.mode||'both')}</select>`)}
+    <label class="chip" style="align-self:end"><input id="a_clt" type="checkbox"${ef.try?' checked':''}>입어보기 (없는 옷도 입어 보고, 나가면 원래 옷으로)</label></div>
   <div id="a_more" style="display:grid;gap:10px">
     <div class="fr">${F('시간(분)','걸리는 시간이에요. 끝나는 시각을 정하면 무시돼요',`<input id="a_t" type="number" min="0" max="1440" step="5" value="${mins}">`)}
       ${F('끝나는 시각','정하면 언제 시작해도 이 시각에 끝나요 (잠자기 07:00처럼). 비우면 왼쪽 시간만큼 걸려요',`<input id="a_end" class="t24" inputmode="numeric" maxlength="5" placeholder="--:--" value="${end!=null?fmtT(end):''}">`)}
@@ -1921,8 +1962,9 @@ async function saveAct(){
     if(!a.id&&DB.actions.some(x=>x.code===code))throw new Error('같은 ID의 행동이 이미 있어요');
     const sl=rgRead('a_rg'),mins=Math.max(0,parseInt($('#a_t').value,10)||0),an=$('#a_an').value,en=an,ev=+$('#a_ev').value||0;
     const cond={ranges:sl,slots:[],daily:$('#a_dy').checked,solo:!!($('#a_an').value&&$('#a_so').checked),aff:an?[{npc:an,min:+$('#a_am').value||0}]:[]},effects={...(a.effects||{}),aff:en&&ev?[{npc:en,v:ev}]:[],eph:parseInt($('#a_eph').value,10)||0};
+    {const gp=$('#a_gp').value;gp?effects.group=gp:delete effects.group;const ps=[...document.querySelectorAll('.a_clp')].filter(c=>c.checked).map(c=>c.value),md=$('#a_clm').value,tr=$('#a_clt').checked;ps.length?effects.parts=ps:delete effects.parts;md&&md!=='both'?effects.mode=md:delete effects.mode;tr?effects.try=true:delete effects.try;if(($('#a_k').disabled?a.kind:$('#a_k').value)!=='closet'){delete effects.parts;delete effects.mode;delete effects.try}}
     const scene=$('#a_sc').disabled?a.scene:$('#a_sc').value.split('\n').map(x=>x.trim()).filter(Boolean).map(t=>({t}));
-    const row={code,name:$('#a_n').value.trim()||'이름 없음',icon:$('#a_i').dataset.v||'',descr:$('#a_d').value,kind:FIXED[a.kind]?a.kind:'normal',time_min:mins,time_cost:Math.ceil(mins/SLOTLEN),end_min:toMin($('#a_end').value),min_mins:Math.max(0,parseInt($('#a_mm').value,10)||0),energy:parseInt($('#a_e').value,10)||0,money:parseInt($('#a_m').value,10)||0,cond,effects,scene,sort:Math.max(0,a.sort||0)};
+    const row={code,name:$('#a_n').value.trim()||'이름 없음',icon:$('#a_i').dataset.v||'',descr:$('#a_d').value,kind:$('#a_k').disabled?a.kind:$('#a_k').value,time_min:mins,time_cost:Math.ceil(mins/SLOTLEN),end_min:toMin($('#a_end').value),min_mins:Math.max(0,parseInt($('#a_mm').value,10)||0),energy:parseInt($('#a_e').value,10)||0,money:parseInt($('#a_m').value,10)||0,cond,effects,scene,sort:Math.max(0,a.sort||0)};
     a.id?await post('/rest/v1/fsfs_action?id=eq.'+a.id,row,'PATCH'):await post('/rest/v1/fsfs_action',row);
     const q=encodeURIComponent(code),tys=[...document.querySelectorAll('.a_ty:not(:disabled)')].filter(c=>c.checked).map(c=>c.value),fxT=Object.entries(WORLD.types).filter(([k,t])=>t.fixed&&t.actions.includes(code)).map(([k])=>k);
     await sb('/rest/v1/fsfs_place_type_action?action_code=eq.'+q,{m:'DELETE'});
@@ -2329,7 +2371,7 @@ function normG(){applyMe();
   if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}
   if(typeof G.min!=='number')G.min=WORLD.wakeMin;if(!Array.isArray(G.ledger))G.ledger=[];
   if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
-const lookPack=()=>({sel,colors,iord});
+const lookPack=()=>(CL&&CL.try&&CL.snap?CL.snap:{sel,colors,iord});   // 입어보는 동안에는 저장되지 않아요
 function lookSave(){if(LOOKP)return;clearTimeout(SAVE.lt);SAVE.lt=setTimeout(()=>{try{localStorage.setItem('fsfsLook',JSON.stringify(lookPack()));localStorage.setItem('fsfsLocalAt',Date.now())}catch(e){}try{pushSoon()}catch(e){}},800)}
 function applyLook(l){const d=l||LOOKP;if(!d||!d.sel)return;if(!l&&!DB.items.length)return;sel={...sel,...d.sel};colors=d.colors||{};iord=Array.isArray(d.iord)?d.iord.slice():[];if(!l)LOOKP=null}
 const savePack=()=>({G,look:lookPack()});
