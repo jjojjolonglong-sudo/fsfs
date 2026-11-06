@@ -436,9 +436,10 @@ button.act.off{opacity:.5;box-shadow:none}
 #scene .tx{flex:1;min-height:0;overflow:auto;padding:2px 2px;font-size:16px;line-height:1.55;white-space:pre-wrap}
 #sb{flex:none;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 #sb:empty{display:none}
-#delta{align-items:center;justify-content:center;gap:22px;font-size:22px;font-weight:800}
+#delta{align-items:center;justify-content:center;align-content:center;flex-wrap:wrap;gap:6px 22px;font-size:22px;font-weight:800}
 #delta .up{color:#1f9a6a}
 #delta .dn{color:#ee5f86}
+#delta .lb{color:var(--tx0,#5a4a8a);font-weight:900;flex-basis:100%;text-align:center}
 #delta span:not(.up):not(.dn){color:var(--mute);font-weight:700}
 #simg{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);max-width:70%;max-height:58%;border:3px solid #fff;border-radius:14px;box-shadow:0 0 0 2px var(--ink);background:#000;object-fit:contain}
 #simg[hidden]{display:none}
@@ -656,6 +657,11 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
 <dialog id="savedlg"><h2>💾 세이브</h2><div class="tag" id="sv_i" style="margin:6px 0 10px"></div><div id="sv_l"></div><div class="bar" style="margin-top:12px;justify-content:flex-end"><button id="sv_x">닫기</button></div></dialog>
 <dialog id="welcome"><div class="wl1">play the retro music</div></dialog>
 <dialog id="film"></dialog>
+<dialog id="mesetup" style="text-align:center;min-width:320px"><h2 style="margin:4px 0 12px;font-size:16px;color:var(--ink)">처음 오셨네요! 나를 소개해요</h2>
+  <div class="row" style="justify-content:center"><label>이름<input id="me_n" maxlength="8" value="레오" style="width:150px;text-align:center"></label></div>
+  <div class="row" style="justify-content:center"><label>생일 (월)<select id="me_m"></select></label><label>(일)<select id="me_d"></select></label></div>
+  <div class="tag" style="margin:2px 0 12px">생일엔 특별한 일이 생길 수도 있어요. 나중에 바꿀 수 없어요.</div>
+  <div class="bar" style="justify-content:center"><button id="me_ok" type="button" class="pri">시작하기</button></div></dialog>
 <dialog id="bchoice" style="text-align:center"><p id="bcm" style="margin:6px 0 14px;line-height:1.6"></p><div class="bar" style="justify-content:center;gap:10px"><button id="bc_bag" type="button">🎒 가방에 넣기</button><button id="bc_use" type="button" class="pri">😋 지금 사용하기</button></div></dialog>
 <dialog id="shop"><h2 id="shm"></h2><div id="shl"></div><div class="bar" style="margin-top:10px;justify-content:flex-end"><button id="shc">닫기</button></div></dialog>
 <dialog id="dlg">
@@ -983,6 +989,8 @@ function srcField(s,f){
   if(L==='상점 이름')list=[...Object.values(WORLD.types).map(t=>'모든 '+t.name),...Object.values(WORLD.places).map(p=>p.n)];
   else if(L==='NPC'||L==='의뢰인')list=npcGroups().concat(Object.values(WORLD.npcs).map(n=>n.n));
   else if(L==='이벤트 이름')list=(WORLD.events||[]).map(e=>e.title);
+  else if(L==='알바 이름'){const A=Object.values(WORLD.actions);list=A.filter(a=>/알바/.test(a.name)||/^job/.test(a.code)).map(a=>a.name);if(!list.length)list=A.map(a=>a.name)}
+  else if(L==='의뢰 이름')list=Object.values(WORLD.actions).map(a=>a.name);
   if(list){const set=[...new Set(list.filter(Boolean))];if(v&&!set.includes(v))set.unshift(v);
     return `<label>${esc(L)}<select class="pf" data-k="${esc(f.key)}"><option value="">(선택)</option>${set.map(x=>`<option${x===v?' selected':''}>${esc(x)}</option>`).join('')}</select></label>`}
   return `<label>${esc(L)}<input class="pf" data-k="${esc(f.key)}" type="${f.type==='number'?'number':'text'}" value="${esc(v)}"></label>`;
@@ -1117,7 +1125,7 @@ const OLD2NEW=[[2,3],[4,5],[6,7],[0,1]],ob=a=>[...new Set(a.flatMap(b=>OLD2NEW[b
 // 이 WORLD 데이터는 나중에 Supabase 테이블(장소/인물/이벤트/경로)로 옮길 수 있는 모양이에요.
 /* 동네(지도) 목록 — 순서가 곧 왼쪽→오른쪽이에요. 이름·파일명은 여기서 바꿔요. 지도 이미지는 repo에 올려요 */
 const TOWNS=[{id:'town1',name:'네온타운',file:'map-town1.webp'},{id:'town2',name:'비비타운',file:'map-town2.webp'},{id:'town3',name:'영타운',file:'map-town3.webp'}],DEFTOWN='town2';
-const WORLD={townMin:30,moveMin:15,innerMin:5,talkMin:30,skipMin:60,wakeMin:360,sleepRegen:12,   // 이동 15분 · 건물 안 이동 5분 · 대화 30분 · 수면 회복은 한 시간에 12
+const WORLD={townMin:30,moveMin:15,innerMin:5,talkMin:30,skipMin:60,wakeMin:420,sleepRegen:12,   // 이동 15분 · 건물 안 이동 5분 · 대화 30분 · 수면 회복은 한 시간에 12
   start:{y:2027,m:3,d:1,money:30000,place:'home',allowance:0},   // 게임 시작일, 시작 금액, 하루 용돈(0 = 없음. 돈은 행동으로만 벌어요)
   birthday:'03-08',                                                  // 내 캐릭터 생일 (월-일)
   places:{
@@ -1145,6 +1153,8 @@ const WORLD={townMin:30,moveMin:15,innerMin:5,talkMin:30,skipMin:60,wakeMin:360,
 };
 const DOW='일월화수목금토',rid=r=>BY[r]?r:'b:'+r;
 const ACT0=[
+  {code:'limited',name:'한정판 오픈런',icon:'🏃',kind:'limited',descr:'한정판 의상을 사러 줄을 서요. 정해진 시각에 열리고 수량이 한정돼요.',mins:0,energy:0,money:0},
+  {code:'groupbuy',name:'공동구매',icon:'🛒',kind:'groupbuy',descr:'사람이 다 모이면 배송돼요. 참여하면 바로 결제돼요.',mins:0,energy:0,money:0},
   {code:'shrine',name:'기도하기',icon:'🕯',kind:'shrine',descr:'수호신께 하고 싶은 말을 종이에 적어 남겨요. 대답은 없지만 촛불이 하나 켜져요.',mins:20,energy:0,money:0},
   {code:'bookbuy',name:'책 구경하기',icon:'📚',kind:'bookbuy',descr:'서가를 둘러보고 마음에 드는 책을 사요. 올 때마다 진열된 책이 달라요. (bkbk 연동)',mins:0,energy:0,money:0},
   {code:'videobuy',name:'비디오 구경하기',icon:'📼',kind:'videobuy',descr:'진열대의 비디오테이프를 둘러보고 사요. 올 때마다 진열이 달라요. (mvmv 연동)',mins:0,energy:0,money:0},
@@ -1153,7 +1163,7 @@ const ACT0=[
   {code:'mvmv',name:'영화 보기',icon:'🎬',kind:'mvmv',descr:'포스터를 골라 기록해 둔 장면을 처음부터 끝까지 따라가 봐요. (mvmv 연동)',mins:0,energy:0,money:0},
   {code:'bkbk',name:'추천작 살펴보기',icon:'📖',kind:'bkbk',descr:'책장에서 책을 골라 발췌문을 읽어요. (bkbk 연동)',mins:0,energy:0,money:0},
   {code:'talk',name:'이야기하기',icon:'💬',kind:'normal',descr:'',mins:30,energy:0,money:0,effects:{aff:[{npc:'*',v:1}]},scene:[]},
-  {code:'sleep',name:'잠자기',icon:'😴',kind:'normal',descr:'아침 6시까지 푹 자요. 에너지가 채워져요.',mins:0,energy:0,money:0,endAt:360,minMins:240,cond:{ranges:[[1200,120]]},effects:{eph:12}},
+  {code:'sleep',name:'잠자기',icon:'😴',kind:'normal',descr:'아침 7시까지 푹 자요. 에너지가 채워져요.',mins:0,energy:0,money:0,endAt:420,minMins:240,cond:{ranges:[[1200,120]]},effects:{eph:12}},
   {code:'closet',name:'옷장 열기',icon:'👗',kind:'closet',descr:'옷을 갈아입어요.',mins:0,energy:0,money:0},
   {code:'status',name:'내 상태 보기',icon:'📋',kind:'status',descr:'돈·에너지·호감도를 확인해요.',mins:0,energy:0,money:0},
   {code:'shop',name:'물건 보기',icon:'🛍',kind:'shop',descr:'파는 물건을 살펴봐요.',mins:0,energy:0,money:0},
@@ -1172,10 +1182,10 @@ const ACT0=[
   {code:'read',name:'책 읽어보기',icon:'📖',kind:'normal',descr:'마음에 드는 책을 골라 한참 읽어요.',mins:60,energy:-3,money:0,scene:[{t:'서서 읽다 보니 어느새 한 챕터가 끝났다.'}]}
 ];
 const PLACEACT0={convenience:{add:['job_conv','snack'],remove:[]},cafe:{add:['job_cafe'],remove:[]},flower:{add:['job_flower','flowerbuy'],remove:[]},bookstore:{add:['job_book','read'],remove:[]},bakery:{add:['job_bakery','bread'],remove:[]}};
-const TYPES0={home:{name:'주거',icon:'🏠',actions:['sleep','closet','status','mybooks','myvideos']},videostore:{name:'비디오 가게',icon:'📼',actions:['videobuy']},shrine:{name:'성소',icon:'🕯',actions:['shrine']},bookstore:{name:'서점',icon:'📚',actions:['bookbuy']},clothes:{name:'옷가게',icon:'👗',actions:['shop']},cafe:{name:'카페',icon:'☕',actions:['drink']},restaurant:{name:'식당',icon:'🍝',actions:['meal']},salon:{name:'미용실',icon:'💇',actions:['hair']},park:{name:'공원',icon:'🌳',actions:['walk']},basic:{name:'일반',icon:'📍',actions:[]},library:{name:'도서관',icon:'📚',actions:['bkbk']},cinema:{name:'영화관',icon:'🎬',actions:['mvmv']}};
+const TYPES0={department:{name:'백화점',icon:'🏬',actions:['limited','groupbuy']},home:{name:'주거',icon:'🏠',actions:['sleep','closet','status','mybooks','myvideos']},videostore:{name:'비디오 가게',icon:'📼',actions:['videobuy']},shrine:{name:'성소',icon:'🕯',actions:['shrine']},bookstore:{name:'서점',icon:'📚',actions:['bookbuy']},clothes:{name:'옷가게',icon:'👗',actions:['shop']},cafe:{name:'카페',icon:'☕',actions:['drink']},restaurant:{name:'식당',icon:'🍝',actions:['meal']},salon:{name:'미용실',icon:'💇',actions:['hair']},park:{name:'공원',icon:'🌳',actions:['walk']},basic:{name:'일반',icon:'📍',actions:[]},library:{name:'도서관',icon:'📚',actions:['bkbk']},cinema:{name:'영화관',icon:'🎬',actions:['mvmv']}};
 WORLD.actions={};ACT0.forEach(a=>WORLD.actions[a.code]=a);WORLD.types=structuredClone(TYPES0);WORLD.placeActs=structuredClone(PLACEACT0);
 const ACQ={};
-const FIXTYPE={home:{name:'주거',icon:'🏠',acts:['sleep','closet','status','mybooks','myvideos'],lock:['mybooks','myvideos']},videostore:{name:'비디오 가게',icon:'📼',acts:['videobuy'],lock:['videobuy']},bookstore:{name:'서점',icon:'📚',acts:['bookbuy'],lock:['bookbuy']},library:{name:'도서관',icon:'📚',acts:['bkbk'],lock:['bkbk']},cinema:{name:'영화관',icon:'🎬',acts:['mvmv'],lock:['mvmv']},posterhall:{name:'포스터 전시관',icon:'🎞',acts:[],lock:[]},shrine:{name:'성소',icon:'🕯',acts:['shrine'],lock:['shrine']}};
+const FIXTYPE={department:{name:'백화점',icon:'🏬',acts:['limited','groupbuy'],lock:['limited','groupbuy']},home:{name:'주거',icon:'🏠',acts:['sleep','closet','status','mybooks','myvideos'],lock:['mybooks','myvideos']},videostore:{name:'비디오 가게',icon:'📼',acts:['videobuy'],lock:['videobuy']},bookstore:{name:'서점',icon:'📚',acts:['bookbuy'],lock:['bookbuy']},library:{name:'도서관',icon:'📚',acts:['bkbk'],lock:['bkbk']},cinema:{name:'영화관',icon:'🎬',acts:['mvmv'],lock:['mvmv']},posterhall:{name:'포스터 전시관',icon:'🎞',acts:[],lock:[]},shrine:{name:'성소',icon:'🕯',acts:['shrine'],lock:['shrine']}};
 // 관리자에서 의상마다 적은 획득 경로(DB)를 게임 경로로 바꿔요. 종류 이름·칸 이름은 DB의 경로 종류 정의를 그대로 따라요
 const shopPlaces=()=>Object.keys(WORLD.places).filter(k=>((WORLD.types[WORLD.places[k].type]||{actions:[]}).actions||[]).some(c=>(WORLD.actions[c]||{}).kind==='shop'));
 const placesFor=nm=>{const m=/^모든 (.+)$/.exec(nm||'');if(m){const ts=Object.keys(WORLD.types).filter(k=>WORLD.types[k].name===m[1]);if(ts.length)return Object.keys(WORLD.places).filter(k=>ts.includes(WORLD.places[k].type));if(m[1]==='상점')return shopPlaces()}return Object.keys(WORLD.places).filter(k=>WORLD.places[k].n===nm)};
@@ -1192,11 +1202,22 @@ function dbSrc(){
       if(pls.length)pls.forEach(pl=>out.push({ref,type:'shop',place:pl,price,db:1}));else out.push({ref,type:'etc',text:`${nm||'상점'} · ₩${price.toLocaleString()}`,db:1});continue}
     if(/NPC/.test(lb)){const nm=String(pv(t,s,'NPC')||'').trim(),min=+pv(t,s,'필요 호감도')||0,set=/^모든 /.test(nm)?npcSetFor(nm):null,k=set?'*':Object.keys(WORLD.npcs).find(k=>k===nm||WORLD.npcs[k].n===nm);
       out.push({ref,type:'gift',npc:k||'',npcs:set,min,db:1,text:`${nm||'NPC'} · 호감도 ${min} 이상이면 선물로 받아요`});continue}
+    if(/이벤트/.test(lb)){out.push({ref,type:'event',evt:String(pv(t,s,'이벤트 이름')||'').trim(),db:1});continue}
+    if(/공동구매/.test(lb)){out.push({ref,type:'groupbuy',price:+pv(t,s,'가격')||0,need:Math.max(2,+pv(t,s,'목표 인원')||10),days:Math.max(0,+pv(t,s,'배송 일수')||2),sid:s.id,db:1});continue}
+    if(/한정판/.test(lb)){out.push({ref,type:'limited',price:+pv(t,s,'가격')||0,stock:Math.max(1,+pv(t,s,'재고')||5),hour:+pv(t,s,'오픈 시각')||10,sid:s.id,db:1});continue}
+    if(/아르바이트/.test(lb)){out.push({ref,type:'job',job:String(pv(t,s,'알바 이름')||'').trim(),rank:Math.max(1,+pv(t,s,'필요 단계')||1),db:1});continue}
+    if(/의뢰/.test(lb)){out.push({ref,type:'quest',npc:String(pv(t,s,'의뢰인')||'').trim(),quest:String(pv(t,s,'의뢰 이름')||'').trim(),db:1});continue}
     const ex=((t&&t.param_schema)||[]).map(f=>pv(t,s,f.label)).filter(v=>v!==''&&v!=null).join(' · ');
     out.push({ref,type:'etc',text:lb+(ex?' · '+ex:''),db:1});
   }
   return out;
 }
+function goodsGift(){const T=Object.fromEntries((DB.types||[]).map(t=>[t.code,t])),out=[];
+  for(const g of DB.goods||[])for(const s of g.fsfs_source||[]){const t=T[s.type],lb=(t&&t.label)||'';if(!/NPC/.test(lb))continue;
+    const pv=l=>{const f=((t&&t.param_schema)||[]).find(x=>x.label===l);return f&&s.params?s.params[f.key]:undefined};
+    const nm=String(pv('NPC')||'').trim(),set=/^모든 /.test(nm)?npcSetFor(nm):null,k=set?'*':Object.keys(WORLD.npcs).find(k=>k===nm||WORLD.npcs[k].n===nm);
+    if(k)out.push({goods:g.id,sid:s.id,npc:k,npcs:set,min:+pv('필요 호감도')||0})}
+  return out}
 function goodsSrc(){const T=Object.fromEntries((DB.types||[]).map(t=>[t.code,t])),out=[];
   for(const g of DB.goods||[])for(const s of g.fsfs_source||[]){const t=T[s.type],lb=(t&&t.label)||'';if(!/상점/.test(lb))continue;
     const pv=l=>{const f=((t&&t.param_schema)||[]).find(x=>x.label===l);return f&&s.params?s.params[f.key]:undefined};
@@ -1204,15 +1225,33 @@ function goodsSrc(){const T=Object.fromEntries((DB.types||[]).map(t=>[t.code,t])
   return out}
 const GOODS=id=>(DB.goods||[]).find(g=>g.id===id),shopHas=pid=>WORLD.sources.some(s=>s.type==='shop'&&s.place===pid)||(WORLD.gsrc||[]).some(s=>s.place===pid);
 function grantStarters(){if(!G)return;WORLD.sources.filter(s=>s.type==='starter').forEach(s=>{const id=rid(s.ref);if(BY[id]&&!G.owned[id])G.owned[id]=1})}
-function checkGifts(){let n=0;WORLD.sources.filter(s=>s.db&&s.type==='gift'&&s.npc).forEach(s=>{const id=rid(s.ref);if(BY[id]&&!G.owned[id]&&Math.max(0,...(s.npc==='*'?(s.npcs||Object.keys(G.aff||{})):[s.npc]).map(k=>G.aff[k]||0))>=s.min){giveItem(id);n++}});return n}   // 호감도가 조건에 닿으면 선물로 받아요
+const nowAbs=()=>G.day*1440+G.min,hsh=str=>{let h=0;for(const c of String(str))h=(h*31+c.charCodeAt(0))>>>0;return h};
+const npcMatch=(nm,who)=>{if(!nm)return true;if(!who)return false;const set=npcSetFor(nm);if(set)return set.includes(who);return who===nm||(WORLD.npcs[who]||{}).n===nm};
+const jobRank=code=>1+Math.floor(((G.cnt||{})[code]||0)/JOBN);
+function actRoutes(a,who){   // 알바 단계·의뢰 보상: 행동을 하고 나면 조건을 살펴요
+  if(!G.cnt)G.cnt={};G.cnt[a.code]=(G.cnt[a.code]||0)+1;
+  WORLD.sources.filter(s=>s.db&&(s.type==='job'||s.type==='quest')).forEach(s=>{const id=rid(s.ref);if(!BY[id]||G.owned[id])return;
+    if(s.type==='job'){if((s.job===a.name||s.job===a.code)&&jobRank(a.code)>=s.rank){giveItem(id)}}
+    else if((s.quest===a.name||s.quest===a.code)&&npcMatch(s.npc,who))giveItem(id)})}
+function eventRoutes(e){WORLD.sources.filter(s=>s.db&&s.type==='event'&&s.evt&&s.evt===e.title).forEach(s=>{const id=rid(s.ref);if(BY[id]&&!G.owned[id])giveItem(id)})}
+function checkOrders(){const o=G.orders||{};Object.keys(o).forEach(k=>{if(nowAbs()>=o[k].due){const id=rid(o[k].ref);delete o[k];if(BY[id]&&!G.owned[id]){G.owned[id]=1;msg('📦 공동구매한 '+BY[id].name+'이(가) 도착했어요!')}}})}
+function checkGifts(){checkOrders();let n=0;
+  G.gdone=G.gdone||{};(WORLD.ggift||[]).forEach(s=>{if(G.gdone[s.sid])return;const a=Math.max(0,...(s.npc==='*'?(s.npcs||Object.keys(G.aff||{})):[s.npc]).map(k=>G.aff[k]||0));if(a>=s.min&&s.min>0||(s.min===0&&a>0)){G.gdone[s.sid]=1;giveGoods(s.goods);n++}});WORLD.sources.filter(s=>s.db&&s.type==='gift'&&s.npc).forEach(s=>{const id=rid(s.ref);if(BY[id]&&!G.owned[id]&&Math.max(0,...(s.npc==='*'?(s.npcs||Object.keys(G.aff||{})):[s.npc]).map(k=>G.aff[k]||0))>=s.min){giveItem(id);n++}});return n}   // 호감도가 조건에 닿으면 선물로 받아요
 function rebuildAcq(){   // 획득 경로: 코드에 적은 경로 + 관리자에서 적은 경로 + 이벤트 보상으로 주는 의상(받기 전엔 잠김)
-  WORLD.src0=WORLD.src0||WORLD.sources.slice();WORLD.sources=WORLD.src0.concat(dbSrc());WORLD.gsrc=goodsSrc();
+  WORLD.src0=WORLD.src0||WORLD.sources.slice();WORLD.sources=WORLD.src0.concat(dbSrc());WORLD.gsrc=goodsSrc();WORLD.ggift=goodsGift();
   for(const k in ACQ)delete ACQ[k];
-  const ev=WORLD.events.flatMap(e=>(e.give||[]).filter(r=>!WORLD.sources.some(s=>s.ref===r)).map(ref=>({ref,type:'gift',event:e.id})));
+  const ev=WORLD.events.flatMap(e=>(e.give||[]).filter(r=>!String(r).startsWith('g:')&&!WORLD.sources.some(s=>s.ref===r)).map(ref=>({ref,type:'gift',event:e.id})));
   WORLD.sources.concat(ev).forEach(s=>(ACQ[rid(s.ref)]=ACQ[rid(s.ref)]||[]).push(s));
 }
 rebuildAcq();
 let G=null;
+function applyMe(){if(G&&G.me){WORLD.playerName=G.me.n||'레오';WORLD.birthday=G.me.b||'03-08'}}
+function ensureMe(){if(!G||G.me||$('#welcome').open||$('#mesetup').open)return;
+  const m=$('#me_m'),d=$('#me_d');if(!m.options.length){for(let i=1;i<=12;i++)m.add(new Option(i+'월',i));for(let i=1;i<=31;i++)d.add(new Option(i+'일',i))}
+  const bd=String(WORLD.birthday||'03-08').split('-');m.value=+bd[0]||3;d.value=+bd[1]||8;
+  $('#mesetup').oncancel=e=>e.preventDefault();
+  $('#me_ok').onclick=()=>{const p=n=>String(n).padStart(2,'0');G.me={n:($('#me_n').value||'').trim()||'레오',b:p(m.value)+'-'+p(d.value)};applyMe();$('#mesetup').close();saveGame();refresh();renderWorld()};
+  $('#mesetup').showModal()}
 function newGame(){const w=WORLD.start;G={v:3,day:0,min:WORLD.wakeMin,place:w.place,money:w.money,ledger:[],energy:100,owned:{},aff:{},done:{},doneDay:{},actDay:{},talked:{},closet:false,cheat:G?G.cheat:false,log:'새 게임을 시작했어요'};
   WORLD.sources.filter(s=>s.type==='starter').forEach(s=>G.owned[rid(s.ref)]=1)}
 function loadGame(){try{G=JSON.parse(localStorage.getItem('fsfsGame')||'null')}catch(e){G=null}if(!G)newGame();
@@ -1222,7 +1261,8 @@ function loadGame(){try{G=JSON.parse(localStorage.getItem('fsfsGame')||'null')}c
 const saveGame=()=>{try{localStorage.setItem('fsfsGame',JSON.stringify(G));localStorage.setItem('fsfsLocalAt',Date.now())}catch(e){}try{pushSoon()}catch(e){}};
 const owned=it=>!ACQ[it.id]||G.cheat||!!G.owned[it.id];
 const routeText=s=>s.text||routeText0(s);
-const routeText0=s=>s.type==='starter'?'기본 제공':s.type==='shop'?`${WORLD.places[s.place].n} · ₩${s.price.toLocaleString()}`:s.type==='gift'?'특별한 날, 누군가에게 선물로 받을 수 있어요':s.type;
+const routeText0=s=>s.type==='starter'?'기본 제공':s.type==='shop'?`${WORLD.places[s.place].n} · ₩${s.price.toLocaleString()}`:s.type==='gift'?'특별한 날, 누군가에게 선물로 받을 수 있어요':s.type==='event'?'이벤트 · '+(s.evt||'특별한 날'):s.type==='groupbuy'?`백화점 공동구매 · ₩${s.price.toLocaleString()} · ${s.need}명이 모이면 ${s.days}일 뒤 배송`:s.type==='limited'?`백화점 한정판 · ₩${s.price.toLocaleString()} · 선착순 ${s.stock}개 · ${s.hour}시 오픈`:s.type==='job'?`${s.job||'아르바이트'} · ${s.rank}단계 (${Math.max(1,(s.rank-1)*JOBN)}회 근무)`:s.type==='quest'?`${s.npc?s.npc+'의 ':''}의뢰 · ${s.quest}`:s.type;
+const JOBN=3;   // 알바 단계: 근무 3회마다 1단계 올라요
 const hint=it=>msg('🔒 '+(ACQ[it.id]||[]).map(routeText).join(' / '));
 const dateOf=()=>new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+G.day);
 const plMatch=(sp,pid)=>sp===pid||(typeof sp==='string'&&sp.startsWith('@type:')&&sp.slice(6)===((WORLD.places[pid]||{}).type||'basic'));
@@ -1255,7 +1295,8 @@ function evOk(e){
   if(e.chance!=null&&e.chance<100&&hash(e.id+':'+G.day+':'+Math.floor(G.min/120))%100>=e.chance)return false;   // 같은 날·같은 시간대엔 결과가 고정
   return true;
 }
-function giveItem(ref){const id=rid(ref),it=BY[id];G.owned[id]=1;if(!it)return;msg('🎁 새 옷: '+it.name);
+function giveGoods(id){const g=GOODS(id);if(!g)return;G.bag=G.bag||{};G.bag[id]=(G.bag[id]||0)+1;msg('🎁 '+(g.icon||'📦')+' '+g.name)}
+function giveItem(ref){if(String(ref).startsWith('g:'))return giveGoods(String(ref).slice(2));const id=rid(ref),it=BY[id];G.owned[id]=1;if(!it)return;msg('🎁 새 옷: '+it.name);
   const p=P(it.part);sel[it.part]=p.multi?[...(sel[it.part]||[]).filter(x=>x!==id),id]:[id];tab=it.part}
 const SPF='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="104" height="104"><rect width="104" height="104" fill="#d9d2c3"/><text x="52" y="68" font-size="52" text-anchor="middle">🙂</text></svg>');
 function runScene(steps,done,dry){
@@ -1279,10 +1320,10 @@ function checkEvents(){
   for(const e of [...WORLD.events].sort((a,b)=>(b.priority||0)-(a.priority||0))){
     if(!evOk(e))continue;
     e.repeat==='daily'?G.doneDay[e.id]=G.day:G.done[e.id]=1;saveGame();
-    runScene(e.scene,()=>{earn(e.money||0,'이벤트 · '+(e.title||''));(e.affEff||[]).forEach(a=>G.aff[a.npc]=(G.aff[a.npc]||0)+(+a.v||0));(e.give||[]).forEach(giveItem);after()});return;
+    runScene(e.scene,()=>{earn(e.money||0,'이벤트 · '+(e.title||''));(e.affEff||[]).forEach(a=>G.aff[a.npc]=(G.aff[a.npc]||0)+(+a.v||0));(e.give||[]).forEach(giveItem);eventRoutes(e);after()});return;
   }
 }
-function after(){checkGifts();deltaCheck();saveGame();renderWorld();refresh();checkEvents()}
+function after(){ensureMe();checkGifts();deltaCheck();saveGame();renderWorld();refresh();checkEvents()}
 function greetAt(pid){
   if($('#scene').open||$('#film').open)return;
   const ids=Object.keys(WORLD.npcs).filter(k=>{const n=WORLD.npcs[k];return n.work===pid&&onShift(n)});
@@ -1308,6 +1349,26 @@ function renderShop(pid){
     row.append(b);box.append(row)});
   $('#shm').textContent=WORLD.places[pid].n+' · 보유 금액 ₩'+G.money.toLocaleString();redraw();
 }
+function openSpecial(pid,kind){if(!openNow(pid))return say('지금은 문을 닫았어요',1);const box=$('#shl');box.innerHTML='';box.classList.remove('tapes');
+  const redo=()=>{box.innerHTML='';special(box,pid,kind,redo);if(!box.children.length)box.innerHTML='<div class="tag">지금은 진행 중인 것이 없어요</div>';$('#shm').textContent=WORLD.places[pid].n+' · 보유 금액 ₩'+G.money.toLocaleString();redraw()};
+  redo();$('#shop').showModal()}
+function special(box,pid,kind,redo){   // 공동구매 코너와 한정판 오픈런 (백화점 유형의 고정 행동)
+  const mk=(it,sub,label,dis,fn)=>{const row=document.createElement('div');row.className='shi';row.append(thumb([it],44,56));
+    const nm=document.createElement('div');nm.className='nm2';nm.innerHTML=esc(it.name)+`<br><small style="opacity:.75">${sub}</small>`;row.append(nm);
+    const b=document.createElement('button');b.textContent=label;b.disabled=!!dis;b.onclick=fn;row.append(b);box.append(row)};
+  const buy=(it,price,after_)=>{if(G.money<price)return msg('돈이 부족해요',1);earn(-price,it.name+' 구매');after_();G.log=`${it.name}을(를) 샀어요`;saveGame();renderWorld();redo();refresh();deltaCheck()};
+  if(kind==='groupbuy')WORLD.sources.filter(s=>s.type==='groupbuy').forEach(s=>{const it=BY[rid(s.ref)];if(!it)return;const key=s.sid||s.ref,od=(G.orders||{})[key],has=!!G.owned[it.id];
+    const base=Math.min(s.need-1,Math.floor(s.need*(.25+.5*((hsh(key+G.day)%100)/100))));
+    if(has)return mk(it,'공동구매 · 받았어요','보유',1);
+    if(od){const left=Math.max(0,od.due-nowAbs()),dd=Math.ceil(left/1440),filled=G.day>=od.fill;
+      return mk(it,filled?`🚚 배송 중 · 약 ${dd}일 뒤 도착`:`👥 모집 중 ${Math.min(s.need-1,base+1)+0}/${s.need}명 (참여함)`,'참여 완료',1)}
+    mk(it,`🛒 공동구매 · ${base+0}/${s.need}명 모집 중 · 다 모이면 ${s.days}일 뒤 배송`,`₩${s.price.toLocaleString()} 참여`,0,()=>buy(it,s.price,()=>{G.orders=G.orders||{};G.orders[key]={ref:s.ref,fill:G.day+1+(hsh(key)%3),due:(G.day+1+(hsh(key)%3)+s.days)*1440+540};msg('🛒 공동구매에 참여했어요. 도착하면 알려줄게요')}))});
+  if(kind==='limited')WORLD.sources.filter(s=>s.type==='limited').forEach(s=>{const it=BY[rid(s.ref)];if(!it)return;const open=s.hour*60,has=!!G.owned[it.id];
+    const per=8+hsh((s.sid||s.ref)+G.day)%8,sold=G.min<open?0:Math.floor((G.min-open)/per)+1,left=Math.max(0,s.stock-sold);
+    if(has)return mk(it,'한정판 · 가지고 있어요','보유',1);
+    if(G.min<open)return mk(it,`✨ 한정판 · 선착순 ${s.stock}개 · ${s.hour}시 오픈`,`${s.hour}시 오픈`,1);
+    if(!left)return mk(it,'✨ 한정판 · 오늘 물량이 모두 팔렸어요','매진',1);
+    mk(it,`✨ 한정판 · 남은 수량 ${left}/${s.stock}개`,`₩${s.price.toLocaleString()} 구매`,0,()=>buy(it,s.price,()=>{msg(`✨ 한정판 ${it.name}을(를) 손에 넣었어요!`);G.owned[it.id]=1}))})}
 function bought(g,price){const food=g.kind==='food'||g.consume;
   if(!food){LAST=dSnap();msg(`🎒 ${g.name}을(를) 샀어요! 가방에 넣었어요 · −₩${price.toLocaleString()}`);return}
   $('#bcm').innerHTML=`<span style="font-size:34px">${esc(g.icon||'📦')}</span><br><b>${esc(g.name)}</b>을(를) 샀어요! <small style="opacity:.7">(−₩${price.toLocaleString()})</small>`;
@@ -1367,6 +1428,7 @@ function doAction(a,who){
   if(a.kind==='closet'){G.closet=true;after();setTimeout(()=>$('#closet').scrollIntoView({behavior:'smooth',block:'start'}),50);return}
   if(a.kind==='status'){viewSt=true;renderStatus();after();return}
   if(a.kind==='shop'){if(!shopHas(pid))return say('아직 파는 물건이 없어요');return openShop(pid)}
+  if(a.kind==='limited'||a.kind==='groupbuy')return openSpecial(pid,a.kind);
   if(a.kind==='bookbuy')return openBookShop(pid);
   if(a.kind==='mybooks')return openMyBooks();
   if(a.kind==='videobuy')return openVideoShop(pid);
@@ -1375,7 +1437,7 @@ function doAction(a,who){
   if(a.kind==='shrine')return openShrine(a);
   if(a.kind==='mvmv'){MOVIE_MIN=a.mins>0?a.mins:30;return openMovies()}
   earn(a.money||0,a.name+(who?' · '+((WORLD.npcs[who]||{}).n||''):''));G.energy=clampE(G.energy+enOf(a));
-  const ef=a.effects||{},ev=+((ef.aff||[])[0]||{}).v||0;if(who&&ev)G.aff[who]=(G.aff[who]||0)+ev;(ef.give||[]).forEach(giveItem);
+  const ef=a.effects||{},ev=+((ef.aff||[])[0]||{}).v||0;if(who&&ev)G.aff[who]=(G.aff[who]||0)+ev;(ef.give||[]).forEach(giveItem);actRoutes(a,who);
   if((a.cond||{}).daily)G.actDay[dk(a,who)]=G.day;
   const wn=who?(WORLD.npcs[who]||{}).n:'',ch0=chips(a)+(who&&ev?` · ♥ ${ev>0?'+':''}${ev}`:'');pass(durOf(a));G.log=`${a.icon||''} ${a.name}`+(wn?` — ${wn}`:'')+(ch0?` (${ch0})`:'');saveGame();PARTNER=who||'';
   const done=()=>{PARTNER='';after();if(!openNow(G.place))msg('문 닫을 시간이 됐어요')};
@@ -1410,12 +1472,18 @@ function renderActs(){
 function bagHtml(){const e=Object.entries(G.bag||{}).filter(([id,n])=>n>0&&GOODS(id));if(!e.length)return '<div class="tag">가방이 비었어요</div>';
   return e.map(([id,n])=>{const g=GOODS(id),food=g.kind==='food'||g.consume;return `<div class="srow"><span>${esc(g.icon||'📦')} ${esc(g.name)}${n>1?' × '+n:''}${g.descr?`<br><small style="opacity:.7">${esc(g.descr)}</small>`:''}</span>${food?`<button class="eat" data-g="${id}">사용</button>`:'<b>보관 중</b>'}</div>`}).join('')}
 function useGoods(id){const g=GOODS(id);if(!g||!(G.bag||{})[id])return;const en=+((g.effects||{}).energy);const add=Number.isFinite(en)&&g.effects&&'energy' in g.effects?en:10;
-  G.bag[id]--;if(G.bag[id]<=0)delete G.bag[id];G.energy=clampE(G.energy+add);pass(5);G.log=`${g.name}을(를) 먹었어요 · ⚡ ${add>0?'+':''}${add}`;after();renderStatus()}
+  G.bag[id]--;if(G.bag[id]<=0)delete G.bag[id];DLBL=`${g.icon||'🍽'} ${esc(g.name)}`;G.energy=clampE(G.energy+add);const mo=Math.max(-G.money,Math.round(+((g.effects||{}).money)||0));if(mo)earn(mo,g.name+' 사용');DLMEMO=((g.effects||{}).memo||'').trim();pass(5);G.log=`${g.name}을(를) 먹었어요 · ⚡ ${add>0?'+':''}${add}`;after();renderStatus()}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button.eat');if(b)useGoods(b.dataset.g)});
 /* ===== 성소: 장소 이미지 위에 종이가 올라오고 직접 타이핑해서 남기는 글 (세이브에 저장: G.notes) ===== */
 let SH_MIN=20,shMode='write',shIdx=0,shDraft='';
 const shDate=n=>{const d=new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+(n.d||0));return `${d.getMonth()+1}월 ${d.getDate()}일 ${DOW[d.getDay()]}요일 · ${fmtT(n.t||0)}`};
-function openShrine(a){SH_MIN=a&&a.mins>0?a.mins:20;shMode='write';shIdx=0;viewSh=true;renderWorld();renderShrine()}
+let shCap=null;
+function capsulePick(){   // 타임캡슐: 7일 이상 지난 글 중 기념일(30일·100일·1년 단위)이면 꼭, 아니면 가끔 떠올라요
+  const ns=(G.notes||[]).map((n,i)=>({n,i,age:G.day-n.d})).filter(o=>o.age>=7);if(!ns.length)return null;
+  const an=ns.filter(o=>o.age%365===0||o.age%100===0||o.age%30===0);
+  if(an.length)return an[Math.floor(Math.random()*an.length)];
+  return Math.random()<.25?ns[Math.floor(Math.random()*ns.length)]:null}
+function openShrine(a){SH_MIN=a&&a.mins>0?a.mins:20;shMode='write';shIdx=0;shCap=capsulePick();if(shCap)shMode='cap';viewSh=true;renderWorld();renderShrine()}
 function shClose(){shDraft='';viewSh=false;renderWorld()}
 function shSave(){const t=($('#sh_t').value||'').trim();if(!t)return msg('아직 아무것도 쓰지 않았어요');
   G.notes=G.notes||[];G.notes.unshift({d:G.day,t:G.min,p:G.place,x:t.slice(0,600)});shDraft='';viewSh=false;pass(SH_MIN);
@@ -1423,6 +1491,9 @@ function shSave(){const t=($('#sh_t').value||'').trim();if(!t)return msg('아직
   G.log='';after();msg('🕯 촛불이 하나 켜졌어요. 수호신은 아무 말이 없어요.'+extra)}
 function renderShrine(){
   const box=$('#sh_p');if(!box)return;const ns=G.notes||[],tape='<i class="tape l"></i><i class="tape r"></i>';
+  if(shMode==='cap'&&shCap){const n=shCap.n,ag=shCap.age,yr=ag%365===0?`${ag/365}년 전 오늘`:`${ag}일 전`;
+    box.innerHTML=`<div class="paper">${tape}<div class="ph"><span>🕯 촛불 연기 속에 글이 떠올랐어요</span><span>${esc(yr)}</span></div><div class="pt"><small style="opacity:.6">${esc(shDate(n))}, 당신이 남긴 글</small>\n\n${esc(n.x)}</div><div class="pb"><span class="sp"></span><button id="sh_cp" type="button" class="pri">다 읽었어요</button></div></div>`;
+    $('#sh_cp').onclick=()=>{shMode='write';shCap=null;renderShrine()};return}
   if(shMode==='read'&&ns.length){const n=ns[Math.min(shIdx,ns.length-1)];
     box.innerHTML=`<div class="paper">${tape}<div class="ph"><span>${esc(shDate(n))}</span><span>${shIdx+1} / ${ns.length}</span></div><div class="pt">${esc(n.x)}</div><div class="pb"><button id="sh_pv" type="button"${shIdx>=ns.length-1?' disabled':''}>◀ 이전 글</button><button id="sh_nx" type="button"${shIdx<=0?' disabled':''}>다음 글 ▶</button><span class="sp"></span><button id="sh_bk" type="button" class="pri">돌아가기</button></div></div>`;
     $('#sh_pv').onclick=()=>{shIdx++;renderShrine()};$('#sh_nx').onclick=()=>{shIdx--;renderShrine()};$('#sh_bk').onclick=()=>{shMode='write';renderShrine()};return}
@@ -1488,7 +1559,7 @@ function applyWorld(){
 }
 function actFromRow(r){return{code:r.code,name:r.name,icon:r.icon||'',descr:r.descr||'',kind:r.kind==='sleep'?'normal':(r.kind||'normal'),mins:r.time_min!=null?+r.time_min:(+r.time_cost||0)*SLOTLEN,endAt:r.end_min!=null?+r.end_min:(r.kind==='sleep'?WORLD.wakeMin:null),minMins:+r.min_mins||0,energy:+r.energy||0,money:+r.money||0,cond:r.cond||{},effects:(()=>{const e={...(r.effects||{})};if(r.kind==='sleep'&&e.eph==null)e.eph=WORLD.sleepRegen||12;return e})(),scene:r.scene||[]}}
 function applyActions(){
-  WORLD.actions={};const keep=['shop','talk','bkbk','mvmv','bookbuy','mybooks','videobuy','myvideos','shrine'];
+  WORLD.actions={};const keep=['shop','talk','bkbk','mvmv','bookbuy','mybooks','videobuy','myvideos','shrine','limited','groupbuy'];
   if(DB.actions.length){ACT0.filter(a=>keep.includes(a.code)).forEach(a=>WORLD.actions[a.code]=a);DB.actions.forEach(r=>WORLD.actions[r.code]=actFromRow(r))}else ACT0.forEach(a=>WORLD.actions[a.code]=a);
   WORLD.types={};
   if(DB.ptypes.length)DB.ptypes.forEach(t=>WORLD.types[t.code]={name:t.name,icon:t.icon||'📍',actions:DB.ptacts.filter(x=>x.type_code===t.code).sort((a,b)=>(a.sort||0)-(b.sort||0)).map(x=>x.action_code)});
@@ -1519,21 +1590,22 @@ function renderGoodsAdmin(){
   const e=$('#ged');if(!gcur){e.innerHTML='<div class="tag">왼쪽에서 아이템을 고르거나 새로 만드세요</div>';return}
   e.innerHTML=`<div style="display:grid;gap:8px"><div class="row"><label>이모지${emoBtn('g_ic',gcur.icon)}</label><label style="flex:1">이름<input id="g_n" value="${esc(gcur.name)}"></label>
     <label>종류<select id="g_k">${Object.entries(GK).map(([k,v])=>`<option value="${k}"${k===gcur.kind?' selected':''}>${v}</option>`).join('')}</select></label></div>
-    <label>설명<input id="g_d" value="${esc(gcur.descr)}"></label>
-    <div class="row"><label><input type="checkbox" id="g_c"${gcur.consume?' checked':''}> 사용하면 사라짐 (음식)</label><label>에너지 회복<input type="number" id="g_e" value="${esc(gcur.energy)}" style="width:80px"></label></div>
+    <label>설명 <span class="tag">(구매 화면에서 이름 아래에 떠요)</span><input id="g_d" value="${esc(gcur.descr)}"></label>
+    <label>메모 <span class="tag">(사용했을 때 대사처럼 먼저 떠요. 예: 아삭아삭 맛있어!)</span><input id="g_m" value="${esc(gcur.memo)}"></label>
+    <div class="row"><label><input type="checkbox" id="g_c"${gcur.consume?' checked':''}> 사용하면 사라짐 (음식)</label><label>에너지 회복<input type="number" id="g_e" value="${esc(gcur.energy)}" style="width:80px"></label><label>돈 변화(원)<input type="number" id="g_mo" value="${esc(gcur.money)}" style="width:100px" placeholder="0"></label></div>
     <b>획득 경로</b><div id="gsrcs">${gcur.S.map((s,i)=>srcHtml(s,i)).join('')||'<div class="tag">경로가 없어요</div>'}</div>
     <div class="row"><button id="g_as">+ 경로</button><span class="grow"></span><button class="pri" id="g_sv">저장</button><button id="g_dl">삭제</button></div></div>`;
 }
-function gPick(g){gcur={id:g.id,name:g.name,kind:g.kind,icon:g.icon||'📦',descr:g.descr||'',consume:!!g.consume,energy:(g.effects&&g.effects.energy!=null)?g.effects.energy:10,S:(g.fsfs_source||[]).map(s=>({...s})),orig:(g.fsfs_source||[]).map(s=>s.id)};renderGoodsAdmin()}
-function gRead(){if(!gcur)return;const v=i=>$(i)&&$(i).value;gcur.icon=$('#g_ic').dataset.v||'📦';gcur.name=v('#g_n');gcur.kind=v('#g_k');gcur.descr=v('#g_d');gcur.consume=$('#g_c').checked;gcur.energy=v('#g_e')}
-$('#gnew').onclick=()=>{gcur={id:null,name:'',kind:'food',icon:'🍙',descr:'',consume:true,energy:10,S:[],orig:[]};renderGoodsAdmin()};
+function gPick(g){gcur={id:g.id,name:g.name,kind:g.kind,icon:g.icon||'📦',descr:g.descr||'',consume:!!g.consume,energy:(g.effects&&g.effects.energy!=null)?g.effects.energy:10,money:(g.effects&&g.effects.money)||'',memo:(g.effects&&g.effects.memo)||'',S:(g.fsfs_source||[]).map(s=>({...s})),orig:(g.fsfs_source||[]).map(s=>s.id)};renderGoodsAdmin()}
+function gRead(){if(!gcur)return;const v=i=>$(i)&&$(i).value;gcur.icon=$('#g_ic').dataset.v||'📦';gcur.name=v('#g_n');gcur.kind=v('#g_k');gcur.descr=v('#g_d');gcur.consume=$('#g_c').checked;gcur.energy=v('#g_e');gcur.money=v('#g_mo');gcur.memo=v('#g_m')}
+$('#gnew').onclick=()=>{gcur={id:null,name:'',kind:'food',icon:'🍙',descr:'',consume:true,energy:10,money:'',memo:'',S:[],orig:[]};renderGoodsAdmin()};
 $('#glist').onclick=ev=>{const li=ev.target.closest('.li');if(!li)return;const g=GOODS(li.dataset.id);if(g)gPick(g)};
 $('#ged').onclick=async ev=>{
   if(ev.target.id==='g_as'){gRead();gcur.S.push({type:DB.types[0].code,params:{},note:''});renderGoodsAdmin();return}
   if(ev.target.matches('#gsrcs .rm')){gRead();gcur.S.splice(ev.target.closest('.src').dataset.i,1);renderGoodsAdmin();return}
   if(ev.target.id==='g_dl'){if(!gcur.id||!confirm('이 아이템을 삭제할까요?'))return;try{await sb('/rest/v1/fsfs_goods?id=eq.'+gcur.id,{m:'DELETE'});gcur=null;await loadCatalog();renderGoodsAdmin()}catch(x){msg(x.message,1)}return}
   if(ev.target.id==='g_sv'){gRead();if(!gcur.name.trim())return msg('이름을 적어주세요',1);
-    try{const row={name:gcur.name.trim(),kind:gcur.kind,icon:gcur.icon||'📦',descr:gcur.descr||null,consume:gcur.kind==='food'?gcur.consume:false,effects:gcur.energy!==''?{energy:+gcur.energy}:{}};
+    try{const row={name:gcur.name.trim(),kind:gcur.kind,icon:gcur.icon||'📦',descr:gcur.descr||null,consume:gcur.kind==='food'?gcur.consume:false,effects:Object.assign(gcur.energy!==''?{energy:+gcur.energy}:{},+gcur.money?{money:Math.round(+gcur.money)}:{},(gcur.memo||'').trim()?{memo:gcur.memo.trim()}:{})};
       let id=gcur.id;if(id)await sb('/rest/v1/fsfs_goods?id=eq.'+id,{m:'PATCH',h:{Prefer:'return=minimal'},b:row});else{const r=await sb('/rest/v1/fsfs_goods',{m:'POST',h:{Prefer:'return=representation'},b:row});id=r[0].id}
       const ks=gcur.S.filter(s=>s.id).map(s=>s.id),gone=gcur.orig.filter(i=>!ks.includes(i));if(gone.length)await sb('/rest/v1/fsfs_source?id=in.('+gone.join(',')+')',{m:'DELETE'});
       for(const s of gcur.S){const r2={type:s.type,params:s.params||{},note:s.note||null};if(s.id)await sb('/rest/v1/fsfs_source?id=eq.'+s.id,{m:'PATCH',h:{Prefer:'return=minimal'},b:r2});else await sb('/rest/v1/fsfs_source',{m:'POST',h:{Prefer:'return=minimal'},b:{...r2,goods_id:id}})}
@@ -1610,22 +1682,25 @@ function renderPlaceForm(){
   if($('#p_sub'))$('#p_sub').onclick=()=>{pcur={code:'p'+Date.now().toString(36),name:'새 하위 장소',icon:'📍',descr:'',x:p.x,y:p.y,parent_code:p.code,open_ranges:[]};renderMapAdmin()};
 }
 const NPCCOL=()=>DB.npcs.length&&('workplace' in DB.npcs[0]),WHCOL=()=>DB.npcs.length&&('work_hours' in DB.npcs[0]);
+const rgBits=l=>{const b=new Uint8Array(1440);(l||[]).forEach(([a,e])=>{if(a===e){b.fill(1);return}for(let m=a;m!==(e%1440);m=(m+1)%1440)b[m]=1});return b};
+const rgFrom=b=>{const o=[];let st=-1;for(let m=0;m<=1440;m++){const on=m<1440&&b[m];if(on&&st<0)st=m;if(!on&&st>=0){o.push([st,m%1440]);st=-1}}if(o.length>1&&o[0][0]===0&&o[o.length-1][1]===0){const f=o.shift();o[o.length-1][1]=f[1]}return o};
+const rgClip=(w,open)=>{if(!open||!open.length||!w||!w.length)return w||[];const a=rgBits(w),b=rgBits(open);return rgFrom(a.map((v,i)=>v&&b[i]?1:0))};
 const staffRow=n=>`<div class="staff" data-id="${n.id}"><div class="row"><b style="min-width:80px">${esc(n.icon||'🙂')} ${esc(n.name)}</b>${WHCOL()?rgHtml('sw_'+n.id,n.work_hours||[]):''}<button type="button" class="swx">직원에서 빼기</button></div></div>`;
 function staffHtml(p){if(!p.id||!NPCCOL())return `<div class="tag">직원은 장소를 저장한 뒤에(그리고 fsfs_npc_workplace.sql 실행 후) 지정할 수 있어요</div>`;
   const st=DB.npcs.filter(n=>n.workplace===p.code),rest=DB.npcs.filter(n=>n.workplace!==p.code);
-  return `<div class="f"><span>직원${tip('직원은 근무 시간에 이 장소에서 손님을 맞아요(방문하면 무조건 인사, 같은 시간에 여럿이면 그중 한 명이 무작위로). 근무 시간을 비우면 영업 시간 전체(풀타임)예요. 이 시간은 인물의 출몰 일정에 고정돼요')}</span><div id="p_staff">${st.map(staffRow).join('')}</div>
+  return `<div class="f"><span>직원${tip('직원은 근무 시간에 이 장소에서 손님을 맞아요(방문하면 무조건 인사, 같은 시간에 여럿이면 그중 한 명이 무작위로). 새 직원의 근무 시간은 영업 시간 풀타임으로 들어가요. 영업 시간을 바꾸면 기존 직원의 근무 시간은 그대로 두고 영업 시간 밖으로 나간 부분만 잘려요. 이 시간은 인물의 출몰 일정에 고정돼요')}</span><div id="p_staff">${st.map(staffRow).join('')}</div>
     <div class="row"><select id="p_sadd">${opts(rest.map(n=>({k:n.id,n:(n.icon||'')+' '+n.name+(n.workplace?' (다른 직장에서 옮겨 와요)':'')})),'k','n','','+ 직원 추가')}</select></div></div>`}
-document.addEventListener('change',e=>{if(e.target.id!=='p_sadd'||!e.target.value)return;const n=DB.npcs.find(x=>x.id===e.target.value);if(n)$('#p_staff').insertAdjacentHTML('beforeend',staffRow({...n,work_hours:[]}));e.target.querySelector(`option[value="${e.target.value}"]`).remove();e.target.value=''});
+document.addEventListener('change',e=>{if(e.target.id!=='p_sadd'||!e.target.value)return;const n=DB.npcs.find(x=>x.id===e.target.value);if(n)$('#p_staff').insertAdjacentHTML('beforeend',staffRow({...n,work_hours:rgRead('p_rg')}));e.target.querySelector(`option[value="${e.target.value}"]`).remove();e.target.value=''});
 document.addEventListener('click',e=>{if(e.target.classList&&e.target.classList.contains('swx'))e.target.closest('.staff').remove()});
-async function saveStaff(p){if(!p.id||!NPCCOL()||!$('#p_staff'))return;const now=[...document.querySelectorAll('#p_staff .staff')].map(r=>r.dataset.id);
+async function saveStaff(p,open){p._open=open||[];if(!p.id||!NPCCOL()||!$('#p_staff'))return;const now=[...document.querySelectorAll('#p_staff .staff')].map(r=>r.dataset.id);
   for(const n of DB.npcs.filter(n=>n.workplace===p.code&&!now.includes(n.id)))await post('/rest/v1/fsfs_npc?id=eq.'+n.id,{workplace:null,...(WHCOL()?{work_hours:[]}:{})},'PATCH');
-  for(const id of now)await post('/rest/v1/fsfs_npc?id=eq.'+id,{workplace:p.code,...(WHCOL()?{work_hours:rgRead('sw_'+id)}:{})},'PATCH')}
+  for(const id of now)await post('/rest/v1/fsfs_npc?id=eq.'+id,{workplace:p.code,...(WHCOL()?{work_hours:(()=>{const w=rgRead('sw_'+id),c=rgClip(w,p._open);return w.length&&!c.length?p._open:c})()}:{})},'PATCH')}
 async function savePlace(){
   try{const p=pcur,m=mainMap(),o=rgRead('p_rg');let ik=p.img_key||null;const pf=$('#p_f')&&$('#p_f').files[0];
     if(pf){msg('그림 올리는 중…');const r=await putPlain('maps',crypto.randomUUID(),pf,1600,0.82);if(ik&&ik!==r.key)wdel(ik);ik=r.key}else if(p._rm){wdel(ik);ik=null}
     const row={code:p.code,name:$('#p_n').value.trim()||'이름 없음',icon:$('#p_i').dataset.v||'',descr:$('#p_d').value,x:p.x,y:p.y,map_id:m?m.id:null,open_slots:null,open_ranges:o,parent_code:$('#p_par').value||null,type_code:$('#p_ty').value||null};if(hasImgCol())row.img_key=ik;if(hasTownCol()&&$('#p_town'))row.town=$('#p_town').value||null;
     p.id?await post('/rest/v1/fsfs_place?id=eq.'+p.id,row,'PATCH'):await post('/rest/v1/fsfs_place',row);
-    await saveStaff(p);pcur=null;await loadCatalog();renderMapAdmin();msg('저장했어요');
+    await saveStaff(p,o);pcur=null;await loadCatalog();renderMapAdmin();msg('저장했어요');
   }catch(e){msg(e.message,1)}
 }
 async function delPlace(){
@@ -1694,7 +1769,7 @@ function normEv(r){const x=structuredClone(r);x.cond=x.cond||{};x.cond.aff=x.con
 let ecur=null;
 const nl=()=>Object.entries(WORLD.npcs).map(([k,n])=>({k,n:(n.i||'')+' '+n.n})),pl2=()=>Object.entries(WORLD.places).map(([k,p])=>({k,n:(p.i||'')+' '+p.n}));
 const npcOpts=(s,none)=>opts(nl(),'k','n',s,none),placeOpts=(s,none)=>opts(pl2(),'k','n',s,none),whoOpts=s=>opts([{k:'me',n:'🙋 나 (플레이어)'},...nl().map(n=>({k:n.k,n:'💬 상대 · '+n.n}))],'k','n',s,'📝 나레이션'),whoCls=v=>v==='me'?'me':(v?'':'nr');
-const itemOpts=s=>opts(ITEMS.filter(i=>i.layers.length).map(i=>({k:i.builtin?i.part+':'+i.key:i.id,n:((P(i.part)||{}).label||i.part)+' · '+i.name})),'k','n',s,'의상 선택');
+const itemOpts=s=>opts(ITEMS.filter(i=>i.layers.length).map(i=>({k:i.builtin?i.part+':'+i.key:i.id,n:((P(i.part)||{}).label||i.part)+' · '+i.name})).concat((DB.goods||[]).map(g=>({k:'g:'+g.id,n:'아이템 · '+(g.icon||'')+' '+g.name}))),'k','n',s,'의상·아이템 선택');
 const ROWS={ca:()=>ecur.cond.aff,ea:()=>ecur.effects.aff,eg:()=>ecur.effects.give};
 function renderEvAdmin(){
   $('#elist').innerHTML=DB.events.map(r=>{const c=r.cond||{},p=c.place&&WORLD.places[c.place];
@@ -1796,7 +1871,7 @@ async function delEv(){
 }
 
 // ================= 관리자: 행동 · 장소 유형 =================
-const FIXED={closet:'옷장 열기',status:'내 상태 보기',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',bookbuy:'서점 열기',mybooks:'내 책장 열기',videobuy:'비디오 가게 열기',myvideos:'내 비디오 열기',mvmv:'mvmv 포스터 벽 열기',shrine:'성소 종이 열기'};
+const FIXED={closet:'옷장 열기',status:'내 상태 보기',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',bookbuy:'서점 열기',mybooks:'내 책장 열기',videobuy:'비디오 가게 열기',myvideos:'내 비디오 열기',mvmv:'mvmv 포스터 벽 열기',shrine:'성소 종이 열기',limited:'한정판 오픈런 열기',groupbuy:'공동구매 열기'};
 const isFix=a=>!!FIXED[a.kind]||a.code==='talk';
 const actRows=()=>{const have=new Set(DB.actions.map(a=>a.code)),v=ACT0.filter(a=>(FIXED[a.kind]||a.code==='talk')&&!have.has(a.code)).map(a=>({code:a.code,name:a.name,icon:a.icon,descr:a.descr||'',kind:a.kind,mins:a.mins||0,endAt:a.endAt,minMins:a.minMins||0,energy:a.energy||0,money:a.money||0,cond:a.cond||{},effects:a.effects||{},scene:a.scene||[],sort:0,virtual:true}));
   return [...v,...DB.actions].sort((a,b)=>(isFix(b)-isFix(a))||sortBy(a,b))};
@@ -1820,7 +1895,7 @@ function renderActForm(){
   <input id="a_d" placeholder="설명 — 버튼 아래 작은 글씨" value="${esc(a.descr||'')}">
   <div id="a_more" style="display:grid;gap:10px">
     <div class="fr">${F('시간(분)','걸리는 시간이에요. 끝나는 시각을 정하면 무시돼요',`<input id="a_t" type="number" min="0" max="1440" step="5" value="${mins}">`)}
-      ${F('끝나는 시각','정하면 언제 시작해도 이 시각에 끝나요 (잠자기 06:00처럼). 비우면 왼쪽 시간만큼 걸려요',`<input id="a_end" class="t24" inputmode="numeric" maxlength="5" placeholder="--:--" value="${end!=null?fmtT(end):''}">`)}
+      ${F('끝나는 시각','정하면 언제 시작해도 이 시각에 끝나요 (잠자기 07:00처럼). 비우면 왼쪽 시간만큼 걸려요',`<input id="a_end" class="t24" inputmode="numeric" maxlength="5" placeholder="--:--" value="${end!=null?fmtT(end):''}">`)}
       ${F('최소 시간(분)','끝나는 시각까지 남은 시간이 이보다 짧으면 버튼이 안 보여요',`<input id="a_mm" type="number" min="0" step="5" value="${mm}">`)}
       ${F('에너지','마이너스는 소모예요',`<input id="a_e" type="number" value="${a.energy||0}">`)}
       ${F('시간당 에너지','잠자기처럼 오래 할수록 회복될 때 써요. 위 에너지와 더해져요',`<input id="a_eph" type="number" value="${eph}">`)}
@@ -1983,7 +2058,7 @@ function posSys(){try{const g=$('#game'),v=g.querySelector('.vit'),c=g.querySele
 addEventListener('resize',()=>{fitGame();sizeWorld();posSys()});fitGame();
 
 // ================= 시작 =================
-loadGame();buildModel();rebuildAcq();initSel();inited=true;refresh();renderWorld();checkEvents();
+loadGame();applyMe();buildModel();rebuildAcq();initSel();inited=true;refresh();renderWorld();checkEvents();
 (async()=>{try{const t=JSON.parse(localStorage.getItem('fsfsSess')||'null');if(t&&t.rt){S={rt:t.rt,exp:0};await tok();if(S)await afterLogin()}if(!S)await loadCatalog()}catch(e){if(!S)try{await loadCatalog()}catch(x){}else msg('자동 로그인 실패: '+e.message,1)}})();
 
 /* ===== 효과음 (mnmn 저장소의 click.wav / get.wav) ===== */
@@ -2001,14 +2076,18 @@ $('#sfxbtn').onclick=()=>{SFX.lv=(SFX.lv+1)%6;try{localStorage.setItem('sfxlv',S
 function fitText(){document.querySelectorAll('#actov button.act b,.pn span').forEach(el=>{el.style.fontSize='';let fs=parseFloat(getComputedStyle(el).fontSize)||16;while(el.scrollWidth>el.clientWidth+1&&fs>11){fs-=1;el.style.fontSize=fs+'px'}})}
 try{document.fonts&&document.fonts.ready.then(()=>{try{fitText()}catch(e){}})}catch(e){}
 /* ===== 변화 팝업 ===== */
-let LAST=null;
+let LAST=null,DLBL='',DLMEMO='';
 const dSnap=()=>({m:G.money,e:G.energy,a:{...G.aff},o:Object.keys(G.owned).length,t:G.day*1440+G.min});
 function deltaCheck(){const c=dSnap(),o=LAST;LAST=c;if(!o)return;const it=[];
   if(c.m!==o.m)it.push(`<span class="${c.m>o.m?'up':'dn'}">₩ ${c.m>o.m?'+':'−'}${Math.abs(c.m-o.m).toLocaleString()}</span>`);
   if(c.e!==o.e)it.push(`<span class="${c.e>o.e?'up':'dn'}">⚡ ${c.e>o.e?'+':'−'}${Math.abs(c.e-o.e)}</span>`);
   for(const k of new Set([...Object.keys(c.a),...Object.keys(o.a)])){const d=(c.a[k]||0)-(o.a[k]||0);if(d)it.push(`<span class="${d>0?'up':'dn'}">♥ ${esc((WORLD.npcs[k]||{}).n||k)} ${d>0?'+':'−'}${Math.abs(d)}</span>`)}
   if(c.o>o.o)it.push(`<span class="up">👗 새 옷 +${c.o-o.o}</span>`);
-  if(!it.length)return;if(c.t>o.t)it.push(`<span>⏱ ${durText(c.t-o.t)}</span>`);
+  const lb=DLBL,mm=DLMEMO;DLBL='';DLMEMO='';
+  if(lb&&!it.length)it.push('<span>변화 없음</span>');
+  if(!it.length&&!lb)return;if(c.t>o.t)it.push(`<span>⏱ ${durText(c.t-o.t)}</span>`);
+  if(lb)it.unshift(`<b class="lb">${mm?esc(mm):lb}</b>`);
+  if(viewSt){const tmp=document.createElement('div');tmp.innerHTML=it.join(' · ');msg(tmp.textContent);return}
   if(c.m>o.m)sfx('get');
   const el=$('#delta');el.innerHTML=it.join('');const t=Date.now();el.dataset.t=t;if(!el.open)el.showModal();
   el.onclick=()=>{if(Date.now()-t>250)el.close()};setTimeout(()=>{if(el.dataset.t==t&&el.open)el.close()},3200)}
@@ -2164,7 +2243,7 @@ $('#mp').onclick=e=>{if(e.target.closest('#mp_seek'))return;if(!BGM.ready)return
 setInterval(()=>{if(!BGM.ready)return;try{const d=BGM.yt.getDuration(),c=BGM.yt.getCurrentTime();$('#mp_bar').style.width=d?Math.min(100,c/d*100)+'%':'0';$('#mp_time').textContent=mpTm(c)}catch(e){}},500);
 function bgmStart(){BGM.started=true;bgmInit();bgmUpdate(true)}
 // 시작 화면: 한 번 눌러야 브라우저가 소리를 허용해요
-(function(){const w=$('#welcome');if(location.hash==='#dev')return;w.showModal();w.onclick=()=>{w.close();bgmStart()};w.oncancel=e=>{e.preventDefault()}})();
+(function(){const w=$('#welcome');if(location.hash==='#dev')return;w.showModal();w.onclick=()=>{w.close();bgmStart();ensureMe()};w.oncancel=e=>{e.preventDefault()}})();
 // 관리자: 규칙 편집
 let BGMPL=null;
 async function renderBgmAdmin(){
@@ -2246,10 +2325,10 @@ function runFilm(m,done){
 
 /* ===== 세이브 슬롯 (Supabase) ===== */
 var SLOTS=5,SAVE={slot:(()=>{try{return Math.min(SLOTS,Math.max(1,+localStorage.getItem('fsfsSlot')||1))}catch(e){return 1}})(),list:[],pt:0,lt:0},LOOKP=(()=>{try{return JSON.parse(localStorage.getItem('fsfsLook')||'null')}catch(e){return null}})();
-function normG(){
+function normG(){applyMe();
   if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}
   if(typeof G.min!=='number')G.min=WORLD.wakeMin;if(!Array.isArray(G.ledger))G.ledger=[];
-  if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.closet=false;G.log=G.log||''}
+  if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
 const lookPack=()=>({sel,colors,iord});
 function lookSave(){if(LOOKP)return;clearTimeout(SAVE.lt);SAVE.lt=setTimeout(()=>{try{localStorage.setItem('fsfsLook',JSON.stringify(lookPack()));localStorage.setItem('fsfsLocalAt',Date.now())}catch(e){}try{pushSoon()}catch(e){}},800)}
 function applyLook(l){const d=l||LOOKP;if(!d||!d.sel)return;if(!l&&!DB.items.length)return;sel={...sel,...d.sel};colors=d.colors||{};iord=Array.isArray(d.iord)?d.iord.slice():[];if(!l)LOOKP=null}
