@@ -674,6 +674,23 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
 #shview .pt{white-space:pre-wrap;overflow:auto;word-break:break-word}
 #shview textarea::placeholder{color:#b7a698}
 #shview .pb{display:flex;align-items:center;gap:8px;margin-top:12px;padding-left:10px}#shview .pb .sp{flex:1}
+#shview .paper.dy{transform:rotate(.4deg)}
+#shview .dyg{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:113px;gap:12px 10px;height:238px;box-sizing:border-box;padding:2px 0 0 10px;align-content:start}
+#shview .dyc{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;border:1px dashed #d1bfa3;border-radius:6px;background:rgba(255,255,255,.6);cursor:pointer;color:#43352f;outline:0}
+#shview .dyc:hover,#shview .dyc:focus-visible{border-color:#b5446e;background:#fff}
+#shview .dyc b{font-size:15px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#shview .dyc small{font-size:12px;color:#8a7468}
+#shview .dyic{width:52px;height:52px;border-radius:50%;object-fit:cover;display:block}
+#shview .dyic.em,#shview .dybig.em{display:flex;align-items:center;justify-content:center;font-size:36px;line-height:1;background:#f3ead8}
+#shview .dybig{width:104px;height:104px;border-radius:12px;object-fit:cover;display:block}
+#shview .dybig.em{font-size:62px}
+#shview .dyd{display:flex;gap:22px;height:238px;box-sizing:border-box;padding:6px 0 0 10px}
+#shview .dyi{flex:none}
+#shview .dyx{flex:1;min-width:0;overflow:auto;font-size:16px;line-height:1.6}
+#shview .dyx h3{margin:0 0 2px;font-size:22px}
+#shview .dyx p{margin:0}#shview .dyx .dys{color:#8a7468;font-size:14px;margin-bottom:6px}
+#shview .dyl{margin-top:10px;padding-top:8px;border-top:1px dashed #d8c8b0;font-size:14px;line-height:1.55;color:#6b5a50}
+#shview .dyempty{display:flex;align-items:center;justify-content:center;text-align:center;color:#a8978a;font-size:16px;line-height:1.7}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -1232,6 +1249,9 @@ const ACT0=[
   {code:'shrine',name:'기도하기',icon:'🕯',kind:'shrine',descr:'수호신께 하고 싶은 말을 종이에 적어 남겨요. 대답은 없지만 촛불이 하나 켜져요.',mins:20,energy:0,money:0},
   {code:'bookbuy',name:'책 구경하기',icon:'📚',kind:'bookbuy',descr:'서가를 둘러보고 마음에 드는 책을 사요. 올 때마다 진열된 책이 달라요. (bkbk 연동)',mins:0,energy:0,money:0},
   {code:'videobuy',name:'비디오 구경하기',icon:'📼',kind:'videobuy',descr:'진열대의 비디오테이프를 둘러보고 사요. 올 때마다 진열이 달라요. (mvmv 연동)',mins:0,energy:0,money:0},
+  {code:'diary',name:'다이어리 열기',icon:'📔',kind:'group',descr:'지금까지의 기록을 펼쳐 봐요.',mins:0,energy:0,money:0},
+  {code:'diary_cats',name:'고양이 도감',icon:'🐈',kind:'catdex',descr:'만나 본 고양이들을 펼쳐 봐요.',mins:0,energy:0,money:0,effects:{group:'diary'}},
+  {code:'diary_mail',name:'받은 쪽지',icon:'📩',kind:'mail',descr:'고양이들이 물어다 준 쪽지를 다시 읽어요.',mins:0,energy:0,money:0,effects:{group:'diary'}},
   {code:'mybooks',name:'선반',icon:'🗄',kind:'mybooks',descr:'산 책과 비디오가 섞여 꽂혀 있어요. 골라서 읽거나 봐요.',mins:0,energy:0,money:0},
   {code:'mvmv',name:'영화 보기',icon:'🎬',kind:'mvmv',descr:'포스터를 골라 기록해 둔 장면을 처음부터 끝까지 따라가 봐요. (mvmv 연동)',mins:0,energy:0,money:0},
   {code:'bkbk',name:'추천작 살펴보기',icon:'📖',kind:'bkbk',descr:'책장에서 책을 골라 발췌문을 읽어요. (bkbk 연동)',mins:0,energy:0,money:0},
@@ -1255,10 +1275,10 @@ const ACT0=[
   {code:'read',name:'책 읽어보기',icon:'📖',kind:'normal',descr:'마음에 드는 책을 골라 한참 읽어요.',mins:60,energy:-3,money:0,scene:[{t:'서서 읽다 보니 어느새 한 챕터가 끝났다.'}]}
 ];
 const PLACEACT0={convenience:{add:['job_conv','snack'],remove:[]},cafe:{add:['job_cafe'],remove:[]},flower:{add:['job_flower','flowerbuy'],remove:[]},bookstore:{add:['job_book','read'],remove:[]},bakery:{add:['job_bakery','bread'],remove:[]}};
-const TYPES0={department:{name:'백화점',icon:'🏬',actions:['limited','groupbuy']},home:{name:'주거',icon:'🏠',actions:['sleep','closet','status','mybooks']},videostore:{name:'비디오 가게',icon:'📼',actions:['videobuy']},shrine:{name:'성소',icon:'🕯',actions:['shrine']},bookstore:{name:'서점',icon:'📚',actions:['bookbuy']},clothes:{name:'옷가게',icon:'👗',actions:['shop']},cafe:{name:'카페',icon:'☕',actions:['drink']},restaurant:{name:'식당',icon:'🍝',actions:['meal']},salon:{name:'미용실',icon:'💇',actions:['hair']},park:{name:'공원',icon:'🌳',actions:['walk']},basic:{name:'일반',icon:'📍',actions:[]},library:{name:'도서관',icon:'📚',actions:['bkbk']},cinema:{name:'영화관',icon:'🎬',actions:['mvmv']}};
+const TYPES0={department:{name:'백화점',icon:'🏬',actions:['limited','groupbuy']},home:{name:'주거',icon:'🏠',actions:['sleep','closet','status','mybooks','diary']},videostore:{name:'비디오 가게',icon:'📼',actions:['videobuy']},shrine:{name:'성소',icon:'🕯',actions:['shrine']},bookstore:{name:'서점',icon:'📚',actions:['bookbuy']},clothes:{name:'옷가게',icon:'👗',actions:['shop']},cafe:{name:'카페',icon:'☕',actions:['drink']},restaurant:{name:'식당',icon:'🍝',actions:['meal']},salon:{name:'미용실',icon:'💇',actions:['hair']},park:{name:'공원',icon:'🌳',actions:['walk']},basic:{name:'일반',icon:'📍',actions:[]},library:{name:'도서관',icon:'📚',actions:['bkbk']},cinema:{name:'영화관',icon:'🎬',actions:['mvmv']}};
 WORLD.actions={};ACT0.forEach(a=>WORLD.actions[a.code]=a);WORLD.types=structuredClone(TYPES0);WORLD.placeActs=structuredClone(PLACEACT0);
 const ACQ={};
-const FIXTYPE={department:{name:'백화점',icon:'🏬',acts:['limited','groupbuy'],lock:['limited','groupbuy']},home:{name:'주거',icon:'🏠',acts:['sleep','closet','status','mybooks'],lock:['mybooks']},videostore:{name:'비디오 가게',icon:'📼',acts:['videobuy'],lock:['videobuy']},bookstore:{name:'서점',icon:'📚',acts:['bookbuy'],lock:['bookbuy']},library:{name:'도서관',icon:'📚',acts:['bkbk'],lock:['bkbk']},cinema:{name:'영화관',icon:'🎬',acts:['mvmv'],lock:['mvmv']},posterhall:{name:'포스터 전시관',icon:'🎞',acts:['mvmv'],lock:['mvmv']},shrine:{name:'성소',icon:'🕯',acts:['shrine'],lock:['shrine']}};
+const FIXTYPE={department:{name:'백화점',icon:'🏬',acts:['limited','groupbuy'],lock:['limited','groupbuy']},home:{name:'주거',icon:'🏠',acts:['sleep','closet','status','mybooks','diary'],lock:['mybooks','diary']},videostore:{name:'비디오 가게',icon:'📼',acts:['videobuy'],lock:['videobuy']},bookstore:{name:'서점',icon:'📚',acts:['bookbuy'],lock:['bookbuy']},library:{name:'도서관',icon:'📚',acts:['bkbk'],lock:['bkbk']},cinema:{name:'영화관',icon:'🎬',acts:['mvmv'],lock:['mvmv']},posterhall:{name:'포스터 전시관',icon:'🎞',acts:['mvmv'],lock:['mvmv']},shrine:{name:'성소',icon:'🕯',acts:['shrine'],lock:['shrine']}};
 // 관리자에서 의상마다 적은 획득 경로(DB)를 게임 경로로 바꿔요. 종류 이름·칸 이름은 DB의 경로 종류 정의를 그대로 따라요
 const shopPlaces=()=>Object.keys(WORLD.places).filter(k=>((WORLD.types[WORLD.places[k].type]||{actions:[]}).actions||[]).some(c=>(WORLD.actions[c]||{}).kind==='shop'));
 const placesFor=nm=>{const m=/^모든 (.+)$/.exec(nm||'');if(m){const ts=Object.keys(WORLD.types).filter(k=>WORLD.types[k].name===m[1]);if(ts.length)return Object.keys(WORLD.places).filter(k=>ts.includes(WORLD.places[k].type));if(m[1]==='상점')return shopPlaces()}return Object.keys(WORLD.places).filter(k=>WORLD.places[k].n===nm)};
@@ -1544,6 +1564,8 @@ function doAction(a,who){
   if(a.kind==='videobuy')return openVideoShop(pid);
   if(a.kind==='bkbk')return openShelf();
   if(a.kind==='shrine')return openShrine(a);
+  if(a.kind==='catdex')return openDiary('dex');
+  if(a.kind==='mail')return openDiary('mail');
   if(a.kind==='mvmv'){MOVIE_MIN=a.mins>0?a.mins:30;return openMovies()}
   earn(a.money||0,a.name+(who?' · '+((WORLD.npcs[who]||{}).n||''):''));G.energy=clampE(G.energy+enOf(a));
   const ef=a.effects||{},ev=+((ef.aff||[])[0]||{}).v||0;if(who&&ev)G.aff[who]=(G.aff[who]||0)+ev;(ef.give||[]).forEach(giveItem);actRoutes(a,who);
@@ -1586,7 +1608,9 @@ const CAT_T={
  up:{1:'{n과} 조금 가까워졌어요',2:'{n이} 곁에 앉아 골골거려요',3:'{n이} 이름을 부르면 대답해 줘요'}};
 function catMeet(id){G.catMet=G.catMet||{};if(!G.catMet[id])G.catMet[id]=G.day}
 function catAdd(id,v){const a=catAff(id),b=Math.min(CAT_CAP,a+v);G.aff[id]=b;const s=catStage(b);return catStage(a)<s?`🐾 ${catFmt(CAT_T.up[s],id)} (♥ ${b})`:''}
-function catRun(mins,log,sc,fin){pass(mins);G.log=log;saveGame();runScene(sc,()=>{after();if(fin)setTimeout(fin,300)})}
+function catRun(mins,log,sc,fin,cid){pass(mins);G.log=log;saveGame();
+  runScene(sc,()=>{after();const m=(cid&&!$('#scene').open)?catMailTry(cid):null;   // 호감도 높은 고양이는 가끔 쪽지를 물어다 줘요
+    if(m)setTimeout(()=>runScene(m,()=>{after();if(fin)setTimeout(fin,300)}),300);else if(fin)setTimeout(fin,300)})}
 function catAct(id,kind){
   if(!catsHere().includes(id)){CATGRP=null;renderActs();return msg('그새 어디론가 가 버렸어요',1)}
   catMeet(id);const nm=catName(id),a=catAff(id),line=()=>({who:id,t:pickLine(id)||'…'});
@@ -1595,11 +1619,11 @@ function catAct(id,kind){
     if(G.actDay['catpet:'+id]===G.day)return msg('오늘은 이미 쓰다듬어 줬어요',1);
     if(a<CAT_PET_MIN)return catRun(5,`🐾 ${jp(nm,'을','를')} 쓰다듬으려 했어요`,[{t:catFmt(rndOf(CAT_T.petNo),id)},line()]);
     G.actDay['catpet:'+id]=G.day;const up=catAdd(id,1);
-    return catRun(5,`🐾 ${jp(nm,'을','를')} 쓰다듬었어요 (♥ +1)`,[{t:catFmt(rndOf(CAT_T.pet[a<30?0:catStage(a)]),id)},line()],up?()=>msg(up):null)}
-  if(kind==='watch'){const sc=[{t:catFmt(rndOf(CAT_T.watch[catStage(a)]),id)}];if(Math.random()<.6)sc.push(line());return catRun(10,`🐾 ${jp(nm,'을','를')} 지켜봤어요`,sc)}
+    return catRun(5,`🐾 ${jp(nm,'을','를')} 쓰다듬었어요 (♥ +1)`,[{t:catFmt(rndOf(CAT_T.pet[a<30?0:catStage(a)]),id)},line()],up?()=>msg(up):null,id)}
+  if(kind==='watch'){const sc=[{t:catFmt(rndOf(CAT_T.watch[catStage(a)]),id)}];if(Math.random()<.6)sc.push(line());return catRun(10,`🐾 ${jp(nm,'을','를')} 지켜봤어요`,sc,null,id)}
   if(kind==='call'){if(a<90)return;const sc=[{t:`"${nm}…" 하고 이름을 불러 보았다.`},line()],gs=(DB.goods||[]).filter(g=>g.effects&&g.effects.catgift);let gift=null;
     if(gs.length&&G.actDay['catgift:'+id]!==G.day&&Math.random()<CAT_GIFT_P){gift=rndOf(gs);G.actDay['catgift:'+id]=G.day;sc.push({t:catFmt('{n은} 뭔가를 입에 물고 와 발치에 살며시 내려놓았다.',id)})}
-    return catRun(5,`🐾 ${nm}의 이름을 불러 봤어요`,sc,gift?()=>giveGoods(gift.id):null)}
+    return catRun(5,`🐾 ${nm}의 이름을 불러 봤어요`,sc,gift?()=>giveGoods(gift.id):null,id)}
 }
 function catFeed(id){
   const f=(G.catFeed||{})[id],n=f&&f.d===G.day?f.n:0,nm=catName(id);
@@ -1614,7 +1638,7 @@ function catFeedGo(id,gid){
   const nm=catName(id),gain=Math.max(1,Math.round(+((g.effects||{}).cat)||0)),st=catStage(catAff(id));
   G.bag[gid]--;if(G.bag[gid]<=0)delete G.bag[gid];G.catFeed=G.catFeed||{};const f=G.catFeed[id];G.catFeed[id]={d:G.day,n:(f&&f.d===G.day?f.n:0)+1};catMeet(id);
   const up=catAdd(id,gain);
-  catRun(10,`🐾 ${nm}에게 ${jp(g.name,'을','를')} 줬어요 (♥ +${gain})`,[{t:catFmt(rndOf(CAT_T.feed[st]),id,g.name)},{who:id,t:pickLine(id)||'…'}],up?()=>msg(up):null)}
+  catRun(10,`🐾 ${nm}에게 ${jp(g.name,'을','를')} 줬어요 (♥ +${gain})`,[{t:catFmt(rndOf(CAT_T.feed[st]),id,g.name)},{who:id,t:pickLine(id)||'…'}],up?()=>msg(up):null,id)}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button.catfeed');if(!b)return;const sh=$('#shop');if(sh.open)sh.close();catFeedGo(b.dataset.c,b.dataset.g)});
 function catBtns(box){catsHere().forEach(id=>{catMeet(id);const n=WORLD.npcs[id],b=document.createElement('button');b.className='act';b.innerHTML=`<b>${esc(n.i||'🐈')} ${esc(n.n)} ▸</b><small>♥ ${catAff(id)}</small>`;b.onclick=()=>{CATGRP=id;renderActs()};box.append(b)})}
 function catActs(box,id){
@@ -1624,6 +1648,45 @@ function catActs(box,id){
   if(a>=90)A.push(['call','📣','이름 부르기','⏱ 5분',false]);
   A.forEach(([k,ic,nm,sm,off])=>{const b=document.createElement('button');b.className='act'+(off?' off':'');b.innerHTML=`<b>${ic} ${nm}</b><small>${sm}</small>`;b.onclick=()=>catAct(id,k);box.append(b)})}
 function catNotice(){const cs=catsHere();if(!cs.length)return;cs.forEach(catMeet);const n=cs.map(catName);msg('🐈 '+[...n.slice(0,-1),jp(n[n.length-1],'이','가')].join(', ')+' 있어요')}
+
+/* ===== 다이어리: 고양이 도감 · 받은 쪽지 (집 > 다이어리 열기). 쪽지는 호감도 60 이상 고양이가 가끔 물어다 줘요 (세이브: G.mail) ===== */
+const MAIL_P=.03,MAIL_CD=2,MAIL_MIN=60,MAIL_KEEP=100,MAIL_RE_P=.4;   // 쪽지 확률(고양이 한 마리·하루 한 번 굴림) · 다음 쪽지까지 최소 일수 · 필요한 호감도 · 보관 개수 · 성소 글 인용 답장일 확률
+const MAIL_T=["늘 지켜보고 있단다.", "잘 하고 있어.", "무서워하지 마라.", "밥은 거르지 말고 먹거라.", "오늘도 수고했구나.", "힘들면 쉬어 가도 괜찮단다.", "네가 걷는 길 위에 불을 하나 밝혀 두었단다.", "조금 늦어도 괜찮아. 길은 도망가지 않는단다.", "따뜻하게 입고 다니거라. 바람이 차더구나.", "네가 웃는 날엔 나도 마음이 가볍단다.", "아무도 모르는 노력도 나는 알고 있단다.", "오늘 하루, 잘 버텼구나.", "너무 애쓰지 않아도 된단다.", "잠은 충분히 자고 있니? 눈 밑이 어둡더구나.", "작은 것에도 기뻐할 줄 아는 네가 나는 참 좋단다.", "걱정은 내게 맡기고 오늘은 푹 쉬거라.", "네가 남긴 발자국마다 작은 불빛이 켜져 있단다.", "울고 싶으면 울어도 된단다. 여기선 아무도 보지 않으니까.", "고양이들이 너를 따르는 이유를 알겠구나.", "가끔은 아무것도 하지 않아도 괜찮은 날이란다.", "하늘을 올려다보렴. 거기 내가 있단다.", "네 곁엔 생각보다 많은 이들이 있단다.", "그래, 그렇게 천천히.", "어제의 너보다 오늘의 네가 조금 더 단단하구나.", "서두르지 마라. 계절은 어김없이 온단다.", "마음이 시끄러운 날엔 촛불을 바라보렴.", "좋은 일이 곧 찾아올 게다. 그냥, 그런 느낌이 든단다.", "네가 누구든 나는 네 편이란다.", "손을 따뜻하게 하고 자거라.", "오늘은 어떤 하루였니? 말하지 않아도 괜찮단다.", "이 쪽지는 읽고 나면 잊어도 된단다. 마음만 가져가거라.", "힘껏 살아가는 모습, 잘 보고 있단다.", "모자란 것은 없단다. 너는 이미 충분하단다.", "따뜻한 국물이 생각나는 날이구나. 챙겨 먹거라.", "내가 보낸 심부름꾼이 마음에 들었니?", "길 잃은 마음이 있거든 이리 오렴.", "비가 와도 눈이 와도 괜찮단다. 우산은 내가 들고 있으마.", "네 이야기는 언제든 여기서 듣고 있단다.", "오늘 웃은 일이 하나라도 있었다면 그걸로 됐단다.", "그만하면 됐다. 정말 잘했단다."];
+const MAIL_RE=["네가 남긴 글, 한 글자도 빼놓지 않고 읽었단다.", "그날의 네 마음을 나는 기억하고 있어. 잘 견뎌 왔구나.", "말로 꺼내 놓은 것만으로도 충분히 잘 한 거란다.", "지금은 좀 어떠니? 대답은 안 해도 된단다. 그저 묻고 싶었어.", "그때의 너도, 지금의 너도 내겐 똑같이 소중하단다.", "그 마음은 여기에 잘 간직해 두었으니 걱정 말고 가렴.", "이만큼 걸어온 것만 해도 대단한 일이란다.", "혼자 끌어안고 있지 않아도 돼. 나는 늘 듣고 있단다.", "시간이 조금 흘렀으니, 이제 다시 읽어 봐도 괜찮을 게다.", "그때 켜 준 촛불은 아직 꺼지지 않았단다.", "그래, 그랬구나. 그저 \"그랬구나\" 하고 말해 주고 싶었단다.", "무엇이든 네 속도로 해도 괜찮아."];
+function mailMake(){
+  const ns=(G.notes||[]).filter(n=>G.day-n.d>=7&&!n.a&&String(n.x||'').trim());
+  if(ns.length&&Math.random()<MAIL_RE_P){const n=rndOf(ns);n.a=1;const q=String(n.x).replace(/\s+/g,' ').trim();return{x:rndOf(MAIL_RE),q:q.length>44?q.slice(0,44)+'…':q,qd:n.d}}   // 7일 넘은 성소 글에만 답장하고, 한 번 답한 글은 다시 고르지 않아요
+  const used=new Set((G.mail||[]).map(m=>m.x));let pool=MAIL_T.filter(t=>!used.has(t));if(!pool.length)pool=MAIL_T;return{x:rndOf(pool)}}
+function catMailTry(id){
+  if(catAff(id)<MAIL_MIN||G.actDay['catmail:'+id]===G.day)return null;G.actDay['catmail:'+id]=G.day;
+  if(G.mailDay!=null&&G.day-G.mailDay<MAIL_CD)return null;if(Math.random()>=MAIL_P)return null;
+  const m={...mailMake(),d:G.day,t:G.min,c:id},nm=catName(id);G.mail=G.mail||[];G.mail.unshift(m);if(G.mail.length>MAIL_KEEP)G.mail.length=MAIL_KEEP;G.mailDay=G.day;saveGame();
+  const sc=[{t:`${jp(nm,'이','가')} 어디선가 접힌 쪽지를 물고 와 발치에 내려놓았다.`}];
+  if(m.q)sc.push({t:'펼쳐 보니 성소에 남겼던 글이 옮겨 적혀 있다.'},{t:`“${m.q}”`},{t:`그 아래에 따뜻한 글씨로 한 줄이 더 적혀 있다.`});
+  else sc.push({t:'조심스럽게 펼쳐 보니 낯익고 따뜻한 글씨가 적혀 있다.'});
+  sc.push({t:`“${m.x}”`},{t:'📩 쪽지는 다이어리에 끼워 두었어요. (집 > 다이어리 열기 > 받은 쪽지)'});return sc}
+let dyId=null,dyPg=0,dyDirty=false;
+const DY_PER=8,CAT_ST=['경계하는 중','얼굴을 익혔어요','곁을 내줘요','단짝이에요'];
+function openDiary(m){shMode=m==='mail'?'dymail':'dydex';shIdx=0;dyPg=0;dyId=null;dyDirty=false;viewSh=true;renderWorld();renderShrine()}
+const dayText=d=>{const t=new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+(d||0));return `${t.getMonth()+1}월 ${t.getDate()}일`};
+function dyIcon(n,cls){const e=esc(n.i||'🐈');return n.img?`<img class="${cls}" src="${esc(n.img)}" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="${cls} em" hidden>${e}</span>`:`<span class="${cls} em">${e}</span>`}
+function renderDiary(box,tape){
+  const back=()=>{if(dyDirty){dyDirty=false;saveGame()}shClose()};
+  if(shMode==='dymail'){const ms=G.mail||[];
+    if(!ms.length){box.innerHTML=`<div class="paper dy">${tape}<div class="ph"><span>📩 받은 쪽지</span><span></span></div><div class="pt dyempty">아직 받은 쪽지가 없어요.\n고양이와 가까워지면 어느 날, 쪽지를 물고 올지도 몰라요.</div><div class="pb"><span class="sp"></span><button id="dy_bk" type="button" class="pri">돌아가기</button></div></div>`;$('#dy_bk').onclick=back;return}
+    shIdx=Math.max(0,Math.min(shIdx,ms.length-1));const m=ms[shIdx],cn=WORLD.npcs[m.c]||{},isNew=!m.r;if(!m.r){m.r=1;dyDirty=true}
+    const body=(m.q?`<small style="opacity:.6">${G.day-m.qd}일 전, 성소에 남긴 글\n“${esc(m.q)}”</small>\n\n`:'')+esc(m.x)+`\n\n<small style="opacity:.6;display:block;text-align:right">— 수호신 · ${esc(jp(cn.n||'고양이','이','가'))} 가져온 쪽지</small>`;
+    box.innerHTML=`<div class="paper dy">${tape}<div class="ph"><span>${isNew?'✨ NEW · ':''}${esc(shDate(m))}</span><span>${shIdx+1} / ${ms.length}</span></div><div class="pt">${body}</div><div class="pb"><button id="dy_pv" type="button"${shIdx>=ms.length-1?' disabled':''}>◀ 이전 쪽지</button><button id="dy_nx" type="button"${shIdx<=0?' disabled':''}>다음 쪽지 ▶</button><span class="sp"></span><button id="dy_bk" type="button" class="pri">돌아가기</button></div></div>`;
+    $('#dy_pv').onclick=()=>{shIdx++;renderShrine()};$('#dy_nx').onclick=()=>{shIdx--;renderShrine()};$('#dy_bk').onclick=back;return}
+  const ids=Object.keys(G.catMet||{}).filter(id=>WORLD.npcs[id]&&isCat(id)).sort((a,b)=>(G.catMet[a]-G.catMet[b])||a.localeCompare(b));
+  if(dyId&&WORLD.npcs[dyId]){const n=WORLD.npcs[dyId],a=catAff(dyId),s=catStage(a),stg=[0,30,60,90];
+    const ls=[];for(let i=0;i<=s;i++){const L=(n.lines||[]).map(parseLine).filter(l=>l.min===stg[i]&&l.t&&l.t!=='…');if(L.length)ls.push(L[0].t)}
+    box.innerHTML=`<div class="paper dy">${tape}<div class="ph"><span>🐈 고양이 도감</span><span>${esc(dayText(G.catMet[dyId]))}에 처음 만났어요</span></div><div class="dyd"><div class="dyi">${dyIcon(n,'dybig')}</div><div class="dyx"><h3>${esc(n.n)}</h3>${n.intro?`<p class="dys">${esc(n.intro)}</p>`:''}<p>♥ ${a} · ${CAT_ST[s]}</p>${ls.length?`<div class="dyl">${ls.map(t=>`<div>“${esc(t)}”</div>`).join('')}</div>`:''}</div></div><div class="pb"><button id="dy_ls" type="button">◀ 목록으로</button><span class="sp"></span><button id="dy_bk" type="button" class="pri">돌아가기</button></div></div>`;
+    $('#dy_ls').onclick=()=>{dyId=null;renderShrine()};$('#dy_bk').onclick=back;return}
+  const pages=Math.max(1,Math.ceil(ids.length/DY_PER));dyPg=Math.max(0,Math.min(dyPg,pages-1));const cur=ids.slice(dyPg*DY_PER,dyPg*DY_PER+DY_PER);
+  box.innerHTML=`<div class="paper dy">${tape}<div class="ph"><span>🐈 고양이 도감</span><span>${pages>1?`${dyPg+1} / ${pages}`:''}</span></div>${ids.length?`<div class="dyg">${cur.map(id=>{const n=WORLD.npcs[id];return `<div class="dyc" role="button" tabindex="0" data-c="${esc(id)}">${dyIcon(n,'dyic')}<b>${esc(n.n)}</b><small>♥ ${catAff(id)}</small></div>`}).join('')}</div>`:'<div class="pt dyempty">아직 만난 고양이가 없어요.\n동네를 돌아다니다 보면 어디선가 마주칠 거예요.</div>'}<div class="pb">${pages>1?`<button id="dy_pv" type="button"${dyPg<=0?' disabled':''}>◀</button><button id="dy_nx" type="button"${dyPg>=pages-1?' disabled':''}>▶</button>`:''}<span class="sp"></span><button id="dy_bk" type="button" class="pri">돌아가기</button></div></div>`;
+  box.querySelectorAll('.dyc').forEach(c=>{const go=()=>{dyId=c.dataset.c;renderShrine()};c.onclick=go;c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
+  const pv=$('#dy_pv'),nx=$('#dy_nx');if(pv)pv.onclick=()=>{dyPg--;renderShrine()};if(nx)nx.onclick=()=>{dyPg++;renderShrine()};$('#dy_bk').onclick=back}
 function updActArrows(){const w=$('#wa'),l=$('#ac_l'),r=$('#ac_r');if(!w)return;l.disabled=w.scrollLeft<=1;r.disabled=w.scrollLeft+w.clientWidth>=w.scrollWidth-1}
 // 버튼이 잘려 보이지 않도록: 한 페이지에 들어가는 개수(n)를 구해, n개가 칸을 딱 채우는 너비로 맞춘다
 function layActs(){const w=$('#wa'),l=$('#ac_l'),r=$('#ac_r');if(!w)return;const K=[...w.children].filter(c=>!c.classList.contains('noact')),N=5,GP=8;   // 한 줄 5개
@@ -1767,6 +1830,7 @@ function shSave(){const t=($('#sh_t').value||'').trim();if(!t)return msg('아직
   G.log='';after();msg('🕯 촛불이 하나 켜졌어요. 수호신은 아무 말이 없어요.'+extra)}
 function renderShrine(){
   const box=$('#sh_p');if(!box)return;const ns=G.notes||[],tape='<i class="tape l"></i><i class="tape r"></i>';
+  if(shMode==='dydex'||shMode==='dymail')return renderDiary(box,tape);
   if(shMode==='cap'&&shCap){const n=shCap.n,ag=shCap.age,yr=ag%365===0?`${ag/365}년 전 오늘`:`${ag}일 전`;
     box.innerHTML=`<div class="paper">${tape}<div class="ph"><span>🕯 촛불 연기 속에 글이 떠올랐어요</span><span>${esc(yr)}</span></div><div class="pt"><small style="opacity:.6">${esc(shDate(n))}, 당신이 남긴 글</small>\n\n${esc(n.x)}</div><div class="pb"><span class="sp"></span><button id="sh_cp" type="button" class="pri">다 읽었어요</button></div></div>`;
     $('#sh_cp').onclick=()=>{shMode='write';shCap=null;renderShrine()};return}
@@ -1838,7 +1902,7 @@ function applyWorld(){
 }
 function actFromRow(r){return{code:r.code,name:r.name,icon:r.icon||'',descr:r.descr||'',kind:r.kind==='sleep'?'normal':(r.kind||'normal'),mins:r.time_min!=null?+r.time_min:(+r.time_cost||0)*SLOTLEN,endAt:r.end_min!=null?+r.end_min:(r.kind==='sleep'?WORLD.wakeMin:null),minMins:+r.min_mins||0,energy:+r.energy||0,money:+r.money||0,cond:r.cond||{},effects:(()=>{const e={...(r.effects||{})};if(r.kind==='sleep'&&e.eph==null)e.eph=WORLD.sleepRegen||12;return e})(),scene:r.scene||[]}}
 function applyActions(){
-  WORLD.actions={};const keep=['shop','talk','bkbk','mvmv','bookbuy','mybooks','videobuy','shrine','limited','groupbuy'];
+  WORLD.actions={};const keep=['shop','talk','bkbk','mvmv','bookbuy','mybooks','videobuy','shrine','limited','groupbuy','diary','diary_cats','diary_mail'];
   if(DB.actions.length){ACT0.filter(a=>keep.includes(a.code)).forEach(a=>WORLD.actions[a.code]=a);DB.actions.forEach(r=>WORLD.actions[r.code]=actFromRow(r))}else ACT0.forEach(a=>WORLD.actions[a.code]=a);
   WORLD.types={};
   if(DB.ptypes.length)DB.ptypes.forEach(t=>WORLD.types[t.code]={name:t.name,icon:t.icon||'📍',actions:DB.ptacts.filter(x=>x.type_code===t.code).sort((a,b)=>(a.sort||0)-(b.sort||0)).map(x=>x.action_code)});
@@ -2533,7 +2597,7 @@ async function delEv(){
 }
 
 // ================= 관리자: 행동 · 장소 유형 =================
-const FIXED={closet:'옷장 열기',status:'거울 보기 (내 상태)',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',bookbuy:'서점 열기',mybooks:'선반 열기',videobuy:'비디오 가게 열기',mvmv:'mvmv 포스터 벽 열기',shrine:'성소 종이 열기',limited:'한정판 오픈런 열기',groupbuy:'공동구매 열기'};
+const FIXED={closet:'옷장 열기',status:'거울 보기 (내 상태)',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',bookbuy:'서점 열기',mybooks:'선반 열기',videobuy:'비디오 가게 열기',mvmv:'mvmv 포스터 벽 열기',shrine:'성소 종이 열기',catdex:'고양이 도감 열기',mail:'받은 쪽지 열기',limited:'한정판 오픈런 열기',groupbuy:'공동구매 열기'};
 const KSEL=[['normal','일반 행동'],['group','▸ 묶음 메뉴 (누르면 하위 행동이 나와요)'],['call','📞 통화 (아는 인물 목록에서 고르기)'],['bagfood','🎒 가방 속 음식 먹기'],['closet','👗 옷장 (부분 옷장·입어보기)'],['shrine','🕯 성소 글 쓰기'],['delivery','🛵 배달시키기 (배달 앱)'],['onlineshop','🛒 온라인 쇼핑 (택배)'],['soon','🚧 준비 중 (아직 기능 없음)']];
 const isFix=a=>(!!FIXED[a.kind]&&ACT0.some(x=>x.code===a.code))||a.code==='talk';
 const actRows=()=>{const have=new Set(DB.actions.map(a=>a.code)),v=ACT0.filter(a=>(FIXED[a.kind]||a.code==='talk')&&!have.has(a.code)).map(a=>({code:a.code,name:a.name,icon:a.icon,descr:a.descr||'',kind:a.kind,mins:a.mins||0,endAt:a.endAt,minMins:a.minMins||0,energy:a.energy||0,money:a.money||0,cond:a.cond||{},effects:a.effects||{},scene:a.scene||[],sort:0,virtual:true}));
@@ -3088,7 +3152,7 @@ var SLOTS=5,SAVE={slot:(()=>{try{return Math.min(SLOTS,Math.max(1,+localStorage.
 function normG(){applyMe();
   if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}
   if(typeof G.min!=='number')G.min=WORLD.wakeMin;if(!Array.isArray(G.ledger))G.ledger=[];
-  if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.wait=Array.isArray(G.wait)?G.wait:[];G.vgoods=G.vgoods||{};G.dlv=Array.isArray(G.dlv)?G.dlv:[];G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.catFeed=G.catFeed||{};G.catMet=G.catMet||{};G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
+  if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.wait=Array.isArray(G.wait)?G.wait:[];G.vgoods=G.vgoods||{};G.dlv=Array.isArray(G.dlv)?G.dlv:[];G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.catFeed=G.catFeed||{};G.catMet=G.catMet||{};G.mail=Array.isArray(G.mail)?G.mail:[];if(G.mailDay==null)G.mailDay=null;G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
 const lookPack=()=>(CL&&CL.try&&CL.snap?CL.snap:{sel,colors,iord});   // 입어보는 동안에는 저장되지 않아요
 function lookSave(){if(LOOKP)return;clearTimeout(SAVE.lt);SAVE.lt=setTimeout(()=>{try{localStorage.setItem('fsfsLook',JSON.stringify(lookPack()));localStorage.setItem('fsfsLocalAt',Date.now())}catch(e){}try{pushSoon()}catch(e){}},800)}
 function applyLook(l){const d=l||LOOKP;if(!d||!d.sel)return;if(!l&&!DB.items.length)return;sel={...sel,...d.sel};colors=d.colors||{};iord=Array.isArray(d.iord)?d.iord.slice():[];if(!l)LOOKP=null}
