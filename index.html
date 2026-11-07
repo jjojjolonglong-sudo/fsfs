@@ -121,6 +121,37 @@ dialog::backdrop{background:rgba(32,27,23,.55)}
 .sec{margin-bottom:18px}
 .sec>summary{list-style:none;display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--ink);color:var(--p);border-radius:4px 4px 0 0;cursor:pointer;margin-bottom:12px;position:sticky;top:0;z-index:5}
 .sec>summary::-webkit-details-marker{display:none}
+/* 관리자 표 입력 */
+.tbbar{gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap}
+.tbnote summary{cursor:pointer;font-size:12px;margin-bottom:6px}
+.tbs{overflow:auto;max-height:calc(100vh - 300px);border:2px solid var(--ink);border-radius:4px;background:var(--p)}
+.tbt{border-collapse:separate;border-spacing:0;font-size:12px;width:auto}
+.tbt th{position:sticky;top:0;z-index:3;background:var(--ink);color:var(--p);padding:6px;text-align:left;white-space:nowrap;font-weight:600;border-right:1px solid rgba(255,255,255,.25)}
+.tbt td{padding:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--p);vertical-align:top;height:30px}
+.tbt .tbn{width:30px;min-width:30px;max-width:30px;text-align:center;color:var(--mute);position:sticky;left:0;z-index:2;background:var(--chk);line-height:30px}
+.tbt th.tbn{z-index:5;background:var(--ink);color:var(--p);line-height:normal}
+.tbt td.tbf,.tbt th.tbf{position:sticky;left:30px;z-index:2;box-shadow:1px 0 0 var(--line)}
+.tbt th.tbf{z-index:4;background:var(--ink)}
+.tbt .tbx{width:34px;min-width:34px;text-align:center;background:var(--chk)}
+.tbt th.tbx{background:var(--ink);padding:0}
+.tbd{padding:1px 6px;font-size:12px;box-shadow:none;margin-top:3px;border-width:1px;opacity:.55}.tbd:hover{opacity:1}
+.tbc{box-sizing:border-box;border:0!important;border-radius:0!important;background:transparent;padding:5px 6px;height:30px;font:inherit;font-size:12px;line-height:20px;display:block;color:var(--ink)}
+.tbc:focus{outline:2px solid var(--acc)!important;outline-offset:-2px;background:#fff}
+.tbt td.chg{background:var(--hi)}.tbt td.chg .tbc{background:transparent}
+.tbt td.bad{background:#ffd3de!important}
+.tbt td.ro{background:var(--chk)}.tbt td.ro .tbc{color:var(--mute)}
+.tbt tr.tbnew td{background:#effaf1}.tbt tr.tbnew td.chg{background:var(--hi)}
+.tbt tr.tbdel td{background:#ffe9ee;text-decoration:line-through;opacity:.6}
+.tcl{position:relative;height:30px}.tcl textarea.tbc{position:absolute;left:0;top:0;width:100%;resize:none;overflow:hidden}
+.tcl textarea.tbc:focus{height:120px;z-index:6;background:#fff;box-shadow:0 6px 14px rgba(0,0,0,.25);overflow:auto}
+#tbdlg{max-width:680px;width:92vw}
+.tbpls{max-height:46vh;overflow:auto;border:1px dashed var(--line);border-radius:6px;padding:6px;margin-top:6px}
+.tbpls.err{border-color:#d04a6a}
+.tbpl{padding:4px 0;border-bottom:1px dotted var(--line)}.tbpl.add>b{color:#2a9d5f}.tbpl.del>b{color:#d04a6a}
+.tcl textarea.tbc{white-space:pre}.tcl textarea.tbc:focus{white-space:pre-wrap}
+.tbc::placeholder{color:#cbbfe3;font-style:italic;opacity:1}
+.tbt tr:not(.tbnew) .tbc::placeholder{color:transparent}
+
 .sec>summary b{font-size:15px;letter-spacing:.02em}
 .sec>summary b::before{content:"▾ ";color:var(--hi)}
 .sec:not([open])>summary b::before{content:"▸ "}
@@ -711,7 +742,7 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
 
 <div id="dev" hidden><div class="wrap">
   <div class="row"><h2 style="flex:1;font-size:16px;color:var(--ink)">🛠 관리자 모드</h2><button id="devclose">게임으로 돌아가기</button></div>
-  <div class="tabs" id="devtabs"><button data-t="items" class="on">👗 의상</button><button data-t="map">🗺 마을</button><button data-t="npc">🧑 인물</button><button data-t="event">📖 이벤트</button><button data-t="goods">🧺 아이템</button><button data-t="dlv">🛵 배달</button></div>
+  <div class="tabs" id="devtabs"><button data-t="items" class="on">👗 의상</button><button data-t="map">🗺 마을</button><button data-t="npc">🧑 인물</button><button data-t="event">📖 이벤트</button><button data-t="goods">🧺 아이템</button><button data-t="dlv">🛵 배달</button><button data-t="tbl">📊 표 입력</button></div>
   <div id="dv-items"><div class="card" style="margin-bottom:12px">
     <div class="hd"><b>빠른 등록</b><i class="tip" tabindex="0" data-tip="전체 캔버스 크기 PNG를 레이어별로 한꺼번에 선택하세요. 파일명: 이름_outline.png, 이름_fill1.png, 이름_fill2.png, 이름_static.png (_ 하나나 __ 둘 다 돼요. 레이어 이름이 없으면 static 한 장짜리)">?</i></div>
     <div class="row"><label>파츠<select id="np"></select></label><label>PNG 파일<input id="nf" type="file" accept="image/png" multiple></label>
@@ -722,6 +753,7 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
     <div class="card" id="ed"></div>
   </div></div>
   <div id="dv-dlv" hidden><div class="card" id="dlad"></div></div>
+  <div id="dv-tbl" hidden><div class="card" id="tbw"></div></div>
   <div id="dv-goods" hidden><div class="cols"><div class="card"><div class="row" style="margin-bottom:8px"><button class="pri" id="gnew">+ 새 아이템</button></div><div class="list" id="glist"></div></div><div class="card" id="ged"></div></div></div>
   <div id="dv-map" hidden>
     <details class="sec" open><summary><b>행동</b><span class="grow"></span><button class="pri" id="anew">+ 새 행동</button><button id="aimp">내장 가져오기</button></summary>
@@ -1743,7 +1775,7 @@ async function putPlain(dir,id,file,max,q=0.88){
 const post=(path,b,m='POST')=>sb(path,{m,h:{Prefer:'return=minimal'},b});
 document.querySelectorAll('#devtabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('#devtabs button').forEach(x=>x.classList.toggle('on',x===b));
-  for(const t of ['items','map','npc','event','goods','dlv'])$('#dv-'+t).hidden=b.dataset.t!==t;if(b.dataset.t==='goods')renderGoodsAdmin();if(b.dataset.t==='dlv')renderDlvAdmin();
+  for(const t of ['items','map','npc','event','goods','dlv','tbl'])$('#dv-'+t).hidden=b.dataset.t!==t;if(b.dataset.t==='tbl'){tbLoad();renderTbl()}if(b.dataset.t==='goods')renderGoodsAdmin();if(b.dataset.t==='dlv')renderDlvAdmin();
   if(b.dataset.t==='map'){renderActAdmin();renderMapAdmin();renderBgmAdmin()}if(b.dataset.t==='npc'){renderNpcAdmin();lvAuto()}if(b.dataset.t==='event')renderEvAdmin();});
 
 // ---- 아이템(goods)
@@ -1940,6 +1972,341 @@ async function delNpc(){
 $('#nnew').onclick=async()=>{
   try{const id=crypto.randomUUID();await post('/rest/v1/fsfs_npc',{id,code:'npc_'+id.slice(0,8),name:'새 인물',role:'resident',sort:DB.npcs.length});await loadCatalog();ncur=structuredClone(DB.npcs.find(x=>x.id===id));renderNpcAdmin();msg('새 인물을 만들었어요')}catch(e){msg(e.message,1)}
 };
+
+// ================= 관리자: 표 입력 (mvmv의 Bulk entry 방식) =================
+// 시트마다 한 줄 = DB 한 줄. 엑셀·구글시트에서 복사해 붙이고, 저장 전에 바뀐 곳을 미리 보여 줘요.
+const TB={sh:'npc',cols:[],rows:[],src:{},q:'',nid:0,sel:null};
+const TSEP=' // ';
+const tbId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const tbSplit=s=>String(s==null?'':s).split(/\s*\/\/\s*|\r?\n/).map(x=>x.trim()).filter(Boolean);
+const tbSplitC=s=>String(s==null?'':s).split(/\s*[,，;]\s*/).map(x=>x.trim()).filter(Boolean);
+const tbJoin=a=>(a||[]).join(TSEP);
+const tbYN=v=>v?'O':'',tbIsY=s=>/^(o|y|yes|1|true|예|네|ㅇ|켬|v|✓|✔)$/i.test(String(s||'').trim());
+const tbNorm=s=>String(s||'').replace(/\s/g,'');
+const tbP2=n=>String(n).padStart(2,'0'),tbT=m=>tbP2(Math.floor((((m%1440)+1440)%1440)/60))+':'+tbP2(((m%60)+60)%60);
+const tbTm=s=>{const m=/^(\d{1,2})(?::?(\d{2}))?$/.exec(String(s).trim());if(!m)return null;const h=+m[1],mi=+(m[2]||0);if(h>24||mi>59||(h===24&&mi))return null;return h*60+mi};
+const tbRanges=s=>{const out=[];for(const part of String(s||'').split(/\s*[,，;]\s*/).filter(x=>x.trim())){const m=/^(.+?)\s*[~\-–]\s*(.+)$/.exec(part.trim());if(!m)throw new Error('시간은 09:00~14:00 처럼 적어 주세요 ('+part+')');const a=tbTm(m[1]),b=tbTm(m[2]);if(a==null||b==null)throw new Error('시간을 읽을 수 없어요 ('+part+')');out.push([a,b%1440])}return out};
+const tbRG=r=>(r||[]).map(([a,b])=>tbT(a)+'~'+tbT(b)).join(', ');
+const tbNum=(s,what,min,max)=>{const t=String(s).trim();if(!/^[+-]?\d+(\.\d+)?$/.test(t))throw new Error(what+'은(는) 숫자로 적어 주세요 ('+s+')');const v=+t;if(min!=null&&v<min)throw new Error(what+'은(는) '+min+' 이상이에요');if(max!=null&&v>max)throw new Error(what+'은(는) '+max+' 이하예요');return v};
+function tbFind(list,s,what){
+  s=String(s||'').trim();if(!s)return '';
+  let c=list.filter(x=>x.v===s);if(!c.length)c=list.filter(x=>tbNorm(x.v)===tbNorm(s));if(!c.length)c=list.filter(x=>tbNorm(x.v).includes(tbNorm(s)));
+  if(c.length===1)return c[0].k;
+  if(c.length>1)throw new Error(what+' 이름이 겹쳐요: '+s+' ('+c.slice(0,3).map(x=>x.v).join(' · ')+')');
+  throw new Error(what+' 이름을 찾을 수 없어요: '+s)}
+const tbNpcs=()=>Object.entries(WORLD.npcs).map(([k,n])=>({k,v:n.n})).filter(x=>x.v);
+const tbNpcName=k=>k==='me'?'나':k==='*'?'*':((WORLD.npcs[k]||{}).n||k||'');
+const tbPlacesOnly=()=>plChoices().filter(c=>!c.k.startsWith('@type:')).map(c=>({k:c.k,v:c.v}));
+const tbPlaceAny=()=>plChoices().map(c=>({k:c.k,v:c.v}));
+const tbPlName=k=>k?(plLabel(k)||k):'';
+const tbTypes=()=>Object.entries(WORLD.types).map(([k,t])=>({k,v:t.name}));
+const tbHasPl=k=>!DB.places.length||k in DB.places[0];
+const tbO=(w,k)=>{if(!w[k]||typeof w[k]!=='object'||Array.isArray(w[k]))w[k]={};return w[k]};
+const tbPairs=(s,what)=>tbSplitC(s).map(p=>{const m=/^(.+?)\s*[:：=≥]+\s*([+-]?\d+)$/.exec(p);if(!m)throw new Error(what+'은(는) 이름:숫자 로 적어 주세요 ('+p+')');return{npc:tbFind(tbNpcs(),m[1],'인물'),v:+m[2]}});
+const tbRoles={resident:'주민',fan:'덕질 인물',author:'대작가'};
+const tbKinds=()=>Object.fromEntries(KSEL.map(([k,v])=>[k,v.replace(/^[^가-힣A-Za-z]+/,'').replace(/\s*\(.*$/,'')]));
+const tbItemList=()=>{const out=(DB.goods||[]).map(g=>({k:'g:'+g.id,v:g.name}));try{ITEMS.filter(i=>i.layers.length).forEach(i=>out.push({k:i.builtin?i.part+':'+i.key:i.id,v:i.name}))}catch(e){}return out};
+
+/* ---- 장면 대사 ↔ 글자 ("나: 대사 // 나나: 대사 // 그냥 해설") ---- */
+const tbSceneGet=sc=>tbJoin((sc||[]).filter(s=>!s.choices).map(s=>{const w=s.who,nm=w?tbNpcName(w):'';return (nm?nm+': ':'')+(s.t||'')}));
+const tbHasChoice=sc=>(sc||[]).some(s=>s.choices);
+function tbSceneSet(s,withWho){
+  const out=[];
+  for(const ln of tbSplit(s)){
+    if(!withWho){out.push({t:ln});continue}
+    const m=/^([^:：]{1,10}?)\s*[:：]\s*([\s\S]+)$/.exec(ln);
+    if(m){const nm=m[1].trim();let who=null;
+      if(nm==='나'||nm==='플레이어'||nm===WORLD.playerName)who='me';
+      else{const c=tbNpcs().filter(x=>tbNorm(x.v)===tbNorm(nm));if(c.length===1)who=c[0].k}
+      if(who){out.push({who,t:m[2].trim()});continue}
+      if(!/\s/.test(nm)&&nm.length<=8&&!/[.!?…,~]/.test(nm))throw new Error('말하는 사람을 찾을 수 없어요: '+nm+' (해설이면 이름 없이 적어 주세요)')}
+    out.push({who:'',t:ln})}
+  return out}
+
+/* ---- 시트 정의 ----
+   cols: {k,h,w,get(원본행),set(작업행,글자,ctx),ro(원본행),long,list,ph}
+   fin: 칸이 다 처리된 뒤 한 번 더 손볼 때(여러 칸이 한 값에 묶이는 경우) */
+const TBS={
+npc:{label:'🧑 인물',tbl:'fsfs_npc',
+  note:'한 줄이 인물 한 명이에요. 대사는 // 로 구분하고 호감도 조건은 [30] 앞에 붙여요 (예: 안녕! // [30] 오늘은 일찍 왔네 // [60] …). 덕질노트(lvlv)에서 온 인물의 이름·성별·대사 글자는 lvlv에서만 바뀌어요 (호감도 [숫자]만 여기서 바꿀 수 있어요). 출몰 일정은 「출몰 일정」 시트에서, 사진은 인물 탭에서 올려요.',
+  list:()=>DB.npcs,noDel:r=>r.source_app==='lvlv'||r.role==='author',
+  blank:i=>({code:'npc_'+tbId(),name:'',role:'resident',sort:DB.npcs.length+i,sched:[],lines:[],work_hours:[],appear:75}),
+  cols:()=>[
+    {k:'name',h:'이름',w:130,get:r=>r.name||'',set:(w,s)=>{if(!s)throw new Error('이름이 비었어요');w.name=s},ro:r=>r.source_app==='lvlv'},
+    {k:'code',h:'코드',w:110,ph:'(자동)',get:r=>r.code||'',set:(w,s)=>{if(s)w.code=s},ro:r=>!!r.id},
+    {k:'role',h:'종류',w:90,list:()=>Object.values(tbRoles),get:r=>tbRoles[r.role]||r.role||'',set:(w,s)=>{if(!s){w.role='resident';return}const e=Object.entries(tbRoles).find(([k,v])=>v===s||k===s);if(!e)throw new Error('종류는 '+Object.values(tbRoles).join(' · ')+' 중에서 골라 주세요');w.role=e[0]}},
+    {k:'sex',h:'성별',w:56,list:()=>['남','여'],get:r=>({m:'남',f:'여'}[r.sex]||''),set:(w,s)=>{if(!s){w.sex=null;return}if(!/^(남|여|m|f)$/i.test(s))throw new Error('성별은 남 / 여');w.sex=/^(남|m)$/i.test(s)?'m':'f'},ro:r=>r.source_app==='lvlv'},
+    {k:'icon',h:'이모지',w:64,get:r=>r.icon||'',set:(w,s)=>{w.icon=s||null}},
+    {k:'birthday',h:'생일(월-일)',w:84,ph:'03-08',get:r=>r.birthday||'',set:(w,s)=>{if(s&&!/^\d\d-\d\d$/.test(s))throw new Error('생일은 03-08 처럼 월-일 두 자리로 적어 주세요');w.birthday=s||null}},
+    {k:'workplace',h:'직장',w:150,list:()=>tbPlacesOnly().map(x=>x.v),get:r=>tbPlName(r.workplace),set:(w,s)=>{w.workplace=s?tbFind(tbPlacesOnly(),s,'장소'):null}},
+    {k:'work_hours',h:'근무 시간',w:150,ph:'09:00~18:00',get:r=>tbRG(r.work_hours),set:(w,s)=>{w.work_hours=tbRanges(s)}},
+    {k:'appear',h:'출몰 확률(%)',w:80,get:r=>r.appear==null?'':String(r.appear),set:(w,s)=>{w.appear=s===''?75:tbNum(s,'출몰 확률',0,100)}},
+    {k:'intro',h:'소개',w:220,get:r=>r.intro||'',set:(w,s)=>{w.intro=s||null}},
+    {k:'personality',h:'성격',w:220,long:1,get:r=>r.personality||'',set:(w,s)=>{w.personality=s||null}},
+    {k:'lines',h:'대사 ( // 로 구분 · [30] 호감도)',w:420,long:1,get:r=>tbJoin(r.lines),set:(w,s)=>{w.lines=tbSplit(s)}}]},
+
+sch:{label:'🕒 출몰 일정',custom:1,tbl:'fsfs_npc',
+  note:'한 줄이 「이 인물이 이 시간에 이 장소에 있어요」 한 칸이에요. 장소 칸에 「모든 카페」처럼 쓰면 그 유형의 아무 곳이에요. 같은 인물을 여러 줄 적으면 돼요. 줄을 지우려면 🗑을 눌러요. 근무 시간과 겹치면 저장할 때 알려 줘요.',
+  cols:()=>[
+    {k:'npc',h:'인물',w:140,list:()=>tbNpcs().map(x=>x.v)},
+    {k:'a',h:'시작',w:70,ph:'09:00'},{k:'b',h:'끝',w:70,ph:'16:00'},
+    {k:'p',h:'장소 (또는 모든 ○○)',w:240,list:()=>tbPlaceAny().map(x=>x.v)}],
+  load(){const rows=[];DB.npcs.filter(n=>n.role!=='author').forEach(n=>(n.sched||[]).forEach((x,i)=>rows.push({id:null,key:n.code+':'+i,cells:[n.name||'',tbT(x.a),tbT(x.b),tbPlName(x.p)]})));return rows},
+  plan(rows){
+    const items=[],errs=[],by={},used=new Set(),badNpc=new Set();
+    rows.forEach(r=>{if(r.del)return;const [nm,a,b,pl]=r.cells.map(x=>(x||'').trim());if(!nm&&!a&&!b&&!pl)return;
+      try{if(!nm)throw new Error('인물이 비었어요');const code=tbFind(tbNpcs(),nm,'인물'),ta=tbTm(a),tb=tbTm(b);
+        if(ta==null||tb==null)throw new Error('시간은 09:00 처럼 적어 주세요');if(!pl)throw new Error('장소가 비었어요');
+        const p=tbFind(tbPlaceAny(),pl,'장소');(by[code]=by[code]||[]).push({a:ta,b:tb%1440,p,row:r});used.add(code)}
+      catch(e){errs.push({row:r,col:null,msg:e.message});if(r.key)badNpc.add(r.key.split(':')[0]);try{badNpc.add(tbFind(tbNpcs(),nm,'인물'))}catch(_){}}});
+    const codes=new Set([...used,...DB.npcs.filter(n=>(n.sched||[]).length).map(n=>n.code)]);
+    codes.forEach(code=>{const n=DB.npcs.find(x=>x.code===code);if(!n||n.role==='author'||badNpc.has(code))return;
+      const nw=(by[code]||[]).map(x=>({a:x.a,b:x.b,p:x.p})),old=n.sched||[];
+      if(JSON.stringify(nw)===JSON.stringify(old.map(x=>({a:x.a,b:x.b%1440,p:x.p}))))return;
+      let bad=null;if(n.workplace&&nw.length){const rs=(n.work_hours&&n.work_hours.length)?n.work_hours:((WORLD.places[n.workplace]||{}).open||[]);
+        for(const x of nw)for(let h=0;h<24&&!bad;h++)if(inR([[x.a,x.b]],h*60)&&inR(rs,h*60))bad=`${n.name}의 출몰 일정이 근무 시간과 겹쳐요 (${h}시). 근무 시간은 고정이라 일정에서 빼 주세요`}
+      if(bad){errs.push({row:(by[code]||[{row:null}])[0].row,col:null,msg:bad});return}
+      const ov=[];for(let i=0;i<nw.length;i++)for(let j=i+1;j<nw.length;j++){const X=nw[i],Y=nw[j];let hit=false;for(let m=0;m<1440&&!hit;m+=15)if(inR([[X.a,X.b]],m)&&inR([[Y.a,Y.b]],m))hit=true;if(hit)ov.push(`${tbT(X.a)}~${tbT(X.b)} ${tbPlName(X.p)} ↔ ${tbT(Y.a)}~${tbT(Y.b)} ${tbPlName(Y.p)}`)}
+      items.push({kind:'edit',tbl:'fsfs_npc',id:n.id,patch:{sched:nw,schedule:{}},row:null,label:n.name+' · 출몰 일정 '+nw.length+'칸',lines:[nw.map(x=>tbT(x.a)+'~'+tbT(x.b)+' '+tbPlName(x.p)).join(' / ')||'(없음)',...ov.slice(0,3).map(x=>'⚠ 시간이 겹쳐요: '+x)]})});
+    return{items,errs}}},
+
+place:{label:'📍 장소',tbl:'fsfs_place',
+  note:'한 줄이 장소 한 곳이에요. 상위 장소를 적으면 그 장소 안쪽(하위 장소)이 돼요. 지도 위치·그림은 마을 탭에서 정해요 (표에서 새로 만든 최상위 장소는 지도 한가운데에 놓여요). 집주인은 인물 이름을 쉼표로 적어요 (남의 집 유형일 때). 영업시간을 비우면 종일 열려 있어요.',
+  list:()=>DB.places,
+  blank:i=>({code:'p'+tbId(),name:'',icon:'📍',descr:'',x:50,y:50,map_id:(mainMap()||{}).id||null,open_slots:null,open_ranges:[],parent_code:null,type_code:null,sort:DB.places.length+i,...(tbHasPl('town')?{town:DEFTOWN}:{})}),
+  cols:()=>[
+    {k:'name',h:'이름',w:150,get:r=>r.name||'',set:(w,s)=>{if(!s)throw new Error('이름이 비었어요');w.name=s}},
+    {k:'code',h:'코드',w:100,ph:'(자동)',get:r=>r.code||'',set:(w,s)=>{if(s)w.code=s},ro:r=>!!r.id},
+    {k:'icon',h:'이모지',w:64,get:r=>r.icon||'',set:(w,s)=>{w.icon=s||''}},
+    ...(tbHasPl('town')?[{k:'town',h:'동네',w:90,list:()=>TOWNS.map(t=>t.name),get:r=>(TOWNS.find(t=>t.id===r.town)||{}).name||'',set:(w,s)=>{if(!s){w.town=null;return}const t=TOWNS.find(t=>t.name===s||t.id===s);if(!t)throw new Error('동네는 '+TOWNS.map(t=>t.name).join(' · ')+' 중에서 골라 주세요');w.town=t.id}}]:[]),
+    {k:'type_code',h:'유형',w:120,list:()=>tbTypes().map(x=>x.v),get:r=>r.type_code?((WORLD.types[r.type_code]||{}).name||r.type_code):'',set:(w,s)=>{w.type_code=s?tbFind(tbTypes(),s,'유형'):null}},
+    {k:'parent_code',h:'상위 장소',w:150,list:()=>tbPlacesOnly().map(x=>x.v),get:r=>tbPlName(r.parent_code),set:(w,s,c)=>{const v=s?tbFind(tbPlacesOnly(),s,'장소'):null;if(v&&v===w.code)throw new Error('자기 자신 안에는 둘 수 없어요');w.parent_code=v;if(v&&c.isNew){const q=DB.places.find(x=>x.code===v);if(q){w.x=q.x;w.y=q.y}}}},
+    {k:'descr',h:'설명',w:240,get:r=>r.descr||'',set:(w,s)=>{w.descr=s}},
+    ...(tbHasPl('outdoor')?[{k:'outdoor',h:'야외',w:50,get:r=>tbYN(r.outdoor),set:(w,s)=>{w.outdoor=tbIsY(s)}}]:[]),
+    {k:'move_min',h:'이동(분)',w:66,get:r=>r.move_min==null?'':String(r.move_min),set:(w,s)=>{w.move_min=s===''?null:tbNum(s,'이동 시간',0,600)}},
+    {k:'open_ranges',h:'영업시간',w:170,ph:'08:00~22:00',get:r=>tbRG(r.open_ranges),set:(w,s)=>{w.open_ranges=tbRanges(s);w.open_slots=null}},
+    ...(tbHasPl('owners')?[{k:'owners',h:'집주인',w:150,get:r=>(r.owners||[]).map(tbNpcName).join(', '),set:(w,s)=>{w.owners=tbSplitC(s).map(x=>tbFind(tbNpcs(),x,'인물'))}},
+      {k:'enter_aff',h:'초대 호감도',w:76,get:r=>r.enter_aff==null?'':String(r.enter_aff),set:(w,s)=>{w.enter_aff=s===''?20:tbNum(s,'초대 호감도',0,1000)}}]:[])]},
+
+act:{label:'🎬 행동',tbl:'fsfs_action',
+  note:'한 줄이 행동 한 개예요. 상대 인물을 적으면 그 인물이 있을 때만 나타나고(* 는 「장소에 있는 아무 인물」), 필요 호감도·호감도 변화가 그 인물에게 적용돼요. 어느 장소 유형에 붙일지·묶음 하위 행동·옷장 설정은 마을 탭 > 행동에서 해요. 대사는 // 로 구분해요.',
+  list:()=>DB.actions,
+  blank:i=>({code:'a'+tbId(),name:'',icon:'✨',descr:'',kind:'normal',time_min:30,time_cost:1,end_min:null,min_mins:0,energy:0,money:0,cond:{ranges:[],slots:[],daily:false,solo:false,aff:[]},effects:{},scene:[],sort:DB.actions.length+i}),
+  cols:()=>[
+    {k:'name',h:'이름',w:140,get:r=>r.name||'',set:(w,s)=>{if(!s)throw new Error('이름이 비었어요');w.name=s}},
+    {k:'code',h:'코드',w:100,ph:'(자동)',get:r=>r.code||'',set:(w,s)=>{if(s)w.code=s},ro:r=>!!r.id},
+    {k:'icon',h:'이모지',w:64,get:r=>r.icon||'',set:(w,s)=>{w.icon=s}},
+    {k:'kind',h:'종류',w:110,list:()=>Object.values(tbKinds()),get:r=>tbKinds()[r.kind]||r.kind||'',set:(w,s)=>{const e=Object.entries(tbKinds()).find(([k,v])=>v===s||k===s);if(!e)throw new Error('종류는 '+Object.values(tbKinds()).join(' · ')+' 중에서 골라 주세요');w.kind=e[0]}},
+    {k:'descr',h:'설명',w:240,get:r=>r.descr||'',set:(w,s)=>{w.descr=s}},
+    {k:'time_min',h:'걸리는 시간(분)',w:84,get:r=>r.time_min==null?'':String(r.time_min),set:(w,s)=>{const v=s===''?0:tbNum(s,'걸리는 시간',0,1440);w.time_min=v;w.time_cost=Math.ceil(v/SLOTLEN)}},
+    {k:'energy',h:'에너지',w:64,get:r=>String(r.energy||0),set:(w,s)=>{w.energy=s===''?0:Math.round(tbNum(s,'에너지'))}},
+    {k:'money',h:'돈',w:80,get:r=>String(r.money||0),set:(w,s)=>{w.money=s===''?0:Math.round(tbNum(s,'돈'))}},
+    {k:'ranges',h:'가능 시간대',w:150,ph:'09:00~14:00',get:r=>tbRG((r.cond||{}).ranges),set:(w,s)=>{tbO(w,'cond').ranges=tbRanges(s);w.cond.slots=[]}},
+    {k:'daily',h:'하루 한 번',w:64,get:r=>tbYN((r.cond||{}).daily),set:(w,s)=>{tbO(w,'cond').daily=tbIsY(s)}},
+    {k:'who',h:'상대 인물',w:110,list:()=>['*',...tbNpcs().map(x=>x.v)],get:r=>{const a=((r.cond||{}).aff||[])[0]||((r.effects||{}).aff||[])[0];return a?tbNpcName(a.npc):''},set:()=>{}},
+    {k:'min',h:'필요 호감도',w:76,get:r=>{const a=((r.cond||{}).aff||[])[0];return a&&a.min?String(a.min):''},set:()=>{}},
+    {k:'gain',h:'호감도 변화',w:76,get:r=>{const a=((r.effects||{}).aff||[])[0];return a&&a.v?String(a.v):''},set:()=>{}},
+    {k:'scene',h:'대사 ( // 로 구분)',w:360,long:1,get:r=>tbHasChoice(r.scene)||(r.scene||[]).some(x=>x.who)?'🔒 복잡한 장면 — 마을 탭에서 수정':tbJoin((r.scene||[]).map(x=>x.t)),set:(w,s)=>{w.scene=tbSceneSet(s,false)},ro:r=>tbHasChoice(r.scene)||(r.scene||[]).some(x=>x.who)}],
+  fin(w,v,chg){
+    if(!(chg.has('who')||chg.has('min')||chg.has('gain')))return;
+    const c=tbO(w,'cond'),e=tbO(w,'effects');
+    const who=v.who==='*'||v.who==='모두'?'*':(v.who?tbFind(tbNpcs(),v.who,'인물'):'');
+    const mn=v.min===''?0:tbNum(v.min,'필요 호감도',0),gn=v.gain===''?0:Math.round(tbNum(v.gain,'호감도 변화'));
+    if((mn||gn)&&!who)throw new Error('호감도를 쓰려면 상대 인물을 적어 주세요');
+    c.aff=who?[{npc:who,min:mn}]:[];if(!who)c.solo=false;e.aff=who&&gn?[{npc:who,v:gn}]:[]},
+  beforeDel:async it=>{const q=encodeURIComponent(it.code);await sb('/rest/v1/fsfs_place_type_action?action_code=eq.'+q,{m:'DELETE'});await sb('/rest/v1/fsfs_place_action?action_code=eq.'+q,{m:'DELETE'})}},
+
+goods:{label:'🧺 아이템',tbl:'fsfs_goods',
+  note:'한 줄이 음식·잡화·책·비디오 아이템 한 개예요. 어디서 얼마에 파는지는 「판매」 시트에서 적어요. 음식만 먹으면 사라지고(O) 에너지가 차요. 메모는 사용했을 때 먼저 뜨는 한 줄이에요.',
+  list:()=>DB.goods||[],
+  blank:i=>({name:'',kind:'misc',icon:'📦',descr:null,consume:false,effects:{},sort:(DB.goods||[]).length+i}),
+  cols:()=>[
+    {k:'name',h:'이름',w:150,get:r=>r.name||'',set:(w,s)=>{if(!s)throw new Error('이름이 비었어요');w.name=s}},
+    {k:'icon',h:'이모지',w:64,get:r=>r.icon||'',set:(w,s)=>{w.icon=s||'📦'}},
+    {k:'kind',h:'종류',w:76,list:()=>Object.values(tbGK),get:r=>tbGK[r.kind]||r.kind||'',set:(w,s)=>{const e=Object.entries(tbGK).find(([k,v])=>v===s||k===s);if(!e)throw new Error('종류는 '+Object.values(tbGK).join(' · ')+' 중에서 골라 주세요');w.kind=e[0]}},
+    {k:'descr',h:'설명',w:260,get:r=>r.descr||'',set:(w,s)=>{w.descr=s||null}},
+    {k:'consume',h:'사라짐',w:56,get:r=>tbYN(r.consume),set:(w,s)=>{w.consume=tbIsY(s)}},
+    {k:'energy',h:'에너지 회복',w:76,get:r=>r.effects&&r.effects.energy!=null?String(r.effects.energy):'',set:(w,s)=>{const e=tbO(w,'effects');if(s==='')delete e.energy;else e.energy=Math.round(tbNum(s,'에너지'))}},
+    {k:'money',h:'돈 변화',w:70,get:r=>r.effects&&r.effects.money?String(r.effects.money):'',set:(w,s)=>{const e=tbO(w,'effects');if(!s||+s===0)delete e.money;else e.money=Math.round(tbNum(s,'돈 변화'))}},
+    {k:'memo',h:'사용 메모',w:240,get:r=>(r.effects&&r.effects.memo)||'',set:(w,s)=>{const e=tbO(w,'effects');if(!s)delete e.memo;else e.memo=s}}],
+  fin(w,v,chg,ctx){if(w.kind!=='food')w.consume=false;
+    else if(!ctx.src){if(v.energy===''&&w.effects.energy==null)w.effects.energy=10;if(v.consume==='')w.consume=true}}},
+
+src:{label:'🏷 판매',tbl:'fsfs_source',
+  note:'한 줄이 「이 아이템을 얻는 방법」 한 가지예요. 방식이 「상점 구매」이면 상점 칸에 장소 이름이나 「모든 편의점」을, 가격 칸에 가격을 적어요. 다른 방식의 칸(예: 호감도·재고)은 「기타」에 키=값 으로 적어요 (예: need=5, ship_days=3). 의상의 획득 경로는 의상 탭에서 해요.',
+  list:()=>(DB.goods||[]).flatMap(g=>(g.fsfs_source||[]).filter(s=>s.goods_id)),
+  blank:i=>({type:'shop',params:{},note:null,conditions:{},sort:0}),
+  cols:()=>[
+    {k:'item',h:'아이템',w:170,list:()=>(DB.goods||[]).map(g=>g.name),get:r=>((DB.goods||[]).find(g=>g.id===r.goods_id)||{}).name||'',set:(w,s)=>{if(!s)throw new Error('아이템이 비었어요');w.goods_id=tbFind((DB.goods||[]).map(g=>({k:g.id,v:g.name})),s,'아이템')}},
+    {k:'type',h:'방식',w:110,list:()=>(DB.types||[]).map(t=>t.label),get:r=>((DB.types||[]).find(t=>t.code===r.type)||{}).label||r.type||'',set:(w,s)=>{const t=(DB.types||[]).find(t=>t.label===s||t.code===s);if(!t)throw new Error('방식은 '+(DB.types||[]).map(t=>t.label).join(' · ')+' 중에서 골라 주세요');if(w.type!==t.code){w.type=t.code;w.params={}}}},
+    {k:'shop',h:'상점 · 가게',w:180,list:()=>['모든 편의점',...Object.values(WORLD.types).map(t=>'모든 '+t.name),...Object.values(WORLD.places).map(p=>p.n)],get:r=>{const t=(DB.types||[]).find(t=>t.code===r.type),f=((t&&t.param_schema)||[]).find(f=>f.label==='상점 이름'||f.label==='가게 이름');return f?String((r.params||{})[f.key]??''):''},set:()=>{}},
+    {k:'price',h:'가격',w:80,get:r=>r.params&&r.params.price!=null?String(r.params.price):'',set:()=>{}},
+    {k:'other',h:'기타 (키=값, …)',w:200,get:r=>{const t=(DB.types||[]).find(t=>t.code===r.type),sk=((t&&t.param_schema)||[]).filter(f=>f.label==='상점 이름'||f.label==='가게 이름'||f.key==='price').map(f=>f.key);return Object.entries(r.params||{}).filter(([k])=>!sk.includes(k)).map(([k,v])=>k+'='+v).join(', ')},set:()=>{}},
+    {k:'note',h:'메모',w:160,get:r=>r.note||'',set:(w,s)=>{w.note=s||null}}],
+  fin(w,v,chg){
+    if(!(chg.has('type')||chg.has('shop')||chg.has('price')||chg.has('other')))return;
+    const t=(DB.types||[]).find(t=>t.code===w.type)||{},sc=t.param_schema||[],P=Object.assign({},w.params||{}),shopF=sc.find(f=>f.label==='상점 이름'||f.label==='가게 이름');
+    if(chg.has('shop')||chg.has('type')){if(shopF){if(v.shop)P[shopF.key]=v.shop;else delete P[shopF.key]}else if(v.shop)throw new Error('이 방식에는 상점 칸이 없어요')}
+    if(shopF&&shopF.label==='상점 이름'&&P[shopF.key]&&!placesFor(P[shopF.key]).length)throw new Error('상점을 찾을 수 없어요: '+P[shopF.key]+' (장소 이름이나 「모든 편의점」처럼 적어 주세요)');
+    if(chg.has('price')||chg.has('type')){const pf=sc.find(f=>f.key==='price');if(v.price===''){delete P.price}else{if(!pf)throw new Error('이 방식에는 가격 칸이 없어요');P.price=Math.round(tbNum(v.price,'가격',0))}}
+    if(chg.has('other')){const sk=sc.filter(f=>f===shopF||f.key==='price').map(f=>f.key);Object.keys(P).forEach(k=>{if(!sk.includes(k))delete P[k]});
+      for(const p of tbSplitC(v.other)){const m=/^([A-Za-z_]\w*)\s*=\s*(.*)$/.exec(p);if(!m)throw new Error('기타는 키=값 으로 적어 주세요 ('+p+')');if(!sc.some(f=>f.key===m[1]))throw new Error('이 방식에 없는 칸이에요: '+m[1]+' (쓸 수 있는 칸: '+sc.map(f=>f.key).join(', ')+')');const f=sc.find(f=>f.key===m[1]);P[m[1]]=f.type==='number'?tbNum(m[2],m[1]):m[2]}}
+    w.params=P}},
+
+event:{label:'📖 이벤트',tbl:'fsfs_event',
+  note:'한 줄이 이벤트 한 개예요. 대사는 「나: …  // 나나: … // 해설 문장」처럼 // 로 구분하고, 말하는 사람 이름을 앞에 붙여요 (이름이 없으면 해설). 호감도 조건은 「나나:30, 보리스:60」, 호감도 변화는 「나나:+2」, 날짜는 03-08 처럼 월-일이에요. 선택지가 들어 있는 장면은 🔒로 표시되고 이벤트 탭에서만 수정해요.',
+  list:()=>DB.events,
+  blank:i=>({code:'ev'+tbId(),title:'',enabled:true,repeat_mode:'once',chance:100,priority:0,note:null,cond:{place:null,npc:null,ranges:[],slots:[],from:null,to:null,bday:null,aff:[]},scene:[],effects:{give:[],money:0,aff:[]}}),
+  cols:()=>[
+    {k:'title',h:'이름',w:170,get:r=>r.title||'',set:(w,s)=>{w.title=s||'이름 없는 이벤트'}},
+    {k:'code',h:'코드',w:100,ph:'(자동)',get:r=>r.code||'',set:(w,s)=>{if(s)w.code=s},ro:r=>!!r.id},
+    {k:'enabled',h:'사용',w:48,get:r=>tbYN(r.enabled!==false),set:(w,s)=>{w.enabled=tbIsY(s)}},
+    {k:'repeat',h:'반복',w:70,list:()=>['한 번','매일'],get:r=>r.repeat_mode==='daily'?'매일':'한 번',set:(w,s)=>{if(s&&!/^(한 ?번|매일|once|daily)$/.test(s))throw new Error('반복은 한 번 / 매일');w.repeat_mode=/^(매일|daily)$/.test(s)?'daily':'once'}},
+    {k:'chance',h:'확률(%)',w:64,get:r=>String(r.chance??100),set:(w,s)=>{w.chance=s===''?100:Math.round(tbNum(s,'확률',1,100))}},
+    {k:'priority',h:'우선순위',w:64,get:r=>String(r.priority||0),set:(w,s)=>{w.priority=s===''?0:Math.round(tbNum(s,'우선순위'))}},
+    {k:'place',h:'장소',w:150,list:()=>tbPlacesOnly().map(x=>x.v),get:r=>tbPlName((r.cond||{}).place),set:(w,s)=>{tbO(w,'cond').place=s?tbFind(tbPlacesOnly(),s,'장소'):null}},
+    {k:'npc',h:'인물',w:110,list:()=>tbNpcs().map(x=>x.v),get:r=>(r.cond||{}).npc?tbNpcName(r.cond.npc):'',set:(w,s)=>{tbO(w,'cond').npc=s?tbFind(tbNpcs(),s,'인물'):null}},
+    {k:'ranges',h:'시간대',w:140,ph:'18:00~23:00',get:r=>tbRG((r.cond||{}).ranges),set:(w,s)=>{const c=tbO(w,'cond');c.ranges=tbRanges(s);c.slots=[]}},
+    {k:'from',h:'날짜 시작',w:70,ph:'03-08',get:r=>(r.cond||{}).from||'',set:(w,s)=>{if(s&&!/^\d\d-\d\d$/.test(s))throw new Error('날짜는 03-08 처럼 월-일 두 자리로 적어 주세요');tbO(w,'cond').from=s||null}},
+    {k:'to',h:'날짜 끝',w:70,ph:'03-10',get:r=>(r.cond||{}).to||'',set:(w,s)=>{if(s&&!/^\d\d-\d\d$/.test(s))throw new Error('날짜는 03-08 처럼 월-일 두 자리로 적어 주세요');tbO(w,'cond').to=s||null}},
+    {k:'bday',h:'생일',w:90,list:()=>['나',...tbNpcs().map(x=>x.v)],get:r=>{const b=(r.cond||{}).bday;return b==='player'?'나':b?tbNpcName(b):''},set:(w,s)=>{tbO(w,'cond').bday=!s?null:(s==='나'||s==='플레이어')?'player':tbFind(tbNpcs(),s,'인물')}},
+    {k:'aff',h:'필요 호감도 (이름:숫자, …)',w:170,get:r=>((r.cond||{}).aff||[]).map(a=>tbNpcName(a.npc)+':'+a.min).join(', '),set:(w,s)=>{tbO(w,'cond').aff=tbPairs(s,'호감도 조건').map(p=>({npc:p.npc,min:p.v}))}},
+    {k:'money',h:'돈 보상',w:70,get:r=>(r.effects&&r.effects.money)?String(r.effects.money):'',set:(w,s)=>{tbO(w,'effects').money=s===''?0:Math.round(tbNum(s,'돈'))}},
+    {k:'give',h:'받는 아이템 (이름, …)',w:170,get:r=>((r.effects||{}).give||[]).map(k=>(tbItemList().find(x=>x.k===k)||{}).v||k).join(', '),set:(w,s)=>{tbO(w,'effects').give=tbSplitC(s).map(x=>tbFind(tbItemList(),x,'아이템'))}},
+    {k:'gain',h:'호감도 변화 (이름:+숫자)',w:150,get:r=>((r.effects||{}).aff||[]).map(a=>tbNpcName(a.npc)+':'+(a.v>0?'+':'')+a.v).join(', '),set:(w,s)=>{tbO(w,'effects').aff=tbPairs(s,'호감도 변화').filter(p=>p.v).map(p=>({npc:p.npc,v:p.v}))}},
+    {k:'scene',h:'대사 ( // 로 구분 · 이름: 대사)',w:460,long:1,get:r=>tbHasChoice(r.scene)?'🔒 선택지 있음 — 이벤트 탭에서 수정':tbSceneGet(r.scene),set:(w,s)=>{w.scene=tbSceneSet(s,true)},ro:r=>tbHasChoice(r.scene)}],
+  fin(w){if(!w.title)w.title='이름 없는 이벤트';const c=tbO(w,'cond'),e=tbO(w,'effects');c.ranges=c.ranges||[];c.slots=[];c.aff=c.aff||[];e.give=e.give||[];e.aff=e.aff||[];e.money=e.money||0}}
+};
+const tbGK={food:'음식',book:'책',video:'비디오',misc:'잡화'};
+const TBORDER=['npc','sch','place','act','goods','src','event'];
+
+/* ---- 불러오기 · 그리기 ---- */
+function tbLoad(sh){
+  TB.sh=sh||TB.sh;const S=TBS[TB.sh];TB.cols=S.cols();TB.src={};TB.nid=0;
+  if(S.custom)TB.rows=S.load().map((r,i)=>({...r,orig:r.cells.slice(),del:false,i}));
+  else TB.rows=S.list().map((r,i)=>{TB.src[r.id]=r;const cells=TB.cols.map(c=>String(c.get(r)??''));return{id:r.id,cells,orig:cells.slice(),del:false,i}});
+  tbAddBlank(10)}
+function tbAddBlank(n){const S=TBS[TB.sh];for(let k=0;k<n;k++){const cells=TB.cols.map(()=>'');TB.rows.push({id:null,cells,orig:cells.slice(),del:false,i:TB.nid++})}}
+const tbIsBlank=r=>!r.id&&!r.key&&r.cells.every(v=>!String(v||'').trim());
+const tbRowChg=r=>r.del||r.cells.some((v,j)=>String(v||'').trim()!==String(r.orig[j]||'').trim());
+const tbCounts=()=>{let ed=0,ad=0,dl=0;TB.rows.forEach(r=>{if(r.del){if(r.id||r.key)dl++;return}if(tbIsBlank(r))return;if(!r.id&&!r.key){ad++;return}if(tbRowChg(r))ed++});return{ed,ad,dl}};
+const tbDirty=()=>{const c=tbCounts();return c.ed+c.ad+c.dl>0};
+function tbStat(){const el=$('#tb_stat');if(!el)return;const c=tbCounts();el.textContent=c.ed+c.ad+c.dl?`수정 ${c.ed} · 추가 ${c.ad} · 삭제 ${c.dl}`:'바뀐 곳이 없어요'}
+function renderTbl(keep){
+  const root=$('#tbw');if(!root)return;
+  if(!TB.cols.length||!TBS[TB.sh]||TB.cols.length!==TBS[TB.sh].cols().length)tbLoad();
+  const S=TBS[TB.sh],box=root.querySelector('.tbs'),sy=box?box.scrollTop:0,sx=box?box.scrollLeft:0;
+  const dl=TB.cols.map((c,j)=>c.list?`<datalist id="tbdl${j}">${c.list().map(v=>`<option value="${esc(v)}">`).join('')}</datalist>`:'').join('');
+  const head=`<tr><th class="tbn">#</th>${TB.cols.map((c,j)=>`<th class="${j===0?'tbf':''}" style="min-width:${c.w}px">${esc(c.h)}</th>`).join('')}<th class="tbx"></th></tr>`;
+  const body=TB.rows.map((r,i)=>tbRowHtml(r,i)).join('');
+  root.innerHTML=`<div class="row tbbar"><div class="tabs" id="tb_sh">${TBORDER.map(k=>`<button data-tsh="${k}" class="${k===TB.sh?'on':''}">${TBS[k].label}</button>`).join('')}</div></div>
+  <div class="row tbbar"><input id="tb_q" placeholder="검색 (이름·대사 등)" value="${esc(TB.q)}" style="width:200px"><button data-ta="reload" title="DB에서 다시 불러와요">↻ 다시 불러오기</button><button data-ta="more">+ 10줄</button><button data-ta="copy">표 복사</button><span class="grow"></span><span class="tag" id="tb_stat"></span><button class="pri" data-ta="save">저장…</button></div>
+  <details class="tbnote"><summary>작성 요령</summary><div class="tag" style="line-height:1.6;padding:4px 2px">${esc(S.note||'')}<br>엑셀·구글시트에서 복사해 칸에 붙여넣을 수 있어요 (제목 줄이 같이 와도 돼요). ✎ 줄은 기존 데이터라 그 자리에서 수정되고, ＋ 줄은 새로 추가돼요. 칸을 비우면 그 값이 지워져요. 삭제는 줄 끝의 🗑을 눌러 표시한 뒤 저장할 때 확인해요. Enter = 아래 칸으로.</div></details>
+  <div class="tbs"><table class="tbt"><thead>${head}</thead><tbody>${body}</tbody></table></div>${dl}<div id="tb_msg" class="tag"></div>`;
+  const nb=root.querySelector('.tbs');if(keep){nb.scrollTop=sy;nb.scrollLeft=sx}
+  tbFilter();tbStat()}
+function tbRowHtml(r,i){
+  const S=TBS[TB.sh],src=r.id?TB.src[r.id]:null,isNew=!r.id&&!r.key,noDel=!!(src&&S.noDel&&S.noDel(src));
+  const tds=TB.cols.map((c,j)=>{const v=r.cells[j]??'',ro=!!(src&&c.ro&&c.ro(src)),chg=String(v).trim()!==String(r.orig[j]||'').trim(),cl=(chg?' chg':'')+(ro?' ro':'')+(j===0?' tbf':'');
+    const at=`data-r="${i}" data-c="${j}"${ro?' readonly tabindex="-1"':''} placeholder="${esc(c.ph||'')}"${c.list?` list="tbdl${j}"`:''}`;
+    return `<td class="${cl.trim()}">${c.long?`<div class="tcl"><textarea class="tbc" ${at} rows="1">${esc(v)}</textarea></div>`:`<input class="tbc" ${at} style="width:100%" value="${esc(v)}">`}</td>`}).join('');
+  return `<tr data-ri="${i}" class="${(isNew?'tbnew ':'')+(r.del?'tbdel ':'')+(!isNew&&!r.del&&tbRowChg(r)?'tbedit':'')}"><td class="tbn">${isNew?'＋':'✎'}</td>${tds}<td class="tbx">${noDel?'':`<button type="button" class="tbd" data-ta="del" data-r="${i}" title="${r.del?'삭제 취소':'삭제 표시'}">${r.del?'↩':'🗑'}</button>`}</td></tr>`}
+function tbFilter(){const q=TB.q.trim().toLowerCase();document.querySelectorAll('#tbw .tbt tbody tr').forEach(tr=>{const r=TB.rows[+tr.dataset.ri];tr.hidden=!!q&&(!r||!r.cells.some(v=>String(v||'').toLowerCase().includes(q)))})}
+const tbTd=(r,c)=>document.querySelector(`#tbw .tbc[data-r="${r}"][data-c="${c}"]`);
+
+/* ---- 입력 · 붙여넣기 · 단축키 ---- */
+document.addEventListener('input',e=>{const t=e.target;if(t.id==='tb_q'){TB.q=t.value;tbFilter();return}
+  if(!t.classList||!t.classList.contains('tbc')||t.readOnly)return;const r=+t.dataset.r,c=+t.dataset.c,row=TB.rows[r];if(!row)return;row.cells[c]=t.value;
+  const td=t.closest('td'),chg=String(t.value).trim()!==String(row.orig[c]||'').trim();td.classList.toggle('chg',chg);td.classList.remove('bad');td.title='';
+  const tr=t.closest('tr'),isNew=!row.id&&!row.key;tr.classList.toggle('tbedit',!isNew&&!row.del&&tbRowChg(row));tbStat()});
+document.addEventListener('keydown',e=>{const t=e.target;if(!t.classList||!t.classList.contains('tbc'))return;
+  if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();let r=+t.dataset.r+1;while(r<TB.rows.length){const n=tbTd(r,t.dataset.c);if(n&&!n.closest('tr').hidden){n.focus();break}r++}}});
+function tbParseTsv(tx){const rows=[];let row=[],cur='',q=false;tx=tx.replace(/\r\n?/g,'\n');
+  for(let i=0;i<tx.length;i++){const ch=tx[i];
+    if(q){if(ch==='"'){if(tx[i+1]==='"'){cur+='"';i++}else q=false}else cur+=ch}
+    else if(ch==='"'&&cur==='')q=true;else if(ch==='\t'){row.push(cur);cur=''}else if(ch==='\n'){row.push(cur);rows.push(row);row=[];cur=''}else cur+=ch}
+  if(cur!==''||row.length){row.push(cur);rows.push(row)}
+  while(rows.length&&rows[rows.length-1].every(x=>x===''))rows.pop();return rows}
+document.addEventListener('paste',e=>{const t=e.target;if(!t.classList||!t.classList.contains('tbc'))return;
+  const tx=e.clipboardData.getData('text');if(!/[\t\n]/.test(tx.replace(/\n$/,'')))return;e.preventDefault();
+  let rows=tbParseTsv(tx);const hs=TB.cols.map(c=>c.h);if(rows.length&&rows[0].filter(x=>hs.includes(x.trim())).length>=Math.min(2,rows[0].length))rows=rows.slice(1);
+  const r0=+t.dataset.r,c0=+t.dataset.c;
+  // 이미 본 줄에서 시작하면 그 줄부터, 한 칸만 눌렀어도 여러 칸이 퍼져 들어가요
+  rows.forEach((cells,i)=>{while(TB.rows.length<=r0+i)tbAddBlank(1);const row=TB.rows[r0+i],src=row.id?TB.src[row.id]:null;
+    cells.forEach((v,j)=>{const c=c0+j;if(c>=TB.cols.length)return;const col=TB.cols[c];if(src&&col.ro&&col.ro(src))return;row.cells[c]=String(v).replace(/\n/g,TSEP).trim()})});
+  renderTbl(true)});
+document.addEventListener('click',async e=>{
+  const sh=e.target.closest('[data-tsh]');
+  if(sh){if(tbDirty()&&!confirm('저장하지 않은 변경이 있어요. 그래도 시트를 바꿀까요?'))return;TB.q='';tbLoad(sh.dataset.tsh);renderTbl();return}
+  const b=e.target.closest('[data-ta]');if(!b||!b.closest('#tbw'))return;const a=b.dataset.ta;
+  if(a==='more'){tbAddBlank(10);renderTbl(true)}
+  else if(a==='reload'){if(tbDirty()&&!confirm('저장하지 않은 변경이 사라져요. 다시 불러올까요?'))return;tbLoad();renderTbl(true)}
+  else if(a==='del'){const r=TB.rows[+b.dataset.r];if(!r)return;r.del=!r.del;if(!r.id&&!r.key)r.del=false;renderTbl(true)}
+  else if(a==='copy')tbCopy();
+  else if(a==='save')tbSave()});
+async function tbCopy(){
+  const q=v=>/[\t\n"]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;
+  const lines=[TB.cols.map(c=>q(c.h)).join('\t'),...TB.rows.filter(r=>!tbIsBlank(r)&&!r.del).map(r=>TB.cols.map((c,j)=>q(String(r.cells[j]??''))).join('\t'))];
+  const tx=lines.join('\n');
+  try{await navigator.clipboard.writeText(tx)}catch(e){const ta=document.createElement('textarea');ta.value=tx;document.body.append(ta);ta.select();try{document.execCommand('copy')}catch(x){}ta.remove()}
+  msg(`표를 복사했어요 (${lines.length-1}줄) — 구글시트에 붙여넣어 보세요`)}
+
+/* ---- 저장: 줄마다 만들어 보고(미리보기) → 확인 → 저장 ---- */
+function tbBuild(S,row){
+  const src=row.id?TB.src[row.id]:null,w=src?structuredClone(src):S.blank(row.i),chg=new Set(),errs={};
+  TB.cols.forEach((c,j)=>{const v=String(row.cells[j]??'').trim(),o=String(row.orig[j]??'').trim();
+    if(!src&&!v)return;if(src&&v===o)return;if(src&&c.ro&&c.ro(src))return;chg.add(c.k);
+    try{c.set(w,v,{src,isNew:!src,row})}catch(er){errs[j]=er.message||String(er)}});
+  if(S.fin&&chg.size&&!Object.keys(errs).length){try{S.fin(w,Object.fromEntries(TB.cols.map((c,j)=>[c.k,String(row.cells[j]??'').trim()])),chg,{src})}catch(er){errs.fin=er.message||String(er)}}
+  return{w,src,chg,errs}}
+function tbPlan(){
+  const S=TBS[TB.sh];if(S.custom)return S.plan(TB.rows);
+  const items=[],errs=[];
+  TB.rows.forEach(row=>{
+    if(row.del&&row.id){const src=TB.src[row.id];items.push({kind:'del',tbl:S.tbl,id:row.id,code:src.code,row,label:'삭제 · '+TB.cols[0].get(src),lines:[]});return}
+    if(row.del||tbIsBlank(row))return;
+    const {w,src,chg,errs:er}=tbBuild(S,row);
+    if(Object.keys(er).length){Object.entries(er).forEach(([j,m])=>errs.push({row,col:j==='fin'?null:+j,msg:m}));return}
+    if(!src){if(!w.id)w.id=crypto.randomUUID();items.push({kind:'add',tbl:S.tbl,w,row,label:'추가 · '+(row.cells[0]||'(이름 없음)'),lines:[]});return}
+    const patch={};Object.keys(w).forEach(k=>{if(JSON.stringify(w[k])!==JSON.stringify(src[k]))patch[k]=w[k]});
+    if(!Object.keys(patch).length)return;
+    const lines=[];TB.cols.forEach((c,j)=>{const v=String(row.cells[j]??'').trim(),o=String(row.orig[j]??'').trim();if(v!==o)lines.push(`${c.h}: ${o||'(비어 있음)'} → ${v||'(비움)'}`.slice(0,120))});
+    items.push({kind:'edit',tbl:S.tbl,id:row.id,patch,row,label:'수정 · '+(row.orig[0]||row.cells[0]),lines})});
+  return{items,errs}}
+async function tbSave(){
+  const plan=tbPlan();
+  document.querySelectorAll('#tbw td.bad').forEach(td=>{td.classList.remove('bad');td.title=''});
+  plan.errs.forEach(er=>{if(!er.row)return;const i=TB.rows.indexOf(er.row);const tr=document.querySelector(`#tbw tr[data-ri="${i}"]`);if(!tr)return;
+    const tds=tr.querySelectorAll('td');const td=er.col==null?tr.querySelector('td:nth-child(2)'):tds[er.col+1];if(td){td.classList.add('bad');td.title=(td.title?td.title+'\n':'')+er.msg}});
+  if(!plan.items.length&&!plan.errs.length)return msg('바뀐 곳이 없어요');
+  const L=(it)=>`<div class="tbpl ${it.kind}"><b>${esc(it.label)}</b>${(it.lines||[]).slice(0,6).map(x=>`<div class="tag">${esc(x)}</div>`).join('')}${(it.lines||[]).length>6?`<div class="tag">… 외 ${it.lines.length-6}칸</div>`:''}</div>`;
+  const nAdd=plan.items.filter(x=>x.kind==='add').length,nEd=plan.items.filter(x=>x.kind==='edit').length,nDel=plan.items.filter(x=>x.kind==='del').length;
+  let dlg=$('#tbdlg');if(!dlg){dlg=document.createElement('dialog');dlg.id='tbdlg';document.body.append(dlg)}
+  dlg.innerHTML=`<h3 style="margin:0 0 8px;font-size:16px">저장 전에 확인해 주세요</h3>
+  <div class="row" style="gap:12px;margin-bottom:8px"><b>추가 ${nAdd}</b><b>수정 ${nEd}</b><b style="${nDel?'color:#d04a6a':''}">삭제 ${nDel}</b>${plan.errs.length?`<b style="color:#d04a6a">오류 ${plan.errs.length}</b>`:''}</div>
+  <div class="tbpls">${plan.items.slice(0,80).map(L).join('')||'<div class="tag">저장할 줄이 없어요</div>'}${plan.items.length>80?`<div class="tag">… 외 ${plan.items.length-80}줄</div>`:''}</div>
+  ${plan.errs.length?`<div class="tbpls err"><b>고쳐야 하는 줄 (건너뛰고 나머지만 저장돼요)</b>${plan.errs.slice(0,30).map(er=>`<div class="tag">${er.row?(TB.rows.indexOf(er.row)+1)+'번 줄 · ':''}${esc(er.msg)}</div>`).join('')}</div>`:''}
+  ${nDel?'<div class="tag" style="color:#d04a6a;margin-top:6px">삭제는 되돌릴 수 없어요.</div>':''}
+  <div class="row" style="justify-content:flex-end;margin-top:10px"><button id="tb_no">돌아가기</button><button class="pri" id="tb_ok"${plan.items.length?'':' disabled'}>저장</button></div>`;
+  dlg.showModal();$('#tb_no').onclick=()=>dlg.close();
+  $('#tb_ok').onclick=async()=>{$('#tb_ok').disabled=true;await tbApply(plan);dlg.close()}}
+async function tbApply(plan){
+  const S=TBS[TB.sh],bad=[];let ok=0;
+  for(const it of plan.items){
+    try{
+      if(it.kind==='del'){if(S.beforeDel)await S.beforeDel(it);if(TB.sh==='place')await post('/rest/v1/fsfs_place?parent_code=eq.'+encodeURIComponent(it.code),{parent_code:null},'PATCH');await sb('/rest/v1/'+it.tbl+'?id=eq.'+it.id,{m:'DELETE'})}
+      else if(it.kind==='edit')await post('/rest/v1/'+it.tbl+'?id=eq.'+it.id,it.patch,'PATCH');
+      else await sb('/rest/v1/'+it.tbl,{m:'POST',h:{Prefer:'return=minimal'},b:it.w});
+      ok++}catch(e){bad.push({it,msg:e.message||String(e)})}}
+  const keep=TB.rows.filter(r=>!tbIsBlank(r)&&bad.some(b=>b.it.row===r)),errs=plan.errs.map(e=>e.row).filter(Boolean),keepAll=[...new Set([...keep,...errs])];
+  const cells=new Map(keepAll.map(r=>[r.id||('n'+r.i),r.cells.slice()]));
+  try{await loadCatalog()}catch(e){msg('저장은 됐는데 다시 불러오지 못했어요: '+e.message,1)}
+  tbLoad();
+  // 저장 못 한 줄은 쓰던 내용 그대로 남겨 둬요
+  keepAll.forEach(r=>{const c=cells.get(r.id||('n'+r.i));if(!c)return;if(r.id){const nr=TB.rows.find(x=>x.id===r.id);if(nr)nr.cells=c}else{const blank=TB.rows.find(x=>!x.id&&tbIsBlank(x));if(blank)blank.cells=c}});
+  renderTbl(true);
+  const m=$('#tb_msg');if(m)m.textContent=`저장했어요: ${ok}줄`+(bad.length?` · 저장 못 한 줄 ${bad.length} → `+bad.map(b=>(b.it.label||'')+' ('+b.msg+')').join(' / '):'')+(plan.errs.length?` · 오류로 건너뛴 줄 ${plan.errs.length}`:'');
+  msg(bad.length||plan.errs.length?`${ok}줄 저장 · 안 된 줄이 있어요`:`${ok}줄을 저장했어요`,bad.length||plan.errs.length?1:0)}
 
 // ================= 관리자: 이벤트 편집기 =================
 const EVENTS0=WORLD.events;WORLD.playerName=WORLD.playerName||'레오';
