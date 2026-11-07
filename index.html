@@ -675,7 +675,7 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
 #shview textarea::placeholder{color:#b7a698}
 #shview .pb{display:flex;align-items:center;gap:8px;margin-top:12px;padding-left:10px}#shview .pb .sp{flex:1}
 #shview .paper.dy{transform:rotate(.4deg)}
-#shview .dyg{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:113px;gap:12px 10px;height:238px;box-sizing:border-box;padding:2px 0 0 10px;align-content:start}
+#shview .dyg{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:132px;gap:12px 10px;height:276px;box-sizing:border-box;padding:2px 0 0 10px;align-content:start}
 #shview .dyc{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;border:1px dashed #d1bfa3;border-radius:6px;background:rgba(255,255,255,.6);cursor:pointer;color:#43352f;outline:0}
 #shview .dyc:hover,#shview .dyc:focus-visible{border-color:#b5446e;background:#fff}
 #shview .dyc b{font-size:15px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -684,11 +684,15 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
 #shview .dyic.em,#shview .dybig.em{display:flex;align-items:center;justify-content:center;font-size:36px;line-height:1;background:#f3ead8}
 #shview .dybig{width:104px;height:104px;border-radius:12px;object-fit:cover;display:block}
 #shview .dybig.em{font-size:62px}
-#shview .dyd{display:flex;gap:22px;height:238px;box-sizing:border-box;padding:6px 0 0 10px}
+#shview .dyd{display:flex;gap:22px;height:276px;box-sizing:border-box;padding:6px 0 0 10px}
 #shview .dyi{flex:none}
 #shview .dyx{flex:1;min-width:0;overflow:auto;font-size:16px;line-height:1.6}
 #shview .dyx h3{margin:0 0 2px;font-size:22px}
-#shview .dyx p{margin:0}#shview .dyx .dys{color:#8a7468;font-size:14px;margin-bottom:6px}
+#shview .dyx p{margin:0}#shview .dyx .dys{color:#8a7468;font-size:14px;margin-bottom:4px}
+#shview .dyx h3 em{font-style:normal;font-size:12px;font-weight:400;color:#b5446e;margin-left:6px;vertical-align:middle;border:1px dashed #d8a8b8;border-radius:10px;padding:1px 8px}
+#shview .dyx .dyo{font-size:15px;line-height:1.55;margin-bottom:2px}
+#shview .dym{margin-top:8px;padding-top:6px;border-top:1px dashed #d8c8b0;font-size:14px;line-height:1.7}
+#shview .dym div{display:flex;gap:10px}#shview .dym span{flex:none;width:112px;color:#8a7468}#shview .dym b{font-weight:400;color:#43352f}
 #shview .dyl{margin-top:10px;padding-top:8px;border-top:1px dashed #d8c8b0;font-size:14px;line-height:1.55;color:#6b5a50}
 #shview .dyempty{display:flex;align-items:center;justify-content:center;text-align:center;color:#a8978a;font-size:16px;line-height:1.7}
 </style>
@@ -736,6 +740,9 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
 <dialog id="savedlg"><h2>💾 세이브</h2><div class="tag" id="sv_i" style="margin:6px 0 10px"></div><div id="sv_l"></div><div class="bar" style="margin-top:12px;justify-content:flex-end"><button id="sv_x">닫기</button></div></dialog>
 <dialog id="welcome"><div class="wl1">play the retro music</div></dialog>
 <dialog id="film"></dialog>
+<dialog id="catname" style="text-align:center;min-width:320px"><h2 id="cn_h" style="margin:4px 0 8px;font-size:16px;color:var(--ink)"></h2><div id="cn_d" class="tag" style="margin:0 0 12px;line-height:1.5"></div>
+  <div class="row" style="justify-content:center"><label>이름<input id="cn_n" maxlength="8" placeholder="최대 8글자" style="width:170px;text-align:center"></label></div>
+  <div class="bar" style="justify-content:center;gap:8px;margin-top:12px"><button id="cn_ok" type="button" class="pri">정했어요</button><button id="cn_rs" type="button">이름 지우기</button><button id="cn_x" type="button">취소</button></div></dialog>
 <dialog id="mesetup" style="text-align:center;min-width:320px"><h2 style="margin:4px 0 12px;font-size:16px;color:var(--ink)">처음 오셨네요! 나를 소개해요</h2>
   <div class="row" style="justify-content:center"><label>이름<input id="me_n" maxlength="8" value="레오" style="width:150px;text-align:center"></label></div>
   <div class="row" style="justify-content:center"><label>생일 (월)<select id="me_m"></select></label><label>(일)<select id="me_d"></select></label></div>
@@ -1439,7 +1446,7 @@ function checkEvents(){
     runScene(e.scene,()=>{earn(e.money||0,'이벤트 · '+(e.title||''));(e.affEff||[]).forEach(a=>G.aff[a.npc]=(G.aff[a.npc]||0)+(+a.v||0));(e.give||[]).forEach(giveItem);eventRoutes(e);after()});return;
   }
 }
-function after(){ensureMe();checkGifts();deltaCheck();saveGame();renderWorld();refresh();checkEvents()}
+function after(){catApplyNames();ensureMe();checkGifts();deltaCheck();saveGame();renderWorld();refresh();checkEvents()}
 function greetAt(pid){
   if($('#scene').open||$('#film').open)return;
   const ids=Object.keys(WORLD.npcs).filter(k=>{const n=WORLD.npcs[k];return n.work===pid&&onShift(n)});
@@ -1606,7 +1613,19 @@ const CAT_T={
   ["{n은} 바로 옆에 앉아 같이 풍경을 보고 있다.","{n이} 식빵 자세로 앉아 눈을 느리게 깜빡인다.","{n은} 햇볕 아래에서 몸을 쭉 늘리고 있다. 옆자리가 비어 있다.","{n이} 꼬리를 곁에 슬쩍 걸쳐 놓았다.","{n은} 가만히 옆에 있어 준다. 시간이 천천히 흐른다."],
   ["{n은} 이름을 부르지 않았는데도 이쪽을 보고 눈을 깜빡였다.","{n이} 곁에서 꾸벅꾸벅 졸다가 어깨에 머리를 기댔다.","{n은} 멀리서도 이쪽을 알아보고 꼬리를 세우며 걸어왔다.","{n이} 무릎 위에서 동그랗게 몸을 말고 잠들었다. 움직일 수가 없다.","{n은} 오늘도 곁을 지켜 준다. 별말 없이, 그냥."]],
  up:{1:'{n과} 조금 가까워졌어요',2:'{n이} 곁에 앉아 골골거려요',3:'{n이} 이름을 부르면 대답해 줘요'}};
-function catMeet(id){G.catMet=G.catMet||{};if(!G.catMet[id])G.catMet[id]=G.day}
+function catMeet(id){G.catMet=G.catMet||{};if(!(id in G.catMet)){G.catMet[id]=G.day;G.catWhere=G.catWhere||{};G.catWhere[id]=G.place}}   // 처음 만난 날(게임 날짜)과 곳을 기록해요
+// 고양이는 스스로 이름이 없어요. 플레이어가 지어 준 이름(G.catNames)이 있으면 그 이름으로, 없으면 겉모습 이름(DB의 이름)으로 불러요
+function catApplyNames(){if(typeof G==='undefined'||!G||!WORLD||!WORLD.npcs)return;const nm=G.catNames||{};for(const id in WORLD.npcs){const n=WORLD.npcs[id];if(!n||n.role!=='cat')continue;if(n.n0==null)n.n0=n.n;n.n=nm[id]||n.n0}}
+const catNamed=id=>!!(G.catNames&&G.catNames[id]);
+function catNameAsk(id){const n=WORLD.npcs[id];if(!n)return;const dlg=$('#catname');
+  $('#cn_h').textContent=catNamed(id)?`${n.n0}의 이름을 바꿔요`:`${n.n0}에게 이름을 지어 주세요`;$('#cn_d').textContent=n.intro||'';
+  const inp=$('#cn_n');inp.value=(G.catNames||{})[id]||'';$('#cn_rs').hidden=!catNamed(id);
+  const fin=msgt=>{dlg.close();catApplyNames();saveGame();if(viewSh)renderShrine();renderActs();renderStatusIfOpen();if(msgt)msg(msgt)};
+  $('#cn_ok').onclick=()=>{const v=inp.value.trim().slice(0,8);if(!v)return msg('이름을 적어 주세요',1);G.catNames=G.catNames||{};const first=!catNamed(id);G.catNames[id]=v;G.catNamedDay=G.catNamedDay||{};if(first||G.catNamedDay[id]==null)G.catNamedDay[id]=G.day;catMeet(id);fin(`🏷 ${n.n0}의 이름이 「${v}」(으)로 정해졌어요`)};
+  $('#cn_rs').onclick=()=>{delete G.catNames[id];delete G.catNamedDay[id];fin(`🏷 이름을 지웠어요`)};
+  $('#cn_x').onclick=()=>dlg.close();inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('#cn_ok').click()}};
+  dlg.showModal();setTimeout(()=>{try{inp.focus();inp.select()}catch(e){}},50)}
+const renderStatusIfOpen=()=>{try{if(viewSt)renderStatus()}catch(e){}};
 function catAdd(id,v){const a=catAff(id),b=Math.min(CAT_CAP,a+v);G.aff[id]=b;const s=catStage(b);return catStage(a)<s?`🐾 ${catFmt(CAT_T.up[s],id)} (♥ ${b})`:''}
 function catRun(mins,log,sc,fin,cid){pass(mins);G.log=log;saveGame();
   runScene(sc,()=>{after();const m=(cid&&!$('#scene').open)?catMailTry(cid):null;   // 호감도 높은 고양이는 가끔 쪽지를 물어다 줘요
@@ -1614,6 +1633,7 @@ function catRun(mins,log,sc,fin,cid){pass(mins);G.log=log;saveGame();
 function catAct(id,kind){
   if(!catsHere().includes(id)){CATGRP=null;renderActs();return msg('그새 어디론가 가 버렸어요',1)}
   catMeet(id);const nm=catName(id),a=catAff(id),line=()=>({who:id,t:pickLine(id)||'…'});
+  if(kind==='name')return catNameAsk(id);
   if(kind==='feed')return catFeed(id);
   if(kind==='pet'){
     if(G.actDay['catpet:'+id]===G.day)return msg('오늘은 이미 쓰다듬어 줬어요',1);
@@ -1646,6 +1666,7 @@ function catActs(box,id){
   const f=(G.catFeed||{})[id],fed=f&&f.d===G.day?f.n:0,pet=G.actDay['catpet:'+id]===G.day;
   const A=[['feed','🥣','밥 주기',fed>=CAT_FEED_DAY?'배불러 보여요':'⏱ 10분',fed>=CAT_FEED_DAY],['pet','🤚','쓰다듬기',pet?'오늘은 했어요':'⏱ 5분',pet],['watch','👀','지켜보기','⏱ 10분',false]];
   if(a>=90)A.push(['call','📣','이름 부르기','⏱ 5분',false]);
+  if(!catNamed(id))A.unshift(['name','🏷','이름 지어 주기','아직 이름이 없어요',false]);
   A.forEach(([k,ic,nm,sm,off])=>{const b=document.createElement('button');b.className='act'+(off?' off':'');b.innerHTML=`<b>${ic} ${nm}</b><small>${sm}</small>`;b.onclick=()=>catAct(id,k);box.append(b)})}
 function catNotice(){const cs=catsHere();if(!cs.length)return;cs.forEach(catMeet);const n=cs.map(catName);msg('🐈 '+[...n.slice(0,-1),jp(n[n.length-1],'이','가')].join(', ')+' 있어요')}
 
@@ -1668,7 +1689,7 @@ function catMailTry(id){
 let dyId=null,dyPg=0,dyDirty=false;
 const DY_PER=8,CAT_ST=['경계하는 중','얼굴을 익혔어요','곁을 내줘요','단짝이에요'];
 function openDiary(m){shMode=m==='mail'?'dymail':'dydex';shIdx=0;dyPg=0;dyId=null;dyDirty=false;viewSh=true;renderWorld();renderShrine()}
-const dayText=d=>{const t=new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+(d||0));return `${t.getMonth()+1}월 ${t.getDate()}일`};
+const dayText=(d,y)=>{const t=new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+(d||0));return `${y?t.getFullYear()+'년 ':''}${t.getMonth()+1}월 ${t.getDate()}일${y?' '+DOW[t.getDay()]+'요일':''}`};
 function dyIcon(n,cls){const e=esc(n.i||'🐈');return n.img?`<img class="${cls}" src="${esc(n.img)}" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="${cls} em" hidden>${e}</span>`:`<span class="${cls} em">${e}</span>`}
 function renderDiary(box,tape){
   const back=()=>{if(dyDirty){dyDirty=false;saveGame()}shClose()};
@@ -1679,10 +1700,12 @@ function renderDiary(box,tape){
     box.innerHTML=`<div class="paper dy">${tape}<div class="ph"><span>${isNew?'✨ NEW · ':''}${esc(shDate(m))}</span><span>${shIdx+1} / ${ms.length}</span></div><div class="pt">${body}</div><div class="pb"><button id="dy_pv" type="button"${shIdx>=ms.length-1?' disabled':''}>◀ 이전 쪽지</button><button id="dy_nx" type="button"${shIdx<=0?' disabled':''}>다음 쪽지 ▶</button><span class="sp"></span><button id="dy_bk" type="button" class="pri">돌아가기</button></div></div>`;
     $('#dy_pv').onclick=()=>{shIdx++;renderShrine()};$('#dy_nx').onclick=()=>{shIdx--;renderShrine()};$('#dy_bk').onclick=back;return}
   const ids=Object.keys(G.catMet||{}).filter(id=>WORLD.npcs[id]&&isCat(id)).sort((a,b)=>(G.catMet[a]-G.catMet[b])||a.localeCompare(b));
-  if(dyId&&WORLD.npcs[dyId]){const n=WORLD.npcs[dyId],a=catAff(dyId),s=catStage(a),stg=[0,30,60,90];
+  if(dyId&&WORLD.npcs[dyId]){const n=WORLD.npcs[dyId],a=catAff(dyId),s=catStage(a),stg=[0,30,60,90],named=catNamed(dyId),first=G.catMet[dyId],ago=G.day-first;
     const ls=[];for(let i=0;i<=s;i++){const L=(n.lines||[]).map(parseLine).filter(l=>l.min===stg[i]&&l.t&&l.t!=='…');if(L.length)ls.push(L[0].t)}
-    box.innerHTML=`<div class="paper dy">${tape}<div class="ph"><span>🐈 고양이 도감</span><span>${esc(dayText(G.catMet[dyId]))}에 처음 만났어요</span></div><div class="dyd"><div class="dyi">${dyIcon(n,'dybig')}</div><div class="dyx"><h3>${esc(n.n)}</h3>${n.intro?`<p class="dys">${esc(n.intro)}</p>`:''}<p>♥ ${a} · ${CAT_ST[s]}</p>${ls.length?`<div class="dyl">${ls.map(t=>`<div>“${esc(t)}”</div>`).join('')}</div>`:''}</div></div><div class="pb"><button id="dy_ls" type="button">◀ 목록으로</button><span class="sp"></span><button id="dy_bk" type="button" class="pri">돌아가기</button></div></div>`;
-    $('#dy_ls').onclick=()=>{dyId=null;renderShrine()};$('#dy_bk').onclick=back;return}
+    const W=(G.catWhere||{})[dyId],wp=W&&WORLD.places[W],nd=(G.catNamedDay||{})[dyId];
+    const meta=[['처음 만난 날',`${dayText(first,1)}${ago>0?` (${ago}일 전)`:' (오늘)'}`],...(wp?[['처음 만난 곳',`${wp.i?wp.i+' ':''}${wp.n}`]]:[]),...(named&&nd!=null?[['이름을 지어 준 날',dayText(nd,1)]]:[])];
+    box.innerHTML=`<div class="paper dy">${tape}<div class="ph"><span>🐈 고양이 도감</span><span></span></div><div class="dyd"><div class="dyi">${dyIcon(n,'dybig')}</div><div class="dyx"><h3>${esc(n.n)}${named?'':' <em>이름이 없어요</em>'}</h3>${named?`<p class="dys">${esc(n.n0||'')}</p>`:''}${n.intro?`<p class="dyo">${esc(n.intro)}</p>`:''}<p class="dyo">${s>=1&&n.personality?'성격 · '+esc(n.personality):'성격 · 아직 잘 모르겠어요'}</p><div class="dym">${meta.map(([k,v])=>`<div><span>${k}</span><b>${esc(v)}</b></div>`).join('')}<div><span>호감도</span><b>♥ ${a} · ${CAT_ST[s]}</b></div></div>${ls.length?`<div class="dyl">${ls.map(t=>`<div>“${esc(t)}”</div>`).join('')}</div>`:''}</div></div><div class="pb"><button id="dy_ls" type="button">◀ 목록으로</button><button id="dy_nm" type="button">🏷 ${named?'이름 바꾸기':'이름 지어 주기'}</button><span class="sp"></span><button id="dy_bk" type="button" class="pri">돌아가기</button></div></div>`;
+    $('#dy_ls').onclick=()=>{dyId=null;renderShrine()};$('#dy_nm').onclick=()=>catNameAsk(dyId);$('#dy_bk').onclick=back;return}
   const pages=Math.max(1,Math.ceil(ids.length/DY_PER));dyPg=Math.max(0,Math.min(dyPg,pages-1));const cur=ids.slice(dyPg*DY_PER,dyPg*DY_PER+DY_PER);
   box.innerHTML=`<div class="paper dy">${tape}<div class="ph"><span>🐈 고양이 도감</span><span>${pages>1?`${dyPg+1} / ${pages}`:''}</span></div>${ids.length?`<div class="dyg">${cur.map(id=>{const n=WORLD.npcs[id];return `<div class="dyc" role="button" tabindex="0" data-c="${esc(id)}">${dyIcon(n,'dyic')}<b>${esc(n.n)}</b><small>♥ ${catAff(id)}</small></div>`}).join('')}</div>`:'<div class="pt dyempty">아직 만난 고양이가 없어요.\n동네를 돌아다니다 보면 어디선가 마주칠 거예요.</div>'}<div class="pb">${pages>1?`<button id="dy_pv" type="button"${dyPg<=0?' disabled':''}>◀</button><button id="dy_nx" type="button"${dyPg>=pages-1?' disabled':''}>▶</button>`:''}<span class="sp"></span><button id="dy_bk" type="button" class="pri">돌아가기</button></div></div>`;
   box.querySelectorAll('.dyc').forEach(c=>{const go=()=>{dyId=c.dataset.c;renderShrine()};c.onclick=go;c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
@@ -1896,6 +1919,7 @@ function applyWorld(){
   applyActions();
   if(DB.npcs.length){WORLD.npcs={};DB.npcs.forEach(r=>WORLD.npcs[r.code]={n:r.name,i:r.icon||'🙂',img:r.file_key?pubUrl(r.file_key):'',sch:Array.isArray(r.sched)&&r.sched.length?r.sched:schedFromSlots(r.schedule||{}),lines:r.lines&&r.lines.length?r.lines:['…'],birthday:r.birthday||'',job:r.job||'',intro:r.intro||'',personality:r.personality||'',role:r.role||'resident',work:r.workplace||'',wh:Array.isArray(r.work_hours)?r.work_hours:[],appear:r.appear==null?75:r.appear,db:true})}else WORLD.npcs=NPCS0;
   WORLD.events=DB.events.length?DB.events.filter(r=>r.enabled!==false).map(evFromRow):EVENTS0;
+  catApplyNames();
   const map=$('#townmap');
   if(map){map.dataset.built='';map.querySelectorAll('.map-building').forEach(b=>b.remove())}
   if(G&&!WORLD.places[G.place])G.place=startPlace();
@@ -2099,7 +2123,7 @@ function renderNpcForm(){
   ${'work_hours' in n?`<div class="fr"><div class="f"${n.role==='cat'?' style="display:none"':''}><span>근무 시간${tip('비워 두면 직장의 영업 시간 전체(풀타임)예요. 이 시간엔 무조건 직장에 있고, 아래 출몰 일정에서는 고를 수 없어요')}</span>${rgHtml('n_wh',n.work_hours||[])}</div>
     <label class="f"><span>출몰 확률 (%)${tip('출몰 일정 시간에 이 인물이 실제로 나타날 확률이에요. 시간마다 따로 굴려요')}</span><input id="n_ap" type="number" min="0" max="100" step="5" value="${n.appear==null?75:n.appear}" style="width:80px"></label></div>`:'<div class="tag">⚠ fsfs_npc_staff.sql을 실행하면 근무 시간·출몰 확률을 쓸 수 있어요</div>'}
   <label>소개<input id="n_t" value="${esc(n.intro||'')}"${n.lv?' disabled':''}></label><label>성격·말투<input id="n_p" value="${esc(n.personality||'')}"></label>
-  <datalist id="pl_dl">${plChoices().map(c=>`<option value="${esc(c.v)}" label="${esc(c.i)}"></option>`).join('')}</datalist><h2>출몰 장소 — 어디에, 몇 시에 나타나는지</h2>${n.role==='cat'?'<div class="tag">🐈 고양이는 이 일정이 「이 시간대에 갈 수 있는 후보 장소」예요. 1시간마다 위의 출몰 확률로 나올지 정하고, 나오면 후보 중 한 곳으로 가요. 장소는 마을 탭에서 「고양이 출몰 가능」을 켠 곳만 돼요.</div>':''}<div id="n_sch">${(Array.isArray(n.sched)&&n.sched.length?n.sched:schedFromSlots(n.schedule||{})).map(schRow).join('')}<button type="button" class="sga">+ 일정 추가</button></div><div class="tag">시간은 24시간으로 적어요 (00:00 ~ 00:00이면 하루 종일). 장소 칸에 이름을 치면 목록이 나와요. 「모든 …」을 고르면 그 유형의 모든 장소에 나타나요. 어느 줄에도 없는 시간에는 만날 수 없어요</div>
+  <datalist id="pl_dl">${plChoices().map(c=>`<option value="${esc(c.v)}" label="${esc(c.i)}"></option>`).join('')}</datalist><h2>출몰 장소 — 어디에, 몇 시에 나타나는지</h2>${n.role==='cat'?'<div class="tag">🐈 고양이의 이름은 플레이어가 게임에서 지어 줘요(위 이름은 이름을 짓기 전의 겉모습 이름이고, 소개 칸은 도감의 외양 설명이에요). 이 일정은 「이 시간대에 갈 수 있는 후보 장소」예요. 1시간마다 위의 출몰 확률로 나올지 정하고, 나오면 후보 중 한 곳으로 가요. 장소는 마을 탭에서 「고양이 출몰 가능」을 켠 곳만 돼요.</div>':''}<div id="n_sch">${(Array.isArray(n.sched)&&n.sched.length?n.sched:schedFromSlots(n.schedule||{})).map(schRow).join('')}<button type="button" class="sga">+ 일정 추가</button></div><div class="tag">시간은 24시간으로 적어요 (00:00 ~ 00:00이면 하루 종일). 장소 칸에 이름을 치면 목록이 나와요. 「모든 …」을 고르면 그 유형의 모든 장소에 나타나요. 어느 줄에도 없는 시간에는 만날 수 없어요</div>
   <div class="f"><span>대사 (대화할 때 무작위로 나와요)${tip('줄마다 "필요 호감도"를 정할 수 있어요. 0이면 처음부터, 3이면 호감도 3 이상일 때부터 나와요')}</span><div id="n_lrows">${(n.lines||[]).map(x=>lnRow(x,n.lv)).join('')}</div>${n.lv?'':'<button type="button" id="n_ladd">+ 대사 추가</button>'}</div>
   ${npcExtra(n)}<label>프로필 이미지 교체<input id="n_f" type="file" accept="image/*"></label>
   <div class="row"><button class="pri" id="n_save">저장</button><button id="n_del">삭제</button></div></div>`;
@@ -2222,14 +2246,14 @@ sch:{label:'🕒 출몰 일정',custom:1,tbl:'fsfs_npc',
     return{items,errs}}},
 
 cat:{label:'🐈 고양이',tbl:'fsfs_npc',
-  note:'한 줄이 고양이 한 마리예요. 「출몰 장소·시간」은 「장소 06:00~11:00 // 장소 15:00~19:00」처럼 적어요 — 이 고양이가 그 시간대에 갈 수 있는 후보 장소들이에요 (장소 시트에서 「고양이 출몰」에 O를 쓴 곳만 나타나요. 「모든 공원」처럼 유형도 돼요). 1시간마다 출몰 확률로 나올지 정하고, 나오면 후보 중 한 곳으로 가요. 대사는 // 로 구분하고 [30] [60] [90] 호감도 단계를 앞에 붙여요 (붙이지 않으면 처음부터). 호감도가 높아질수록 가장 높은 단계의 대사만 해요.',
+  note:'한 줄이 고양이 한 마리예요. 고양이의 진짜 이름은 플레이어가 게임에서 지어 줘요 — 여기 「겉모습 이름」은 이름을 지어 주기 전에 보이는 이름이고, 「외양 설명」은 도감에 나와요. 「출몰 장소·시간」은 「장소 06:00~11:00 // 장소 15:00~19:00」처럼 적어요 — 이 고양이가 그 시간대에 갈 수 있는 후보 장소들이에요 (장소 시트에서 「고양이 출몰」에 O를 쓴 곳만 나타나요. 「모든 공원」처럼 유형도 돼요). 1시간마다 출몰 확률로 나올지 정하고, 나오면 후보 중 한 곳으로 가요. 대사는 // 로 구분하고 [30] [60] [90] 호감도 단계를 앞에 붙여요 (붙이지 않으면 처음부터). 호감도가 높아질수록 가장 높은 단계의 대사만 해요.',
   list:()=>DB.npcs.filter(n=>n.role==='cat'),
   blank:i=>({code:'cat_'+tbId(),name:'',role:'cat',icon:'🐈',sort:DB.npcs.length+i,sched:[],lines:[],appear:70}),
   cols:()=>[
-    {k:'name',h:'이름',w:110,get:r=>r.name||'',set:(w,s)=>{if(!s)throw new Error('이름이 비었어요');w.name=s}},
+    {k:'name',h:'겉모습 이름 (이름 짓기 전)',w:150,get:r=>r.name||'',set:(w,s)=>{if(!s)throw new Error('이름이 비었어요');w.name=s}},
     {k:'code',h:'코드',w:100,ph:'(자동)',get:r=>r.code||'',set:(w,s)=>{if(s)w.code=s},ro:r=>!!r.id},
     {k:'icon',h:'이모지',w:64,get:r=>r.icon||'',set:(w,s)=>{w.icon=s||null}},
-    {k:'intro',h:'소개 (털 무늬 등)',w:220,get:r=>r.intro||'',set:(w,s)=>{w.intro=s||null}},
+    {k:'intro',h:'외양 설명 (털 무늬·눈·꼬리 등)',w:320,long:1,get:r=>r.intro||'',set:(w,s)=>{w.intro=s||null}},
     {k:'personality',h:'성격',w:180,get:r=>r.personality||'',set:(w,s)=>{w.personality=s||null}},
     {k:'appear',h:'출몰 확률(%)',w:80,get:r=>r.appear==null?'':String(r.appear),set:(w,s)=>{w.appear=s===''?70:tbNum(s,'출몰 확률',0,100)}},
     {k:'sched',h:'출몰 장소·시간 ( // 로 구분)',w:420,long:1,get:r=>tbJoin((r.sched||[]).map(x=>tbPlName(x.p)+' '+tbT(x.a)+'~'+tbT(x.b))),
@@ -3152,7 +3176,7 @@ var SLOTS=5,SAVE={slot:(()=>{try{return Math.min(SLOTS,Math.max(1,+localStorage.
 function normG(){applyMe();
   if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}
   if(typeof G.min!=='number')G.min=WORLD.wakeMin;if(!Array.isArray(G.ledger))G.ledger=[];
-  if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.wait=Array.isArray(G.wait)?G.wait:[];G.vgoods=G.vgoods||{};G.dlv=Array.isArray(G.dlv)?G.dlv:[];G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.catFeed=G.catFeed||{};G.catMet=G.catMet||{};G.mail=Array.isArray(G.mail)?G.mail:[];if(G.mailDay==null)G.mailDay=null;G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
+  if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.wait=Array.isArray(G.wait)?G.wait:[];G.vgoods=G.vgoods||{};G.dlv=Array.isArray(G.dlv)?G.dlv:[];G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.catFeed=G.catFeed||{};G.catMet=G.catMet||{};G.mail=Array.isArray(G.mail)?G.mail:[];G.catNames=G.catNames||{};G.catWhere=G.catWhere||{};G.catNamedDay=G.catNamedDay||{};catApplyNames();if(G.mailDay==null)G.mailDay=null;G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
 const lookPack=()=>(CL&&CL.try&&CL.snap?CL.snap:{sel,colors,iord});   // 입어보는 동안에는 저장되지 않아요
 function lookSave(){if(LOOKP)return;clearTimeout(SAVE.lt);SAVE.lt=setTimeout(()=>{try{localStorage.setItem('fsfsLook',JSON.stringify(lookPack()));localStorage.setItem('fsfsLocalAt',Date.now())}catch(e){}try{pushSoon()}catch(e){}},800)}
 function applyLook(l){const d=l||LOOKP;if(!d||!d.sel)return;if(!l&&!DB.items.length)return;sel={...sel,...d.sel};colors=d.colors||{};iord=Array.isArray(d.iord)?d.iord.slice():[];if(!l)LOOKP=null}
