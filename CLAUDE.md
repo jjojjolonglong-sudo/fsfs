@@ -48,6 +48,12 @@ fsfs 저장소에서 일할 때 읽는 안내서예요. 사용자와 일하는 �
 - 행동은 코드(`catAct`, `catFeed`, `catFeedGo`, `catBtns`, `catActs`)에 있어요: 밥 주기(아이템의 `effects.cat` 만큼 호감도, 하루 `CAT_FEED_DAY`=2번, 10분) · 쓰다듬기(+1, 하루 1번, 호감도 `CAT_PET_MIN`=10 미만은 거부, 5분) · 지켜보기(10분) · 이름 부르기(호감도 90 이상, 선물 확률 `CAT_GIFT_P`). 상태값: `G.catFeed`, `G.catMet`(만난 고양이 — 도감용), `G.actDay['catpet:코드']`, `['catgift:코드']`. 새 필드는 `normG()`에 기본값이 있어요.
 - 아이템 `effects.cat`(양수)이면 밥으로 줄 수 있는 먹이(잡화로 두기), `effects.catgift`이면 호감도 90 이상 고양이가 가져오는 선물이에요. 관리자 > 아이템·표 입력 > 아이템에서 정해요.
 
+## 다이어리 (집 > 다이어리 열기)
+- 주거 유형의 묶음 행동 `diary` 아래에 「고양이 도감」(`diary_cats`, kind `catdex`)과 「받은 쪽지」(`diary_mail`, kind `mail`)가 있어요(`openDiary`, `renderDiary`). 성소 종이 화면(`#shview`, `viewSh`)을 같이 써요(`shMode`가 `dydex`/`dymail`). 새 행동 코드는 `applyActions()`의 `keep` 목록에도 넣어야 DB 행동이 있어도 보여요.
+- 도감은 만난 고양이(`G.catMet`)만 보여 주고 전체 수(n/30)는 안 보여 줘요. 한 쪽 8마리, 카드를 누르면 소개·호감도·단계별로 들은 말이 나와요.
+- 쪽지(`G.mail`, 최대 `MAIL_KEEP`=100): 호감도 `MAIL_MIN`=60 이상 고양이와 밥·쓰다듬기·지켜보기·이름 부르기를 한 뒤, 고양이 한 마리당 하루 한 번 `MAIL_P`(3%)로 굴려요. 직전 쪽지와 `MAIL_CD`(2일) 이상 떨어져 있어야 해요(`catMailTry`, `G.mailDay`).
+- 내용: 수호신(엄마) 말투 문구 40개(`MAIL_T`, 받은 문구는 다 돌 때까지 반복하지 않아요) 또는, `MAIL_RE_P`(40%) 확률로 7일 넘은 성소 글(`G.notes`)을 인용한 답장(`MAIL_RE` 12개 + 인용). 답한 성소 글에는 `a:1`을 달아 다시 고르지 않아요. 문구를 바꾸려면 코드 상수를 고쳐요.
+
 ## 관리자 > 표 입력 (대량 입력)
 - mvmv의 Bulk entry 방식을 본뜬 탭이에요(`TBS`, `renderTbl()`, `tbPlan()`, `tbApply()`). 시트: 인물·출몰 일정·고양이·장소·행동·아이템·판매·이벤트. 머리글을 누르면 정렬돼요(`tbSort`, 오름→내림→원래 순서 / 줄 순서만 바뀌고 내용은 그대로).
 - 시트 하나 = `TBS`의 항목 하나. 칸은 `{k,h,w,get(원본행),set(작업행,글자),ro,long,list}`이고, 여러 칸이 한 값에 묶이면 시트의 `fin`에서 마무리해요. 새 시트는 `TBS`와 `TBORDER`에 추가하면 돼요.
