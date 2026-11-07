@@ -1407,6 +1407,18 @@ const hash=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return Math.a
 const mdOf=d=>String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 function inBday(md){if(!md)return false;const [m,d]=md.split('-').map(Number),t=dateOf(),df=Math.round((t-new Date(t.getFullYear(),m-1,d))/864e5);return df>=0&&df<=2}
 function inRange(a,b){const c=mdOf(dateOf());return a<=b?(c>=a&&c<=b):(c>=a||c<=b)}
+/* ---- 이벤트 새 조건: 기록 연동(책·영화·대작가 신간) · 낮/밤 · 날씨 · 에너지 · 행동 횟수 · 두 인물 함께 · 가진 물건 · 첫 방문 ---- */
+let REC=null,RECT=0,RECP=null;   // 다른 앱 기록 요약: {book:완독한 책 수, movie:본 영화 수, wk:30일 안 대작가 신간 수}
+function recRefresh(){
+  if(RECP)return RECP;
+  RECP=(async()=>{const r={book:0,movie:0,wk:0};let ok=0;
+    try{r.book=(await bkLoad()).length;ok++}catch(e){}
+    try{await mvLoad();r.movie=(MVA||[]).length;ok++}catch(e){}
+    try{r.wk=(await wkLoad()).filter(x=>x.isNew).length;ok++}catch(e){}
+    REC=r;RECT=Date.now()-(ok?0:REC_TTL-60000);return r})().finally(()=>{RECP=null});return RECP}
+const REC_TTL=300000;
+const wxNow=()=>{try{const k=fxKind();return k==='rain'?'rain':k==='winter'?'snow':'clear'}catch(e){return null}};   // 계절 효과와 같은 날씨: 여름엔 비/맑음이 섞이고 겨울엔 눈
+const hasRef=r=>String(r).startsWith('g:')?(((G.bag||{})[String(r).slice(2)])||0)>0:!!(G.owned||{})[rid(r)];
 function evOk(e){
   if(e.repeat==='daily'?G.doneDay[e.id]===G.day:G.done[e.id])return false;
   if((e.place&&e.place!==G.place)||(e.npc&&!npcAt(e.npc)))return false;
@@ -1415,6 +1427,14 @@ function evOk(e){
   const bd=e.bday||(e.birthday?'player':null);
   if(bd&&!inBday(bd==='player'?WORLD.birthday:(WORLD.npcs[bd]||{}).birthday))return false;
   if(e.aff&&Object.entries(e.aff).some(([k,v])=>(G.aff[k]||0)<v))return false;
+  if(e.together&&!npcAt(e.together))return false;   // 두 인물이 같은 장소에 있을 때
+  if(e.tod){const h=G.min/60,night=h>=19||h<6;if((e.tod==='night')!==night)return false}
+  if(e.wx&&wxNow()!==e.wx)return false;
+  if(e.enMax!=null&&G.energy>e.enMax)return false;
+  if(e.first&&((G.visits||{})[G.place]||0)!==1)return false;   // 이 장소에 처음 들어온 때
+  if((e.cnt||[]).some(c=>c.act&&((G.cnt||{})[c.act]||0)<(+c.min||1)))return false;
+  if((e.has||[]).some(r=>!hasRef(r)))return false;
+  if((e.rec||[]).length){if(!REC||e.rec.some(r=>(REC[r.kind]||0)<(+r.min||1)))return false}
   if(e.chance!=null&&e.chance<100&&hash(e.id+':'+G.day+':'+Math.floor(G.min/120))%100>=e.chance)return false;   // 같은 날·같은 시간대엔 결과가 고정
   return true;
 }
@@ -1440,6 +1460,7 @@ function runScene(steps,done,dry){
 }
 function checkEvents(){
   if($('#scene').open)return;G.doneDay=G.doneDay||{};
+  if(typeof S!=='undefined'&&S&&!RECP&&(!REC||Date.now()-RECT>REC_TTL)&&WORLD.events.some(e=>e.rec&&e.rec.length)&&!G.closet)recRefresh().then(()=>setTimeout(()=>{if(!$('#scene').open)checkEvents()},150)).catch(()=>{});   // 기록 조건이 있는 이벤트가 있으면 다른 앱 기록을 미리 읽어 둬요
   for(const e of [...WORLD.events].sort((a,b)=>(b.priority||0)-(a.priority||0))){
     if(!evOk(e))continue;
     e.repeat==='daily'?G.doneDay[e.id]=G.day:G.done[e.id]=1;saveGame();
@@ -1453,7 +1474,7 @@ function greetAt(pid){
   if(!ids.length)return;const k=ids[Math.floor(Math.random()*ids.length)];
   const t=pickLine(k)||'어서 오세요!';
   runScene([{who:k,t}],()=>{saveGame()})}
-function go(p,reopen){if(p===G.place){if(viewTown||viewTownId){pass(WORLD.moveMin);viewTown=false;viewTownId=null;G.log='';after()}return}/* 지도에서 같은 장소에 다시 들어가도 15분 */if(!WORLD.places[p])return;const gt=homeGate(p,G.place);if(!gt.ok)return msg(gt.why,1);const mn=travelMin(G.place,p);pass(mn);G.place=p;closeCl();ACTGRP=null;viewSt=false;viewBk=false;viewMv=false;viewSh=false;viewTown=false;viewTownId=null;G.log='';after();greetAt(p);if(gt.host)msg(`🏡 ${gt.host.n}${josaI(gt.host.n)} 안으로 안내해 줬어요`);else catNotice();if((WORLD.places[p]||{}).type==='posterhall')openMovies()}
+function go(p,reopen){if(p===G.place){if(viewTown||viewTownId){pass(WORLD.moveMin);viewTown=false;viewTownId=null;G.log='';after()}return}/* 지도에서 같은 장소에 다시 들어가도 15분 */if(!WORLD.places[p])return;const gt=homeGate(p,G.place);if(!gt.ok)return msg(gt.why,1);const mn=travelMin(G.place,p);pass(mn);G.place=p;G.visits=G.visits||{};G.visits[p]=(G.visits[p]||0)+1;closeCl();ACTGRP=null;viewSt=false;viewBk=false;viewMv=false;viewSh=false;viewTown=false;viewTownId=null;G.log='';after();greetAt(p);if(gt.host)msg(`🏡 ${gt.host.n}${josaI(gt.host.n)} 안으로 안내해 줬어요`);else catNotice();if((WORLD.places[p]||{}).type==='posterhall')openMovies()}
 function stepTown(d){const i=TOWNS.findIndex(t=>t.id===curTown()),j=i+d;if(j<0||j>=TOWNS.length)return;viewTownId=TOWNS[j].id;pass(WORLD.townMin);G.log='';after();msg(`${TOWNS[j].name}으로 이동 · ⏱ ${durText(WORLD.townMin)}`)}   // 마을을 옮기는 순간 30분이 흐른다
 $('#tw_l').onclick=()=>stepTown(-1);$('#tw_r').onclick=()=>stepTown(1);
 function renderShop(pid){
@@ -2180,6 +2201,9 @@ const tbO=(w,k)=>{if(!w[k]||typeof w[k]!=='object'||Array.isArray(w[k]))w[k]={};
 const tbPairs=(s,what)=>tbSplitC(s).map(p=>{const m=/^(.+?)\s*[:：=≥]+\s*([+-]?\d+)$/.exec(p);if(!m)throw new Error(what+'은(는) 이름:숫자 로 적어 주세요 ('+p+')');return{npc:tbFind(tbNpcs(),m[1],'인물'),v:+m[2]}});
 const tbRoles={resident:'주민',fan:'덕질 인물',author:'대작가'};
 const tbKinds=()=>Object.fromEntries(KSEL.map(([k,v])=>[k,v.replace(/^[^가-힣A-Za-z]+/,'').replace(/\s*\(.*$/,'')]));
+const TB_REC=[{k:'book',v:'책 완독'},{k:'movie',v:'영화 감상'},{k:'wk',v:'대작가 신간'}];
+const tbActList=()=>Object.values(WORLD.actions).filter(a=>a.kind==='normal'&&a.code!=='talk').map(a=>({k:a.code,v:a.name}));
+const tbPairsL=(s,what,list)=>tbSplitC(s).map(p=>{const m=/^(.+?)\s*[:：=≥]+\s*([+-]?\d+)$/.exec(p);if(!m)throw new Error(what+'은(는) 이름:숫자 로 적어 주세요 ('+p+')');return{k:tbFind(list,m[1],what),v:+m[2]}});
 const tbItemList=()=>{const out=(DB.goods||[]).map(g=>({k:'g:'+g.id,v:g.name}));try{ITEMS.filter(i=>i.layers.length).forEach(i=>out.push({k:i.builtin?i.part+':'+i.key:i.id,v:i.name}))}catch(e){}return out};
 
 /* ---- 장면 대사 ↔ 글자 ("나: 대사 // 나나: 대사 // 그냥 해설") ---- */
@@ -2349,7 +2373,7 @@ src:{label:'🏷 판매',tbl:'fsfs_source',
     w.params=P}},
 
 event:{label:'📖 이벤트',tbl:'fsfs_event',
-  note:'한 줄이 이벤트 한 개예요. 대사는 「나: …  // 나나: … // 해설 문장」처럼 // 로 구분하고, 말하는 사람 이름을 앞에 붙여요 (이름이 없으면 해설). 호감도 조건은 「나나:30, 보리스:60」, 호감도 변화는 「나나:+2」, 날짜는 03-08 처럼 월-일이에요. 선택지가 들어 있는 장면은 🔒로 표시되고 이벤트 탭에서만 수정해요.',
+  note:'한 줄이 이벤트 한 개예요. 「낮/밤·날씨·에너지 이하·함께 있는 인물·첫 방문·기록 조건·행동 횟수·가진 물건」은 비워 두면 따지지 않는 추가 조건이에요. 대사는 「나: …  // 나나: … // 해설 문장」처럼 // 로 구분하고, 말하는 사람 이름을 앞에 붙여요 (이름이 없으면 해설). 호감도 조건은 「나나:30, 보리스:60」, 호감도 변화는 「나나:+2」, 날짜는 03-08 처럼 월-일이에요. 선택지가 들어 있는 장면은 🔒로 표시되고 이벤트 탭에서만 수정해요.',
   list:()=>DB.events,
   blank:i=>({code:'ev'+tbId(),title:'',enabled:true,repeat_mode:'once',chance:100,priority:0,note:null,cond:{place:null,npc:null,ranges:[],slots:[],from:null,to:null,bday:null,aff:[]},scene:[],effects:{give:[],money:0,aff:[]}}),
   cols:()=>[
@@ -2366,6 +2390,14 @@ event:{label:'📖 이벤트',tbl:'fsfs_event',
     {k:'to',h:'날짜 끝',w:70,ph:'03-10',get:r=>(r.cond||{}).to||'',set:(w,s)=>{if(s&&!/^\d\d-\d\d$/.test(s))throw new Error('날짜는 03-08 처럼 월-일 두 자리로 적어 주세요');tbO(w,'cond').to=s||null}},
     {k:'bday',h:'생일',w:90,list:()=>['나',...tbNpcs().map(x=>x.v)],get:r=>{const b=(r.cond||{}).bday;return b==='player'?'나':b?tbNpcName(b):''},set:(w,s)=>{tbO(w,'cond').bday=!s?null:(s==='나'||s==='플레이어')?'player':tbFind(tbNpcs(),s,'인물')}},
     {k:'aff',h:'필요 호감도 (이름:숫자, …)',w:170,get:r=>((r.cond||{}).aff||[]).map(a=>tbNpcName(a.npc)+':'+a.min).join(', '),set:(w,s)=>{tbO(w,'cond').aff=tbPairs(s,'호감도 조건').map(p=>({npc:p.npc,min:p.v}))}},
+    {k:'tod',h:'낮/밤',w:60,list:()=>['낮','밤'],get:r=>({day:'낮',night:'밤'})[(r.cond||{}).tod]||'',set:(w,s)=>{const c=tbO(w,'cond');if(!s)delete c.tod;else if(s==='낮'||s==='day')c.tod='day';else if(s==='밤'||s==='night')c.tod='night';else throw new Error('낮/밤은 「낮」 또는 「밤」으로 적어 주세요')}},
+    {k:'wx',h:'날씨',w:60,list:()=>['맑음','비','눈'],get:r=>({clear:'맑음',rain:'비',snow:'눈'})[(r.cond||{}).wx]||'',set:(w,s)=>{const c=tbO(w,'cond');if(!s)delete c.wx;else{const m={'맑음':'clear','비':'rain','눈':'snow',clear:'clear',rain:'rain',snow:'snow'}[s];if(!m)throw new Error('날씨는 맑음 / 비 / 눈 중에서 적어 주세요');c.wx=m}}},
+    {k:'enMax',h:'에너지 이하',w:76,get:r=>(r.cond||{}).enMax==null?'':String((r.cond||{}).enMax),set:(w,s)=>{const c=tbO(w,'cond');if(s==='')delete c.enMax;else c.enMax=Math.round(tbNum(s,'에너지',0,100))}},
+    {k:'together',h:'함께 있는 인물',w:110,list:()=>tbNpcs().map(x=>x.v),get:r=>(r.cond||{}).together?tbNpcName(r.cond.together):'',set:(w,s)=>{const c=tbO(w,'cond');if(!s)delete c.together;else c.together=tbFind(tbNpcs(),s,'인물')}},
+    {k:'first',h:'첫 방문',w:56,get:r=>tbYN(!!(r.cond||{}).first),set:(w,s)=>{const c=tbO(w,'cond');if(tbIsY(s))c.first=true;else delete c.first}},
+    {k:'rec',h:'기록 조건 (책 완독:3, 영화 감상:2, 대작가 신간:1)',w:230,get:r=>((r.cond||{}).rec||[]).map(x=>(TB_REC.find(k=>k.k===x.kind)||{v:x.kind}).v+':'+x.min).join(', '),set:(w,s)=>{const c=tbO(w,'cond'),a=tbPairsL(s,'기록 조건',TB_REC).map(p=>({kind:p.k,min:Math.max(1,p.v)}));if(a.length)c.rec=a;else delete c.rec}},
+    {k:'cnt',h:'행동 횟수 (편의점 알바:5, …)',w:200,get:r=>((r.cond||{}).cnt||[]).map(x=>((WORLD.actions[x.act]||{}).name||x.act)+':'+x.min).join(', '),set:(w,s)=>{const c=tbO(w,'cond'),a=tbPairsL(s,'행동 횟수',tbActList()).map(p=>({act:p.k,min:Math.max(1,p.v)}));if(a.length)c.cnt=a;else delete c.cnt}},
+    {k:'has',h:'가진 물건 (이름, …)',w:170,get:r=>((r.cond||{}).has||[]).map(k=>(tbItemList().find(x=>x.k===k)||{}).v||k).join(', '),set:(w,s)=>{const c=tbO(w,'cond'),a=tbSplitC(s).map(x=>tbFind(tbItemList(),x,'아이템'));if(a.length)c.has=a;else delete c.has}},
     {k:'money',h:'돈 보상',w:70,get:r=>(r.effects&&r.effects.money)?String(r.effects.money):'',set:(w,s)=>{tbO(w,'effects').money=s===''?0:Math.round(tbNum(s,'돈'))}},
     {k:'give',h:'받는 아이템 (이름, …)',w:170,get:r=>((r.effects||{}).give||[]).map(k=>(tbItemList().find(x=>x.k===k)||{}).v||k).join(', '),set:(w,s)=>{tbO(w,'effects').give=tbSplitC(s).map(x=>tbFind(tbItemList(),x,'아이템'))}},
     {k:'gain',h:'호감도 변화 (이름:+숫자)',w:150,get:r=>((r.effects||{}).aff||[]).map(a=>tbNpcName(a.npc)+':'+(a.v>0?'+':'')+a.v).join(', '),set:(w,s)=>{tbO(w,'effects').aff=tbPairs(s,'호감도 변화').filter(p=>p.v).map(p=>({npc:p.npc,v:p.v}))}},
@@ -2514,13 +2546,15 @@ async function tbApply(plan){
 const EVENTS0=WORLD.events;WORLD.playerName=WORLD.playerName||'레오';
 function evFromRow(r){const c=r.cond||{},f=r.effects||{};
   return{id:r.code,title:r.title,repeat:r.repeat_mode||'once',chance:r.chance??100,priority:r.priority||0,place:c.place||null,npc:c.npc||null,ranges:Array.isArray(c.ranges)?c.ranges:slotRanges(c.slots||[]),from:c.from||'',to:c.to||'',bday:c.bday||null,
-    aff:Object.fromEntries((c.aff||[]).map(a=>[a.npc,a.min])),scene:r.scene||[],give:f.give||[],money:f.money||0,affEff:f.aff||[]}}
-function normEv(r){const x=structuredClone(r);x.cond=x.cond||{};x.cond.aff=x.cond.aff||[];x.scene=x.scene||[];x.effects=x.effects||{};x.effects.give=x.effects.give||[];x.effects.aff=x.effects.aff||[];return x}
+    aff:Object.fromEntries((c.aff||[]).map(a=>[a.npc,a.min])),rec:Array.isArray(c.rec)?c.rec:[],cnt:Array.isArray(c.cnt)?c.cnt:[],has:Array.isArray(c.has)?c.has:[],tod:c.tod||'',wx:c.wx||'',enMax:c.enMax==null||c.enMax===''?null:+c.enMax,together:c.together||null,first:!!c.first,scene:r.scene||[],give:f.give||[],money:f.money||0,affEff:f.aff||[]}}
+function normEv(r){const x=structuredClone(r);x.cond=x.cond||{};x.cond.aff=x.cond.aff||[];x.cond.rec=x.cond.rec||[];x.cond.cnt=x.cond.cnt||[];x.cond.has=x.cond.has||[];x.scene=x.scene||[];x.effects=x.effects||{};x.effects.give=x.effects.give||[];x.effects.aff=x.effects.aff||[];return x}
 let ecur=null;
 const nl=()=>Object.entries(WORLD.npcs).map(([k,n])=>({k,n:(n.i||'')+' '+n.n})),pl2=()=>Object.entries(WORLD.places).map(([k,p])=>({k,n:(p.i||'')+' '+p.n}));
 const npcOpts=(s,none)=>opts(nl(),'k','n',s,none),placeOpts=(s,none)=>opts(pl2(),'k','n',s,none),whoOpts=s=>opts([{k:'me',n:'🙋 나 (플레이어)'},...nl().map(n=>({k:n.k,n:'💬 상대 · '+n.n}))],'k','n',s,'📝 나레이션'),whoCls=v=>v==='me'?'me':(v?'':'nr');
 const itemOpts=s=>opts(ITEMS.filter(i=>i.layers.length).map(i=>({k:i.builtin?i.part+':'+i.key:i.id,n:((P(i.part)||{}).label||i.part)+' · '+i.name})).concat((DB.goods||[]).map(g=>({k:'g:'+g.id,n:'아이템 · '+(g.icon||'')+' '+g.name}))),'k','n',s,'의상·아이템 선택');
-const ROWS={ca:()=>ecur.cond.aff,ea:()=>ecur.effects.aff,eg:()=>ecur.effects.give};
+const ROWS={ca:()=>ecur.cond.aff,ea:()=>ecur.effects.aff,eg:()=>ecur.effects.give,cr:()=>ecur.cond.rec,cc:()=>ecur.cond.cnt,ch:()=>ecur.cond.has};
+const REC_KINDS=[['book','📖 책 완독 (bkbk)'],['movie','🎬 영화 감상 (mvmv)'],['wk','📰 대작가 신간 (wkwk, 30일 안)']],ROWP={cr:'kind',cc:'act'};
+const actOpts=s=>opts(Object.values(WORLD.actions).filter(a=>a.kind==='normal'&&a.code!=='talk').map(a=>({k:a.code,n:(a.icon||'')+' '+a.name})),'k','n',s,'행동 선택');
 function renderEvAdmin(){
   $('#elist').innerHTML=DB.events.map(r=>{const c=r.cond||{},p=c.place&&WORLD.places[c.place];
     return `<div class="it${ecur&&ecur.id===r.id?' on':''}" data-id="${r.id}"><div><div>${r.enabled===false?'⏸ ':''}${esc(r.title)}</div><div class="tag">${[p?p.i+' '+p.n:'',c.bday?'🎂':'',((c.ranges||slotRanges(c.slots||[])).length?rngText(c.ranges||slotRanges(c.slots||[])):''),r.repeat_mode==='daily'?'매일':'한 번'].filter(Boolean).join(' · ')}</div></div></div>`}).join('')||'<div class="tag">등록한 이벤트가 없어요</div>';
@@ -2535,10 +2569,12 @@ $('#evimp').onclick=async()=>{
     await loadCatalog();renderEvAdmin();msg('내장 이벤트를 가져왔어요')}catch(e){msg(e.message,1)}
 };
 function rowsHtml(k,title,add,tp){
-  return `<div class="f"><span>${title}${tp?tip(tp):''}</span></div>`+ROWS[k]().map((r,n)=>`<div class="row lr" data-l="${k}" data-n="${n}">`+(k==='eg'?`<select class="l1">${itemOpts(r)}</select>`:
+  return `<div class="f"><span>${title}${tp?tip(tp):''}</span></div>`+ROWS[k]().map((r,n)=>`<div class="row lr" data-l="${k}" data-n="${n}">`+(k==='eg'||k==='ch'?`<select class="l1">${itemOpts(r)}</select>`:
+    k==='cr'?`<select class="l1">${opts(REC_KINDS.map(x=>({k:x[0],n:x[1]})),'k','n',r.kind)}</select><span class="tag">최소</span><input class="l2" type="number" min="1" value="${r.min}">`:
+    k==='cc'?`<select class="l1">${actOpts(r.act)}</select><span class="tag">누적 횟수</span><input class="l2" type="number" min="1" value="${r.min}">`:
     `<select class="l1">${npcOpts(r.npc,'인물 선택')}</select><span class="tag">${k==='ca'?'최소':'변화'}</span><input class="l2" type="number" value="${k==='ca'?r.min:r.v}">`)+`<button class="lx">✕</button></div>`).join('')+`<div class="row"><button class="la" data-l="${k}">+ ${add}</button></div>`;
 }
-function renderRows(){$('#ca_box').innerHTML=rowsHtml('ca','필요 호감도','호감도 조건','이 인물과의 호감도가 이 값 이상일 때만 열려요');$('#eg_box').innerHTML=rowsHtml('eg','받는 의상','의상 추가','이벤트로 받기 전까지는 잠겨 있어요');$('#ea_box').innerHTML=rowsHtml('ea','호감도 변화','호감도 변화')}
+function renderRows(){$('#ca_box').innerHTML=rowsHtml('ca','필요 호감도','호감도 조건','이 인물과의 호감도가 이 값 이상일 때만 열려요');$('#cr_box').innerHTML=rowsHtml('cr','기록 조건 (다른 앱)','기록 조건 추가','로그인해서 읽을 수 있는 기록이 이만큼 이상일 때만 열려요. 책: bkbk에서 완독한 책 수, 영화: mvmv에서 본 영화 수, 신간: 출간 30일 안 대작가 작품 수');$('#cc_box').innerHTML=rowsHtml('cc','행동 누적 횟수 (알바 등)','횟수 조건 추가','그 행동을 이만큼 이상 했을 때만 열려요');$('#ch_box').innerHTML=rowsHtml('ch','가지고 있어야 하는 물건','물건 조건 추가','가방(아이템)이나 옷장(의상)에 있을 때만 열려요');$('#eg_box').innerHTML=rowsHtml('eg','받는 의상','의상 추가','이벤트로 받기 전까지는 잠겨 있어요');$('#ea_box').innerHTML=rowsHtml('ea','호감도 변화','호감도 변화')}
 function renderScn(){
   const line=(cls,i,s,extra)=>`<div class="evs ${whoCls(s.who)}" ${i}><select class="${extra[0]}">${whoOpts(s.who)}</select><input class="${extra[1]}" value="${esc(s.t)}" placeholder="${extra[2]}"><span class="mv">${extra[3]}</span></div>`;
   $('#scn').innerHTML=ecur.scene.map((s,i)=>s.choices?
@@ -2552,7 +2588,7 @@ function renderScn(){
 const cleanScene=sc=>sc.map(s=>s.choices?{choices:s.choices.filter(c=>c.t.trim()).map(c=>({t:c.t,...(c.aff?{aff:c.aff}:{}),reply:(c.reply||[]).filter(r=>r.t.trim()).map(r=>({who:r.who||'',t:r.t}))}))}:{who:s.who||'',t:s.t||''}).filter(s=>s.choices?s.choices.length:s.t.trim());
 function evInput(ev){
   const t=ev.target,L=t.closest('.lr');
-  if(L){const a=ROWS[L.dataset.l](),n=+L.dataset.n;if(L.dataset.l==='eg'){if(t.matches('.l1'))a[n]=t.value}else{if(t.matches('.l1'))a[n].npc=t.value;if(t.matches('.l2'))a[n][L.dataset.l==='ca'?'min':'v']=+t.value}return}
+  if(L){const a=ROWS[L.dataset.l](),n=+L.dataset.n;const lk=L.dataset.l;if(lk==='eg'||lk==='ch'){if(t.matches('.l1'))a[n]=t.value}else if(ROWP[lk]){if(t.matches('.l1'))a[n][ROWP[lk]]=t.value;if(t.matches('.l2'))a[n].min=Math.max(1,+t.value||1)}else{if(t.matches('.l1'))a[n].npc=t.value;if(t.matches('.l2'))a[n][lk==='ca'?'min':'v']=+t.value}return}
   const se=t.closest('[data-i]');if(!se)return;
   const s=ecur.scene[+se.dataset.i],ch=t.closest('[data-j]'),c=ch&&s.choices[+ch.dataset.j],rp=t.closest('[data-k]'),r=rp&&c.reply[+rp.dataset.k];
   if(t.matches('.sw,.rw')){const ln=t.closest('.evs');if(ln)ln.className='evs '+whoCls(t.value)}
@@ -2561,7 +2597,7 @@ function evInput(ev){
 }
 function evClick(ev){
   const t=ev.target;
-  if(t.matches('.la')){const k=t.dataset.l;ROWS[k]().push(k==='eg'?'':(k==='ca'?{npc:'',min:1}:{npc:'',v:1}));renderRows();return}
+  if(t.matches('.la')){const k=t.dataset.l;ROWS[k]().push(k==='eg'||k==='ch'?'':k==='cr'?{kind:'book',min:1}:k==='cc'?{act:'',min:1}:(k==='ca'?{npc:'',min:1}:{npc:'',v:1}));renderRows();return}
   if(t.matches('.lx')){const L=t.closest('.lr');ROWS[L.dataset.l]().splice(+L.dataset.n,1);renderRows();return}
   const se=t.closest('[data-i]');if(!se)return;
   const i=+se.dataset.i,S=ecur.scene,s=S[i],ch=t.closest('[data-j]'),rp=t.closest('[data-k]');
@@ -2589,6 +2625,13 @@ function renderEvForm(){
     <label class="f"><span>확률(%)</span><input id="e_c" type="number" min="1" max="100" value="${x.chance??100}"></label>
     <label class="f"><span>우선순위${tip('여러 이벤트가 동시에 열리면 큰 쪽이 먼저 나와요')}</span><input id="e_pr" type="number" value="${x.priority||0}"></label></div>
   <div id="ca_box"></div>
+  <div class="fsec"><span class="n">＋</span>더 자세한 조건${tip('비워 둔 항목은 따지지 않아요')}</div>
+  <div class="fr"><label class="f"><span>낮/밤${tip('낮은 6~19시, 밤은 19~6시예요')}</span><select id="e_tod"><option value="">상관없음</option><option value="day"${c.tod==='day'?' selected':''}>☀️ 낮</option><option value="night"${c.tod==='night'?' selected':''}>🌙 밤</option></select></label>
+    <label class="f"><span>날씨${tip('계절 효과와 같아요. 여름엔 비 오는 날과 맑은 날이 섞이고, 겨울엔 눈이 와요. 그 밖의 날은 맑음이에요')}</span><select id="e_wx"><option value="">상관없음</option><option value="clear"${c.wx==='clear'?' selected':''}>🌤 맑음</option><option value="rain"${c.wx==='rain'?' selected':''}>🌧 비</option><option value="snow"${c.wx==='snow'?' selected':''}>❄️ 눈</option></select></label>
+    <label class="f"><span>에너지가 이 값 이하${tip('에너지가 부족할 때만 열려요 (0~100)')}</span><input id="e_en2" type="number" min="0" max="100" value="${c.enMax==null||c.enMax===''?'':c.enMax}"></label>
+    <label class="f"><span>이 인물도 함께${tip('위 「인물」과 이 인물이 같은 장소에 함께 있을 때만 열려요')}</span><select id="e_tg">${npcOpts(c.together,'상관없음')}</select></label>
+    <label class="chip" style="align-self:end"><input id="e_fv" type="checkbox"${c.first?' checked':''}>이 장소 첫 방문</label></div>
+  <div id="cr_box"></div><div id="cc_box"></div><div id="ch_box"></div>
   <div class="fsec"><span class="n">2</span>장면${tip('위에서 아래로 차례로 나와요. 말하는 사람(나레이션·나·상대)을 골라 대사를 적어요. {player}는 플레이어 이름으로 바뀌어요')}</div>
   <div id="scn"></div>
   <div class="row"><button id="e_adn">+ 상대 대사</button><button id="e_adm">+ 내 대사</button><button id="e_adr">+ 나레이션</button><button id="e_ac">+ 선택지</button><button id="e_pv">▶ 미리보기</button></div>
@@ -2609,7 +2652,9 @@ async function saveEv(){
     if((f&&!/^\d\d-\d\d$/.test(f))||(to&&!/^\d\d-\d\d$/.test(to)))throw new Error('날짜는 03-08 처럼 월-일 두 자리로 적어주세요');
     const row={code:$('#e_code').value.trim()||x.code,title:$('#e_title').value.trim()||'이름 없는 이벤트',enabled:$('#e_en').checked,repeat_mode:$('#e_r').value,
       chance:Math.min(100,Math.max(1,+$('#e_c').value||100)),priority:+$('#e_pr').value||0,note:$('#e_note').value||null,
-      cond:{place:$('#e_pl').value||null,npc:$('#e_np').value||null,ranges:sl,slots:[],from:f||null,to:to||null,bday:$('#e_b').value||null,aff:x.cond.aff.filter(a=>a.npc)},
+      cond:{place:$('#e_pl').value||null,npc:$('#e_np').value||null,ranges:sl,slots:[],from:f||null,to:to||null,bday:$('#e_b').value||null,aff:x.cond.aff.filter(a=>a.npc),
+        ...(x.cond.rec.some(r=>r.kind)?{rec:x.cond.rec.filter(r=>r.kind).map(r=>({kind:r.kind,min:Math.max(1,+r.min||1)}))}:{}),...(x.cond.cnt.some(r=>r.act)?{cnt:x.cond.cnt.filter(r=>r.act).map(r=>({act:r.act,min:Math.max(1,+r.min||1)}))}:{}),...(x.cond.has.some(Boolean)?{has:x.cond.has.filter(Boolean)}:{}),
+        ...($('#e_tod').value?{tod:$('#e_tod').value}:{}),...($('#e_wx').value?{wx:$('#e_wx').value}:{}),...($('#e_en2').value!==''?{enMax:Math.max(0,Math.min(100,+$('#e_en2').value||0))}:{}),...($('#e_tg').value?{together:$('#e_tg').value}:{}),...($('#e_fv').checked?{first:true}:{})},
       scene:cleanScene(x.scene),effects:{give:x.effects.give.filter(Boolean),money:+$('#e_m').value||0,aff:x.effects.aff.filter(a=>a.npc&&a.v)}};
     x.id?await post('/rest/v1/fsfs_event?id=eq.'+x.id,row,'PATCH'):await post('/rest/v1/fsfs_event',row);
     await loadCatalog();ecur=normEv(DB.events.find(r=>r.code===row.code));renderEvAdmin();msg('저장했어요');
@@ -3176,7 +3221,7 @@ var SLOTS=5,SAVE={slot:(()=>{try{return Math.min(SLOTS,Math.max(1,+localStorage.
 function normG(){applyMe();
   if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}
   if(typeof G.min!=='number')G.min=WORLD.wakeMin;if(!Array.isArray(G.ledger))G.ledger=[];
-  if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.wait=Array.isArray(G.wait)?G.wait:[];G.vgoods=G.vgoods||{};G.dlv=Array.isArray(G.dlv)?G.dlv:[];G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.catFeed=G.catFeed||{};G.catMet=G.catMet||{};G.mail=Array.isArray(G.mail)?G.mail:[];G.catNames=G.catNames||{};G.catWhere=G.catWhere||{};G.catNamedDay=G.catNamedDay||{};catApplyNames();if(G.mailDay==null)G.mailDay=null;G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
+  if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.wait=Array.isArray(G.wait)?G.wait:[];G.vgoods=G.vgoods||{};G.dlv=Array.isArray(G.dlv)?G.dlv:[];G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.catFeed=G.catFeed||{};G.catMet=G.catMet||{};G.mail=Array.isArray(G.mail)?G.mail:[];G.catNames=G.catNames||{};if(!G.visits){G.visits={};if(G.place)G.visits[G.place]=99;G.visits.home=99}G.catWhere=G.catWhere||{};G.catNamedDay=G.catNamedDay||{};catApplyNames();if(G.mailDay==null)G.mailDay=null;G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
 const lookPack=()=>(CL&&CL.try&&CL.snap?CL.snap:{sel,colors,iord});   // 입어보는 동안에는 저장되지 않아요
 function lookSave(){if(LOOKP)return;clearTimeout(SAVE.lt);SAVE.lt=setTimeout(()=>{try{localStorage.setItem('fsfsLook',JSON.stringify(lookPack()));localStorage.setItem('fsfsLocalAt',Date.now())}catch(e){}try{pushSoon()}catch(e){}},800)}
 function applyLook(l){const d=l||LOOKP;if(!d||!d.sel)return;if(!l&&!DB.items.length)return;sel={...sel,...d.sel};colors=d.colors||{};iord=Array.isArray(d.iord)?d.iord.slice():[];if(!l)LOOKP=null}
