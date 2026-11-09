@@ -1503,7 +1503,7 @@ function homeGate(k,from){const q=WORLD.places[k],par=q&&q.parent,P=par&&WORLD.p
 const earn=(v,label)=>{v=Math.round(+v||0);if(!v)return;G.money+=v;dyMoney(v);G.ledger=[{d:G.day,t:G.min,n:label||'',v}].concat(G.ledger||[]).slice(0,20)};   // 돈이 오가면 여기서 기록해요(최근 20건)
 const clampE=v=>Math.max(0,Math.min(100,v));
 // ===== 하루 기록: 그날 다닌 곳·한 일·돈을 자동으로 모아요 (G.dy[날짜] = {e:[[분,글,횟수]], p:[장소], w:[인물], i:번 돈, o:쓴 돈}) =====
-const DY_KEEP=30,DY_ENT=60;
+const DY_KEEP=100,DY_ENT=60;
 function dyRec(){G.dy=G.dy&&typeof G.dy==='object'?G.dy:{};const k=G.day;if(!G.dy[k]){const wx=wxOf(k);G.dy[k]={e:[],p:[],w:[],i:0,o:0,x:[wx.k,wx.lv]};Object.keys(G.dy).forEach(x=>{if(+x<=G.day-DY_KEEP)delete G.dy[x]})}return G.dy[k]}
 function dyAdd(x,o){x=String(x||'').trim();if(!x)return;const r=dyRec(),l=r.e[r.e.length-1];o=o||{};
   if(o.p&&!r.p.includes(o.p))r.p.push(o.p);if(o.w&&!r.w.includes(o.w))r.w.push(o.w);
