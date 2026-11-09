@@ -108,5 +108,5 @@ fsfs 저장소에서 일할 때 읽는 안내서예요. 사용자와 일하는 �
 
 ## 2026-11-09 (3) 손질
 - **덕질노트 자동 추가**: `lvNew()`가 쓰는 `lvFields()`가 빠져 있어서(ReferenceError) 새 인물(lvlv에서 방금 만든 인물)이 있으면 「덕질노트를 읽지 못했어요」가 떴었어요. 지금은 `lvFields`가 이름·성별·특징만 담고(대사·소개는 열 때마다 lvlv에서 읽어 덮어요), 오류 문구에는 실제 원인이 같이 나와요. lvlv 표는 RLS(`user_id = auth.uid()`)라 같은 로그인이어야 읽혀요.
-- **비디오 테이프**: `mvtape.v1.js`(mvmv와 공용)가 그리는 세운 테이프를 fsfs 비디오 가게·내 비디오에서는 `.tpt` 안에서 왼쪽으로 90° 눕혀서(`transform:rotate(-90deg)`) 보여요. 글자는 `text-orientation:sideways`로 눕힌 뒤 바르게 읽히고, 연도 `.mvt-yr`도 세로 쓰기로 돌려 놨어요. 그림 자체는 mvtape.js가 그리니 **js는 고치지 않고** fsfs CSS(`.tapes …`)만 맞춰요. mvmv처럼 개봉 연도가 나오도록 `mvLoad()`가 `release`를 같이 읽고, 산 비디오에도 `release`를 저장해요. (배우 썸네일은 fsfs에 출연진 정보가 없어 안 나와요.)
+- **비디오 테이프**: `mvtape.v1.js`(mvmv와 공용)가 그리는 세운 테이프를 fsfs 비디오 가게·내 비디오에서는 `.tpt` 안에서 왼쪽으로 90° 눕혀서(`transform:rotate(-90deg)`) 보여요. 제목 글자는 `text-orientation:sideways`로 눕힌 뒤 바르게 읽히고, 연도 `.mvt-yr`는 mvmv처럼 테이프와 같이 반시계 방향으로 누워요. 폰(`isMobile()`)에서는 한 번에 4개만 진열해요. 그림 자체는 mvtape.js가 그리니 **js는 고치지 않고** fsfs CSS(`.tapes …`)만 맞춰요. mvmv처럼 개봉 연도가 나오도록 `mvLoad()`가 `release`를 같이 읽고, 산 비디오에도 `release`를 저장해요. (배우 썸네일은 fsfs에 출연진 정보가 없어 안 나와요.)
 - 서점 책 표지(`bkSw`) 오른쪽 8px 색 띠를 없앴어요. 간판 글씨는 `.pn .pl{top:5px}`.

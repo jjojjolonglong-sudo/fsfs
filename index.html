@@ -707,7 +707,6 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
 .tapes .tpt .mvtp{position:absolute;left:0;top:0;transform-origin:0 0;transform:translateY(var(--tw)) rotate(-90deg);transition:none;cursor:default;background:linear-gradient(270deg,#fff3,#0000 14%,#0000 84%,#0006),var(--p);box-shadow:inset 0 0 0 1px #ffffff22,-3px 0 4px #000a}
 .tapes .mvt-st{text-orientation:sideways}
 .tapes .mvt-tcy{text-combine-upright:none}
-.tapes .mvt-yr{writing-mode:vertical-rl;text-orientation:sideways;padding:0 3px}
 
 /* ---- 성소: 종이 ---- */
 #intlight[data-s=sh],#intlight[data-s=shn]{background:radial-gradient(ellipse at 50% 64%,rgba(255,205,120,calc(.08 + var(--w,0)*.34)),rgba(255,170,90,calc(var(--w,0)*.14)) 62%,transparent 80%)}
@@ -3235,7 +3234,7 @@ async function openVideoShop(pid){
   if(!openNow(pid))return say('지금은 문을 닫았어요',1);
   $('#shm').textContent='진열대를 둘러보는 중…';$('#shl').innerHTML='';$('#shop').showModal();
   try{await mvLoad()}catch(e){$('#shl').innerHTML='<div class="tag">영화 목록을 불러오지 못했어요 (로그인 확인)</div>';return}
-  G.videos=G.videos||{};const pool=MVA.filter(m=>!G.videos[m.id]).sort(()=>Math.random()-.5).slice(0,VIDEO_SHOW);
+  G.videos=G.videos||{};const pool=MVA.filter(m=>!G.videos[m.id]).sort(()=>Math.random()-.5).slice(0,isMobile()?4:VIDEO_SHOW);
   if(!pool.length){$('#shl').classList.remove('tapes');$('#shl').innerHTML='<div class="tag">오늘은 새로 들어온 비디오가 없어요</div>'}
   else tapeGrid(pool,()=>`₩${VIDEO_PRICE.toLocaleString()} 구매`,(m,b)=>{if(G.money<VIDEO_PRICE)return msg('돈이 부족해요',1);earn(-VIDEO_PRICE,m.name+' 비디오 구매');G.videos[m.id]={id:m.id,name:m.name,release:m.release||null,c1:m.c1,c2:m.c2,c3:m.c3,c4:m.c4};G.log=`${m.name} 비디오를 샀어요`;msg(`📼 ${m.name} 비디오를 샀어요! · −₩${VIDEO_PRICE.toLocaleString()}`);b.textContent='보유';b.disabled=true;saveGame();renderWorld();$('#shm').textContent='비디오 가게 · 보유 금액 ₩'+G.money.toLocaleString()});
   $('#shm').textContent='비디오 가게 · 보유 금액 ₩'+G.money.toLocaleString()}
