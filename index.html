@@ -483,9 +483,6 @@ html{overflow:hidden}
 @keyframes shfl{0%,100%{transform:scale(1,1) skewX(0)}22%{transform:scale(.93,1.07) skewX(-3.5deg)}50%{transform:scale(1.05,.95) skewX(2.5deg)}78%{transform:scale(.97,1.04) skewX(-1.5deg)}}
 @media (prefers-reduced-motion:reduce){#shdeco .fl{animation:none}}
 #intlight{position:absolute;inset:0;pointer-events:none;transition:background 1.2s ease}
-#intlight[data-s=dc]{background:rgba(40,36,80,.30)}
-#intlight[data-s=no]{background:radial-gradient(ellipse at 50% 30%,rgba(255,224,170,.45),rgba(255,200,130,.2) 62%,rgba(255,180,110,.08));mix-blend-mode:screen}
-#intlight[data-s=nc]{background:rgba(24,24,70,.45)}
 /* 장소 간판 (지도) */
 .map-building{position:absolute;z-index:3;left:var(--x);top:var(--y);transform:translate(-50%,-50%);max-width:30%;padding:5px 12px;border:2px solid var(--ink);border-radius:999px;background:#fff;color:var(--ink);font-weight:800;font-size:12px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 2px 0 rgba(91,75,104,.3);cursor:pointer}
 .map-building:hover{background:var(--butter);transform:translate(-50%,calc(-50% - 3px))}
@@ -648,13 +645,14 @@ dialog{border:3px solid var(--ln);box-shadow:none}
  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3C/svg%3E") left 2px top 2px/7px 7px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3C/svg%3E") right 2px top 2px/7px 7px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3C/svg%3E") left 2px bottom 2px/7px 7px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3C/svg%3E") right 2px bottom 2px/7px 7px no-repeat,linear-gradient(rgba(255,255,255,.4),rgba(255,255,255,0) 52%),var(--signbg,#ffe27a);
  box-shadow:inset 0 0 0 2px rgba(255,255,255,.5),inset 3px 4px 8px rgba(84,64,150,.30),0 0 0 1.5px rgba(106,90,158,.6),0 4px 0 1px rgba(91,75,104,.18),0 7px 10px rgba(91,75,104,.14);color:#6d4f9f}
 .pn i{font-size:31px;line-height:1;filter:drop-shadow(0 2px 0 rgba(106,90,158,.22))}
-.pn .pl{display:flex;align-items:baseline;justify-content:center;gap:8px;min-width:0;max-width:100%}
+.pn .pl{display:flex;align-items:baseline;justify-content:center;gap:8px;min-width:0;max-width:100%;position:relative;top:3px}
 .pn span{text-shadow:0 1px 0 rgba(255,255,255,.75)}
 .sign{position:relative;z-index:0;box-sizing:border-box;width:178px;margin:15px auto 0;padding:7px 8px 5px;border:3px solid;border-color:#e6deff #a18dd8 #a18dd8 #e6deff;border-radius:5px;background:linear-gradient(#2f2763,#1c1741);text-align:center;line-height:1.15;box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.35),inset 0 4px 9px rgba(0,0,0,.5),0 0 0 1.5px rgba(106,90,158,.6),0 5px 0 1px rgba(91,75,104,.2)}
 .sign::before,.sign::after{content:"";position:absolute;top:-24px;width:4px;height:26px;border-radius:2px;background:linear-gradient(90deg,#f4f0ff,#b8abe8 55%,#8b7cc7);box-shadow:0 0 0 1px #6a5a9e;z-index:-1}
 .sign::before{left:26px}.sign::after{right:26px}
 .sign span{display:block;margin-top:4px;font-size:12px;letter-spacing:.03em;color:#d9d0ff}
 .sign.o{--lc:#b4ffe2;--lh:#19e0a0}.sign.c{--lc:#ffc9de;--lh:#ff3d86}
+.sign.c{margin-top:110px}.sign.c::before,.sign.c::after{top:-119px;height:121px}   /* 닫혔을 땐 연결선을 길게 늘어뜨려 잘 보이게 */
 .led{display:block;width:100%;height:auto}.led .h1{fill:var(--lh);opacity:.26}.led .h2{fill:var(--lh);opacity:.5}.led .d0{fill:var(--lc)}
 .twi,.twarr{border:3px solid var(--bs-ln);box-shadow:none}
 #actov{background:linear-gradient(175deg,#d6f0ff,#eee2ff 60%,#ffe0f0);border-top:4px solid var(--ln);box-shadow:none}
@@ -1246,11 +1244,40 @@ const schedFromSlots=o=>{const out=[];Object.keys(o||{}).map(Number).filter(x=>x
   const f=out[0],l=out[out.length-1];if(out.length>1&&f.a===0&&l.b===DAY&&f.p===l.p){l.b=f.b;out.shift()}out.forEach(x=>{if(x.b>=DAY)x.b%=DAY});return out};
 const BANDS=[[300,420,'아침'],[420,780,'오전'],[780,1020,'오후'],[1020,1140,'저녁'],[1140,300,'밤']];
 const bandOf=m=>(BANDS.find(([a,b])=>a<b?(m>=a&&m<b):(m>=a||m<b))||BANDS[4])[2];
-// 시간대별 배경 색 덧씌우기 (시각, [r,g,b,투명도]) — 사이는 부드럽게 이어져요
-const TINT=[[0,[18,28,78,.56]],[240,[18,28,78,.52]],[300,[255,196,186,.30]],[360,[255,222,205,.18]],[420,[255,255,255,0]],[780,[255,240,200,.08]],[960,[255,232,170,.18]],[1020,[255,160,96,.32]],[1110,[255,132,92,.34]],[1170,[62,54,130,.45]],[1260,[22,32,86,.54]],[1440,[18,28,78,.56]]];
-function tintAt(m){const j=TINT.findIndex(k=>k[0]>m),lo=TINT[Math.max(1,j)-1],hi=TINT[Math.max(1,j)],t=(m-lo[0])/(hi[0]-lo[0]),c=lo[1].map((v,i)=>v+(hi[1][i]-v)*t);return `rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${c[3].toFixed(3)})`}
-function lightApply(){const el=$('#intlight');if(!el||!G)return;const p=WORLD.places[G.place],open=!p||p.type==='home'||openNow(G.place),h=G.min/60,night=h>=19||h<6;el.dataset.s=night?(open?'no':'nc'):(open?'':'dc');if(p&&p.type==='shrine'){el.dataset.s=night?'shn':'sh';el.style.setProperty('--w',Math.min(1,(G.notes||[]).length/12))}else el.style.removeProperty('--w')}
-function applyTint(){if(!G)return;lightApply();const c=tintAt(G.min),t=$('#maptint'),u=$('#inttint');if(t)t.style.background=c;if(u)u.style.background=c}
+// ===== 날씨: 날짜마다 정해져요(같은 날은 늘 같은 날씨). 맑음·흐림·비(보슬비/비/폭우)·눈(눈발/눈/폭설) =====
+const WXP={spring:[50,20],summer:[30,20],autumn:[50,25],winter:[40,20]},WXL={spring:[50,35],summer:[30,40],autumn:[50,35],winter:[40,40]};   // [맑음%, 흐림%] 나머지는 비(겨울은 눈) · [1단계%, 2단계%] 나머지는 3단계
+const WXC={},wxSeason=d=>{const m=d.getMonth()+1;return m>=3&&m<=5?'spring':m<=8&&m>=6?'summer':m>=9&&m<=11?'autumn':'winter'};
+function wxOf(day){day=day==null?G.day:day;if(WXC[day])return WXC[day];const s=wxSeason(new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+day)),P=WXP[s],r=hsh('wx'+day)%100;
+  const k=r<P[0]?'clear':r<P[0]+P[1]?'cloudy':(s==='winter'?'snow':'rain');let lv=0;if(k==='rain'||k==='snow'){const L=WXL[s],q=hsh('wl'+day)%100;lv=q<L[0]?1:q<L[0]+L[1]?2:3}
+  return WXC[day]={k,lv,s}}
+const wxLabel=w=>w.k==='clear'?['☀️','맑음']:w.k==='cloudy'?['☁️','흐림']:w.k==='rain'?[['🌦','보슬비'],['🌧','비'],['⛈','폭우']][w.lv-1]:[['🌨','눈발'],['❄️','눈'],['☃️','폭설']][w.lv-1];
+// ===== 조명: 시각×(야외/실내)×(영업/비영업)×날씨. 색은 [r,g,b,투명도]이고 시각 사이는 부드럽게 이어져요 =====
+const TINT=[[0,[18,28,78,.56]],[240,[18,28,78,.52]],[300,[255,196,186,.30]],[360,[255,222,205,.18]],[420,[255,255,255,0]],[780,[255,240,200,.08]],[960,[255,232,170,.18]],[1020,[255,160,96,.32]],[1110,[255,132,92,.34]],[1170,[62,54,130,.45]],[1260,[22,32,86,.54]],[1440,[18,28,78,.56]]];   // 야외
+const TINT_IO=[[0,[255,236,205,.10]],[300,[255,228,200,.10]],[360,[255,238,216,.04]],[420,[255,255,255,0]],[1020,[255,244,222,.03]],[1110,[255,232,200,.07]],[1170,[255,228,198,.10]],[1440,[255,236,205,.10]]];   // 실내·영업 중(불이 켜져 있어요: 거의 안 어두워져요)
+const TINT_IC=[[0,[14,22,64,.56]],[300,[40,44,96,.46]],[360,[90,90,140,.30]],[420,[70,70,120,.26]],[1020,[70,66,120,.28]],[1110,[60,52,110,.38]],[1170,[30,34,86,.50]],[1260,[14,22,64,.56]],[1440,[14,22,64,.56]]];   // 실내·문 닫음(불 꺼짐: 창으로 들어오는 빛만)
+const GLOW=[[0,.30],[300,.30],[390,.10],[450,0],[1020,0],[1080,.12],[1170,.28],[1440,.30]];   // 영업 중 실내의 따뜻한 불빛 세기
+const DAYF=[[0,0],[330,0],[450,1],[1020,1],[1140,0],[1440,0]];   // 낮 정도(0 밤 ~ 1 낮)
+const KF=(T,m)=>{const j=T.findIndex(k=>k[0]>m),i=Math.max(1,j<0?T.length-1:j),lo=T[i-1],hi=T[i],t=Math.max(0,Math.min(1,(m-lo[0])/(hi[0]-lo[0])));return Array.isArray(lo[1])?lo[1].map((v,n)=>v+(hi[1][n]-v)*t):lo[1]+(hi[1]-lo[1])*t};
+const over=(a,b)=>{if(!b||!b[3])return a;if(!a||!a[3])return b;const al=a[3]+b[3]*(1-a[3]);return [0,1,2].map(i=>(a[i]*a[3]+b[i]*b[3]*(1-a[3]))/al).concat(al)};
+const rgbaStr=c=>`rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${Math.max(0,c[3]).toFixed(3)})`;
+function wxTint(w,m,sc){if(!w||w.k==='clear')return null;const d=KF(DAYF,m),lp=(a,b)=>a*d+b*(1-d);let c,al;
+  if(w.k==='cloudy'){c=[lp(150,12),lp(158,18),lp(176,52)];al=lp(.12,.06)}
+  else if(w.k==='rain'){al=[.12,.19,.28][w.lv-1];c=[lp(100,10),lp(116,16),lp(152,46)];al=lp(al,al*.5)}
+  else{al=[.07,.10,.14][w.lv-1];c=[228,238,255];al=lp(al,al*.6)}
+  return [c[0],c[1],c[2],al*(sc==null?1:sc)]}
+function lightCalc(){const m=G.min,w=(()=>{try{return wxOf()}catch(e){return{k:'clear',lv:0,s:'spring'}}})(),pl=WORLD.places[G.place],p=pl||{},open=!pl||p.type==='home'||openNow(G.place);
+  let o=KF(TINT,m);if(w.k==='snow')o=[o[0],o[1],o[2],o[3]*(1-.1*w.lv*(1-KF(DAYF,m)))];   // 눈 오는 밤은 눈빛 때문에 조금 덜 어두워요
+  const outTint=over(o,wxTint(w,m,1));let inTint,glow=0;
+  if(p.outdoor)inTint=outTint;
+  else if(p.type==='shrine')inTint=o;   // 성소는 따로 (촛불 그림)
+  else if(open){inTint=over(KF(TINT_IO,m),wxTint(w,m,.3));glow=KF(GLOW,m)+(w.k==='clear'?0:(w.k==='cloudy'?.04:.04+.03*w.lv))*KF(DAYF,m)}
+  else inTint=over(KF(TINT_IC,m),wxTint(w,m,.5));
+  return {out:rgbaStr(outTint),inn:rgbaStr(inTint),glow,pl:p}}
+function lightApply(L){const el=$('#intlight');if(!el||!G)return;const p=L.pl;
+  if(p.type==='shrine'){const night=G.min/60>=19||G.min/60<6;el.dataset.s=night?'shn':'sh';el.style.setProperty('--w',Math.min(1,(G.notes||[]).length/12));el.style.background='';el.style.mixBlendMode='';return}
+  el.dataset.s='';el.style.removeProperty('--w');const g=L.glow;
+  el.style.background=g>0.005?`radial-gradient(ellipse at 50% 30%,rgba(255,226,170,${g.toFixed(3)}),rgba(255,204,140,${(g*.45).toFixed(3)}) 62%,rgba(255,184,112,${(g*.18).toFixed(3)}))`:'none';el.style.mixBlendMode='screen'}
+function applyTint(){if(!G)return;const L=lightCalc();lightApply(L);const t=$('#maptint'),u=$('#inttint');if(t)t.style.background=L.out;if(u)u.style.background=L.inn}
 const emoBtn=(id,v)=>`<button type="button" class="emo" id="${id}" data-v="${esc(v||'')}" title="눌러서 고르기">${esc(v||'＋')}</button>`;
 const EMO0={'장소·가게':'🏠 🏡 🏢 🏪 🏬 🏫 🏥 🏦 🏨 🏰 ⛪ 🏭 ⛺ 🌳 🌲 🌴 🌷 🌸 🌺 🌻 🌹 💐 🪴 🍀 🌿 ⛲ 🌅 🌆 🌇 🌉 🛍 👗 👚 👕 👖 👔 🧥 👘 👠 👟 👜 👒 🎩 💍 💄 💇 💅 🪞 📚 📖 🛒',
   '먹을 것':'☕ 🍵 🧋 🥤 🍺 🍷 🍸 🍰 🎂 🧁 🍩 🍪 🍫 🍬 🍭 🍮 🍞 🥐 🥖 🥨 🧀 🍳 🥞 🍔 🍟 🍕 🌭 🥪 🌮 🍜 🍝 🍛 🍣 🍱 🍙 🍚 🍎 🍓 🍇 🍉 🍌 🍑 🍿',
@@ -1362,7 +1389,9 @@ const PLACEACT0={convenience:{add:['job_conv','snack'],remove:[]},cafe:{add:['jo
 const TYPES0={department:{name:'백화점',icon:'🏬',actions:['limited','groupbuy']},home:{name:'주거',icon:'🏠',actions:['sleep','closet','status','mybooks','diary']},videostore:{name:'비디오 가게',icon:'📼',actions:['videobuy']},shrine:{name:'성소',icon:'🕯',actions:['shrine']},bookstore:{name:'서점',icon:'📚',actions:['bookbuy','bookmore']},clothes:{name:'옷가게',icon:'👗',actions:['shop']},cafe:{name:'카페',icon:'☕',actions:['drink']},restaurant:{name:'식당',icon:'🍝',actions:['meal']},salon:{name:'미용실',icon:'💇',actions:['hair']},park:{name:'공원',icon:'🌳',actions:['walk']},basic:{name:'일반',icon:'📍',actions:[]},library:{name:'도서관',icon:'📚',actions:['bkbk']},cinema:{name:'영화관',icon:'🎬',actions:['mvmv']}};
 WORLD.actions={};ACT0.forEach(a=>WORLD.actions[a.code]=a);WORLD.types=structuredClone(TYPES0);WORLD.placeActs=structuredClone(PLACEACT0);
 const ACQ={};
-const FIXTYPE={department:{name:'백화점',icon:'🏬',acts:['limited','groupbuy'],lock:['limited','groupbuy']},home:{name:'주거',icon:'🏠',acts:['sleep','closet','status','mybooks','diary'],lock:['mybooks','diary']},videostore:{name:'비디오 가게',icon:'📼',acts:['videobuy'],lock:['videobuy']},bookstore:{name:'서점',icon:'📚',acts:['bookbuy','bookmore'],lock:['bookmore','bookbuy']},library:{name:'도서관',icon:'📚',acts:['bkbk'],lock:['bkbk']},cinema:{name:'영화관',icon:'🎬',acts:['mvmv'],lock:['mvmv']},posterhall:{name:'포스터 전시관',icon:'🎞',acts:['mvmv'],lock:['mvmv']},shrine:{name:'성소',icon:'🕯',acts:['shrine'],lock:['shrine']}};
+const ROAD='road',ROAD_P=.12,ROAD_MAXD=2,ROAD_COOL=7,ROAD_MIN=10;   // 길 위(지도에 없는 숨겨진 장소): 이동 한 번에 12% · 하루 최대 2번 · 같은 만남은 7일 뒤에 다시 · 이동이 10분 이상일 때만
+let ROADCTX={from:'',to:''};
+const FIXTYPE={road:{name:'길 위',icon:'🚶',acts:[],lock:[]},department:{name:'백화점',icon:'🏬',acts:['limited','groupbuy'],lock:['limited','groupbuy']},home:{name:'주거',icon:'🏠',acts:['sleep','closet','status','mybooks','diary'],lock:['mybooks','diary']},videostore:{name:'비디오 가게',icon:'📼',acts:['videobuy'],lock:['videobuy']},bookstore:{name:'서점',icon:'📚',acts:['bookbuy','bookmore'],lock:['bookmore','bookbuy']},library:{name:'도서관',icon:'📚',acts:['bkbk'],lock:['bkbk']},cinema:{name:'영화관',icon:'🎬',acts:['mvmv'],lock:['mvmv']},posterhall:{name:'포스터 전시관',icon:'🎞',acts:['mvmv'],lock:['mvmv']},shrine:{name:'성소',icon:'🕯',acts:['shrine'],lock:['shrine']}};
 // 관리자에서 의상마다 적은 획득 경로(DB)를 게임 경로로 바꿔요. 종류 이름·칸 이름은 DB의 경로 종류 정의를 그대로 따라요
 const shopPlaces=()=>Object.keys(WORLD.places).filter(k=>((WORLD.types[WORLD.places[k].type]||{actions:[]}).actions||[]).some(c=>(WORLD.actions[c]||{}).kind==='shop'));
 const placesFor=nm=>{const m=/^모든 (.+)$/.exec(nm||'');if(m){const ts=Object.keys(WORLD.types).filter(k=>WORLD.types[k].name===m[1]);if(ts.length)return Object.keys(WORLD.places).filter(k=>ts.includes(WORLD.places[k].type));if(m[1]==='상점')return shopPlaces()}return Object.keys(WORLD.places).filter(k=>WORLD.places[k].n===nm)};
@@ -1475,7 +1504,7 @@ const earn=(v,label)=>{v=Math.round(+v||0);if(!v)return;G.money+=v;dyMoney(v);G.
 const clampE=v=>Math.max(0,Math.min(100,v));
 // ===== 하루 기록: 그날 다닌 곳·한 일·돈을 자동으로 모아요 (G.dy[날짜] = {e:[[분,글,횟수]], p:[장소], w:[인물], i:번 돈, o:쓴 돈}) =====
 const DY_KEEP=30,DY_ENT=60;
-function dyRec(){G.dy=G.dy&&typeof G.dy==='object'?G.dy:{};const k=G.day;if(!G.dy[k]){G.dy[k]={e:[],p:[],w:[],i:0,o:0};Object.keys(G.dy).forEach(x=>{if(+x<=G.day-DY_KEEP)delete G.dy[x]})}return G.dy[k]}
+function dyRec(){G.dy=G.dy&&typeof G.dy==='object'?G.dy:{};const k=G.day;if(!G.dy[k]){const wx=wxOf(k);G.dy[k]={e:[],p:[],w:[],i:0,o:0,x:[wx.k,wx.lv]};Object.keys(G.dy).forEach(x=>{if(+x<=G.day-DY_KEEP)delete G.dy[x]})}return G.dy[k]}
 function dyAdd(x,o){x=String(x||'').trim();if(!x)return;const r=dyRec(),l=r.e[r.e.length-1];o=o||{};
   if(o.p&&!r.p.includes(o.p))r.p.push(o.p);if(o.w&&!r.w.includes(o.w))r.w.push(o.w);
   if(l&&l[1]===x)l[2]=(l[2]||1)+1;else{r.e.push([G.min,x,1]);if(r.e.length>DY_ENT)r.e.shift()}}
@@ -1501,25 +1530,28 @@ function recRefresh(){
     try{r.wk=(await wkLoad()).filter(x=>x.isNew).length;ok++}catch(e){}
     REC=r;RECT=Date.now()-(ok?0:REC_TTL-60000);return r})().finally(()=>{RECP=null});return RECP}
 const REC_TTL=300000;
-const wxNow=()=>{try{const k=fxKind();return k==='rain'?'rain':k==='winter'?'snow':'clear'}catch(e){return null}};   // 계절 효과와 같은 날씨: 여름엔 비/맑음이 섞이고 겨울엔 눈
+const wxNow=()=>{try{const w=wxOf();return w.k==='rain'?'rain':w.k==='snow'?'snow':'clear'}catch(e){return null}};   // 계절 효과와 같은 날씨: 여름엔 비/맑음이 섞이고 겨울엔 눈
 const hasRef=r=>String(r).startsWith('g:')?(((G.bag||{})[String(r).slice(2)])||0)>0:!!(G.owned||{})[rid(r)];
+const npcNear=id=>{const tn=new Set([townOf(ROADCTX.from),townOf(ROADCTX.to)]);return Object.keys(WORLD.places).some(k=>tn.has(townOf(k))&&WORLD.places[k].type!==ROAD&&npcIn(id,k))};   // 길 위 만남: 그 인물이 지금 이 동네 어딘가에 있어요
 function evOk(e){
-  if(e.repeat==='daily'?G.doneDay[e.id]===G.day:G.done[e.id])return false;
-  if((e.place&&e.place!==G.place)||(e.npc&&!npcAt(e.npc)))return false;
+  const rd=e.place===ROAD;
+  if(rd){if(G.evCool&&G.evCool[e.id]!=null&&G.day-G.evCool[e.id]<ROAD_COOL)return false}
+  else if(e.repeat==='daily'?G.doneDay[e.id]===G.day:G.done[e.id])return false;
+  if((e.place&&e.place!==G.place)||(e.npc&&!(rd?npcNear(e.npc):npcAt(e.npc))))return false;
   if(e.ranges&&e.ranges.length&&!inR(e.ranges,G.min))return false;
   if(e.from&&!inRange(e.from,e.to||e.from))return false;
   const bd=e.bday||(e.birthday?'player':null);
   if(bd&&!inBday(bd==='player'?WORLD.birthday:(WORLD.npcs[bd]||{}).birthday))return false;
   if(e.aff&&Object.entries(e.aff).some(([k,v])=>(G.aff[k]||0)<v))return false;
-  if(e.together&&!npcAt(e.together))return false;   // 두 인물이 같은 장소에 있을 때
+  if(e.together&&!(rd?npcNear(e.together):npcAt(e.together)))return false;   // 두 인물이 같은 장소에 있을 때
   if(e.tod){const h=G.min/60,night=h>=19||h<6;if((e.tod==='night')!==night)return false}
   if(e.wx&&wxNow()!==e.wx)return false;
   if(e.enMax!=null&&G.energy>e.enMax)return false;
-  if(e.first&&((G.visits||{})[G.place]||0)!==1)return false;   // 이 장소에 처음 들어온 때
+  if(e.first&&!rd&&((G.visits||{})[G.place]||0)!==1)return false;   // 이 장소에 처음 들어온 때
   if((e.cnt||[]).some(c=>c.act&&((G.cnt||{})[c.act]||0)<(+c.min||1)))return false;
   if((e.has||[]).some(r=>!hasRef(r)))return false;
   if((e.rec||[]).length){if(!REC||e.rec.some(r=>(REC[r.kind]||0)<(+r.min||1)))return false}
-  if(e.chance!=null&&e.chance<100&&hash(e.id+':'+G.day+':'+Math.floor(G.min/120))%100>=e.chance)return false;   // 같은 날·같은 시간대엔 결과가 고정
+  if(e.chance!=null&&e.chance<100&&!rd&&hash(e.id+':'+G.day+':'+Math.floor(G.min/120))%100>=e.chance)return false;   // 같은 날·같은 시간대엔 결과가 고정
   return true;
 }
 function giveGoods(id){const g=GOODS(id);if(!g)return;G.bag=G.bag||{};G.bag[id]=(G.bag[id]||0)+1;msg('🎁 '+(g.icon||'📦')+' '+g.name)}
@@ -1558,8 +1590,21 @@ function greetAt(pid){
   if(!ids.length)return;const k=ids[Math.floor(Math.random()*ids.length)];
   const t=pickLine(k)||'어서 오세요!';
   runScene([{who:k,t}],()=>{saveGame()})}
-function go(p,reopen){if(p===G.place){if(viewTown||viewTownId){pass(WORLD.moveMin);viewTown=false;viewTownId=null;G.log='';after()}return}/* 지도에서 같은 장소에 다시 들어가도 15분 */if(!WORLD.places[p])return;const gt=homeGate(p,G.place);if(!gt.ok)return msg(gt.why,1);const mn=travelMin(G.place,p);pass(mn);G.place=p;G.visits=G.visits||{};G.visits[p]=(G.visits[p]||0)+1;{const q=WORLD.places[p];dyAdd(`${q.i?q.i+' ':''}${q.n}에 갔어요`,{p})}closeCl();ACTGRP=null;viewSt=false;viewBk=false;viewMv=false;viewSh=false;viewTown=false;viewTownId=null;G.log='';after();greetAt(p);if(gt.host)msg(`🏡 ${gt.host.n}${josaI(gt.host.n)} 안으로 안내해 줬어요`);else catNotice();if((WORLD.places[p]||{}).type==='posterhall')openMovies()}
-function stepTown(d){const i=TOWNS.findIndex(t=>t.id===curTown()),j=i+d;if(j<0||j>=TOWNS.length)return;viewTownId=TOWNS[j].id;pass(WORLD.townMin);G.log='';after();msg(`${TOWNS[j].name}으로 이동 · ⏱ ${durText(WORLD.townMin)}`)}   // 마을을 옮기는 순간 30분이 흐른다
+function go(p,reopen){if(p===G.place){if(viewTown||viewTownId){pass(WORLD.moveMin);viewTown=false;viewTownId=null;G.log='';after()}return}/* 지도에서 같은 장소에 다시 들어가도 15분 */if(!WORLD.places[p])return;const gt=homeGate(p,G.place);if(!gt.ok)return msg(gt.why,1);const mn=travelMin(G.place,p);
+  const ev=roadPick(G.place,p,mn);if(ev)return roadRun(ev,mn,()=>arrive(p,gt));pass(mn);arrive(p,gt)}
+function arrive(p,gt){delete G.roadFrom;G.place=p;G.visits=G.visits||{};G.visits[p]=(G.visits[p]||0)+1;{const q=WORLD.places[p];dyAdd(`${q.i?q.i+' ':''}${q.n}에 갔어요`,{p})}closeCl();ACTGRP=null;viewSt=false;viewBk=false;viewMv=false;viewSh=false;viewTown=false;viewTownId=null;G.log='';after();greetAt(p);if(gt.host)msg(`🏡 ${gt.host.n}${josaI(gt.host.n)} 안으로 안내해 줬어요`);else catNotice();if((WORLD.places[p]||{}).type==='posterhall')openMovies()}
+/* ===== 길 위: 이동하는 도중에 가끔 우연한 마주침이 열려요 (장소가 「길 위」인 이벤트) ===== */
+function roadPick(from,to,mn){
+  if(mn<ROAD_MIN||!WORLD.places[ROAD]||$('#scene').open)return null;G.road=G.road||{d:-1,n:0};const R=G.road;if(R.d!==G.day){R.d=G.day;R.n=0}
+  if(R.n>=ROAD_MAXD||Math.random()>=ROAD_P)return null;
+  const sv=[G.place,G.min];G.place=ROAD;G.min=(G.min+Math.round(mn/2))%DAY;ROADCTX={from,to};let L=[];try{L=WORLD.events.filter(e=>e.place===ROAD&&evOk(e))}finally{G.place=sv[0];G.min=sv[1]}
+  return L.length?L[Math.floor(Math.random()*L.length)]:null}
+function roadRun(ev,mn,fin){
+  const h=Math.max(1,Math.round(mn/2));G.road.n++;G.evCool=G.evCool||{};G.evCool[ev.id]=G.day;G.roadFrom=G.place;pass(h);G.place=ROAD;
+  closeCl();ACTGRP=null;viewSt=viewBk=viewMv=viewSh=false;viewTown=false;viewTownId=null;G.log='';renderWorld();refresh();
+  runScene(ev.scene,()=>{earn(ev.money||0,'길 위 · '+(ev.title||''));(ev.affEff||[]).forEach(a=>G.aff[a.npc]=(G.aff[a.npc]||0)+(+a.v||0));(ev.give||[]).forEach(giveItem);eventRoutes(ev);dyAdd('🚶 길 위에서 — '+String(ev.title||'우연한 만남').replace(/^\[[^\]]*\]\s*/,''));pass(Math.max(0,mn-h));fin()})}
+function stepTown(d){const i=TOWNS.findIndex(t=>t.id===curTown()),j=i+d;if(j<0||j>=TOWNS.length)return;const fin=()=>{viewTownId=TOWNS[j].id;G.log='';after();msg(`${TOWNS[j].name}으로 이동 · ⏱ ${durText(WORLD.townMin)}`)};   // 마을을 옮기는 순간 30분이 흐른다
+  const ev=roadPick(G.place,G.place,WORLD.townMin);if(ev){const back=G.place;return roadRun(ev,WORLD.townMin,()=>{G.place=back;delete G.roadFrom;viewTown=true;fin()})}pass(WORLD.townMin);fin()}
 $('#tw_l').onclick=()=>stepTown(-1);$('#tw_r').onclick=()=>stepTown(1);
 function renderShop(pid){
   const box=$('#shl');box.innerHTML='';box.classList.remove('tapes');
@@ -1617,7 +1662,7 @@ function buildTownMap(){
   setTownBg(map,TOWNS.find(t=>t.id===tid)||TOWNS[0]);
   if(!$('#maptint')){const t=document.createElement('div');t.id='maptint';map.prepend(t)}
   Object.entries(WORLD.places).forEach(([id,p])=>{
-    if(p.parent||townOf(id)!==tid)return;const b=document.createElement('button');b.type='button';b.className='map-building';b.dataset.place=id;
+    if(p.parent||p.type===ROAD||townOf(id)!==tid)return;const b=document.createElement('button');b.type='button';b.className='map-building';b.dataset.place=id;
     const pos=p.db?p.pos:(HITSPOTS[id]||p.pos||[50,50]);b.style.setProperty('--x',pos[0]+'%');b.style.setProperty('--y',pos[1]+'%');
     b.setAttribute('aria-label',p.n+'으로 이동');b.title=p.n+'으로 이동';{const t=document.createElement('span');t.className='mb-t';t.textContent=(p.i?p.i+' ':'')+p.n;b.append(t)}b.onclick=()=>go(id);map.append(b);
   });
@@ -1801,8 +1846,8 @@ const dayText=(d,y)=>{const t=new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start
 function dyIcon(n,cls){const e=esc(n.i||'🐈');return n.img?`<img class="${cls}" src="${esc(n.img)}" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="${cls} em" hidden>${e}</span>`:`<span class="${cls} em">${e}</span>`}
 function renderDayLog(box,tape,back){
   const lo=Math.max(0,G.day-DY_KEEP+1);dyDay=Math.max(lo,Math.min(dyDay,G.day));
-  const r=(G.dy||{})[dyDay]||{e:[],p:[],w:[],i:0,o:0},ago=G.day-dyDay,W=n=>'₩'+Math.abs(n).toLocaleString();
-  const sm=[r.p.length?`다닌 곳 ${r.p.length}`:'',r.w.length?`만난 사람 ${r.w.length}`:'',r.i?`번 돈 +${W(r.i)}`:'',r.o?`쓴 돈 −${W(r.o)}`:''].filter(Boolean).join(' · ');
+  const r=(G.dy||{})[dyDay]||{e:[],p:[],w:[],i:0,o:0},ago=G.day-dyDay,W=n=>'₩'+Math.abs(n).toLocaleString(),wl=wxLabel(r.x?{k:r.x[0],lv:r.x[1]}:wxOf(dyDay));
+  const sm=[`${wl[0]} ${wl[1]}`,r.p.length?`다닌 곳 ${r.p.length}`:'',r.w.length?`만난 사람 ${r.w.length}`:'',r.i?`번 돈 +${W(r.i)}`:'',r.o?`쓴 돈 −${W(r.o)}`:''].filter(Boolean).join(' · ');
   const rows=r.e.map(e=>`<div class="dyr"><span class="dt">${fmtT(e[0])}</span><span class="dx">${esc(e[1])}${e[2]>1?` ×${e[2]}`:''}</span></div>`).join('');
   box.innerHTML=`<div class="paper dy">${tape}<div class="ph" style="align-items:baseline"><span>📒 ${esc(dayText(dyDay,1))}</span><span>${ago?`${ago}일 전`:'오늘'}</span></div><div class="pt dylog">${sm?`<div class="dysm">${esc(sm)}</div>`:''}${rows||`<div class="dyne">${ago?'이 날은 남은 기록이 없어요.':'아직 오늘의 기록이 없어요.\n돌아다니다 보면 여기에 차곡차곡 쌓여요.'}</div>`}</div><div class="pb"><button id="dy_pv" type="button"${dyDay<=lo?' disabled':''}>◀ 전날</button><button id="dy_nx" type="button"${dyDay>=G.day?' disabled':''}>다음 날 ▶</button><span class="sp"></span><button id="dy_bk" type="button" class="pri">돌아가기</button></div></div>`;
   $('#dy_pv').onclick=()=>{dyDay--;renderShrine()};$('#dy_nx').onclick=()=>{dyDay++;renderShrine()};$('#dy_bk').onclick=back}
@@ -1968,7 +2013,7 @@ const SHS=Array.from({length:SH_MAX},(_,i)=>({x:74+(i%SH_PER)*84,y:268+Math.floo
 function shCandle(s,i,lit){const c=SH_COL[i%SH_COL.length],h=SH_H[(i*3)%SH_H.length],w=15;
   return `<g transform="translate(${s.x} ${s.y})"><ellipse cx="0" cy="1.5" rx="10.5" ry="2.6" fill="#000" fill-opacity=".18"/>
   <rect x="${-w/2}" y="${-h}" width="${w}" height="${h}" rx="3" fill="${c}"/><rect x="${-w/2}" y="${-h}" width="${w}" height="${h}" rx="3" fill="url(#shw)"/>
-  <ellipse cx="0" cy="${-h+1.5}" rx="${w/2-.6}" ry="2.2" fill="#fff" fill-opacity=".38"/><rect x="${-w/2+2.2}" y="${-h+5}" width="2.4" height="${h-11}" rx="1.2" fill="#fff" fill-opacity=".5"/>
+  <ellipse cx="0" cy="${-h+1.5}" rx="${w/2-.6}" ry="2.2" fill="#fff" fill-opacity=".38"/><rect x="${-w/2+2.2}" y="${-h+5}" width="2.4" height="${Math.min(12,h-10)}" rx="1.2" fill="#fff" fill-opacity=".55"/>
   <path d="M0 ${-h+1}V${-h-7}" stroke="#3a2f3f" stroke-width="1.7" stroke-linecap="round"/>`+
   (lit?`<g transform="translate(0 ${-h-17})"><circle r="26" fill="url(#shg)"/><g class="fl" style="--d:${(2.2+(i%5)*.37).toFixed(2)}s;animation-delay:-${((i*.53)%2).toFixed(2)}s"><ellipse rx="4.6" ry="12" fill="url(#shf)" filter="url(#shb)"/></g></g>`:'')+`</g>`}
 function shrineSvg(n){
@@ -2003,7 +2048,7 @@ function renderShrine(){
 function renderStatus(){
   const aff=Object.entries(G.aff).filter(([k,v])=>v&&!isCat(k)).map(([k,v])=>`<div class="srow"><span>${esc((WORLD.npcs[k]||{}).n||k)}</span><b>♥ ${v}</b></div>`).join('')||'<div class="tag">아직 호감도가 쌓인 사람이 없어요</div>',
     catH=Object.entries(G.aff).filter(([k,v])=>v&&isCat(k)).map(([k,v])=>`<div class="srow"><span>${esc(WORLD.npcs[k].i||'🐈')} ${esc(WORLD.npcs[k].n)}</span><b>♥ ${v}</b></div>`).join('');
-  $('#st_b').innerHTML=`<div class="stcol"><div class="srow"><span>날짜·시간</span><b>${dateText()} ${timeText()}</b></div><div class="srow"><span>돈</span><b>₩${G.money.toLocaleString()}</b></div>
+  $('#st_b').innerHTML=`<div class="stcol"><div class="srow"><span>날짜·시간</span><b>${dateText()} ${timeText()}</b></div><div class="srow"><span>날씨</span><b>${(l=>l[0]+' '+l[1])(wxLabel(wxOf()))}</b></div><div class="srow"><span>돈</span><b>₩${G.money.toLocaleString()}</b></div>
     <div class="srow" style="border:0"><span>에너지</span><b>${G.energy} / 100</b></div><div class="ebar"><i style="width:${G.energy}%"></i></div>
     <h2 style="margin-top:12px">호감도</h2>${aff}${catH?`<h2 style="margin-top:12px">고양이</h2>${catH}`:''}<div class="srow" style="margin-top:8px"><span>모은 옷</span><b>${Object.keys(G.owned).length}벌</b></div></div>
     <div class="stcol"><h2>🎒 가방</h2>${bagHtml()}
@@ -2015,13 +2060,14 @@ $('#exitbtn').onclick=()=>{viewTown=true;renderWorld()};
 
 let viewSt=false,viewBk=false,viewMv=false,viewSh=false,mvPlace=null;
 let viewTown=false;const IMGBAD=new Set();
-const placeImg=pid=>{const q=WORLD.places[pid];if(!q)return'';const u=q.img||(q.parent&&(WORLD.places[q.parent]||{}).img)||'';return u&&!IMGBAD.has(u)?u:''};
+const ROAD_IMG=`data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 600 400%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Cdefs%3E%3ClinearGradient id=%22s%22 x1=%220%22 y1=%220%22 x2=%220%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%23bfe0ff%22/%3E%3Cstop offset=%221%22 stop-color=%22%23fff1e4%22/%3E%3C/linearGradient%3E%3ClinearGradient id=%22r%22 x1=%220%22 y1=%220%22 x2=%220%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%23b9b3c9%22/%3E%3Cstop offset=%221%22 stop-color=%22%238f88a6%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%22600%22 height=%22400%22 fill=%22url(%23s)%22/%3E%3Cg fill=%22%23d5cdea%22%3E%3Crect x=%2210%22 y=%22120%22 width=%2270%22 height=%22100%22/%3E%3Crect x=%2290%22 y=%22150%22 width=%2255%22 height=%2270%22/%3E%3Crect x=%22430%22 y=%22110%22 width=%2280%22 height=%22110%22/%3E%3Crect x=%22520%22 y=%22140%22 width=%2280%22 height=%2280%22/%3E%3C/g%3E%3Cg fill=%22%23c3b8e0%22%3E%3Crect x=%22150%22 y=%22135%22 width=%2260%22 height=%2285%22/%3E%3Crect x=%22360%22 y=%22145%22 width=%2262%22 height=%2275%22/%3E%3C/g%3E%3Cg fill=%22%23fff8d8%22 opacity=%22.8%22%3E%3Crect x=%2222%22 y=%22136%22 width=%228%22 height=%2210%22/%3E%3Crect x=%2242%22 y=%22136%22 width=%228%22 height=%2210%22/%3E%3Crect x=%2222%22 y=%22160%22 width=%228%22 height=%2210%22/%3E%3Crect x=%22448%22 y=%22128%22 width=%229%22 height=%2211%22/%3E%3Crect x=%22470%22 y=%22128%22 width=%229%22 height=%2211%22/%3E%3Crect x=%22448%22 y=%22154%22 width=%229%22 height=%2211%22/%3E%3C/g%3E%3Cg fill=%22%239ccf9a%22%3E%3Ccircle cx=%22120%22 cy=%22196%22 r=%2226%22/%3E%3Ccircle cx=%22330%22 cy=%22200%22 r=%2222%22/%3E%3Ccircle cx=%22560%22 cy=%22196%22 r=%2228%22/%3E%3C/g%3E%3Crect y=%22214%22 width=%22600%22 height=%22186%22 fill=%22%23d9d2c4%22/%3E%3Cpolygon points=%22250,214 350,214 600,400 0,400%22 fill=%22url(%23r)%22/%3E%3Cg fill=%22%23fff%22 opacity=%22.85%22%3E%3Cpolygon points=%22297,220 303,220 306,246 294,246%22/%3E%3Cpolygon points=%22294,262 306,262 311,306 289,306%22/%3E%3Cpolygon points=%22288,328 312,328 322,400 278,400%22/%3E%3C/g%3E%3Cg fill=%22%237d7690%22%3E%3Crect x=%2262%22 y=%22150%22 width=%225%22 height=%2270%22/%3E%3Crect x=%22540%22 y=%22150%22 width=%225%22 height=%2270%22/%3E%3C/g%3E%3Cg fill=%22%23ffe9a8%22%3E%3Ccircle cx=%2264%22 cy=%22148%22 r=%227%22/%3E%3Ccircle cx=%22542%22 cy=%22148%22 r=%227%22/%3E%3C/g%3E%3C/svg%3E`;   // 길 위 기본 그림(장소 표에 그림을 올리면 그걸 써요)
+const placeImg=pid=>{const q=WORLD.places[pid];if(!q)return'';const u=q.img||(q.parent&&(WORLD.places[q.parent]||{}).img)||'';return u&&!IMGBAD.has(u)?u:(q.type===ROAD?ROAD_IMG:'')};
 const LEDF={O:'01110,10001,10001,10001,10001,10001,01110',P:'11110,10001,10001,11110,10000,10000,10000',E:'11111,10000,10000,11110,10000,10000,11111',N:'10001,11001,10101,10101,10011,10001,10001',C:'01110,10001,10000,10000,10000,10001,01110',L:'10000,10000,10000,10000,10000,10000,11111',S:'01111,10000,10000,01110,00001,00001,11110',D:'11110,10001,10001,10001,10001,10001,11110'};
 const ledSvg=w=>{const W=35,P=4,n=w.length,x0=Math.floor((W-(n*6-1))/2),pts=[];   // 5x7 점 글자 — 35칸 전광판에 가운데 정렬, 꺼진 점은 어둡게 깔려요
   [...w].forEach((ch,k)=>LEDF[ch].split(',').forEach((row,r)=>[...row].forEach((v,c)=>{if(v==='1')pts.push([(x0+k*6+c)*P+P/2,r*P+P/2])})));
   const L=(cls,r)=>`<g class="${cls}">${pts.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g>`;
   return `<svg class="led" viewBox="0 0 ${W*P} ${7*P}" role="img" aria-label="${w}"><defs><pattern id="ledp" width="${P}" height="${P}" patternUnits="userSpaceOnUse"><circle cx="${P/2}" cy="${P/2}" r="1.3" fill="rgba(255,255,255,.1)"/></pattern></defs><rect width="${W*P}" height="${7*P}" fill="url(#ledp)"/>${L('h1',3.1)}${L('h2',2.3)}${L('d0',1.55)}</svg>`};
-const signHtml=pid=>{const q=WORLD.places[pid];if(!q||q.type==='home')return '';const o=openNow(pid),h=q.open&&q.open.length?q.open.map(([a,b])=>fmtT(a)+' ~ '+fmtB(b)).join(', '):'24H';return `<div class="sign ${o?'o':'c'}">${ledSvg(o?'OPEN':'CLOSED')}<span>${h}</span></div>`};
+const signHtml=pid=>{const q=WORLD.places[pid];if(!q||q.type==='home'||q.type===ROAD)return '';const o=openNow(pid),h=q.open&&q.open.length?q.open.map(([a,b])=>fmtT(a)+' ~ '+fmtB(b)).join(', '):'24H';return `<div class="sign ${o?'o':'c'}">${ledSvg(o?'OPEN':'CLOSED')}<span>${h}</span></div>`};
 function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const d=dateOf();const bn=bandOf(G.min),BR=[['아침','🌅',300,420],['오전','🌤',420,780],['오후','☀️',780,1020],['저녁','🌇',1020,1140],['밤','🌙',1140,1740]],wd=d.getDay(),np=((G.min-300+1440)%1440)/1440*100; 
   $('#wt').innerHTML=`<div class="cal${wd===0?' sun':wd===6?' sat':''}"><span class="mo"><span class="hx">${d.getMonth()+1}월</span></span><b class="dy"><span class="hx">${d.getDate()}</span></b><span class="wk"><span class="hx">${DOW[wd]}요일</span></span></div>
@@ -2059,6 +2105,7 @@ function applyWorld(){
   if(DB.places.length){WORLD.places={};const codes=new Set(DB.places.map(r=>r.code));DB.places.forEach(r=>WORLD.places[r.code]={n:r.name,i:r.icon||'📍',kind:r.kind||'',pos:[+r.x,+r.y],shop:r.is_shop,
     type:r.type_code||'basic',town:r.town||'',img:r.img_key?pubUrl(r.img_key):'',outdoor:!!r.outdoor,cat:!!r.cat,owners:Array.isArray(r.owners)?r.owners:[],open:Array.isArray(r.open_ranges)?r.open_ranges:slotRanges(r.open_slots||[]),parent:(r.parent_code&&r.parent_code!==r.code&&codes.has(r.parent_code))?r.parent_code:null,inner:0,desc:r.descr||'',db:true})}else WORLD.places=PLACES0;
   applyActions();
+  {const r=WORLD.places[ROAD]||(WORLD.places[ROAD]={n:'길 위',i:'🚶',kind:'',pos:[50,50],shop:false,town:'',img:'',cat:false,owners:[],open:[],parent:null,inner:0,desc:'',db:false});r.type=ROAD;r.outdoor=true;r.parent=null;r.cat=false;r.open=[];r.i='🚶';r.owners=[];if(!r.desc)r.desc='어딘가로 가는 길 위예요. 우연히 누군가를 만날지도 몰라요.'}   // 길 위는 늘 있는 숨은 장소(지도에 안 나와요). 장소 표에 같은 코드 줄이 있으면 그림 등을 그 줄에서 정해요
   if(DB.places.length)Object.values(WORLD.places).forEach(p=>{const t=WORLD.types[p.type];if(t&&t.icon)p.i=t.icon;if(p.parent){const q=WORLD.places[p.parent];if(q&&q.town)p.town=q.town}});   // 장소 이모지는 유형을 따라가고, 하위 장소의 동네는 상위 장소를 따라가요
   if(DB.npcs.length){WORLD.npcs={};DB.npcs.forEach(r=>WORLD.npcs[r.code]={n:r.name,i:r.icon||(r.role==='cat'?'🐈':'🙂'),img:r.file_key?pubUrl(r.file_key):'',sch:Array.isArray(r.sched)&&r.sched.length?r.sched:schedFromSlots(r.schedule||{}),lines:r.lines&&r.lines.length?r.lines:['…'],birthday:r.birthday||'',job:r.job||'',intro:r.intro||'',personality:r.personality||'',role:r.role||'resident',work:r.workplace||'',wh:Array.isArray(r.work_hours)?r.work_hours:[],appear:r.appear==null?75:r.appear,db:true})}else WORLD.npcs=NPCS0;
   WORLD.events=DB.events.length?DB.events.filter(r=>r.enabled!==false).map(evFromRow):EVENTS0;
@@ -3232,35 +3279,39 @@ function openMyBooks(){
 
 /* ===== 계절 효과: 마을 지도와 야외 장소에 눈·벚꽃·단풍·비 + 계절 조명 (가볍게: 입자 수십 개, 초당 30프레임) ===== */
 var FX={on:(()=>{try{return localStorage.getItem('fsfsFx')!=='0'}catch(e){return true}})(),out:false,ps:[],key:'',run:0,last:0,w:0,h:0,a:null};
-const fxKind=()=>{const s=seasonOf(dateOf());return s==='summer'?(hsh('rain'+G.day)%100<60?'rain':'sun'):s};   // 여름엔 비 오는 날(10일 중 6일쯤)과 맑은 날이 섞여요
-const FXTINT={spring:'rgba(255,176,205,.08)',sun:'rgba(120,210,255,.06)',rain:'rgba(70,90,130,.17)',autumn:'rgba(255,150,60,.11)',winter:'rgba(150,190,255,.13)'};
-const FXN={spring:30,autumn:26,winter:48,rain:64,sun:0};
+const fxKind=()=>{const w=wxOf();return w.k==='rain'?'rain'+w.lv:w.k==='snow'?'snow'+w.lv:w.s==='spring'?'spring':w.s==='autumn'?'autumn':'none'};   // 날씨가 우선이고, 비·눈이 없는 날은 봄 꽃잎·가을 낙엽
+const FXTINTS={spring:[255,176,205,.08],summer:[120,210,255,.06],autumn:[255,150,60,.11],winter:[150,190,255,.13]};   // 계절 분위기 색(날씨가 맑지 않으면 절반)
+const FXN={spring:30,autumn:26,none:0,rain1:26,rain2:64,rain3:130,snow1:22,snow2:48,snow3:110};
 function fxEnsure(){let c=$('#fxcv');if(c)return c;const f=$('#mapframe');if(!f)return null;
   const t=document.createElement('div');t.id='seastint';t.style.cssText='position:absolute;inset:0;z-index:3;pointer-events:none;transition:background 1.2s ease';
   c=document.createElement('canvas');c.id='fxcv';c.style.cssText='position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none';f.append(t,c);return c}
 const FX_PETAL=new Path2D('M-1 0C-1-.58-.3-.66.3-.42C.7-.26.92-.1 1.1 0C.92.1.7.26.3.42C-.3.66-1 .58-1 0Z');   // 봄 꽃잎: 한쪽은 둥글고 한쪽은 살짝 뾰족한 타원
-function fxSeed(k){const w=FX.w,h=FX.h,R=Math.random,PC=['#ffc2d6','#ffd9e6','#ffb3cc','#fff0f5'],LC=['#e8742a','#c8452a','#e9a23b','#a8552b'];
+function fxSeed(k){const w=FX.w,h=FX.h,R=Math.random,PC=['#ffc2d6','#ffd9e6','#ffb3cc','#fff0f5'],LC=['#e8742a','#c8452a','#e9a23b','#a8552b'],base=k.replace(/\d/g,''),lv=+k.slice(-1)||0,I=lv-1;
+  FX.base=base;FX.lv=lv;FX.sl=base==='rain'?[25,50,80][I]:0;FX.lw=base==='rain'?[1,1.3,1.5][I]:1;FX.ft=6+R()*6;FX.fa=0;
   FX.ps=Array.from({length:FXN[k]||0},()=>{const p={x:R()*w,y:R()*h,ph:R()*6.28,sp:.6+R()*1.2};
-    if(k==='winter'){p.r=1.4+R()*2.2;p.vy=22+R()*30;p.a=.6+R()*.35}
-    else if(k==='spring'){p.r=3+R()*2;p.vy=18+R()*22;p.vx=8+R()*18;p.rot=R()*6.28;p.vr=(R()-.5)*3;p.c=PC[Math.floor(R()*PC.length)]}
-    else if(k==='autumn'){p.r=4+R()*2.5;p.vy=24+R()*24;p.vx=6+R()*16;p.rot=R()*6.28;p.vr=(R()-.5)*4;p.c=LC[Math.floor(R()*LC.length)]}
-    else{p.l=9+R()*8;p.vy=380+R()*160;p.a=.32+R()*.35}
+    if(base==='snow'){p.r=[1.2,1.4,1.6][I]+R()*[1.4,2.2,2.8][I];p.vy=[14,22,40][I]+R()*[18,30,40][I];p.vx=[0,0,18][I]+R()*[0,0,22][I];p.a=.6+R()*.35}
+    else if(base==='spring'){p.r=3+R()*2;p.vy=18+R()*22;p.vx=8+R()*18;p.rot=R()*6.28;p.vr=(R()-.5)*3;p.c=PC[Math.floor(R()*PC.length)]}
+    else if(base==='autumn'){p.r=4+R()*2.5;p.vy=24+R()*24;p.vx=6+R()*16;p.rot=R()*6.28;p.vr=(R()-.5)*4;p.c=LC[Math.floor(R()*LC.length)]}
+    else{p.l=[7,9,12][I]+R()*[5,8,10][I];p.vy=[300,380,480][I]+R()*[80,160,200][I];p.a=[.22,.32,.35][I]+R()*[.25,.35,.4][I]}
     return p})}
 function fxSize(c){const f=$('#mapframe'),w=f.offsetWidth,h=f.offsetHeight;if(!w||!h)return false;if(FX.w!==w||FX.h!==h){FX.w=w;FX.h=h;c.width=w*2;c.height=h*2;FX.key='';}return true}
+const FX_CALM=(()=>{try{return matchMedia('(prefers-reduced-motion:reduce)').matches}catch(e){return false}})();
 function fxLoop(t){if(!FX.run)return;requestAnimationFrame(fxLoop);if(t-FX.last<32)return;const dt=Math.min(.06,(t-(FX.last||t-33))/1000);FX.last=t;
-  const c=$('#fxcv');if(!c)return;const x=c.getContext('2d'),k=FX.key,w=FX.w,h=FX.h;x.setTransform(2,0,0,2,0,0);x.clearRect(0,0,w,h);
-  for(const p of FX.ps){p.ph+=p.sp*dt;p.y+=p.vy*dt;p.x+=Math.sin(p.ph)*20*dt+(p.vx||0)*dt;if(k==='rain')p.x-=50*dt;
+  const c=$('#fxcv');if(!c)return;const x=c.getContext('2d'),k=FX.key,b=FX.base,w=FX.w,h=FX.h;x.setTransform(2,0,0,2,0,0);x.clearRect(0,0,w,h);
+  for(const p of FX.ps){p.ph+=p.sp*dt;p.y+=p.vy*dt;p.x+=Math.sin(p.ph)*(b==='rain'?4:20)*dt+(p.vx||0)*dt;if(b==='rain')p.x-=FX.sl*dt;
     if(p.y>h+12){p.y=-12;p.x=Math.random()*w}if(p.x>w+12)p.x=-12;if(p.x<-12)p.x=w+12;
-    if(k==='winter'){x.globalAlpha=p.a;x.fillStyle='#fff';x.beginPath();x.arc(p.x,p.y,p.r,0,6.283);x.fill();x.strokeStyle='rgba(140,170,215,.55)';x.lineWidth=.7;x.stroke()}
-    else if(k==='rain'){x.globalAlpha=p.a;x.strokeStyle='#a9cdf2';x.lineWidth=1.3;x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p.x-p.l*.14,p.y+p.l);x.stroke()}
-    else{p.rot+=p.vr*dt;x.globalAlpha=.9;x.fillStyle=p.c;x.save();x.translate(p.x,p.y);x.rotate(p.rot);if(k==='spring'){x.scale(p.r,p.r);x.fill(FX_PETAL)}else{x.beginPath();x.ellipse(0,0,p.r,p.r*.55,0,0,6.283);x.fill()}x.restore()}}
+    if(b==='snow'){x.globalAlpha=p.a;x.fillStyle='#fff';x.beginPath();x.arc(p.x,p.y,p.r,0,6.283);x.fill();x.strokeStyle='rgba(140,170,215,.55)';x.lineWidth=.7;x.stroke()}
+    else if(b==='rain'){x.globalAlpha=p.a;x.strokeStyle='#a9cdf2';x.lineWidth=FX.lw;x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p.x-p.l*FX.sl/350,p.y+p.l);x.stroke()}
+    else{p.rot+=p.vr*dt;x.globalAlpha=.9;x.fillStyle=p.c;x.save();x.translate(p.x,p.y);x.rotate(p.rot);if(b==='spring'){x.scale(p.r,p.r);x.fill(FX_PETAL)}else{x.beginPath();x.ellipse(0,0,p.r,p.r*.55,0,0,6.283);x.fill()}x.restore()}}
+  if(b==='rain'&&FX.lv===3&&!FX_CALM){FX.ft-=dt;if(FX.ft<=0){FX.fa=.3;FX.ft=7+Math.random()*9}   // 폭우엔 가끔 번개가 번쩍여요
+    if(FX.fa>0){x.globalAlpha=FX.fa;x.fillStyle='#eaf0ff';x.fillRect(0,0,w,h);FX.fa=Math.max(0,FX.fa-dt*1.2)}}
   x.globalAlpha=1}
 function fxStop(){FX.run=0;const c=$('#fxcv');if(c)c.getContext('2d').clearRect(0,0,c.width,c.height)}
 function fxUpdate(mapOnly,vw,co){FX.a=[mapOnly,vw,co];
   const p=WORLD.places[G.place]||{};FX.out=!vw&&!co&&(mapOnly||!!p.outdoor);
-  const c=fxEnsure();if(!c)return;const k=fxKind(),tn=$('#seastint');if(tn)tn.style.background=FX.out?FXTINT[k]:'transparent';
+  const c=fxEnsure();if(!c)return;const k=fxKind(),tn=$('#seastint');if(tn){const w=wxOf(),t=FXTINTS[w.s].slice();t[3]*=w.k==='clear'?1:.5;tn.style.background=FX.out?rgbaStr(t):'transparent'}
   const b=$('#fxbtn');if(b){b.textContent='✨ '+(FX.on?'켬':'끔');}
-  if(FX.out&&FX.on&&fxSize(c)){if(FX.key!==k){FX.key=k;fxSeed(k)}if(!FX.run){FX.run=1;FX.last=0;requestAnimationFrame(fxLoop)}}else fxStop()}
+  if(FX.out&&FX.on&&FXN[k]>0&&fxSize(c)){if(FX.key!==k){FX.key=k;fxSeed(k)}if(!FX.run){FX.run=1;FX.last=0;requestAnimationFrame(fxLoop)}}else fxStop()}
 document.addEventListener('click',e=>{if(!e.target.closest||!e.target.closest('#fxbtn'))return;FX.on=!FX.on;try{localStorage.setItem('fsfsFx',FX.on?'1':'0')}catch(x){}if(FX.a)fxUpdate(...FX.a)});
 
 /* ===== 배경음악 (cdcd 재생목록 연결) ===== */
@@ -3396,7 +3447,7 @@ var SLOTS=5,SAVE={slot:(()=>{try{return Math.min(SLOTS,Math.max(1,+localStorage.
 function normG(){applyMe();
   if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}
   if(typeof G.min!=='number')G.min=WORLD.wakeMin;if(!Array.isArray(G.ledger))G.ledger=[];
-  if(!G.dy||typeof G.dy!=='object')G.dy={};if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.wait=Array.isArray(G.wait)?G.wait:[];G.vgoods=G.vgoods||{};G.dlv=Array.isArray(G.dlv)?G.dlv:[];G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.catFeed=G.catFeed||{};G.catMet=G.catMet||{};G.mail=Array.isArray(G.mail)?G.mail:[];G.catNames=G.catNames||{};if(!G.visits){G.visits={};if(G.place)G.visits[G.place]=99;G.visits.home=99}G.catWhere=G.catWhere||{};G.catNamedDay=G.catNamedDay||{};catApplyNames();if(G.mailDay==null)G.mailDay=null;G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
+  if(!G.dy||typeof G.dy!=='object')G.dy={};if(!G.road||typeof G.road!=='object')G.road={d:-1,n:0};if(!G.evCool||typeof G.evCool!=='object')G.evCool={};if(G.place===ROAD)G.place=(G.roadFrom&&WORLD.places[G.roadFrom])?G.roadFrom:startPlace();if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.wait=Array.isArray(G.wait)?G.wait:[];G.vgoods=G.vgoods||{};G.dlv=Array.isArray(G.dlv)?G.dlv:[];G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.catFeed=G.catFeed||{};G.catMet=G.catMet||{};G.mail=Array.isArray(G.mail)?G.mail:[];G.catNames=G.catNames||{};if(!G.visits){G.visits={};if(G.place)G.visits[G.place]=99;G.visits.home=99}G.catWhere=G.catWhere||{};G.catNamedDay=G.catNamedDay||{};catApplyNames();if(G.mailDay==null)G.mailDay=null;G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
 const lookPack=()=>(CL&&CL.try&&CL.snap?CL.snap:{sel,colors,iord});   // 입어보는 동안에는 저장되지 않아요
 function lookSave(){if(LOOKP)return;clearTimeout(SAVE.lt);SAVE.lt=setTimeout(()=>{try{localStorage.setItem('fsfsLook',JSON.stringify(lookPack()));localStorage.setItem('fsfsLocalAt',Date.now());localStorage.setItem('fsfsDirty','1')}catch(e){}try{pushSoon()}catch(e){}},800)}
 function applyLook(l){const d=l||LOOKP;if(!d||!d.sel)return;if(!l&&!DB.items.length)return;sel={...sel,...d.sel};colors=d.colors||{};iord=Array.isArray(d.iord)?d.iord.slice():[];if(!l)LOOKP=null}
