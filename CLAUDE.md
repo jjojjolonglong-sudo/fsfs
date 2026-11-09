@@ -9,13 +9,13 @@ fsfs 저장소에서 일할 때 읽는 안내서예요. 사용자와 일하는 �
 - 마을 지도 3장(`map-town1~3.webp`)은 repo에 있고, 장소 안쪽 그림 등은 R2에 있어요(작업 환경에서 안 열릴 수 있어요).
 
 ## 저장소
-- `index.html` 한 파일이 게임 전체예요. GitHub Pages로 서비스해요.
+- `index.html` 한 파일이 게임 전체예요. GitHub Pages로 서비스해요. 설치형(PWA) 파일은 `manifest.webmanifest`, `sw.js`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon.png` (다른 앱과 같은 구성).
 - 공용 스크립트와 소리는 mnmn 저장소(`config.js`, `fonts.v1.js`, `media.v1/v2.js`, `mvtape.v1.js`, `click.wav`, `get.wav`)에서 불러와요.
 
 ## 값이 어디에 있나 (가장 중요)
 1. **앱 코드(`index.html`)** — 규칙·공식·고정 기능. 고치려면 파일을 고쳐요.
 2. **테이블(Supabase `fsfs_*`)** — 의상·장소·인물·행동·이벤트·아이템 같은 내용물. 인앱 관리자 화면에서 편집해요. **테이블에 값이 있으면 코드의 기본값(`WORLD` 등)을 덮어써요.**
-3. **세이브** — 브라우저 `localStorage` + `fsfs_save`(슬롯 5개, `user_id,slot`으로 upsert). `G`에 새 필드를 추가하면 **`normG()`에 기본값을 꼭 넣어요** (옛 세이브가 깨지지 않게).
+3. **세이브** — 기준은 `fsfs_save`(Supabase, 슬롯 5개, `user_id,slot`으로 upsert)이고 브라우저 `localStorage`는 임시 사본이에요. 로그인하면 같은 아이디로 어느 기기에서든 이어서 해요(아래 「세이브 동기화」). `G`에 새 필드를 추가하면 **`normG()`에 기본값을 꼭 넣어요** (옛 세이브가 깨지지 않게).
 - 자세한 지도는 claude.ai 문서 "fsfs 값 관리 지도"에 있어요. 값이 어디 있는지가 바뀌는 작업을 하면 사용자에게 알려서 그 문서도 같이 갱신해요.
 
 ## 다른 앱 데이터 (읽기 전용)
@@ -76,7 +76,7 @@ fsfs 저장소에서 일할 때 읽는 안내서예요. 사용자와 일하는 �
 
 ## 고친 뒤 확인
 1. `index.html`에서 가장 큰 `<script>`를 떼어 `node --check`로 문법 확인.
-2. Playwright(크로미움)로 열어서 `pageerror`가 없는지 확인하고, 건드린 기능을 직접 눌러 봐요. 화면을 바꿨으면 스크린샷으로 정렬 확인.
+2. Playwright(크로미움)로 열어서 `pageerror`가 없는지 확인하고, 건드린 기능을 직접 눌러 봐요. 화면을 바꿨으면 스크린샷(deviceScaleFactor 2)으로 정렬 확인. 화면 배치를 건드렸으면 휴대폰 가로(932×430, 844×390)도 같이 봐요.
 3. 새 SQL은 `fsfs_<이름>.sql`로 만들고 여러 번 실행해도 안전하게(`if not exists`, `on conflict`) 써요. 사용자가 Supabase SQL Editor에서 직접 실행해요.
 4. 값 위치나 규칙이 바뀌면 이 파일과 "fsfs 값 관리 지도"를 갱신해요.
 
@@ -86,3 +86,12 @@ fsfs 저장소에서 일할 때 읽는 안내서예요. 사용자와 일하는 �
 - 행동 폼: 옷장 설정·바꾸는 방식·입어보기는 종류가 옷장일 때만 보이고, 「혼자서도 할 수 있음」은 함께하는 인물이 「모든 인물」일 때만 보여요. 최소 시간 칸은 없앴어요(기존 값은 저장 때 그대로 유지). 행동·유형 목록은 가나다순(고정은 맨 위)이고, 유형에 저장되는 행동 순서는 그대로 지켜요.
 - 배달 탭은 왼쪽 가게 목록(체크·이름·개수) + 오른쪽 메뉴(체크·이름·종류·가격) 두 칸 구성이에요.
 - 값 정리용 SQL: `fsfs_cleanup.sql` (인물 이모지 비우기, 대작가 이름 통일, 하위 장소 동네 맞추기).
+
+## 2026-11-09 추가·변경
+- **세이브 동기화**(`syncSave`, `cloudPut`, `cloudMark`, `gsig`): 클라우드가 기준이에요. `fsfsCloudAt`(마지막으로 맞춘 클라우드 버전 시각), `fsfsSig`(그때의 진행 정도 `일|시각|돈`), `fsfsDirty`(안 올린 변경)를 localStorage에 기억해요. 로그인하면 ① 이 기기에서 진행한 게 없으면 클라우드 저장을 불러오고(슬롯이 비었으면 가장 최근에 저장한 슬롯으로 이어서) ② 클라우드가 그대로면 필요할 때만 올리고 ③ 이 기기와 클라우드가 서로 다르게 진행됐으면 확인창으로 고르게 해요. 동기화가 끝나기 전(`SAVE.ok` false)에는 클라우드에 올리지 않아요(옛 사본이 덮어쓰는 사고 방지). 변경 후 2.5초 뒤·탭을 숨길 때·🔄 버튼 전에 올려요.
+- **간판**(`.pn` 장소 이름판 + `.sign` OPEN/CLOSED): 모서리 6px, 안쪽 네 모서리 나사(배경 SVG), 베벨 테두리(밝은 위·왼쪽/어두운 아래·오른쪽)·안쪽이 들어간 판, 이모지 34px. OPEN/CLOSED는 5×7 점 글자 전광판(`LEDF`, `ledSvg`, 35칸 가운데 정렬, 꺼진 점은 어둡게 깔림). 걸이 막대는 이름판 뒤에서 나와 이음매가 안 떨어져요.
+- **성소 그림**(`#shdeco` ← `shrineSvg(n)`, `shDecoUpdate`): 장소 유형이 `shrine`인 곳 안쪽에 제단·촛불·꽃잎을 그려요. 촛불은 성소 글(`G.notes`) 개수만큼(최대 21=`SHS.length`), 0개면 꺼진 초 하나. 글이 많을수록 주변이 따뜻해져요(`--warm`). 불꽃(`SH_FLAME`)·꽃잎(`SH_PETAL`)은 한쪽이 둥글고 한쪽이 뾰족한 모양이에요. 개수가 바뀔 때만 다시 그려서 불꽃·꽃잎 움직임이 끊기지 않아요. 배경 이미지(`placeImg`)는 이 그림 뒤에 깔려요(제단은 화면 왼쪽 40% 지점, 행동 칸 148px 위).
+- **관리자 > 마을 > 유형**: 유형을 고르면 「이 유형의 장소 (n)」 목록이 행동 위에 보여요(읽기 전용).
+- **설치형(PWA)·모바일**: 상단 시스템 바에 `📲 설치`(설치 전에만 보임)와 `🔄`(새로고침, 올린 뒤 새로고침) 버튼. `html,body{overscroll-behavior:none}`로 당겨서 새로고침·튕김 없음. 모바일 가로(`isMobile()` = 터치 + 짧은 변 ≤900px)에서는 `fitGame()`이 `html.mob`을 켜고 1380×720 화면을 높이에 맞춰 꽉 채워요(스크롤 없음). 왼쪽에 상태판(날짜·시계·에너지/돈·음악·시간대)을 세로로, 오른쪽에 장면을 두는 배치(`sizeWorld`가 장면 높이×1.5 + 상태판 너비로 계산, `posSys`는 시스템 바를 장면 오른쪽 끝에 맞춤). 세로로 들면 `#rotmsg`(화면을 가로로 돌려 주세요)가 덮어요. 설치한 앱·전체 화면에선 `screen.orientation.lock('landscape')`도 시도해요(iOS는 안 돼서 안내 화면으로 대신).
+- 확인할 때 휴대폰은 Playwright `isMobile:true,hasTouch:true` 932×430 / 844×390 로 봐요(`html.mob` 클래스가 켜져야 해요).
+- **Supabase 정리**(2026-11-08): 어느 코드에서도 안 쓰던 `fsfs_meta`·`fsfs_inventory`·`fsfs_outfit`을 `_old_…`로 이름만 바꿔 두었고(`unused_2_drop.sql`로 지움, 11/14 확인 예정), 나머지 62개 테이블은 모두 어느 앱이 쓰고 있어요. 다른 앱끼리 같이 쓰는 테이블: `bkbk_books`(bkbk·didi·diti·fsfs·mnmn), `bkbk_series`(bkbk·didi·diti·fsfs), `diti_words`↔`bkbk_word_use`(bkbk·diti), `mvmv_movie`(mvmv·didi·fsfs·mnmn), `wkwk_work`(wkwk·didi·fsfs·mnmn), `lvlv_*`(lvlv·fsfs, 일부 mnmn), `mgwg_item/store/sort`(mgwg·fsfs·mnmn), `cdcd_*`(cdcd·fsfs, `cdcd_album`은 mnmn), `didi_*`(didi·mnmn), `smsm_album/profile`(smsm·mnmn).

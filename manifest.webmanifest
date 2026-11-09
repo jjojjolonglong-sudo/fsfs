@@ -1,0 +1,19 @@
+{
+  "id": "/fsfs/",
+  "name": "시티 오브 레트로",
+  "short_name": "레트로시티",
+  "description": "일상을 쌓아 가는 나만의 마을 — 시티 오브 레트로",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
+  "background_color": "#ffd3e3",
+  "theme_color": "#a99be8",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

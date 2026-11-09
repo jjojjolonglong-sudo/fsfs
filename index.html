@@ -2,9 +2,38 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<!-- 앱(PWA) 설정: 설치 버튼이 뜨려면 manifest + 아이콘 + 서비스 워커가 필요해요 -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#a99be8">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="레트로시티">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>옷갈아입히기</title><script src="https://jjojjolonglong-sudo.github.io/mnmn/fonts.v1.js" data-app="fsfs"></script><script src="https://jjojjolonglong-sudo.github.io/mnmn/mvtape.v1.js"></script>
 <style>
+html,body{overscroll-behavior:none}   /* 스크롤 끝 튕김·당겨서 새로고침 없앰 (대신 상단 오른쪽 🔄 버튼) */
+#rotmsg{display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;text-align:center;background:linear-gradient(160deg,#3d7bff,#6a4fe2 55%,#a45ce6);color:#fff}
+#rotmsg b{display:block;font-size:64px;line-height:1.2;font-weight:400}#rotmsg p{margin:8px 0 4px;font-size:22px;font-weight:700}#rotmsg small{opacity:.8;font-size:14px}
+html.port #rotmsg{display:flex}
+/* ===== 모바일 가로 (html.mob): 왼쪽에 상태판, 오른쪽에 장면 ===== */
+html.mob #game.app{padding:10px 14px}
+html.mob .gtitle,html.mob #game.app::after{display:none}
+html.mob #game .side>.card:first-child{height:40px;margin:0 0 0 auto}
+html.mob #game .card.world{flex-direction:row;align-self:center}
+html.mob .world>.wt{flex-direction:column;flex:none;width:250px;box-sizing:border-box;padding:8px;gap:8px;overflow:hidden}
+html.mob #wt>*,html.mob .world .mp{width:100%;height:auto;flex:none}
+html.mob #wt .cal{order:1;height:84px}
+html.mob #wt .clk{order:2;height:70px;font-size:44px}
+html.mob #wt .vit{order:3;height:88px}
+html.mob .world .mp{order:4;height:66px}
+html.mob #wt .tl{order:5;height:82px}
+html.mob #mapview{min-width:0}
+html.mob #wt .tl .bd{overflow:hidden}html.mob #wt .tl .bd em{display:none}html.mob #wt .tl .bd i{font-size:15px}   /* 좁아서 글자 없이 아이콘만 */
+html.mob,html.mob body{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html.mob textarea,html.mob input{-webkit-user-select:text;user-select:text}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:14px system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
 [hidden]{display:none!important}
@@ -190,6 +219,7 @@ dialog::backdrop{background:rgba(32,27,23,.55)}
 .schl .t24{display:inline-block;width:70px!important;text-align:center;padding:3px 0;font-variant-numeric:tabular-nums}
 .schl .sp{background:transparent;color:inherit;border:0}
 .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:6px 8px}
+.chip.ro{cursor:default;min-width:0}.chip.ro{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;display:block}
 .cgrid>.chip{display:flex;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dlcols{display:grid;grid-template-columns:230px minmax(0,1fr);gap:12px;align-items:start}
 .dlL{display:grid;gap:6px;max-height:72vh;overflow:auto;padding:3px}
@@ -445,6 +475,15 @@ html{overflow:hidden}
 #maptint{z-index:2}
 .interior{position:relative;overflow:hidden;background:#fde9ef;line-height:0}
 .interior img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#shdeco{position:absolute;inset:0;pointer-events:none;line-height:0;--warm:0}
+#shdeco:empty{display:none}
+#shdeco::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 48% 50% at 40% 68%,rgba(255,205,125,calc(.05 + .32*var(--warm))),rgba(255,205,125,0) 72%)}
+#shdeco svg{position:absolute;left:40%;bottom:160px;width:600px;height:auto;transform:translateX(-50%);overflow:visible}
+#shdeco .fl{transform-box:fill-box;transform-origin:50% 92%;animation:shfl var(--d,2.6s) ease-in-out infinite}
+@keyframes shfl{0%,100%{transform:scale(1,1) skewX(0)}22%{transform:scale(.93,1.07) skewX(-3.5deg)}50%{transform:scale(1.05,.95) skewX(2.5deg)}78%{transform:scale(.97,1.04) skewX(-1.5deg)}}
+#shdeco .pf{transform-box:fill-box;transform-origin:50% 50%;opacity:0;animation:shpf var(--d,12s) linear infinite}
+@keyframes shpf{0%{transform:translate(0,0) rotate(0);opacity:0}8%{opacity:.95}50%{transform:translate(24px,78px) rotate(160deg)}88%{opacity:.9}100%{transform:translate(-8px,150px) rotate(310deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){#shdeco .fl,#shdeco .pf{animation:none}#shdeco .pf{opacity:0}}
 #intlight{position:absolute;inset:0;pointer-events:none;transition:background 1.2s ease}
 #intlight[data-s=dc]{background:rgba(40,36,80,.30)}
 #intlight[data-s=no]{background:radial-gradient(ellipse at 50% 30%,rgba(255,224,170,.45),rgba(255,200,130,.2) 62%,rgba(255,180,110,.08));mix-blend-mode:screen}
@@ -466,14 +505,6 @@ html{overflow:hidden}
 .pn{box-sizing:border-box;width:300px;min-height:46px;display:flex;align-items:center;justify-content:center;gap:8px;padding:6px 14px;border:4px solid #fff;border-radius:14px;background:var(--signbg,var(--pink));box-shadow:0 0 0 2px var(--ink),0 4px 0 2px rgba(91,75,104,.25);color:var(--ink);font-size:21px;font-weight:800;line-height:1.35}
 .pn i{font-style:normal;flex:none}
 .pn span{min-width:0;padding:.12em 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sign{position:relative;width:150px;margin:12px auto 0;padding:4px 14px 5px;border:2px solid var(--ink);border-radius:10px;background:#fff;text-align:center;line-height:1.15;box-shadow:0 3px 0 rgba(91,75,104,.25)}
-.sign::before,.sign::after{content:"";position:absolute;top:-12px;width:3px;height:12px;background:#fff;box-shadow:0 0 0 1.5px var(--ink)}
-.sign::before{left:20px}
-.sign::after{right:20px}
-.sign b{display:block;font:400 19px/1.1 "DotGothic16","Do Hyeon",sans-serif;letter-spacing:.14em}
-.sign span{display:block;font-size:12px;color:var(--mute)}
-.sign.o b{color:#2fae83}
-.sign.c b{color:#ee5f86}
 .townbar{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;align-items:stretch;gap:8px}
 .townbar[hidden]{display:none}
 .twitems{display:flex;gap:6px}
@@ -615,10 +646,17 @@ dialog{border:3px solid var(--ln);box-shadow:none}
 .map-building.current,.map-building.current:hover{--bt:#ffe3f0;--bf:#ffb8d6;--bc:var(--sl-ln)}
 .map-building.closed,.map-building.closed:hover{--bt:var(--of-bg);--bf:var(--of-bg);--bc:var(--of-ln);color:#b9aedb}
 .pn{border:4px solid var(--ln);border-radius:20px;background:var(--signbg,linear-gradient(#fff6c8,#ffe27a));box-shadow:none;color:#7a5aa8;text-shadow:none}
-.sign{border:2px solid var(--ln);box-shadow:none;background:linear-gradient(#3a2f6b,#27204d)}.sign span{color:#d9d0ff}
-.sign b{font-size:22px;font-weight:900;-webkit-text-stroke:.7px currentColor;letter-spacing:.16em}
-.sign.o b{color:#7dffd0;text-shadow:0 0 3px #fff,0 0 8px #19e0a0,0 0 16px #19e0a0,0 0 26px #19e0a0}
-.sign.c b{color:#ff9cc0;text-shadow:0 0 3px #fff,0 0 8px #ff3d86,0 0 16px #ff3d86,0 0 26px #ff3d86}.sign::before,.sign::after{background:#d9d0ff;box-shadow:0 0 0 1.5px var(--ln)}
+.pn{box-sizing:border-box;position:relative;z-index:1;width:300px;min-height:60px;gap:8px;padding:8px 26px;border:6px solid;border-color:#e6deff #a18dd8 #a18dd8 #e6deff;border-radius:6px;
+ background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3Cpath d='M2.4 5H7.6' stroke='%23524889' stroke-width='1.1' stroke-linecap='round' transform='rotate(25 5 5)'/%3E%3C/svg%3E") left 5px top 5px/10px 10px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3Cpath d='M2.4 5H7.6' stroke='%23524889' stroke-width='1.1' stroke-linecap='round' transform='rotate(-20 5 5)'/%3E%3C/svg%3E") right 5px top 5px/10px 10px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3Cpath d='M2.4 5H7.6' stroke='%23524889' stroke-width='1.1' stroke-linecap='round' transform='rotate(70 5 5)'/%3E%3C/svg%3E") left 5px bottom 5px/10px 10px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3Cpath d='M2.4 5H7.6' stroke='%23524889' stroke-width='1.1' stroke-linecap='round' transform='rotate(5 5 5)'/%3E%3C/svg%3E") right 5px bottom 5px/10px 10px no-repeat,linear-gradient(rgba(255,255,255,.4),rgba(255,255,255,0) 52%),var(--signbg,#ffe27a);
+ box-shadow:inset 0 0 0 2px rgba(255,255,255,.5),inset 3px 4px 8px rgba(84,64,150,.30),0 0 0 1.5px rgba(106,90,158,.6),0 4px 0 1px rgba(91,75,104,.18),0 7px 10px rgba(91,75,104,.14);color:#6d4f9f}
+.pn i{font-size:34px;line-height:1;filter:drop-shadow(0 2px 0 rgba(106,90,158,.22))}
+.pn span{text-shadow:0 1px 0 rgba(255,255,255,.75)}
+.sign{position:relative;z-index:0;box-sizing:border-box;width:178px;margin:15px auto 0;padding:7px 8px 5px;border:3px solid;border-color:#e6deff #a18dd8 #a18dd8 #e6deff;border-radius:5px;background:linear-gradient(#2f2763,#1c1741);text-align:center;line-height:1.15;box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.35),inset 0 4px 9px rgba(0,0,0,.5),0 0 0 1.5px rgba(106,90,158,.6),0 5px 0 1px rgba(91,75,104,.2)}
+.sign::before,.sign::after{content:"";position:absolute;top:-24px;width:4px;height:26px;border-radius:2px;background:linear-gradient(90deg,#f4f0ff,#b8abe8 55%,#8b7cc7);box-shadow:0 0 0 1px #6a5a9e;z-index:-1}
+.sign::before{left:26px}.sign::after{right:26px}
+.sign span{display:block;margin-top:4px;font-size:12px;letter-spacing:.03em;color:#d9d0ff}
+.sign.o{--lc:#b4ffe2;--lh:#19e0a0}.sign.c{--lc:#ffc9de;--lh:#ff3d86}
+.led{display:block;width:100%;height:auto}.led .h1{fill:var(--lh);opacity:.26}.led .h2{fill:var(--lh);opacity:.5}.led .d0{fill:var(--lc)}
 .twi,.twarr{border:3px solid var(--bs-ln);box-shadow:none}
 #actov{background:linear-gradient(175deg,#d6f0ff,#eee2ff 60%,#ffe0f0);border-top:4px solid var(--ln);box-shadow:none}
 /* 액션: 하늘색, 올리면 노랑(다른 버튼과 같은 규칙) */
@@ -723,7 +761,7 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
   <div class="gtitle">시티 오브 레트로</div>
   <div class="side">
     <div class="card"><div class="bar">
-      <span style="flex:1"></span><span class="sysbar"><button id="bgmbtn" title="배경음악 볼륨 (누르면 0~5 순환)">🎵 3</button><button id="sfxbtn" title="볼륨 (누르면 0~5 순환)">🔊 3</button><button id="fxbtn" title="계절 효과 켜기/끄기 (눈·벚꽃·단풍·비)">✨ 켬</button><button id="wnew">💾 세이브</button><button id="adminbtn" hidden>🛠 관리자 모드</button><button id="authbtn">⚙ 설정·로그인</button></span>
+      <span style="flex:1"></span><span class="sysbar"><button id="instbtn" hidden title="이 기기에 앱으로 설치해요">📲 설치</button><button id="bgmbtn" title="배경음악 볼륨 (누르면 0~5 순환)">🎵 3</button><button id="sfxbtn" title="볼륨 (누르면 0~5 순환)">🔊 3</button><button id="fxbtn" title="계절 효과 켜기/끄기 (눈·벚꽃·단풍·비)">✨ 켬</button><button id="wnew">💾 세이브</button><button id="adminbtn" hidden>🛠 관리자 모드</button><button id="authbtn">⚙ 설정·로그인</button><button id="rfbtn" title="새로고침">🔄</button></span>
     </div></div>
     <div class="card world"><div class="wt"><span id="wt"></span><div id="mp" class="mp paused" title="누르면 재생/일시정지"><div class="mp-lcd"><div class="mp-time" id="mp_time">00:00</div><div class="mp-mq" id="mp_mq"><span class="hx" id="mp_t">♪ —</span></div></div><div class="mp-seek" id="mp_seek"><div id="mp_bar"></div></div></div></div>
       <div id="stview" hidden><h2>📋 내 상태</h2><div id="st_b"></div></div>
@@ -731,7 +769,7 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
         <div id="mapstage"><div id="mapframe">
           <div class="stagewrap"><div class="stage"><canvas id="cv"></canvas></div></div>
           <div id="townmap" class="townmap" aria-label="쿼터뷰 마을 지도"></div>
-          <div id="interior" class="interior" hidden><img id="intimg" alt=""><div id="inttint"></div><div id="intlight"></div></div>
+          <div id="interior" class="interior" hidden><img id="intimg" alt=""><div id="shdeco" aria-hidden="true"></div><div id="inttint"></div><div id="intlight"></div></div>
               <div id="bkview" class="ovv" hidden><div id="bk_g" class="bkshelf-wrap ovv-in"></div><div class="bknav"><button id="bk_pv" title="이전 책장">◀</button><b id="bk_pn">1 / 1</b><button id="bk_nx" title="다음 책장">▶</button></div></div>
               <div id="mvview" class="ovv" hidden><div id="mv_g" class="ovv-in"></div></div>
               <div id="shview" class="ovv" hidden><div id="sh_p" class="ovv-in" style="align-items:center"></div></div>
@@ -757,6 +795,7 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
   </div>
 </div></div>
 
+<div id="rotmsg" role="alert"><div><b>📱↻</b><p>화면을 가로로 돌려 주세요</p><small>이 게임은 가로 화면에서 해요</small></div></div>
 <dialog id="savedlg"><h2>💾 세이브</h2><div class="tag" id="sv_i" style="margin:6px 0 10px"></div><div id="sv_l"></div><div class="bar" style="margin-top:12px;justify-content:flex-end"><button id="sv_x">닫기</button></div></dialog>
 <dialog id="welcome"><div class="wl1">play the retro music</div></dialog>
 <dialog id="film"></dialog>
@@ -990,7 +1029,7 @@ async function sb(path,o={}){
 }
 async function afterLogin(){
   isAdmin=(await sb('/rest/v1/rpc/fsfs_is_admin',{m:'POST',b:{}}))===true;
-  $('#adminbtn').hidden=!isAdmin;await loadCatalog();try{await syncSave()}catch(e){}
+  $('#adminbtn').hidden=!isAdmin;await loadCatalog();try{await syncSave()}catch(e){msg('클라우드 저장을 확인하지 못했어요. 이 기기에만 저장돼요',1)}
 }
 async function loadCatalog(){
   [DB.parts,DB.types,DB.sets,DB.items,DB.maps,DB.places,DB.npcs,DB.events,DB.keymap,DB.actions,DB.ptypes,DB.ptacts,DB.pacts]=await Promise.all([
@@ -1014,7 +1053,7 @@ $('#go').onclick=async()=>{
     await afterLogin();$('#dlg').close();msg(isAdmin?'관리자로 로그인했어요':'로그인했어요');
   }catch(e){msg(e.message,1)}
 };
-$('#logout').onclick=()=>{S=null;saveSess();isAdmin=false;$('#adminbtn').hidden=true;DB={parts:[],types:[],sets:[],items:[],maps:[],places:[],npcs:[],events:[],keymap:[],actions:[],ptypes:[],ptacts:[],pacts:[]};applyWorld();buildModel();rebuildAcq();pruneSel();refresh();renderWorld();$('#dlg').close();msg('로그아웃했어요')};
+$('#logout').onclick=()=>{S=null;SAVE.ok=false;saveSess();isAdmin=false;$('#adminbtn').hidden=true;DB={parts:[],types:[],sets:[],items:[],maps:[],places:[],npcs:[],events:[],keymap:[],actions:[],ptypes:[],ptacts:[],pacts:[]};applyWorld();buildModel();rebuildAcq();pruneSel();refresh();renderWorld();$('#dlg').close();msg('로그아웃했어요')};
 
 // ================= 관리자 모드 =================
 let cur=null;
@@ -1391,7 +1430,7 @@ function loadGame(){try{G=JSON.parse(localStorage.getItem('fsfsGame')||'null')}c
   if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}   // 예전 저장(구간)을 시각으로 옮겨요
   if(typeof G.min!=='number')G.min=WORLD.wakeMin;if(!Array.isArray(G.ledger))G.ledger=[];
   if(G.energy==null)G.energy=100;G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.closet=false}
-const saveGame=()=>{try{localStorage.setItem('fsfsGame',JSON.stringify(G));localStorage.setItem('fsfsLocalAt',Date.now())}catch(e){}try{pushSoon()}catch(e){}};
+const saveGame=()=>{try{const js=JSON.stringify(G),same=localStorage.getItem('fsfsGame')===js;localStorage.setItem('fsfsGame',js);if(!same){localStorage.setItem('fsfsLocalAt',Date.now());localStorage.setItem('fsfsDirty','1')}}catch(e){}try{pushSoon()}catch(e){}};
 const owned=it=>!ACQ[it.id]||G.cheat||!!G.owned[it.id];
 const routeText=s=>s.text||routeText0(s);
 const routeText0=s=>s.type==='starter'?'기본 제공':s.type==='shop'?`${WORLD.places[s.place].n} · ₩${s.price.toLocaleString()}`:s.type==='gift'?'특별한 날, 누군가에게 선물로 받을 수 있어요':s.type==='event'?'이벤트 · '+(s.evt||'특별한 날'):s.type==='groupbuy'?`백화점 공동구매 · ₩${s.price.toLocaleString()} · ${s.need}명이 모이면 ${s.days}일 뒤 배송`:s.type==='limited'?`백화점 한정판 · ₩${s.price.toLocaleString()} · 선착순 ${s.stock}개 · ${s.hour}시 오픈`:s.type==='job'?`${s.job||'아르바이트'} · ${s.rank}단계 (${Math.max(1,(s.rank-1)*JOBN)}회 근무)`:s.type==='quest'?`${s.npc?s.npc+'의 ':''}의뢰 · ${s.quest}`:s.type;
@@ -1900,6 +1939,41 @@ function capsulePick(){   // 타임캡슐: 7일 이상 지난 글 중 기념일(
   if(an.length)return an[Math.floor(Math.random()*an.length)];
   return Math.random()<.25?ns[Math.floor(Math.random()*ns.length)]:null}
 function openShrine(a){SH_MIN=a&&a.mins>0?a.mins:20;shMode='write';shIdx=0;shCap=capsulePick();if(shCap)shMode='cap';viewSh=true;renderWorld();renderShrine()}
+// ===== 성소 그림: 제단 + 촛불(글을 남긴 만큼) + 꽃잎. 불꽃·꽃잎은 한쪽은 둥글고 한쪽은 뾰족한 모양이에요 =====
+const SHS=(()=>{const f=[];[0,-1,1,-2,2,-3,3,-4,4].forEach(k=>f.push({r:2,x:320+k*44}));[0,-1,1,-2,2,-3,3].forEach(k=>f.push({r:1,x:320+k*48}));[0,-1,1,-2,2].forEach(k=>f.push({r:0,x:320+k*54}));return f})();
+const SH_FLAME='M0 9C-6 9-8.4 4-7.4-.6C-6.6-4.6-3.4-6.4-2.4-10.4C-1.6-13.6 1-16.4 3.2-22C4.4-15.8 8.6-10 8.6-1.6C8.6 4.8 5 9 0 9Z',SH_CORE='M0 7C-3.2 7-4.2 4-3.6 1C-3-2.4-.6-4.5 1-10C2.2-5.5 4.2-2.6 4.2 1.4C4.2 4.8 2.6 7 0 7Z',
+  SH_PETAL='M-7 0C-7-6.5-1-8 4-5.5C7-4 9.5-2 11 0C9.5 2 7 4 4 5.5C-1 8-7 6.5-7 0Z';
+function shPetal(x,y,r,sc,cls,st){return `<g transform="translate(${x} ${y})"><g${cls?` class="${cls}"`:''}${st?` style="${st}"`:''}><g transform="rotate(${r}) scale(${sc||1})"><path d="${SH_PETAL}" fill="url(#shp)" stroke="#f08cb4" stroke-width=".7" stroke-linejoin="round"/><path d="M-5 0H8" stroke="#d45f93" stroke-opacity=".4" stroke-width=".8" stroke-linecap="round"/></g></g></g>`}
+function shCandle(s,i,lit){const sc=[.74,.86,1][s.r],by=[130,136,142][s.r],h=[44,38,50,34,46,40,52,36,42][i%9],w=13;
+  return `<g transform="translate(${s.x} ${by}) scale(${sc})"><ellipse cx="0" cy="2.5" rx="12.5" ry="3.6" fill="#d6c6ee" stroke="#8f78c4" stroke-width="1"/><rect x="${-w/2}" y="${-h}" width="${w}" height="${h}" rx="2.6" fill="url(#shw)" stroke="#cdb994" stroke-width=".8"/><rect x="${-w/2+2}" y="${-h+4}" width="2" height="${h-9}" rx="1" fill="#fff" fill-opacity=".6"/><path d="M0 ${-h}v-4" stroke="#5a4a68" stroke-width="1.6" stroke-linecap="round"/>`+
+  (lit?`<g transform="translate(0 ${-h-6})"><circle r="21" fill="url(#shg)"/><g class="fl" style="--d:${(2.2+(i%5)*.37).toFixed(2)}s;animation-delay:-${((i*.53)%2).toFixed(2)}s"><path d="${SH_FLAME}" fill="url(#shf)"/><path d="${SH_CORE}" fill="#fff4c2"/></g></g>`:'')+`</g>`}
+function shrineSvg(n){
+  let hem='';for(let x=520;x>120;x-=40)hem+=`Q${x-20} 276 ${x-40} 254`;
+  const lit=SHS.slice(0,n).map((s,i)=>({s,i})),order=(n?lit:[{s:{r:2,x:320},i:0,off:1}]).sort((a,b)=>a.s.r-b.s.r);
+  const pet=[[148,137,-20,.9],[206,143,38,.8],[262,138,160,.85],[392,142,-42,.8],[452,137,96,.9],[506,143,12,.8],[122,274,30,.9],[468,276,-70,.85],[336,306,16,.9],[196,308,140,.8],[522,309,-12,.9],[94,310,70,.75]];
+  const fall=[[150,-6,11],[214,-34,13.5],[282,-12,10.5],[346,-52,12.5],[410,-20,14],[470,-44,11.5],[262,-70,15]];
+  return `<svg viewBox="0 0 640 340" xmlns="http://www.w3.org/2000/svg"><defs>
+  <linearGradient id="shw" x1="0" x2="1"><stop offset="0" stop-color="#fffaf0"/><stop offset=".6" stop-color="#f6ead6"/><stop offset="1" stop-color="#e6d6bb"/></linearGradient>
+  <linearGradient id="shf" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffd76b"/><stop offset=".55" stop-color="#ffa347"/><stop offset="1" stop-color="#ff6f3c"/></linearGradient>
+  <radialGradient id="shg"><stop offset="0" stop-color="#ffc864" stop-opacity=".55"/><stop offset="1" stop-color="#ffc864" stop-opacity="0"/></radialGradient>
+  <linearGradient id="shp" x1="0" x2="1"><stop offset="0" stop-color="#ffe9f1"/><stop offset="1" stop-color="#ff9fc6"/></linearGradient>
+  <linearGradient id="shs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eee8f7"/><stop offset="1" stop-color="#c6bbdc"/></linearGradient>
+  <linearGradient id="shc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a995e0"/><stop offset="1" stop-color="#7a62bf"/></linearGradient>
+  <linearGradient id="shk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6e2"/><stop offset="1" stop-color="#ecdcc0"/></linearGradient></defs>
+  <rect x="44" y="302" width="552" height="36" rx="6" fill="url(#shs)" stroke="#9f90c9" stroke-width="2"/><rect x="52" y="304" width="536" height="5" rx="2.5" fill="#fff" fill-opacity=".6"/>
+  <rect x="80" y="266" width="480" height="38" rx="6" fill="url(#shs)" stroke="#9f90c9" stroke-width="2"/><rect x="88" y="268" width="464" height="5" rx="2.5" fill="#fff" fill-opacity=".6"/>
+  <path d="M118 156H522V254${hem}Z" fill="url(#shc)" stroke="#6a52b0" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M118 168H522" stroke="#f0d58a" stroke-width="3"/><path d="M118 174H522" stroke="#f0d58a" stroke-width="1" stroke-opacity=".8"/>
+  <g transform="translate(320 218) scale(2.3)"><path d="${SH_FLAME}" fill="none" stroke="#f0d58a" stroke-width="1.5" stroke-linejoin="round"/><path d="${SH_CORE}" fill="#f0d58a" fill-opacity=".85"/></g>
+  <g transform="translate(250 226)"><g transform="rotate(200) scale(1.5)"><path d="${SH_PETAL}" fill="none" stroke="#f0d58a" stroke-width="1.1"/></g></g><g transform="translate(390 226)"><g transform="rotate(-20) scale(1.5)"><path d="${SH_PETAL}" fill="none" stroke="#f0d58a" stroke-width="1.1"/></g></g>
+  <rect x="92" y="128" width="456" height="20" rx="6" fill="url(#shk)" stroke="#b89f78" stroke-width="2"/><rect x="92" y="146" width="456" height="12" rx="4" fill="#d9c29c" stroke="#b89f78" stroke-width="2"/>
+  ${order.map(o=>shCandle(o.s,o.i,!o.off)).join('')}
+  ${pet.map(q=>shPetal(q[0],q[1],q[2],q[3])).join('')}
+  ${fall.map((q,i)=>shPetal(q[0],q[1],i*47%360,.9,'pf',`--d:${q[2]}s;animation-delay:-${(i*1.9).toFixed(1)}s`)).join('')}</svg>`}
+function shDecoUpdate(on){const el=$('#shdeco');if(!el)return;const p=WORLD.places[G.place];
+  if(!(on&&p&&p.type==='shrine')){if(el.dataset.k){el.innerHTML='';el.dataset.k=''}return}
+  const n=Math.min((G.notes||[]).length,SHS.length),k=String(n);if(el.dataset.k===k&&el.firstChild)return;   // 글을 남길 때만 다시 그려서 불꽃 움직임이 끊기지 않아요
+  el.dataset.k=k;el.style.setProperty('--warm',(n/SHS.length).toFixed(2));el.innerHTML=shrineSvg(n)}
 function shClose(){shDraft='';viewSh=false;renderWorld()}
 function shSave(){const t=($('#sh_t').value||'').trim();if(!t)return msg('아직 아무것도 쓰지 않았어요');
   G.notes=G.notes||[];G.notes.unshift({d:G.day,t:G.min,p:G.place,x:t.slice(0,600)});shDraft='';viewSh=false;pass(SH_MIN);
@@ -1934,7 +2008,12 @@ $('#exitbtn').onclick=()=>{viewTown=true;renderWorld()};
 let viewSt=false,viewBk=false,viewMv=false,viewSh=false,mvPlace=null;
 let viewTown=false;const IMGBAD=new Set();
 const placeImg=pid=>{const q=WORLD.places[pid];if(!q)return'';const u=q.img||(q.parent&&(WORLD.places[q.parent]||{}).img)||'';return u&&!IMGBAD.has(u)?u:''};
-const signHtml=pid=>{const q=WORLD.places[pid];if(!q||q.type==='home')return '';const o=openNow(pid),h=q.open&&q.open.length?q.open.map(([a,b])=>fmtT(a)+' ~ '+fmtB(b)).join(', '):'24H';return `<div class="sign ${o?'o':'c'}"><b>${o?'OPEN':'CLOSED'}</b><span>${h}</span></div>`};
+const LEDF={O:'01110,10001,10001,10001,10001,10001,01110',P:'11110,10001,10001,11110,10000,10000,10000',E:'11111,10000,10000,11110,10000,10000,11111',N:'10001,11001,10101,10101,10011,10001,10001',C:'01110,10001,10000,10000,10000,10001,01110',L:'10000,10000,10000,10000,10000,10000,11111',S:'01111,10000,10000,01110,00001,00001,11110',D:'11110,10001,10001,10001,10001,10001,11110'};
+const ledSvg=w=>{const W=35,P=4,n=w.length,x0=Math.floor((W-(n*6-1))/2),pts=[];   // 5x7 점 글자 — 35칸 전광판에 가운데 정렬, 꺼진 점은 어둡게 깔려요
+  [...w].forEach((ch,k)=>LEDF[ch].split(',').forEach((row,r)=>[...row].forEach((v,c)=>{if(v==='1')pts.push([(x0+k*6+c)*P+P/2,r*P+P/2])})));
+  const L=(cls,r)=>`<g class="${cls}">${pts.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g>`;
+  return `<svg class="led" viewBox="0 0 ${W*P} ${7*P}" role="img" aria-label="${w}"><defs><pattern id="ledp" width="${P}" height="${P}" patternUnits="userSpaceOnUse"><circle cx="${P/2}" cy="${P/2}" r="1.3" fill="rgba(255,255,255,.1)"/></pattern></defs><rect width="${W*P}" height="${7*P}" fill="url(#ledp)"/>${L('h1',3.1)}${L('h2',2.3)}${L('d0',1.55)}</svg>`};
+const signHtml=pid=>{const q=WORLD.places[pid];if(!q||q.type==='home')return '';const o=openNow(pid),h=q.open&&q.open.length?q.open.map(([a,b])=>fmtT(a)+' ~ '+fmtB(b)).join(', '):'24H';return `<div class="sign ${o?'o':'c'}">${ledSvg(o?'OPEN':'CLOSED')}<span>${h}</span></div>`};
 function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const d=dateOf();const bn=bandOf(G.min),BR=[['아침','🌅',300,420],['오전','🌤',420,780],['오후','☀️',780,1020],['저녁','🌇',1020,1140],['밤','🌙',1140,1740]],wd=d.getDay(),np=((G.min-300+1440)%1440)/1440*100; 
   $('#wt').innerHTML=`<div class="cal${wd===0?' sun':wd===6?' sat':''}"><span class="mo"><span class="hx">${d.getMonth()+1}월</span></span><b class="dy"><span class="hx">${d.getDate()}</span></b><span class="wk"><span class="hx">${DOW[wd]}요일</span></span></div>
@@ -1948,6 +2027,7 @@ function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   renderActs();
   const co=!!G.closet,vw=viewSt?'status':(viewBk?'bk':(viewMv?'mv':(viewSh?'sh':'')));$('#closet').hidden=!co;$('#cbar').hidden=!co||!!CL;$('#ordercard').hidden=!!(CL&&CL.parts.length);$('#gridcard').hidden=!!(CL&&CL.mode==='color');$('#endview2').textContent=CL?'다 했어요':'옷장 닫기';if(vw)$('#mapcurrent').hidden=true;$('#bkview').hidden=vw!=='bk';$('#mvview').hidden=vw!=='mv';$('#shview').hidden=vw!=='sh';$('#mapview').hidden=vw==='status';$('#endview3').hidden=!(vw==='bk'||vw==='mv');$('#stview').hidden=vw!=='status';$('#endbar').hidden=vw!=='status';if(vw==='status')renderStatus();
   {const im=placeImg(viewMv&&mvPlace||G.place),si=!viewTown,el=$('#intimg');$('#townmap').hidden=si;$('#interior').hidden=!si;$('#townbar').hidden=si;$('.mapov').classList.toggle('int',si);ACTHIDE=!!vw||mapOnly||co;EXITOK=si&&!mapOnly&&!vw&&!co;updBand();
+    try{shDecoUpdate(si)}catch(e){}
     el.hidden=!im;if(!im){el.removeAttribute('src');el.dataset.src=''}else if(si&&el.dataset.src!==im){el.dataset.src=im;el.onerror=()=>{IMGBAD.add(im);el.dataset.src='';renderWorld()};el.src=im}}
   requestAnimationFrame(()=>{layActs();sizeWorld();fitText()});
   {const sw=document.querySelector('.stagewrap');sw.classList.toggle('big',co&&!vw);sw.classList.toggle('mini',!co&&!vw);sw.classList.toggle('town',!co&&!vw&&mapOnly);charSide(charL)}try{bgmUpdate()}catch(e){}
@@ -2805,6 +2885,7 @@ function renderTypeForm(){
   const fx=FIXTYPE[t.code],lock=fx?fx.lock:[];
   e.innerHTML=`<div class="form"><div class="fr id3"><label class="f"><span>아이콘</span>${emoBtn('t_i',t.icon||'')}</label><label class="f"><span>이름</span><input id="t_n" value="${esc(t.name)}"></label><label class="f"><span>ID</span><input id="t_c" value="${esc(t.code)}"${t.id||t._virt?' disabled':''}></label></div>
   ${fx?`<div class="tag" style="margin-bottom:6px">🔒 고정 유형이에요. 삭제할 수 없고${lock.length?', 연동 행동은 체크를 풀 수 없어요':''}. 나머지는 고칠 수 있어요</div>`:''}
+  ${(()=>{const L=plTree().filter(([k,p])=>p.type===t.code);return `<div class="f"><span>이 유형의 장소 (${L.length})${tip('마을 > 장소에서 장소의 유형을 바꾸면 여기에 반영돼요')}</span>${L.length?`<div class="chips cgrid tpl">${L.map(([k,p,d])=>`<span class="chip ro" title="${esc((p.parent&&WORLD.places[p.parent]?WORLD.places[p.parent].n+' › ':'')+p.n)}">${esc(p.i||'')} ${esc(p.n)}</span>`).join('')}</div>`:'<span class="tag">이 유형으로 지정된 장소가 아직 없어요</span>'}</div>`})()}
   <div class="f"><span>이 유형의 행동${tip('체크한 행동이 이 유형의 모든 장소에서 나와요')}</span><div class="chips cgrid">${actRows().map(a=>`<label class="chip"><input type="checkbox" class="t_a" value="${esc(a.code)}"${(t._acts||[]).includes(a.code)?' checked':''}${lock.includes(a.code)?' disabled':''}>${esc(a.icon||'')} ${esc(a.name)}${lock.includes(a.code)?' 🔒':''}</label>`).join('')||'<span class="tag">먼저 행동을 만들어 주세요</span>'}</div></div>
   <div class="row"><button class="pri" id="t_save">저장</button>${t.id&&!fx?'<button id="t_del">삭제</button>':''}</div></div>`;
   $('#t_save').onclick=saveType;if(t.id&&!fx)$('#t_del').onclick=delType;
@@ -2883,20 +2964,43 @@ function npcExtra(n){
 
 
 // ===== 화면 맞춤: 1920×1080 고정 비율을 통째로 확대·축소 (최소 0.5배) =====
-function fitGame(){const g=$('#game'),f=$('#gamefit'),de=document.documentElement,cw=de.clientWidth,ch=de.clientHeight;let k=Math.min(cw/1380,ch/1080);const small=k<0.5;k=Math.max(0.5,k);
+const isMobile=()=>matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<=900;   // 휴대폰·작은 태블릿
+function fitGame(){const g=$('#game'),f=$('#gamefit'),de=document.documentElement,cw=de.clientWidth,ch=de.clientHeight;
+  const mb=isMobile();de.classList.toggle('port',mb&&cw<=ch);
+  if(mb&&cw>ch){   // 모바일 가로: 위아래 여백을 줄인 720 높이 화면을 높이에 맞춰 꽉 채우고, 가로는 화면 비율대로 늘려요(스크롤 없음)
+    const LH=720,k=ch/LH,LW=Math.min(1380,Math.max(900,Math.round(cw/k)));de.classList.add('mob');
+    g.style.width=LW+'px';g.style.height=LH+'px';g.style.transform=`scale(${k})`;f.style.width=Math.round(LW*k)+'px';f.style.height=ch+'px';f.style.marginTop='0';de.style.overflow='hidden';try{updActArrows()}catch(e){}return}
+  de.classList.remove('mob');g.style.width=g.style.height='';
+  let k=Math.min(cw/1380,ch/1080);const small=k<0.5;k=Math.max(0.5,k);
   g.style.transform=`scale(${k})`;f.style.width=Math.round(1380*k)+'px';f.style.height=Math.round(1080*k)+'px';f.style.marginTop=Math.max(0,Math.floor((ch-1080*k)/2))+'px';de.style.overflow=small?'auto':'hidden';try{updActArrows()}catch(e){}}
 // 상단 HUD+마을 그림을 한 상자로: 상자 너비를 그림 비율에 맞춘다
 function sizeWorld(){try{const c=document.querySelector('#game .card.world'),f=$('#mapframe'),w=c&&c.querySelector('.wt');if(!c||!f||!w)return;
-  const a=String(getComputedStyle(f).aspectRatio||'1.5').split('/').map(parseFloat),ratio=(a[0]/(a[1]||1))||1.5,fh=c.clientHeight-w.offsetHeight;
-  if(fh>100)c.style.width=Math.floor(fh*ratio)+(c.offsetWidth-c.clientWidth)+'px';posSys();sizeChar()}catch(e){}}
+  const mob=document.documentElement.classList.contains('mob'),a=String(getComputedStyle(f).aspectRatio||'1.5').split('/').map(parseFloat),ratio=(a[0]/(a[1]||1))||1.5,fh=mob?c.clientHeight:c.clientHeight-w.offsetHeight;   // 모바일 가로는 상태판이 옆에 있어서 높이를 빼지 않고 너비에 더해요
+  if(fh>100)c.style.width=Math.floor(fh*ratio)+(mob?w.offsetWidth:0)+(c.offsetWidth-c.clientWidth)+'px';posSys();sizeChar()}catch(e){}}
 var charL=0;function charSide(l){charL=l;const sw=document.querySelector('.stagewrap'),mf=$('#mapframe');if(!sw||!mf)return;sw.style.transform=l&&sw.classList.contains('mini')?`translateX(${-Math.max(0,mf.clientWidth-sw.offsetWidth-80)}px)`:''}
 function sizeChar(){const mf=$('#mapframe'),cv=$('#cv');if(!mf||!cv)return;const F=mf.clientHeight,H=Math.max(300,Math.round(F*1.3)),r=(cv.width&&cv.height)?cv.width/cv.height:596/1796;mf.style.setProperty('--sth',H+'px');mf.style.setProperty('--sw',Math.round(H*r)+'px');mf.style.setProperty('--sch',F+'px');mf.style.setProperty('--sdn',Math.max(0,Math.round(F-148-780*H/(cv.height||1796)))+'px');charSide(charL)}
 function charHit(e){const sw=document.querySelector('.stagewrap');if(!sw||document.querySelector('#game.talking')||!sw.classList.contains('mini')||(e.target.closest&&e.target.closest('.exit,#actov,.twarr,.twi,.dbox')))return false;const cv=$('#cv'),r=cv.getBoundingClientRect(),w=sw.getBoundingClientRect();if(e.clientX<w.left||e.clientX>w.right||e.clientY<w.top||e.clientY>w.bottom||e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)return false;try{const x=Math.floor((e.clientX-r.left)/r.width*cv.width),y=Math.floor((e.clientY-r.top)/r.height*cv.height);return cv.getContext('2d').getImageData(x,y,1,1).data[3]>20}catch(_){const fx=(e.clientX-r.left)/r.width;return fx>.05&&fx<.95}}
 document.addEventListener('click',e=>{if(charHit(e)){e.stopImmediatePropagation();e.preventDefault();charSide(charL?0:1)}},true);
 document.addEventListener('click',e=>{if(!$('#game').classList.contains('talking'))return;const t=e.target;if(!t.closest||t.closest('#scene,#delta,dialog,button,a,input,select,textarea,label,.sysbar'))return;const el=!$('#scene').hidden?$('#scene'):(!$('#delta').hidden?$('#delta'):null);if(el&&el.onclick)el.onclick(e)});
 document.addEventListener('mousemove',e=>{const mf=$('#mapframe');if(mf)mf.style.cursor=charHit(e)?'pointer':''});
-function posSys(){try{const g=$('#game'),v=g.querySelector('.vit'),c=g.querySelector('.side>.card:first-child');if(!v||!c)return;const sc=g.getBoundingClientRect().width/g.offsetWidth||1,gr=g.getBoundingClientRect(),vr=v.getBoundingClientRect();c.style.marginRight=Math.max(0,Math.round((gr.right-(vr.left+vr.width*2/3))/sc-52))+'px'}catch(e){}}
+function posSys(){try{const g=$('#game'),v=g.querySelector('.vit'),c=g.querySelector('.side>.card:first-child');if(!v||!c)return;const sc=g.getBoundingClientRect().width/g.offsetWidth||1,gr=g.getBoundingClientRect(),vr=v.getBoundingClientRect();
+  if(document.documentElement.classList.contains('mob')){const w=g.querySelector('.card.world');if(w){c.style.marginRight=Math.max(0,Math.round((gr.right-w.getBoundingClientRect().right)/sc-14))+'px';return}}   // 모바일 가로: 장면 오른쪽 끝에 맞춰요
+  c.style.marginRight=Math.max(0,Math.round((gr.right-(vr.left+vr.width*2/3))/sc-52))+'px'}catch(e){}}
 addEventListener('resize',()=>{fitGame();sizeWorld();posSys()});fitGame();
+// ===== 앱 설치 · 새로고침 · 가로 고정 =====
+let INSTP=null;const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||!!navigator.standalone;
+const instShow=()=>{const b=$('#instbtn');if(b)b.hidden=isStandalone()};
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();INSTP=e;instShow()});
+addEventListener('appinstalled',()=>{INSTP=null;$('#instbtn').hidden=true;msg('설치했어요! 홈 화면에서 열어 보세요')});
+$('#instbtn').onclick=async()=>{
+  if(INSTP){INSTP.prompt();try{await INSTP.userChoice}catch(e){}INSTP=null;instShow();return}
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  alert(ios?'사파리 아래쪽 공유 버튼(⬆) → "홈 화면에 추가"를 눌러 주세요.':'브라우저 메뉴(⋮) → "앱 설치" 또는 "홈 화면에 추가"를 눌러 주세요.\n(앱 안의 브라우저가 아니라 크롬·사파리에서 열어야 해요)')};
+instShow();matchMedia('(display-mode: standalone)').addEventListener&&matchMedia('(display-mode: standalone)').addEventListener('change',instShow);
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+$('#rfbtn').onclick=async()=>{try{clearTimeout(SAVE.pt);await cloudPut()}catch(e){}location.reload()};   // 저장을 올린 뒤 새로고침
+const lockLand=()=>{try{if(isMobile()&&screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(()=>{})}catch(e){}};   // 설치한 앱·전체 화면에서만 동작해요
+lockLand();document.addEventListener('click',lockLand,{once:true});
 
 // ================= 시작 =================
 loadGame();applyMe();buildModel();rebuildAcq();initSel();inited=true;refresh();renderWorld();checkEvents();
@@ -3285,19 +3389,35 @@ function normG(){applyMe();
   if(typeof G.min!=='number')G.min=WORLD.wakeMin;if(!Array.isArray(G.ledger))G.ledger=[];
   if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.wait=Array.isArray(G.wait)?G.wait:[];G.vgoods=G.vgoods||{};G.dlv=Array.isArray(G.dlv)?G.dlv:[];G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.catFeed=G.catFeed||{};G.catMet=G.catMet||{};G.mail=Array.isArray(G.mail)?G.mail:[];G.catNames=G.catNames||{};if(!G.visits){G.visits={};if(G.place)G.visits[G.place]=99;G.visits.home=99}G.catWhere=G.catWhere||{};G.catNamedDay=G.catNamedDay||{};catApplyNames();if(G.mailDay==null)G.mailDay=null;G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
 const lookPack=()=>(CL&&CL.try&&CL.snap?CL.snap:{sel,colors,iord});   // 입어보는 동안에는 저장되지 않아요
-function lookSave(){if(LOOKP)return;clearTimeout(SAVE.lt);SAVE.lt=setTimeout(()=>{try{localStorage.setItem('fsfsLook',JSON.stringify(lookPack()));localStorage.setItem('fsfsLocalAt',Date.now())}catch(e){}try{pushSoon()}catch(e){}},800)}
+function lookSave(){if(LOOKP)return;clearTimeout(SAVE.lt);SAVE.lt=setTimeout(()=>{try{localStorage.setItem('fsfsLook',JSON.stringify(lookPack()));localStorage.setItem('fsfsLocalAt',Date.now());localStorage.setItem('fsfsDirty','1')}catch(e){}try{pushSoon()}catch(e){}},800)}
 function applyLook(l){const d=l||LOOKP;if(!d||!d.sel)return;if(!l&&!DB.items.length)return;sel={...sel,...d.sel};colors=d.colors||{};iord=Array.isArray(d.iord)?d.iord.slice():[];if(!l)LOOKP=null}
 const savePack=()=>({G,look:lookPack()});
 function saveSummary(){const d=dateOf();return{date:`${d.getMonth()+1}월 ${d.getDate()}일`,money:G.money,place:(WORLD.places[G.place]||{}).n||'',day:G.day}}
-async function cloudPut(slot){if(!S)return;slot=slot||SAVE.slot;await sb('/rest/v1/fsfs_save?on_conflict=user_id,slot',{m:'POST',h:{Prefer:'resolution=merge-duplicates,return=minimal'},b:{slot,name:'슬롯 '+slot,summary:saveSummary(),data:savePack(),updated_at:new Date().toISOString()}})}
+// 저장은 클라우드가 기준이에요: 이 기기의 localStorage는 임시 사본이고, 마지막으로 맞춘 클라우드 버전(fsfsCloudAt)과 아직 안 올린 변경(fsfsDirty)을 기억해요
+const gsig=()=>[G.day,G.min,G.money].join('|');   // 진행 정도(일·시각·돈): 접속만 해도 바뀌는 사소한 값은 '진행'으로 안 쳐요
+function cloudMark(ts,at0,sg){try{localStorage.setItem('fsfsCloudAt',Date.parse(ts)||0);localStorage.setItem('fsfsSig',sg||gsig());if(at0==null||localStorage.getItem('fsfsLocalAt')==at0)localStorage.setItem('fsfsDirty','0')}catch(e){}}
+async function cloudPut(slot){if(!S||!SAVE.ok)return;slot=slot||SAVE.slot;let at0=null;const sg=gsig();try{at0=localStorage.getItem('fsfsLocalAt')}catch(e){}
+  const r=await sb('/rest/v1/fsfs_save?on_conflict=user_id,slot&select=updated_at',{m:'POST',h:{Prefer:'resolution=merge-duplicates,return=representation'},b:{slot,name:'슬롯 '+slot,summary:saveSummary(),data:savePack(),updated_at:new Date().toISOString()}});
+  if(slot===SAVE.slot&&r&&r[0])cloudMark(r[0].updated_at,at0,sg)}
 function pushSoon(){if(!S)return;clearTimeout(SAVE.pt);SAVE.pt=setTimeout(()=>cloudPut().catch(()=>{}),2500)}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&S){clearTimeout(SAVE.pt);cloudPut().catch(()=>{})}});
 async function syncSave(){
+  SAVE.ok=false;
   const rows=await sb('/rest/v1/fsfs_save?select=*&order=slot.asc');SAVE.list=rows||[];
-  const cur=SAVE.list.find(r=>r.slot===SAVE.slot);let la=0;try{la=+localStorage.getItem('fsfsLocalAt')||0}catch(e){}
-  if(!cur){await cloudPut();return}
-  if(Date.parse(cur.updated_at)>la+5000&&cur.data&&cur.data.G){G=cur.data.G;normG();applyLook(cur.data.look);pruneSel();LAST=null;saveGameLocal();refresh();renderWorld();msg(`슬롯 ${SAVE.slot}의 저장을 불러왔어요`)}
-  else await cloudPut();
+  let cur=SAVE.list.find(r=>r.slot===SAVE.slot),base=0,dirty=false,bsig=null;try{base=+localStorage.getItem('fsfsCloudAt')||0;dirty=localStorage.getItem('fsfsDirty')==='1';bsig=localStorage.getItem('fsfsSig')}catch(e){}
+  const moved=()=>gsig()!==(bsig||`0|${WORLD.wakeMin}|${WORLD.start.money}`);   // 마지막으로 맞춘 뒤 이 기기에서 실제로 진행했는지
+  const has=r=>!!(r&&r.data&&r.data.G);
+  if(!has(cur)&&!moved()){   // 이 기기에서 한 게 없고 이 슬롯이 비었으면, 가장 최근에 저장한 슬롯으로 이어서 해요
+    const last=SAVE.list.filter(has).sort((a,b)=>Date.parse(b.updated_at)-Date.parse(a.updated_at))[0];
+    if(last){cur=last;SAVE.slot=last.slot;try{localStorage.setItem('fsfsSlot',last.slot)}catch(e){}base=0;bsig=null}}
+  const pull=()=>{G=cur.data.G;normG();applyLook(cur.data.look);pruneSel();hidden.clear();LAST=null;saveGameLocal();try{localStorage.setItem('fsfsCloudAt',Date.parse(cur.updated_at)||0);localStorage.setItem('fsfsDirty','0');localStorage.setItem('fsfsSig',gsig())}catch(e){}refresh();renderWorld();msg(`슬롯 ${SAVE.slot}의 저장을 불러왔어요`)};
+  SAVE.ok=true;   // 여기서부터 클라우드에 올려도 돼요 (비교 전에 옛 사본이 덮어쓰지 않게)
+  if(!has(cur))await cloudPut();
+  else{const cm=Date.parse(cur.updated_at)||0;
+    if(base===cm){if(dirty)await cloudPut()}
+    else if(!moved())pull();
+    else{const cs=cur.summary||{};   // 이 기기와 클라우드가 서로 다르게 진행됐어요
+      if(confirm(`클라우드에 저장된 진행(${(+cs.day||0)+1}일차 · ${ago(cur.updated_at)})과 이 기기의 진행(${G.day+1}일차)이 달라요.\n\n[확인] 클라우드 저장을 불러오기\n[취소] 이 기기의 진행으로 덮어쓰기`))pull();else await cloudPut()}}
   try{wkAnnounce()}catch(e){}}
 function saveGameLocal(){try{localStorage.setItem('fsfsGame',JSON.stringify(G));localStorage.setItem('fsfsLocalAt',Date.now());if(sel)localStorage.setItem('fsfsLook',JSON.stringify(lookPack()))}catch(e){}}
 const ago=t=>{const m=Math.round((Date.now()-Date.parse(t))/60000);return m<1?'방금':m<60?m+'분 전':m<1440?Math.round(m/60)+'시간 전':Math.round(m/1440)+'일 전'};
@@ -3305,7 +3425,7 @@ async function renderSave(){
   const L=$('#sv_l'),info=$('#sv_i');
   if(!S){info.textContent='로그인하면 슬롯 5개에 저장하고, 다른 기기에서도 이어서 할 수 있어요. 지금은 이 기기에만 저장돼요.';L.innerHTML='<div class="bar"><button id="sv_local">이 기기에서 새 게임 (지금 진행이 사라져요)</button></div>';
     $('#sv_local').onclick=()=>{if(!confirm('새 게임을 시작할까요? (보유 의상과 진행 상황이 초기화돼요)'))return;newGame();LAST=null;initSel();iord=[];hidden.clear();$('#savedlg').close();after()};return}
-  info.textContent='진행 상황은 자동으로 저장돼요. ▶ 표시가 지금 플레이 중인 슬롯이에요.';
+  info.textContent='진행 상황은 클라우드에 자동으로 저장돼요. 같은 아이디로 로그인하면 어느 기기에서든 이어서 할 수 있어요. ▶ 표시가 지금 플레이 중인 슬롯이에요.';
   try{SAVE.list=await sb('/rest/v1/fsfs_save?select=slot,name,summary,updated_at&order=slot.asc')||[]}catch(e){L.innerHTML=`<div class="tag">저장 목록을 불러오지 못했어요. ${esc(String(e.message||e).slice(0,120))}</div>`;return}
   L.innerHTML=Array.from({length:SLOTS},(_,i)=>{const n=i+1,r=SAVE.list.find(x=>x.slot===n),cur=n===SAVE.slot,sm=r?r.summary||{}:null;
     return `<div class="svc${cur?' cur':''}" data-n="${n}"><div class="svh"><b>${cur?'▶ ':''}슬롯 ${n}</b><span class="tag">${r?`${esc(sm.date||'')} · ₩${(+sm.money||0).toLocaleString()} · ${esc(sm.place||'')} · ${ago(r.updated_at)}`:'비어 있음'}</span></div>
@@ -3315,8 +3435,8 @@ $('#sv_l').onclick=async e=>{const b=e.target.closest('button[data-a]');if(!b||!
   try{
     if(a==='save'){await cloudPut();msg('저장했어요')}
     else if(a==='del'){if(!confirm(`슬롯 ${n}의 저장을 삭제할까요?`))return;await sb('/rest/v1/fsfs_save?slot=eq.'+n,{m:'DELETE'})}
-    else if(a==='load'){await cloudPut();const r=(await sb('/rest/v1/fsfs_save?slot=eq.'+n+'&select=data'))[0];if(!r||!r.data||!r.data.G)throw new Error('저장 내용이 비어 있어요');
-      G=r.data.G;normG();applyLook(r.data.look);pruneSel();hidden.clear();SAVE.slot=n;try{localStorage.setItem('fsfsSlot',n)}catch(x){}saveGameLocal();LAST=null;$('#savedlg').close();refresh();after();msg(`슬롯 ${n}을 불러왔어요`)}
+    else if(a==='load'){await cloudPut();const r=(await sb('/rest/v1/fsfs_save?slot=eq.'+n+'&select=data,updated_at'))[0];if(!r||!r.data||!r.data.G)throw new Error('저장 내용이 비어 있어요');
+      G=r.data.G;normG();applyLook(r.data.look);pruneSel();hidden.clear();SAVE.slot=n;try{localStorage.setItem('fsfsSlot',n)}catch(x){}saveGameLocal();cloudMark(r.updated_at,null,gsig());LAST=null;$('#savedlg').close();refresh();after();msg(`슬롯 ${n}을 불러왔어요`)}
     else if(a==='new'){const has=SAVE.list.some(x=>x.slot===n);if(has&&!confirm(`슬롯 ${n}의 저장을 덮어쓰고 새 게임을 시작할까요?`))return;
       await cloudPut();SAVE.slot=n;try{localStorage.setItem('fsfsSlot',n)}catch(x){}newGame();LAST=null;initSel();iord=[];hidden.clear();await cloudPut(n);$('#savedlg').close();after();refresh()}
     if($('#savedlg').open)renderSave()}catch(er){msg(er.message,1)}};
