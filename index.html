@@ -645,7 +645,7 @@ dialog{border:3px solid var(--ln);box-shadow:none}
  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3C/svg%3E") left 2px top 2px/7px 7px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3C/svg%3E") right 2px top 2px/7px 7px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3C/svg%3E") left 2px bottom 2px/7px 7px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3C/svg%3E") right 2px bottom 2px/7px 7px no-repeat,linear-gradient(rgba(255,255,255,.4),rgba(255,255,255,0) 52%),var(--signbg,#ffe27a);
  box-shadow:inset 0 0 0 2px rgba(255,255,255,.5),inset 3px 4px 8px rgba(84,64,150,.30),0 0 0 1.5px rgba(106,90,158,.6),0 4px 0 1px rgba(91,75,104,.18),0 7px 10px rgba(91,75,104,.14);color:#6d4f9f}
 .pn i{font-size:31px;line-height:1;filter:drop-shadow(0 2px 0 rgba(106,90,158,.22))}
-.pn .pl{display:flex;align-items:baseline;justify-content:center;gap:8px;min-width:0;max-width:100%;position:relative;top:3px}
+.pn .pl{display:flex;align-items:baseline;justify-content:center;gap:8px;min-width:0;max-width:100%;position:relative;top:5px}
 .pn span{text-shadow:0 1px 0 rgba(255,255,255,.75)}
 .sign{position:relative;z-index:0;box-sizing:border-box;width:178px;margin:15px auto 0;padding:7px 8px 5px;border:3px solid;border-color:#e6deff #a18dd8 #a18dd8 #e6deff;border-radius:5px;background:linear-gradient(#2f2763,#1c1741);text-align:center;line-height:1.15;box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.35),inset 0 4px 9px rgba(0,0,0,.5),0 0 0 1.5px rgba(106,90,158,.6),0 5px 0 1px rgba(91,75,104,.2)}
 .sign::before,.sign::after{content:"";position:absolute;top:-24px;width:4px;height:26px;border-radius:2px;background:linear-gradient(90deg,#f4f0ff,#b8abe8 55%,#8b7cc7);box-shadow:0 0 0 1px #6a5a9e;z-index:-1}
@@ -698,24 +698,16 @@ button.act b{font-weight:900;font-size:18px;color:var(--ink);-webkit-text-stroke
 #st_b h2{margin-top:12px}
 #bchoice{min-width:300px}
 dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);outline-offset:2px}
-/* 비디오 가게: 테이프를 눕히고 오른쪽에 제목·금액 버튼 */
-.tapes{display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:12px;padding:14px;justify-content:flex-start}
+/* 비디오 가게: mvmv와 같은 세운 테이프(mvtape.v1.js 그림)를 왼쪽으로 90° 눕혀서 진열해요. 그림은 mvtape가 그리고 여기선 눕히기만 해요 (js는 안 건드림) */
+.tapes{display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:14px;padding:14px;justify-content:flex-start}
 .tapes .tpr{display:flex;align-items:center;gap:14px}
 .tapes .tpn{flex:1;min-width:0;max-width:none;text-align:left;font-size:14px;line-height:1.35;color:#fff;word-break:keep-all}
 .tapes .tpr>button{flex:none;width:128px;align-self:center}
-.tapes .mvtp{width:220px;height:40px;flex:none;background:linear-gradient(180deg,#fff3,#0000 14%,#0000 84%,#0006),var(--p)}
-.tapes .mvtp::before{left:12.8%;right:auto;top:0;bottom:0;width:1px;height:auto;box-shadow:1px 0 0 #fff3}
-.tapes .mvtp::after{left:auto;right:2.4%;top:0;bottom:0;width:1px;height:auto;box-shadow:1px 0 0 #fff2}
-.tapes .mvt-sm{left:0;top:50%;width:12.8%;height:1px;margin:-.5px 0 0;box-shadow:0 1px 0 #fff3}
-.tapes .mvt-nt{right:auto;left:14px;top:4px;width:14px;height:41%}
-.tapes .mvt-rc{left:15%;right:5%;top:3px;bottom:3px}
-.tapes .mvt-sk{flex-direction:row}
-.tapes .mvtp.d1 .mvt-sk{border-top:0;border-left:6px solid var(--a)}
-.tapes .mvtp.d2 .mvt-sk{box-shadow:inset 6px 0 0 var(--a),inset 9px 0 0 var(--s),inset 12px 0 0 var(--b)}
-.tapes .mvtp.d3 .mvt-sk{background:linear-gradient(180deg,#fff3,#0000 45%,#0003),var(--s)}
-.tapes .mvt-st{writing-mode:horizontal-tb;padding:0 8px;line-height:1.3}
-.tapes .mvtp.d2 .mvt-st{padding:0 8px 0 16px}
-.tapes .mvt-lg{width:34px;height:auto;display:flex;align-items:center;justify-content:center;line-height:1;font-size:6px}
+.tapes .tpt{flex:none;position:relative;width:var(--th);height:var(--tw)}
+.tapes .tpt .mvtp{position:absolute;left:0;top:0;transform-origin:0 0;transform:translateY(var(--tw)) rotate(-90deg);transition:none;cursor:default;background:linear-gradient(270deg,#fff3,#0000 14%,#0000 84%,#0006),var(--p);box-shadow:inset 0 0 0 1px #ffffff22,-3px 0 4px #000a}
+.tapes .mvt-st{text-orientation:sideways}
+.tapes .mvt-tcy{text-combine-upright:none}
+.tapes .mvt-yr{writing-mode:vertical-rl;text-orientation:sideways;padding:0 3px}
 
 /* ---- 성소: 종이 ---- */
 #intlight[data-s=sh],#intlight[data-s=shn]{background:radial-gradient(ellipse at 50% 64%,rgba(255,205,120,calc(.08 + var(--w,0)*.34)),rgba(255,170,90,calc(var(--w,0)*.14)) 62%,transparent 80%)}
@@ -2968,6 +2960,8 @@ const ROLES={fan:'덕질 인물',cat:'고양이',author:'히든'};
 // --- 덕질노트(lvlv) 가져오기 ---
 const sexOf=s=>{s=String(s||'').toLowerCase();return s==='m'||s==='f'?s:null};
 const qLinesF=t=>String(t||'').split('\n').map(x=>x.trim()).filter(Boolean);
+/* 덕질노트 인물을 fsfs 인물 행으로 옮길 때 쓰는 기본 칸 — 대사·소개는 열 때마다 lvlv에서 새로 읽어 덮어요(applyLvlv) */
+const lvFields=c=>({name:c.name,sex:c.sex,traits:c.traits||[],looks:[],quotes:[],profile_text:null});
 /* lvlv 인물 → fsfs가 쓰는 모양. 키워드는 분류와 상관없이 이름 전체를 쓰고(번역표는 이름으로 찾아요), 분류는 보여주기용으로만 묶어요 */
 function lvBuild(ch,kw,ck,kd){
   const K={},KD={};kw.forEach(k=>K[String(k.id)]=k);(kd||[]).forEach(d=>KD[d.code]=d);
@@ -3007,7 +3001,7 @@ async function lvAuto(){
   try{const all=await lvFetch(),sk=lvSkip(),miss=all.filter(c=>!DB.npcs.some(x=>x.source_app==='lvlv'&&x.source_id===c.id)&&!sk.includes(c.id));
     if(miss.length){for(let i=0;i<miss.length;i++)await post('/rest/v1/fsfs_npc',lvNew(miss[i],i));await loadCatalog();renderNpcAdmin();msg(`덕질노트에서 ${miss.length}명을 자동으로 추가했어요`)}
     st.textContent=`🔗 덕질노트 인물 ${DB.npcs.filter(x=>x.source_app==='lvlv').length}명 연결됨 · 새 인물은 자동으로 추가돼요`}
-  catch(e){st.textContent='🔗 덕질노트를 읽지 못했어요 (로그인했는지 확인해 주세요)';console.warn(e)}
+  catch(e){const why=String(e&&e.message||e).replace(/\s+/g,' ').slice(0,80);st.textContent='🔗 덕질노트 연결 중 오류가 났어요 (로그인 확인) · '+why;console.warn(e)}
   lvBusy=false}
 
 // --- NPC 편집 폼: 역할 · 아바타 · 자동 생성 ---
@@ -3170,7 +3164,7 @@ $('#bk_g').onclick=e=>{const el=e.target.closest('.bks-sp');if(!el||!BK)return;s
 const BOOK_PRICE=12000,BOOK_SHOW=5;
 // 표지: bkbk_books.cover (mnmn이 관리하는 키 — 해시 16자 또는 covers/해시.jpg). 없거나 못 불러오면 책 색깔로 보여요
 const bkCov=u=>{u=String(u||'').trim();if(!u)return'';if(/^https?:/.test(u))return u;if(/^[0-9a-f]{16}$/.test(u))return MEDIA_BASE+'/o/images/'+u+'.webp';if(/(^|\/)(covers|images)\/[0-9a-f]+\.jpg$/.test(u))u=u.replace(/\.jpg$/,'_s.jpg');return MEDIA_BASE+'/o/'+u};
-const bkSw=b=>{const cv=bkCov(b.cover||b.cv);return `<div style="position:relative;width:44px;height:56px;border-radius:3px;overflow:hidden;background:${esc(b.c1||b.color1||'#888')};border-right:8px solid ${esc(b.c2||b.color2||'#ddd')};flex:none;box-sizing:border-box">${cv?`<img src="${esc(cv)}" alt="" loading="lazy" onerror="this.remove()" style="position:absolute;left:0;top:0;width:44px;height:56px;object-fit:cover;display:block">`:''}</div>`};
+const bkSw=b=>{const cv=bkCov(b.cover||b.cv);return `<div style="position:relative;width:44px;height:56px;border-radius:3px;overflow:hidden;background:${esc(b.c1||b.color1||'#888')};flex:none;box-sizing:border-box">${cv?`<img src="${esc(cv)}" alt="" loading="lazy" onerror="this.remove()" style="position:absolute;left:0;top:0;width:44px;height:56px;object-fit:cover;display:block">`:''}</div>`};
 /* ===== 대작가: wkwk에 입력한 출간작이 서점에 들어와요 (책에는 필명만 보여요) ===== */
 let WKB=null,WKBT=0,WKA=0;
 const wkHex=(n,S,L)=>{let h=hsh('wk'+n);h=Math.imul(h^(h>>>15),2246822507)>>>0;const H=h%360,a=S*Math.min(L,1-L),f=k=>{const q=(k+H/30)%12;return L-a*Math.max(-1,Math.min(q-3,9-q,1))},x=v=>Math.round(v*255).toString(16).padStart(2,'0');return'#'+x(f(0))+x(f(8))+x(f(4))};
@@ -3231,7 +3225,8 @@ async function openBookShop(pid){
   $('#shm').textContent='서점 · 보유 금액 ₩'+G.money.toLocaleString()}
 /* 비디오 가게: mvmv의 영화 목록을 mvmv와 같은 비디오테이프 그림(mvtape.v1.js)으로 진열. 올 때마다 일부만 무작위, 산 것만 G.videos에 저장 */
 const VIDEO_PRICE=15000,VIDEO_SHOW=5,VIDEO_MIN=30;
-const tapeHtml=m=>window.MvTape?MvTape.html(m,{}):`<div class="tag" style="padding:30px 6px;background:${esc(m.c1||'#333')};color:#fff">${esc(m.name)}</div>`;
+const tapeStyle=()=>Object.entries(window.MvTape?MvTape.size(220):{}).map(([k,v])=>k+':'+v).join(';');
+const tapeHtml=m=>{const f=(typeof MVA!=='undefined'&&MVA||[]).find(x=>String(x.id)===String(m.id)),mm=f?{...m,...f}:m;return window.MvTape?`<div class="tpt" style="${tapeStyle()}">${MvTape.html(mm,{})}</div>`:`<div class="tag" style="padding:30px 6px;background:${esc(m.c1||'#333')};color:#fff">${esc(m.name)}</div>`};
 function tapeGrid(L,label,fn){const box=$('#shl');box.classList.add('tapes');box.innerHTML='';box.style.setProperty('--sl','104px');
   L.forEach(m=>{const c=document.createElement('div');c.className='tpr';c.innerHTML=tapeHtml(m)+`<div class="tpn">${esc(m.name)}</div>`;const b=document.createElement('button');b.textContent=label(m);b.onclick=()=>fn(m,b);c.append(b);box.append(c)});
   tapeFit();try{document.fonts&&document.fonts.ready.then(tapeFit)}catch(e){}}
@@ -3242,11 +3237,12 @@ async function openVideoShop(pid){
   try{await mvLoad()}catch(e){$('#shl').innerHTML='<div class="tag">영화 목록을 불러오지 못했어요 (로그인 확인)</div>';return}
   G.videos=G.videos||{};const pool=MVA.filter(m=>!G.videos[m.id]).sort(()=>Math.random()-.5).slice(0,VIDEO_SHOW);
   if(!pool.length){$('#shl').classList.remove('tapes');$('#shl').innerHTML='<div class="tag">오늘은 새로 들어온 비디오가 없어요</div>'}
-  else tapeGrid(pool,()=>`₩${VIDEO_PRICE.toLocaleString()} 구매`,(m,b)=>{if(G.money<VIDEO_PRICE)return msg('돈이 부족해요',1);earn(-VIDEO_PRICE,m.name+' 비디오 구매');G.videos[m.id]={id:m.id,name:m.name,c1:m.c1,c2:m.c2,c3:m.c3,c4:m.c4};G.log=`${m.name} 비디오를 샀어요`;msg(`📼 ${m.name} 비디오를 샀어요! · −₩${VIDEO_PRICE.toLocaleString()}`);b.textContent='보유';b.disabled=true;saveGame();renderWorld();$('#shm').textContent='비디오 가게 · 보유 금액 ₩'+G.money.toLocaleString()});
+  else tapeGrid(pool,()=>`₩${VIDEO_PRICE.toLocaleString()} 구매`,(m,b)=>{if(G.money<VIDEO_PRICE)return msg('돈이 부족해요',1);earn(-VIDEO_PRICE,m.name+' 비디오 구매');G.videos[m.id]={id:m.id,name:m.name,release:m.release||null,c1:m.c1,c2:m.c2,c3:m.c3,c4:m.c4};G.log=`${m.name} 비디오를 샀어요`;msg(`📼 ${m.name} 비디오를 샀어요! · −₩${VIDEO_PRICE.toLocaleString()}`);b.textContent='보유';b.disabled=true;saveGame();renderWorld();$('#shm').textContent='비디오 가게 · 보유 금액 ₩'+G.money.toLocaleString()});
   $('#shm').textContent='비디오 가게 · 보유 금액 ₩'+G.money.toLocaleString()}
 async function openMyVideos(){
   const L=Object.values(G.videos||{});$('#shm').textContent=`내 비디오 · ${L.length}개 · 누르면 처음부터 봐요 (⏱ ${VIDEO_MIN}분)`;$('#shop').showModal();
   if(!L.length){$('#shl').classList.remove('tapes');$('#shl').innerHTML='<div class="tag">아직 산 비디오가 없어요. 비디오 가게에서 사 보세요</div>';return}
+  try{await mvLoad()}catch(e){}
   tapeGrid(L,()=>'보기',async m=>{try{await mvLoad();const f=MVA.find(x=>x.id===m.id);if(!f)return msg('mvmv에서 이 작품을 찾지 못했어요');$('#shop').close();runFilm(f,()=>{pass(VIDEO_MIN);G.log=`📼 ${f.name||''} 보기`;after()})}catch(e){msg('영화 기록을 불러오지 못했어요',1)}})}
 /* ===== 선반: 산 책과 비디오가 섞여서 꽂혀 있어요 (꽂힌 순서는 항상 같고, 처음 보면 랜덤처럼 보여요) ===== */
 let SHF=null;
@@ -3392,7 +3388,7 @@ let MV=null,MVT=0;
 async function mvAll(tb,cols){const out=[];for(let off=0;;off+=1000){const j=await sb(`/rest/v1/${tb}?select=${cols}&order=id.asc&limit=1000&offset=${off}`);out.push(...(j||[]));if(!j||j.length<1000)break}return out}
 async function mvLoad(){
   if(MV&&MVA.length>=0&&Date.now()-MVT<300000)return MV;
-  const [mv,ep,sc]=await Promise.all([mvAll('mvmv_movie','id,name,poster,date,countdown,c1,c2,c3,c4'),mvAll('mvmv_episode','id,movie,episode'),mvAll('mvmv_scene','id,movie,episode,timectup,timectdown,image,line')]);
+  const [mv,ep,sc]=await Promise.all([mvAll('mvmv_movie','id,name,poster,date,release,countdown,c1,c2,c3,c4'),mvAll('mvmv_episode','id,movie,episode'),mvAll('mvmv_scene','id,movie,episode,timectup,timectdown,image,line')]);
   const EP=new Map(ep.map(e=>[String(e.id),+e.episode||0])),by=new Map();
   sc.forEach(x=>{const k=String(x.movie);(by.get(k)||by.set(k,[]).get(k)).push({...x,ep:EP.get(String(x.episode))||0})});
   const key=x=>x.timectup!=null&&x.timectup!==''?+x.timectup:x.timectdown!=null&&x.timectdown!==''?-x.timectdown:0;
