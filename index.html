@@ -732,6 +732,12 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
 #shview textarea::placeholder{color:#b7a698}
 #shview .pb{display:flex;align-items:center;gap:8px;margin-top:12px;padding-left:10px}#shview .pb .sp{flex:1}
 #shview .paper.dy{transform:rotate(.4deg)}
+#shview .pt.dylog{white-space:normal;padding-right:6px}
+#shview .dylog .dysm{font-size:13px;line-height:34px;color:#8a7468;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#shview .dylog .dyr{display:flex;gap:12px;line-height:34px;height:34px}
+#shview .dylog .dt{flex:none;width:46px;font-size:14px;color:#a08a7c;font-variant-numeric:tabular-nums}
+#shview .dylog .dx{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#shview .dylog .dyne{white-space:pre-wrap;color:#a08a7c;padding-top:34px}
 #shview .dyg{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:132px;gap:12px 10px;height:276px;box-sizing:border-box;padding:2px 0 0 10px;align-content:start}
 #shview .dyc{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;border:1px dashed #d1bfa3;border-radius:6px;background:rgba(255,255,255,.6);cursor:pointer;color:#43352f;outline:0}
 #shview .dyc:hover,#shview .dyc:focus-visible{border-color:#b5446e;background:#fff}
@@ -1327,6 +1333,7 @@ const ACT0=[
   {code:'bookmore',name:'책 이어서 사기',icon:'📖',kind:'bookmore',descr:'가진 시리즈의 다음 권이나 남은 권 전부를 사요. (bkbk 연동)',mins:0,energy:0,money:0},
   {code:'videobuy',name:'비디오 구경하기',icon:'📼',kind:'videobuy',descr:'진열대의 비디오테이프를 둘러보고 사요. 올 때마다 진열이 달라요. (mvmv 연동)',mins:0,energy:0,money:0},
   {code:'diary',name:'다이어리 열기',icon:'📔',kind:'group',descr:'지금까지의 기록을 펼쳐 봐요.',mins:0,energy:0,money:0},
+  {code:'diary_log',name:'하루 기록',icon:'📒',kind:'daylog',descr:'그날 다닌 곳과 한 일을 하루씩 펼쳐 봐요.',mins:0,energy:0,money:0,effects:{group:'diary'}},
   {code:'diary_cats',name:'고양이 도감',icon:'🐈',kind:'catdex',descr:'만나 본 고양이들을 펼쳐 봐요.',mins:0,energy:0,money:0,effects:{group:'diary'}},
   {code:'diary_mail',name:'받은 쪽지',icon:'📩',kind:'mail',descr:'고양이들이 물어다 준 쪽지를 다시 읽어요.',mins:0,energy:0,money:0,effects:{group:'diary'}},
   {code:'mybooks',name:'선반',icon:'🗄',kind:'mybooks',descr:'산 책과 비디오가 섞여 꽂혀 있어요. 골라서 읽거나 봐요.',mins:0,energy:0,money:0},
@@ -1464,8 +1471,15 @@ function homeGate(k,from){const q=WORLD.places[k],par=q&&q.parent,P=par&&WORLD.p
   let best=on[0];on.forEach(id=>{if((G.aff[id]||0)>(G.aff[best]||0))best=id});const need=WORLD.enterAff,nm=WORLD.npcs[best].n;
   if((G.aff[best]||0)<need)return{ok:false,why:`아직 안으로 들어가자고 하기엔 어색해요 (${nm}${josa(nm)} 호감도 ${need} 이상 · 지금 ${G.aff[best]||0})`,need};
   return{ok:true,host:WORLD.npcs[best]}}
-const earn=(v,label)=>{v=Math.round(+v||0);if(!v)return;G.money+=v;G.ledger=[{d:G.day,t:G.min,n:label||'',v}].concat(G.ledger||[]).slice(0,20)};   // 돈이 오가면 여기서 기록해요(최근 20건)
+const earn=(v,label)=>{v=Math.round(+v||0);if(!v)return;G.money+=v;dyMoney(v);G.ledger=[{d:G.day,t:G.min,n:label||'',v}].concat(G.ledger||[]).slice(0,20)};   // 돈이 오가면 여기서 기록해요(최근 20건)
 const clampE=v=>Math.max(0,Math.min(100,v));
+// ===== 하루 기록: 그날 다닌 곳·한 일·돈을 자동으로 모아요 (G.dy[날짜] = {e:[[분,글,횟수]], p:[장소], w:[인물], i:번 돈, o:쓴 돈}) =====
+const DY_KEEP=30,DY_ENT=60;
+function dyRec(){G.dy=G.dy&&typeof G.dy==='object'?G.dy:{};const k=G.day;if(!G.dy[k]){G.dy[k]={e:[],p:[],w:[],i:0,o:0};Object.keys(G.dy).forEach(x=>{if(+x<=G.day-DY_KEEP)delete G.dy[x]})}return G.dy[k]}
+function dyAdd(x,o){x=String(x||'').trim();if(!x)return;const r=dyRec(),l=r.e[r.e.length-1];o=o||{};
+  if(o.p&&!r.p.includes(o.p))r.p.push(o.p);if(o.w&&!r.w.includes(o.w))r.w.push(o.w);
+  if(l&&l[1]===x)l[2]=(l[2]||1)+1;else{r.e.push([G.min,x,1]);if(r.e.length>DY_ENT)r.e.shift()}}
+function dyMoney(v){const r=dyRec();if(v>0)r.i+=v;else r.o-=v}
 function newDay(){const a=WORLD.start.allowance||0;if(a){G.money+=a;G.log=`새 하루가 시작됐어요. 용돈 +₩${a.toLocaleString()}`}}
 function pass(mins){G.min+=Math.max(0,Math.round(mins||0));while(G.min>=DAY){G.min-=DAY;G.day++;newDay()}}   // 자정을 넘기면 다음 날
 function travelMin(a,b){const A=WORLD.places[a]||{},B=WORLD.places[b]||{},ta=A.parent||a,tb=B.parent||b;return (A.parent?(A.inner||WORLD.innerMin):0)+(ta!==tb?WORLD.moveMin:0)+(B.parent?(B.inner||WORLD.innerMin):0)}
@@ -1537,14 +1551,14 @@ function checkEvents(){
     runScene(e.scene,()=>{earn(e.money||0,'이벤트 · '+(e.title||''));(e.affEff||[]).forEach(a=>G.aff[a.npc]=(G.aff[a.npc]||0)+(+a.v||0));(e.give||[]).forEach(giveItem);eventRoutes(e);after()});return;
   }
 }
-function after(){catApplyNames();ensureMe();checkGifts();deltaCheck();saveGame();renderWorld();refresh();checkEvents()}
+function after(){{const k=G.day+'|'+G.min+'|'+G.log;if(G.log&&G.dyk!==k){G.dyk=k;dyAdd(G.log)}}catApplyNames();ensureMe();checkGifts();deltaCheck();saveGame();renderWorld();refresh();checkEvents()}
 function greetAt(pid){
   if($('#scene').open||$('#film').open)return;
   const ids=Object.keys(WORLD.npcs).filter(k=>{const n=WORLD.npcs[k];return n.work===pid&&onShift(n)});
   if(!ids.length)return;const k=ids[Math.floor(Math.random()*ids.length)];
   const t=pickLine(k)||'어서 오세요!';
   runScene([{who:k,t}],()=>{saveGame()})}
-function go(p,reopen){if(p===G.place){if(viewTown||viewTownId){pass(WORLD.moveMin);viewTown=false;viewTownId=null;G.log='';after()}return}/* 지도에서 같은 장소에 다시 들어가도 15분 */if(!WORLD.places[p])return;const gt=homeGate(p,G.place);if(!gt.ok)return msg(gt.why,1);const mn=travelMin(G.place,p);pass(mn);G.place=p;G.visits=G.visits||{};G.visits[p]=(G.visits[p]||0)+1;closeCl();ACTGRP=null;viewSt=false;viewBk=false;viewMv=false;viewSh=false;viewTown=false;viewTownId=null;G.log='';after();greetAt(p);if(gt.host)msg(`🏡 ${gt.host.n}${josaI(gt.host.n)} 안으로 안내해 줬어요`);else catNotice();if((WORLD.places[p]||{}).type==='posterhall')openMovies()}
+function go(p,reopen){if(p===G.place){if(viewTown||viewTownId){pass(WORLD.moveMin);viewTown=false;viewTownId=null;G.log='';after()}return}/* 지도에서 같은 장소에 다시 들어가도 15분 */if(!WORLD.places[p])return;const gt=homeGate(p,G.place);if(!gt.ok)return msg(gt.why,1);const mn=travelMin(G.place,p);pass(mn);G.place=p;G.visits=G.visits||{};G.visits[p]=(G.visits[p]||0)+1;{const q=WORLD.places[p];dyAdd(`${q.i?q.i+' ':''}${q.n}에 갔어요`,{p})}closeCl();ACTGRP=null;viewSt=false;viewBk=false;viewMv=false;viewSh=false;viewTown=false;viewTownId=null;G.log='';after();greetAt(p);if(gt.host)msg(`🏡 ${gt.host.n}${josaI(gt.host.n)} 안으로 안내해 줬어요`);else catNotice();if((WORLD.places[p]||{}).type==='posterhall')openMovies()}
 function stepTown(d){const i=TOWNS.findIndex(t=>t.id===curTown()),j=i+d;if(j<0||j>=TOWNS.length)return;viewTownId=TOWNS[j].id;pass(WORLD.townMin);G.log='';after();msg(`${TOWNS[j].name}으로 이동 · ⏱ ${durText(WORLD.townMin)}`)}   // 마을을 옮기는 순간 30분이 흐른다
 $('#tw_l').onclick=()=>stepTown(-1);$('#tw_r').onclick=()=>stepTown(1);
 function renderShop(pid){
@@ -1663,6 +1677,7 @@ function doAction(a,who){
   if(a.kind==='videobuy')return openVideoShop(pid);
   if(a.kind==='bkbk')return openShelf();
   if(a.kind==='shrine')return openShrine(a);
+  if(a.kind==='daylog')return openDiary('log');
   if(a.kind==='catdex')return openDiary('dex');
   if(a.kind==='mail')return openDiary('mail');
   if(a.kind==='mvmv'){MOVIE_MIN=a.mins>0?a.mins:30;return openMovies()}
@@ -1671,6 +1686,7 @@ function doAction(a,who){
   let mate=null;if((a.code||'').startsWith('job_')||(a.money>0&&(a.cond||{}).daily)){   // 알바 인사: 같이 일하던 직원이 말을 걸어요
     const cs=Object.keys(WORLD.npcs).filter(k=>{const n=WORLD.npcs[k];return n.work===pid&&onShift(n)&&(G.actDay['greet:'+k]!==G.day)});if(cs.length)mate=cs[Math.floor(Math.random()*cs.length)]}
   if((a.cond||{}).daily)G.actDay[dk(a,who)]=G.day;
+  if(who)dyRec().w.includes(who)||dyRec().w.push(who);
   const wn=who?(WORLD.npcs[who]||{}).n:'',ch0=chips(a)+(who&&ev?` · ♥ ${ev>0?'+':''}${ev}`:'');pass(durOf(a));G.log=`${a.icon||''} ${a.name}`+(wn?` — ${wn}`:'')+(ch0?` (${ch0})`:'');saveGame();PARTNER=who||'';
   const done=()=>{PARTNER='';after();if(!openNow(G.place))msg('문 닫을 시간이 됐어요')};
   let sc=a.code==='talk'&&who?talkScene(who):(a.kind==='call'&&who?[...((a.scene&&a.scene.length)?a.scene:[{t:'📞 전화를 걸었다. 신호음이 몇 번 울리고…'}]),...talkScene(who)]:a.scene);
@@ -1778,13 +1794,21 @@ function catMailTry(id){
   if(m.q)sc.push({t:'펼쳐 보니 성소에 남겼던 글이 옮겨 적혀 있다.'},{t:`“${m.q}”`},{t:`그 아래에 따뜻한 글씨로 한 줄이 더 적혀 있다.`});
   else sc.push({t:'조심스럽게 펼쳐 보니 낯익고 따뜻한 글씨가 적혀 있다.'});
   sc.push({t:`“${m.x}”`},{t:'📩 쪽지는 다이어리에 끼워 두었어요. (집 > 다이어리 열기 > 받은 쪽지)'});return sc}
-let dyId=null,dyPg=0,dyDirty=false;
+let dyId=null,dyPg=0,dyDirty=false,dyDay=0;
 const DY_PER=8,CAT_ST=['경계하는 중','얼굴을 익혔어요','곁을 내줘요','단짝이에요'];
-function openDiary(m){shMode=m==='mail'?'dymail':'dydex';shIdx=0;dyPg=0;dyId=null;dyDirty=false;viewSh=true;renderWorld();renderShrine()}
+function openDiary(m){shMode=m==='mail'?'dymail':m==='log'?'dylog':'dydex';dyDay=G.day;shIdx=0;dyPg=0;dyId=null;dyDirty=false;viewSh=true;renderWorld();renderShrine()}
 const dayText=(d,y)=>{const t=new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+(d||0));return `${y?t.getFullYear()+'년 ':''}${t.getMonth()+1}월 ${t.getDate()}일${y?' '+DOW[t.getDay()]+'요일':''}`};
 function dyIcon(n,cls){const e=esc(n.i||'🐈');return n.img?`<img class="${cls}" src="${esc(n.img)}" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="${cls} em" hidden>${e}</span>`:`<span class="${cls} em">${e}</span>`}
+function renderDayLog(box,tape,back){
+  const lo=Math.max(0,G.day-DY_KEEP+1);dyDay=Math.max(lo,Math.min(dyDay,G.day));
+  const r=(G.dy||{})[dyDay]||{e:[],p:[],w:[],i:0,o:0},ago=G.day-dyDay,W=n=>'₩'+Math.abs(n).toLocaleString();
+  const sm=[r.p.length?`다닌 곳 ${r.p.length}`:'',r.w.length?`만난 사람 ${r.w.length}`:'',r.i?`번 돈 +${W(r.i)}`:'',r.o?`쓴 돈 −${W(r.o)}`:''].filter(Boolean).join(' · ');
+  const rows=r.e.map(e=>`<div class="dyr"><span class="dt">${fmtT(e[0])}</span><span class="dx">${esc(e[1])}${e[2]>1?` ×${e[2]}`:''}</span></div>`).join('');
+  box.innerHTML=`<div class="paper dy">${tape}<div class="ph" style="align-items:baseline"><span>📒 ${esc(dayText(dyDay,1))}</span><span>${ago?`${ago}일 전`:'오늘'}</span></div><div class="pt dylog">${sm?`<div class="dysm">${esc(sm)}</div>`:''}${rows||`<div class="dyne">${ago?'이 날은 남은 기록이 없어요.':'아직 오늘의 기록이 없어요.\n돌아다니다 보면 여기에 차곡차곡 쌓여요.'}</div>`}</div><div class="pb"><button id="dy_pv" type="button"${dyDay<=lo?' disabled':''}>◀ 전날</button><button id="dy_nx" type="button"${dyDay>=G.day?' disabled':''}>다음 날 ▶</button><span class="sp"></span><button id="dy_bk" type="button" class="pri">돌아가기</button></div></div>`;
+  $('#dy_pv').onclick=()=>{dyDay--;renderShrine()};$('#dy_nx').onclick=()=>{dyDay++;renderShrine()};$('#dy_bk').onclick=back}
 function renderDiary(box,tape){
   const back=()=>{if(dyDirty){dyDirty=false;saveGame()}shClose()};
+  if(shMode==='dylog')return renderDayLog(box,tape,back);
   if(shMode==='dymail'){const ms=G.mail||[];
     if(!ms.length){box.innerHTML=`<div class="paper dy">${tape}<div class="ph"><span>📩 받은 쪽지</span><span></span></div><div class="pt dyempty">아직 받은 쪽지가 없어요.\n고양이와 가까워지면 어느 날, 쪽지를 물고 올지도 몰라요.</div><div class="pb"><span class="sp"></span><button id="dy_bk" type="button" class="pri">돌아가기</button></div></div>`;$('#dy_bk').onclick=back;return}
     shIdx=Math.max(0,Math.min(shIdx,ms.length-1));const m=ms[shIdx],cn=WORLD.npcs[m.c]||{},isNew=!m.r;if(!m.r){m.r=1;dyDirty=true}
@@ -1962,10 +1986,10 @@ function shClose(){shDraft='';viewSh=false;renderWorld()}
 function shSave(){const t=($('#sh_t').value||'').trim();if(!t)return msg('아직 아무것도 쓰지 않았어요');
   G.notes=G.notes||[];G.notes.unshift({d:G.day,t:G.min,p:G.place,x:t.slice(0,600)});shDraft='';viewSh=false;pass(SH_MIN);
   let extra='';if(Math.random()<.1){const m=[1000,2000,3000][Math.floor(Math.random()*3)];earn(m,'수호신의 뜻밖의 행운');extra=' 그리고 뜻밖의 행운이 찾아왔어요.'}
-  G.log='';after();msg('🕯 촛불이 하나 켜졌어요. 수호신은 아무 말이 없어요.'+extra)}
+  G.log='🕯 성소에 글을 남겼어요';after();msg('🕯 촛불이 하나 켜졌어요. 수호신은 아무 말이 없어요.'+extra)}
 function renderShrine(){
   const box=$('#sh_p');if(!box)return;const ns=G.notes||[],tape='<i class="tape l"></i><i class="tape r"></i>';
-  if(shMode==='dydex'||shMode==='dymail')return renderDiary(box,tape);
+  if(shMode==='dydex'||shMode==='dymail'||shMode==='dylog')return renderDiary(box,tape);
   if(shMode==='cap'&&shCap){const n=shCap.n,ag=shCap.age,yr=ag%365===0?`${ag/365}년 전 오늘`:`${ag}일 전`;
     box.innerHTML=`<div class="paper">${tape}<div class="ph"><span>🕯 촛불 연기 속에 글이 떠올랐어요</span><span>${esc(yr)}</span></div><div class="pt"><small style="opacity:.6">${esc(shDate(n))}, 당신이 남긴 글</small>\n\n${esc(n.x)}</div><div class="pb"><span class="sp"></span><button id="sh_cp" type="button" class="pri">다 읽었어요</button></div></div>`;
     $('#sh_cp').onclick=()=>{shMode='write';shCap=null;renderShrine()};return}
@@ -2045,7 +2069,7 @@ function applyWorld(){
 }
 function actFromRow(r){return{code:r.code,name:r.name,icon:r.icon||'',descr:r.descr||'',kind:r.kind==='sleep'?'normal':(r.kind||'normal'),mins:r.time_min!=null?+r.time_min:(+r.time_cost||0)*SLOTLEN,endAt:r.end_min!=null?+r.end_min:(r.kind==='sleep'?WORLD.wakeMin:null),minMins:+r.min_mins||0,energy:+r.energy||0,money:+r.money||0,cond:r.cond||{},effects:(()=>{const e={...(r.effects||{})};if(r.kind==='sleep'&&e.eph==null)e.eph=WORLD.sleepRegen||12;return e})(),scene:r.scene||[]}}
 function applyActions(){
-  WORLD.actions={};const keep=['shop','talk','bkbk','mvmv','bookbuy','bookmore','mybooks','videobuy','shrine','limited','groupbuy','diary','diary_cats','diary_mail'];
+  WORLD.actions={};const keep=['shop','talk','bkbk','mvmv','bookbuy','bookmore','mybooks','videobuy','shrine','limited','groupbuy','diary','diary_log','diary_cats','diary_mail'];
   if(DB.actions.length){ACT0.filter(a=>keep.includes(a.code)).forEach(a=>WORLD.actions[a.code]=a);DB.actions.forEach(r=>WORLD.actions[r.code]=actFromRow(r))}else ACT0.forEach(a=>WORLD.actions[a.code]=a);
   WORLD.types={};
   if(DB.ptypes.length)DB.ptypes.forEach(t=>WORLD.types[t.code]={name:t.name,icon:t.icon||'📍',actions:DB.ptacts.filter(x=>x.type_code===t.code).sort((a,b)=>(a.sort||0)-(b.sort||0)).map(x=>x.action_code)});
@@ -2769,7 +2793,7 @@ async function delEv(){
 }
 
 // ================= 관리자: 행동 · 장소 유형 =================
-const FIXED={closet:'옷장 열기',status:'거울 보기 (내 상태)',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',bookbuy:'서점 열기',bookmore:'서점 이어서 사기',mybooks:'선반 열기',videobuy:'비디오 가게 열기',mvmv:'mvmv 포스터 벽 열기',shrine:'성소 종이 열기',catdex:'고양이 도감 열기',mail:'받은 쪽지 열기',limited:'한정판 오픈런 열기',groupbuy:'공동구매 열기'};
+const FIXED={closet:'옷장 열기',status:'거울 보기 (내 상태)',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',bookbuy:'서점 열기',bookmore:'서점 이어서 사기',mybooks:'선반 열기',videobuy:'비디오 가게 열기',mvmv:'mvmv 포스터 벽 열기',shrine:'성소 종이 열기',daylog:'하루 기록 열기',catdex:'고양이 도감 열기',mail:'받은 쪽지 열기',limited:'한정판 오픈런 열기',groupbuy:'공동구매 열기'};
 const KSEL=[['normal','일반 행동'],['group','▸ 묶음 메뉴 (누르면 하위 행동이 나와요)'],['call','📞 통화 (아는 인물 목록에서 고르기)'],['bagfood','🎒 가방 속 음식 먹기'],['closet','👗 옷장 (부분 옷장·입어보기)'],['shrine','🕯 성소 글 쓰기'],['delivery','🛵 배달시키기 (배달 앱)'],['onlineshop','🛒 온라인 쇼핑 (택배)'],['soon','🚧 준비 중 (아직 기능 없음)']];
 const isFix=a=>(!!FIXED[a.kind]&&ACT0.some(x=>x.code===a.code))||a.code==='talk';
 const actRows=()=>{const have=new Set(DB.actions.map(a=>a.code)),v=ACT0.filter(a=>(FIXED[a.kind]||a.code==='talk')&&!have.has(a.code)).map(a=>({code:a.code,name:a.name,icon:a.icon,descr:a.descr||'',kind:a.kind,mins:a.mins||0,endAt:a.endAt,minMins:a.minMins||0,energy:a.energy||0,money:a.money||0,cond:a.cond||{},effects:a.effects||{},scene:a.scene||[],sort:0,virtual:true}));
@@ -3092,7 +3116,7 @@ async function showExcerpt(b){
   try{const t=await sb('/rest/v1/bkbk_texts?book=eq.'+b.id+'&select=text,page,pct&limit=1000'),L=(t||[]).filter(x=>x.text&&x.text.trim());
     if(!L.length)return msg('이 책엔 아직 발췌문이 없어요');
     const q=L[Math.floor(Math.random()*L.length)],pos=bkHas(q.page)&&String(q.page)!==''?'p.'+q.page:(bkHas(q.pct)&&String(q.pct)!==''?Math.round(bkPC(q.pct))+'%':'');
-    runExcerpt(b,q.text.trim(),pos,()=>{pass(READ_MIN);G.log='';after()});
+    runExcerpt(b,q.text.trim(),pos,()=>{pass(READ_MIN);G.log=`📖 ${b.name} 읽기`;after()});
   }catch(er){msg('발췌문을 불러오지 못했어요',1)}}
 $('#bk_g').onclick=e=>{const el=e.target.closest('.bks-sp');if(!el||!BK)return;showExcerpt(BK[+el.dataset.i])};
 /* 서점: 올 때마다 완독한 책 중 일부만 진열 → 산 책만 G.books에 저장 / 주거의 내 책장에서 발췌문 */
@@ -3117,7 +3141,7 @@ async function wkAnnounce(){
   if(fr.length){const f=fr[0];msg(`📰 [신간] ${authorName()} ${f.pen||'작가'}의 『${f.name}』${fr.length>1?` 외 ${fr.length-1}권`:''} 출간! 서점 신간 코너에 들어왔어요`);saveGame()}else if(first)saveGame()}
 function readWk(b){
   const pen=(b.x&&b.x.pen)||b.pen||'',T=[`표지를 넘기자 '${pen||'작가'}'라는 이름이 눈에 들어온다. 요즘 가장 잘 나가는 ${authorName()}라고 한다.`,`첫 장을 펼치자 어느새 한 시간이 지나 있었다. ${authorName()}의 책은 정말 손에서 놓기 어렵다.`,`책장을 넘기는 소리만 조용히 들린다. '${pen||'작가'}'의 문장은 오래 곱씹게 된다.`];
-  runExcerpt(b,T[Math.floor(Math.random()*T.length)],pen?pen+' 지음':'',()=>{pass(READ_MIN);G.log='';after()})}
+  runExcerpt(b,T[Math.floor(Math.random()*T.length)],pen?pen+' 지음':'',()=>{pass(READ_MIN);G.log=`📖 ${b.name||'책'} 읽기`;after()})}
 const bkVol=b=>{const n=parseFloat(String(b.volume==null?'':b.volume).replace(/[^\d.]/g,''));return isNaN(n)?1e6:n};
 const bkOwnSr=()=>new Set(Object.values(G.books||{}).map(o=>o.x&&o.x.sr).filter(Boolean));
 function bkBuy(b,price){if(G.money<price){msg('돈이 부족해요',1);return false}earn(-price,b.name+' 구매');G.books=G.books||{};
@@ -3176,7 +3200,7 @@ async function openVideoShop(pid){
 async function openMyVideos(){
   const L=Object.values(G.videos||{});$('#shm').textContent=`내 비디오 · ${L.length}개 · 누르면 처음부터 봐요 (⏱ ${VIDEO_MIN}분)`;$('#shop').showModal();
   if(!L.length){$('#shl').classList.remove('tapes');$('#shl').innerHTML='<div class="tag">아직 산 비디오가 없어요. 비디오 가게에서 사 보세요</div>';return}
-  tapeGrid(L,()=>'보기',async m=>{try{await mvLoad();const f=MVA.find(x=>x.id===m.id);if(!f)return msg('mvmv에서 이 작품을 찾지 못했어요');$('#shop').close();runFilm(f,()=>{pass(VIDEO_MIN);G.log='';after()})}catch(e){msg('영화 기록을 불러오지 못했어요',1)}})}
+  tapeGrid(L,()=>'보기',async m=>{try{await mvLoad();const f=MVA.find(x=>x.id===m.id);if(!f)return msg('mvmv에서 이 작품을 찾지 못했어요');$('#shop').close();runFilm(f,()=>{pass(VIDEO_MIN);G.log=`📼 ${f.name||''} 보기`;after()})}catch(e){msg('영화 기록을 불러오지 못했어요',1)}})}
 /* ===== 선반: 산 책과 비디오가 섞여서 꽂혀 있어요 (꽂힌 순서는 항상 같고, 처음 보면 랜덤처럼 보여요) ===== */
 let SHF=null;
 async function openMixShelf(){
@@ -3198,7 +3222,7 @@ async function openMixShelf(){
     const isB=el.dataset.t==='b',o=isB?G.books[el.dataset.i]:G.videos[el.dataset.i];if(!o)return;SHF={b:isB,o};
     $('#shfn').innerHTML=`<b>${isB?'📕':'📼'} ${esc(o.name)}${isB&&o.x&&o.x.pen?` <small style="opacity:.7;font-weight:400">${esc(o.x.pen)}</small>`:''}</b><span class="tag">${isB?`발췌문 읽기 · ⏱ ${READ_MIN}분`:`처음부터 보기 · ⏱ ${VIDEO_MIN}분`}</span><button type="button" id="shfgo" class="pri">${isB?'읽기':'보기'}</button>`;
     $('#shfgo').onclick=()=>{const q=SHF;if(!q)return;$('#shop').close();
-      if(q.b)showExcerpt(q.o);else(async()=>{try{await mvLoad();const f=MVA.find(x=>x.id===q.o.id);if(!f)return msg('mvmv에서 이 작품을 찾지 못했어요');runFilm(f,()=>{pass(VIDEO_MIN);G.log='';after()})}catch(er){msg('영화 기록을 불러오지 못했어요',1)}})()}}}
+      if(q.b)showExcerpt(q.o);else(async()=>{try{await mvLoad();const f=MVA.find(x=>x.id===q.o.id);if(!f)return msg('mvmv에서 이 작품을 찾지 못했어요');runFilm(f,()=>{pass(VIDEO_MIN);G.log=`📼 ${f.name||''} 보기`;after()})}catch(er){msg('영화 기록을 불러오지 못했어요',1)}})()}}}
 function openMyBooks(){
   const L=Object.values(G.books||{}),box=$('#shl');$('#shm').textContent=`내 책장 · ${L.length}권 · 누르면 발췌문 (⏱ ${READ_MIN}분)`;box.innerHTML='';box.classList.remove('tapes');
   if(!L.length)box.innerHTML='<div class="tag">아직 산 책이 없어요. 서점에서 사 보세요</div>';
@@ -3345,7 +3369,7 @@ async function openMovies(){
   if(!L.length){g.innerHTML='<div class="tag">걸어 둘 포스터가 아직 없어요. (mvmv에서 본 날짜가 있고 포스터가 있는 작품만 걸려요. ⚙ 설정·로그인에서 로그인했는지도 확인해 주세요)</div>';return}
   const {ids,shifted}=cineSync(L),by=new Map(L.map(m=>[m.id,m]));
   g.innerHTML=`<div class="mvshelf${shifted?' sh':''}">${ids.map(id=>{const m=by.get(id);return `<div class="mvp" data-id="${esc(id)}" title="${esc(m.name)}" style="background:${esc(m.c1||'#2a2a3a')}"><img src="${esc(mediaUrl(m.poster))}" alt="${esc(m.name)}" onerror="this.remove()"><span>${esc(m.name)}</span></div>`}).join('')}</div>`}
-$('#mv_g').onclick=e=>{const el=e.target.closest('.mvp');if(!el||!MV)return;const m=MV.find(x=>x.id===el.dataset.id);if(m)runFilm(m,()=>{pass(MOVIE_MIN);G.log='';after()})};
+$('#mv_g').onclick=e=>{const el=e.target.closest('.mvp');if(!el||!MV)return;const m=MV.find(x=>x.id===el.dataset.id);if(m)runFilm(m,()=>{pass(MOVIE_MIN);G.log=`🎬 ${m.name||''} 보기`;after()})};
 const fTime=v=>{v=Math.abs(Math.round(+v||0));const p=n=>String(n).padStart(2,'0');return p(Math.floor(v/3600))+':'+p(Math.floor(v%3600/60))+':'+p(v%60)};
 function blackout(cb){const g=$('#game'),d=document.createElement('div');d.style.cssText='position:absolute;inset:0;background:#000;opacity:0;transition:opacity .7s ease;z-index:9000;border-radius:inherit';g.append(d);requestAnimationFrame(()=>requestAnimationFrame(()=>d.style.opacity='1'));
   setTimeout(()=>{try{cb&&cb()}catch(e){}d.style.opacity='0';setTimeout(()=>d.remove(),800)},1600)}
@@ -3372,7 +3396,7 @@ var SLOTS=5,SAVE={slot:(()=>{try{return Math.min(SLOTS,Math.max(1,+localStorage.
 function normG(){applyMe();
   if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}
   if(typeof G.min!=='number')G.min=WORLD.wakeMin;if(!Array.isArray(G.ledger))G.ledger=[];
-  if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.wait=Array.isArray(G.wait)?G.wait:[];G.vgoods=G.vgoods||{};G.dlv=Array.isArray(G.dlv)?G.dlv:[];G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.catFeed=G.catFeed||{};G.catMet=G.catMet||{};G.mail=Array.isArray(G.mail)?G.mail:[];G.catNames=G.catNames||{};if(!G.visits){G.visits={};if(G.place)G.visits[G.place]=99;G.visits.home=99}G.catWhere=G.catWhere||{};G.catNamedDay=G.catNamedDay||{};catApplyNames();if(G.mailDay==null)G.mailDay=null;G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
+  if(!G.dy||typeof G.dy!=='object')G.dy={};if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.wait=Array.isArray(G.wait)?G.wait:[];G.vgoods=G.vgoods||{};G.dlv=Array.isArray(G.dlv)?G.dlv:[];G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.catFeed=G.catFeed||{};G.catMet=G.catMet||{};G.mail=Array.isArray(G.mail)?G.mail:[];G.catNames=G.catNames||{};if(!G.visits){G.visits={};if(G.place)G.visits[G.place]=99;G.visits.home=99}G.catWhere=G.catWhere||{};G.catNamedDay=G.catNamedDay||{};catApplyNames();if(G.mailDay==null)G.mailDay=null;G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
 const lookPack=()=>(CL&&CL.try&&CL.snap?CL.snap:{sel,colors,iord});   // 입어보는 동안에는 저장되지 않아요
 function lookSave(){if(LOOKP)return;clearTimeout(SAVE.lt);SAVE.lt=setTimeout(()=>{try{localStorage.setItem('fsfsLook',JSON.stringify(lookPack()));localStorage.setItem('fsfsLocalAt',Date.now());localStorage.setItem('fsfsDirty','1')}catch(e){}try{pushSoon()}catch(e){}},800)}
 function applyLook(l){const d=l||LOOKP;if(!d||!d.sel)return;if(!l&&!DB.items.length)return;sel={...sel,...d.sel};colors=d.colors||{};iord=Array.isArray(d.iord)?d.iord.slice():[];if(!l)LOOKP=null}
