@@ -477,13 +477,11 @@ html{overflow:hidden}
 .interior img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 #shdeco{position:absolute;inset:0;pointer-events:none;line-height:0;--warm:0}
 #shdeco:empty{display:none}
-#shdeco::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 48% 50% at 40% 68%,rgba(255,205,125,calc(.05 + .32*var(--warm))),rgba(255,205,125,0) 72%)}
-#shdeco svg{position:absolute;left:40%;bottom:160px;width:600px;height:auto;transform:translateX(-50%);overflow:visible}
+#shdeco::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 52% 56% at 36% 38%,rgba(255,205,125,calc(.04 + .24*var(--warm))),rgba(255,205,125,0) 72%)}
+#shdeco svg{position:absolute;left:0;top:0;width:100%;height:auto;overflow:visible}
 #shdeco .fl{transform-box:fill-box;transform-origin:50% 92%;animation:shfl var(--d,2.6s) ease-in-out infinite}
 @keyframes shfl{0%,100%{transform:scale(1,1) skewX(0)}22%{transform:scale(.93,1.07) skewX(-3.5deg)}50%{transform:scale(1.05,.95) skewX(2.5deg)}78%{transform:scale(.97,1.04) skewX(-1.5deg)}}
-#shdeco .pf{transform-box:fill-box;transform-origin:50% 50%;opacity:0;animation:shpf var(--d,12s) linear infinite}
-@keyframes shpf{0%{transform:translate(0,0) rotate(0);opacity:0}8%{opacity:.95}50%{transform:translate(24px,78px) rotate(160deg)}88%{opacity:.9}100%{transform:translate(-8px,150px) rotate(310deg);opacity:0}}
-@media (prefers-reduced-motion:reduce){#shdeco .fl,#shdeco .pf{animation:none}#shdeco .pf{opacity:0}}
+@media (prefers-reduced-motion:reduce){#shdeco .fl{animation:none}}
 #intlight{position:absolute;inset:0;pointer-events:none;transition:background 1.2s ease}
 #intlight[data-s=dc]{background:rgba(40,36,80,.30)}
 #intlight[data-s=no]{background:radial-gradient(ellipse at 50% 30%,rgba(255,224,170,.45),rgba(255,200,130,.2) 62%,rgba(255,180,110,.08));mix-blend-mode:screen}
@@ -647,9 +645,10 @@ dialog{border:3px solid var(--ln);box-shadow:none}
 .map-building.closed,.map-building.closed:hover{--bt:var(--of-bg);--bf:var(--of-bg);--bc:var(--of-ln);color:#b9aedb}
 .pn{border:4px solid var(--ln);border-radius:20px;background:var(--signbg,linear-gradient(#fff6c8,#ffe27a));box-shadow:none;color:#7a5aa8;text-shadow:none}
 .pn{box-sizing:border-box;position:relative;z-index:1;width:300px;min-height:60px;gap:8px;padding:8px 26px;border:6px solid;border-color:#e6deff #a18dd8 #a18dd8 #e6deff;border-radius:6px;
- background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3Cpath d='M2.4 5H7.6' stroke='%23524889' stroke-width='1.1' stroke-linecap='round' transform='rotate(25 5 5)'/%3E%3C/svg%3E") left 5px top 5px/10px 10px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3Cpath d='M2.4 5H7.6' stroke='%23524889' stroke-width='1.1' stroke-linecap='round' transform='rotate(-20 5 5)'/%3E%3C/svg%3E") right 5px top 5px/10px 10px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3Cpath d='M2.4 5H7.6' stroke='%23524889' stroke-width='1.1' stroke-linecap='round' transform='rotate(70 5 5)'/%3E%3C/svg%3E") left 5px bottom 5px/10px 10px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3Cpath d='M2.4 5H7.6' stroke='%23524889' stroke-width='1.1' stroke-linecap='round' transform='rotate(5 5 5)'/%3E%3C/svg%3E") right 5px bottom 5px/10px 10px no-repeat,linear-gradient(rgba(255,255,255,.4),rgba(255,255,255,0) 52%),var(--signbg,#ffe27a);
+ background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3C/svg%3E") left 2px top 2px/7px 7px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3C/svg%3E") right 2px top 2px/7px 7px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3C/svg%3E") left 2px bottom 2px/7px 7px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23d3cbef'/%3E%3Cstop offset='1' stop-color='%23786ab4'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.4' fill='url(%23g)' stroke='%23625799' stroke-width='.7'/%3E%3C/svg%3E") right 2px bottom 2px/7px 7px no-repeat,linear-gradient(rgba(255,255,255,.4),rgba(255,255,255,0) 52%),var(--signbg,#ffe27a);
  box-shadow:inset 0 0 0 2px rgba(255,255,255,.5),inset 3px 4px 8px rgba(84,64,150,.30),0 0 0 1.5px rgba(106,90,158,.6),0 4px 0 1px rgba(91,75,104,.18),0 7px 10px rgba(91,75,104,.14);color:#6d4f9f}
-.pn i{font-size:34px;line-height:1;filter:drop-shadow(0 2px 0 rgba(106,90,158,.22))}
+.pn i{font-size:31px;line-height:1;filter:drop-shadow(0 2px 0 rgba(106,90,158,.22))}
+.pn .pl{display:flex;align-items:baseline;justify-content:center;gap:8px;min-width:0;max-width:100%}
 .pn span{text-shadow:0 1px 0 rgba(255,255,255,.75)}
 .sign{position:relative;z-index:0;box-sizing:border-box;width:178px;margin:15px auto 0;padding:7px 8px 5px;border:3px solid;border-color:#e6deff #a18dd8 #a18dd8 #e6deff;border-radius:5px;background:linear-gradient(#2f2763,#1c1741);text-align:center;line-height:1.15;box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.35),inset 0 4px 9px rgba(0,0,0,.5),0 0 0 1.5px rgba(106,90,158,.6),0 5px 0 1px rgba(91,75,104,.2)}
 .sign::before,.sign::after{content:"";position:absolute;top:-24px;width:4px;height:26px;border-radius:2px;background:linear-gradient(90deg,#f4f0ff,#b8abe8 55%,#8b7cc7);box-shadow:0 0 0 1px #6a5a9e;z-index:-1}
@@ -1939,37 +1938,22 @@ function capsulePick(){   // 타임캡슐: 7일 이상 지난 글 중 기념일(
   if(an.length)return an[Math.floor(Math.random()*an.length)];
   return Math.random()<.25?ns[Math.floor(Math.random()*ns.length)]:null}
 function openShrine(a){SH_MIN=a&&a.mins>0?a.mins:20;shMode='write';shIdx=0;shCap=capsulePick();if(shCap)shMode='cap';viewSh=true;renderWorld();renderShrine()}
-// ===== 성소 그림: 제단 + 촛불(글을 남긴 만큼) + 꽃잎. 불꽃·꽃잎은 한쪽은 둥글고 한쪽은 뾰족한 모양이에요 =====
-const SHS=(()=>{const f=[];[0,-1,1,-2,2,-3,3,-4,4].forEach(k=>f.push({r:2,x:320+k*44}));[0,-1,1,-2,2,-3,3].forEach(k=>f.push({r:1,x:320+k*48}));[0,-1,1,-2,2].forEach(k=>f.push({r:0,x:320+k*54}));return f})();
-const SH_FLAME='M0 9C-6 9-8.4 4-7.4-.6C-6.6-4.6-3.4-6.4-2.4-10.4C-1.6-13.6 1-16.4 3.2-22C4.4-15.8 8.6-10 8.6-1.6C8.6 4.8 5 9 0 9Z',SH_CORE='M0 7C-3.2 7-4.2 4-3.6 1C-3-2.4-.6-4.5 1-10C2.2-5.5 4.2-2.6 4.2 1.4C4.2 4.8 2.6 7 0 7Z',
-  SH_PETAL='M-7 0C-7-6.5-1-8 4-5.5C7-4 9.5-2 11 0C9.5 2 7 4 4 5.5C-1 8-7 6.5-7 0Z';
-function shPetal(x,y,r,sc,cls,st){return `<g transform="translate(${x} ${y})"><g${cls?` class="${cls}"`:''}${st?` style="${st}"`:''}><g transform="rotate(${r}) scale(${sc||1})"><path d="${SH_PETAL}" fill="url(#shp)" stroke="#f08cb4" stroke-width=".7" stroke-linejoin="round"/><path d="M-5 0H8" stroke="#d45f93" stroke-opacity=".4" stroke-width=".8" stroke-linecap="round"/></g></g></g>`}
-function shCandle(s,i,lit){const sc=[.74,.86,1][s.r],by=[130,136,142][s.r],h=[44,38,50,34,46,40,52,36,42][i%9],w=13;
-  return `<g transform="translate(${s.x} ${by}) scale(${sc})"><ellipse cx="0" cy="2.5" rx="12.5" ry="3.6" fill="#d6c6ee" stroke="#8f78c4" stroke-width="1"/><rect x="${-w/2}" y="${-h}" width="${w}" height="${h}" rx="2.6" fill="url(#shw)" stroke="#cdb994" stroke-width=".8"/><rect x="${-w/2+2}" y="${-h+4}" width="2" height="${h-9}" rx="1" fill="#fff" fill-opacity=".6"/><path d="M0 ${-h}v-4" stroke="#5a4a68" stroke-width="1.6" stroke-linecap="round"/>`+
-  (lit?`<g transform="translate(0 ${-h-6})"><circle r="21" fill="url(#shg)"/><g class="fl" style="--d:${(2.2+(i%5)*.37).toFixed(2)}s;animation-delay:-${((i*.53)%2).toFixed(2)}s"><path d="${SH_FLAME}" fill="url(#shf)"/><path d="${SH_CORE}" fill="#fff4c2"/></g></g>`:'')+`</g>`}
+// ===== 성소 그림: 글을 남긴 만큼 켜지는 촛불 (왼쪽 위부터 한 줄에 10개, 선반에 놓인 것처럼) =====
+const SH_PER=10,SH_MAX=40,SH_COL=['#ff3d86','#ff7a1a','#ffc800','#17d682','#12b8ee','#3b6bff','#9b4dff','#ff3b3b','#00cfbf','#ff55d0'],SH_H=[58,46,64,50,70,44,60,52,66,48];
+const SHS=Array.from({length:SH_MAX},(_,i)=>({x:74+(i%SH_PER)*84,y:268+Math.floor(i/SH_PER)*118}));   // 장면 1260×842 기준, 아래 148px은 행동 칸이 덮어요
+function shCandle(s,i,lit){const c=SH_COL[i%SH_COL.length],h=SH_H[(i*3)%SH_H.length],w=15;
+  return `<g transform="translate(${s.x} ${s.y})"><ellipse cx="0" cy="1.5" rx="10.5" ry="2.6" fill="#000" fill-opacity=".18"/>
+  <rect x="${-w/2}" y="${-h}" width="${w}" height="${h}" rx="3" fill="${c}"/><rect x="${-w/2}" y="${-h}" width="${w}" height="${h}" rx="3" fill="url(#shw)"/>
+  <ellipse cx="0" cy="${-h+1.5}" rx="${w/2-.6}" ry="2.2" fill="#fff" fill-opacity=".38"/><rect x="${-w/2+2.2}" y="${-h+5}" width="2.4" height="${h-11}" rx="1.2" fill="#fff" fill-opacity=".5"/>
+  <path d="M0 ${-h+1}V${-h-7}" stroke="#3a2f3f" stroke-width="1.7" stroke-linecap="round"/>`+
+  (lit?`<g transform="translate(0 ${-h-17})"><circle r="26" fill="url(#shg)"/><g class="fl" style="--d:${(2.2+(i%5)*.37).toFixed(2)}s;animation-delay:-${((i*.53)%2).toFixed(2)}s"><ellipse rx="4.6" ry="12" fill="url(#shf)" filter="url(#shb)"/></g></g>`:'')+`</g>`}
 function shrineSvg(n){
-  let hem='';for(let x=520;x>120;x-=40)hem+=`Q${x-20} 276 ${x-40} 254`;
-  const lit=SHS.slice(0,n).map((s,i)=>({s,i})),order=(n?lit:[{s:{r:2,x:320},i:0,off:1}]).sort((a,b)=>a.s.r-b.s.r);
-  const pet=[[148,137,-20,.9],[206,143,38,.8],[262,138,160,.85],[392,142,-42,.8],[452,137,96,.9],[506,143,12,.8],[122,274,30,.9],[468,276,-70,.85],[336,306,16,.9],[196,308,140,.8],[522,309,-12,.9],[94,310,70,.75]];
-  const fall=[[150,-6,11],[214,-34,13.5],[282,-12,10.5],[346,-52,12.5],[410,-20,14],[470,-44,11.5],[262,-70,15]];
-  return `<svg viewBox="0 0 640 340" xmlns="http://www.w3.org/2000/svg"><defs>
-  <linearGradient id="shw" x1="0" x2="1"><stop offset="0" stop-color="#fffaf0"/><stop offset=".6" stop-color="#f6ead6"/><stop offset="1" stop-color="#e6d6bb"/></linearGradient>
-  <linearGradient id="shf" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffd76b"/><stop offset=".55" stop-color="#ffa347"/><stop offset="1" stop-color="#ff6f3c"/></linearGradient>
-  <radialGradient id="shg"><stop offset="0" stop-color="#ffc864" stop-opacity=".55"/><stop offset="1" stop-color="#ffc864" stop-opacity="0"/></radialGradient>
-  <linearGradient id="shp" x1="0" x2="1"><stop offset="0" stop-color="#ffe9f1"/><stop offset="1" stop-color="#ff9fc6"/></linearGradient>
-  <linearGradient id="shs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eee8f7"/><stop offset="1" stop-color="#c6bbdc"/></linearGradient>
-  <linearGradient id="shc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a995e0"/><stop offset="1" stop-color="#7a62bf"/></linearGradient>
-  <linearGradient id="shk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6e2"/><stop offset="1" stop-color="#ecdcc0"/></linearGradient></defs>
-  <rect x="44" y="302" width="552" height="36" rx="6" fill="url(#shs)" stroke="#9f90c9" stroke-width="2"/><rect x="52" y="304" width="536" height="5" rx="2.5" fill="#fff" fill-opacity=".6"/>
-  <rect x="80" y="266" width="480" height="38" rx="6" fill="url(#shs)" stroke="#9f90c9" stroke-width="2"/><rect x="88" y="268" width="464" height="5" rx="2.5" fill="#fff" fill-opacity=".6"/>
-  <path d="M118 156H522V254${hem}Z" fill="url(#shc)" stroke="#6a52b0" stroke-width="2" stroke-linejoin="round"/>
-  <path d="M118 168H522" stroke="#f0d58a" stroke-width="3"/><path d="M118 174H522" stroke="#f0d58a" stroke-width="1" stroke-opacity=".8"/>
-  <g transform="translate(320 218) scale(2.3)"><path d="${SH_FLAME}" fill="none" stroke="#f0d58a" stroke-width="1.5" stroke-linejoin="round"/><path d="${SH_CORE}" fill="#f0d58a" fill-opacity=".85"/></g>
-  <g transform="translate(250 226)"><g transform="rotate(200) scale(1.5)"><path d="${SH_PETAL}" fill="none" stroke="#f0d58a" stroke-width="1.1"/></g></g><g transform="translate(390 226)"><g transform="rotate(-20) scale(1.5)"><path d="${SH_PETAL}" fill="none" stroke="#f0d58a" stroke-width="1.1"/></g></g>
-  <rect x="92" y="128" width="456" height="20" rx="6" fill="url(#shk)" stroke="#b89f78" stroke-width="2"/><rect x="92" y="146" width="456" height="12" rx="4" fill="#d9c29c" stroke="#b89f78" stroke-width="2"/>
-  ${order.map(o=>shCandle(o.s,o.i,!o.off)).join('')}
-  ${pet.map(q=>shPetal(q[0],q[1],q[2],q[3])).join('')}
-  ${fall.map((q,i)=>shPetal(q[0],q[1],i*47%360,.9,'pf',`--d:${q[2]}s;animation-delay:-${(i*1.9).toFixed(1)}s`)).join('')}</svg>`}
+  const lit=SHS.slice(0,n).map((s,i)=>shCandle(s,i,1)).join(''),off=n?'':shCandle(SHS[0],0,0);
+  return `<svg viewBox="0 0 1260 842" xmlns="http://www.w3.org/2000/svg"><defs>
+  <linearGradient id="shw" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient>
+  <radialGradient id="shf"><stop offset="0" stop-color="#fffef2"/><stop offset=".55" stop-color="#fff6b8"/><stop offset="1" stop-color="#ffe98a"/></radialGradient>
+  <radialGradient id="shg"><stop offset="0" stop-color="#fff2a8" stop-opacity=".6"/><stop offset="1" stop-color="#fff2a8" stop-opacity="0"/></radialGradient>
+  <filter id="shb" x="-100%" y="-50%" width="300%" height="200%"><feGaussianBlur stdDeviation="1.4"/></filter></defs>${off}${lit}</svg>`}
 function shDecoUpdate(on){const el=$('#shdeco');if(!el)return;const p=WORLD.places[G.place];
   if(!(on&&p&&p.type==='shrine')){if(el.dataset.k){el.innerHTML='';el.dataset.k=''}return}
   const n=Math.min((G.notes||[]).length,SHS.length),k=String(n);if(el.dataset.k===k&&el.firstChild)return;   // 글을 남길 때만 다시 그려서 불꽃 움직임이 끊기지 않아요
@@ -2023,7 +2007,7 @@ function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const mapOnly=viewTown||curTown()!==townOf(G.place);   // 마을 지도만 보는 중: 특정 장소를 가리키지 않고 '마을'로 취급
   buildTownMap();
   document.querySelectorAll('#townmap .map-building').forEach(b=>{const id=b.dataset.place,p=WORLD.places[id];b.classList.toggle('current',id===topOf(G.place)&&!mapOnly);b.classList.toggle('closed',!openNow(id));});
-  const p=WORLD.places[G.place];$('#mapcurrent').hidden=mapOnly||!!G.closet;{const SC=['#ffb8cf','#a9e8d2','#fff0a6','#ffbd80','#aed6fb'];let hh=0;for(const c of String(G.place))hh=(hh*31+c.charCodeAt(0))>>>0;$('#mapcurrent').style.setProperty('--signbg',SC[hh%SC.length])}$('#mapcurrent').innerHTML=`<div class="pn">${p.i?`<i>${esc(p.i)}</i>`:''}<span>${esc(p.n)}</span>${p.i?`<i>${esc(p.i)}</i>`:''}</div>${signHtml(G.place)}`;$('#pdesc').textContent=p.desc||'';
+  const p=WORLD.places[G.place];$('#mapcurrent').hidden=mapOnly||!!G.closet;{const SC=['#ffb8cf','#a9e8d2','#fff0a6','#ffbd80','#aed6fb'];let hh=0;for(const c of String(G.place))hh=(hh*31+c.charCodeAt(0))>>>0;$('#mapcurrent').style.setProperty('--signbg',SC[hh%SC.length])}$('#mapcurrent').innerHTML=`<div class="pn"><div class="pl">${p.i?`<i>${esc(p.i)}</i>`:''}<span>${esc(p.n)}</span>${p.i?`<i>${esc(p.i)}</i>`:''}</div></div>${signHtml(G.place)}`;$('#pdesc').textContent=p.desc||'';
   renderActs();
   const co=!!G.closet,vw=viewSt?'status':(viewBk?'bk':(viewMv?'mv':(viewSh?'sh':'')));$('#closet').hidden=!co;$('#cbar').hidden=!co||!!CL;$('#ordercard').hidden=!!(CL&&CL.parts.length);$('#gridcard').hidden=!!(CL&&CL.mode==='color');$('#endview2').textContent=CL?'다 했어요':'옷장 닫기';if(vw)$('#mapcurrent').hidden=true;$('#bkview').hidden=vw!=='bk';$('#mvview').hidden=vw!=='mv';$('#shview').hidden=vw!=='sh';$('#mapview').hidden=vw==='status';$('#endview3').hidden=!(vw==='bk'||vw==='mv');$('#stview').hidden=vw!=='status';$('#endbar').hidden=vw!=='status';if(vw==='status')renderStatus();
   {const im=placeImg(viewMv&&mvPlace||G.place),si=!viewTown,el=$('#intimg');$('#townmap').hidden=si;$('#interior').hidden=!si;$('#townbar').hidden=si;$('.mapov').classList.toggle('int',si);ACTHIDE=!!vw||mapOnly||co;EXITOK=si&&!mapOnly&&!vw&&!co;updBand();
@@ -3230,6 +3214,7 @@ const FXN={spring:30,autumn:26,winter:48,rain:64,sun:0};
 function fxEnsure(){let c=$('#fxcv');if(c)return c;const f=$('#mapframe');if(!f)return null;
   const t=document.createElement('div');t.id='seastint';t.style.cssText='position:absolute;inset:0;z-index:3;pointer-events:none;transition:background 1.2s ease';
   c=document.createElement('canvas');c.id='fxcv';c.style.cssText='position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none';f.append(t,c);return c}
+const FX_PETAL=new Path2D('M-1 0C-1-.58-.3-.66.3-.42C.7-.26.92-.1 1.1 0C.92.1.7.26.3.42C-.3.66-1 .58-1 0Z');   // 봄 꽃잎: 한쪽은 둥글고 한쪽은 살짝 뾰족한 타원
 function fxSeed(k){const w=FX.w,h=FX.h,R=Math.random,PC=['#ffc2d6','#ffd9e6','#ffb3cc','#fff0f5'],LC=['#e8742a','#c8452a','#e9a23b','#a8552b'];
   FX.ps=Array.from({length:FXN[k]||0},()=>{const p={x:R()*w,y:R()*h,ph:R()*6.28,sp:.6+R()*1.2};
     if(k==='winter'){p.r=1.4+R()*2.2;p.vy=22+R()*30;p.a=.6+R()*.35}
@@ -3244,7 +3229,7 @@ function fxLoop(t){if(!FX.run)return;requestAnimationFrame(fxLoop);if(t-FX.last<
     if(p.y>h+12){p.y=-12;p.x=Math.random()*w}if(p.x>w+12)p.x=-12;if(p.x<-12)p.x=w+12;
     if(k==='winter'){x.globalAlpha=p.a;x.fillStyle='#fff';x.beginPath();x.arc(p.x,p.y,p.r,0,6.283);x.fill();x.strokeStyle='rgba(140,170,215,.55)';x.lineWidth=.7;x.stroke()}
     else if(k==='rain'){x.globalAlpha=p.a;x.strokeStyle='#a9cdf2';x.lineWidth=1.3;x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p.x-p.l*.14,p.y+p.l);x.stroke()}
-    else{p.rot+=p.vr*dt;x.globalAlpha=.9;x.fillStyle=p.c;x.save();x.translate(p.x,p.y);x.rotate(p.rot);x.beginPath();x.ellipse(0,0,p.r,p.r*.55,0,0,6.283);x.fill();x.restore()}}
+    else{p.rot+=p.vr*dt;x.globalAlpha=.9;x.fillStyle=p.c;x.save();x.translate(p.x,p.y);x.rotate(p.rot);if(k==='spring'){x.scale(p.r,p.r);x.fill(FX_PETAL)}else{x.beginPath();x.ellipse(0,0,p.r,p.r*.55,0,0,6.283);x.fill()}x.restore()}}
   x.globalAlpha=1}
 function fxStop(){FX.run=0;const c=$('#fxcv');if(c)c.getContext('2d').clearRect(0,0,c.width,c.height)}
 function fxUpdate(mapOnly,vw,co){FX.a=[mapOnly,vw,co];
