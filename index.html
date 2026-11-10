@@ -55,6 +55,8 @@ h2{font-size:13px;margin:0 0 8px;color:var(--mute);font-weight:600}
 .none{height:86px;display:flex;align-items:center;justify-content:center;color:var(--mute);font-size:20px}
 .ct{font-size:12px;margin:8px 0 4px}
 .cl{flex-direction:row;align-items:center;gap:6px;display:inline-flex;margin:0 10px 6px 0}
+.cal{position:relative}.emj{font-style:normal;font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif}
+.cal .wxi{font-style:normal;font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-size:.95em;margin-right:2px;vertical-align:-.05em}
 .cl.act{outline:2px solid var(--acc);outline-offset:2px;border-radius:4px}
 .ct small{font-weight:400;opacity:.65;margin-left:4px}
 .crow{margin-bottom:6px}.chead{border-bottom:1px dashed var(--line);margin-bottom:8px;padding-bottom:4px}
@@ -1287,13 +1289,28 @@ const schedFromSlots=o=>{const out=[];Object.keys(o||{}).map(Number).filter(x=>x
   const f=out[0],l=out[out.length-1];if(out.length>1&&f.a===0&&l.b===DAY&&f.p===l.p){l.b=f.b;out.shift()}out.forEach(x=>{if(x.b>=DAY)x.b%=DAY});return out};
 const BANDS=[[300,420,'아침'],[420,780,'오전'],[780,1020,'오후'],[1020,1140,'저녁'],[1140,300,'밤']];
 const bandOf=m=>(BANDS.find(([a,b])=>a<b?(m>=a&&m<b):(m>=a||m<b))||BANDS[4])[2];
-// ===== 날씨: 날짜마다 정해져요(같은 날은 늘 같은 날씨). 맑음·흐림·비(보슬비/비/폭우)·눈(눈발/눈/폭설) =====
-const WXP={spring:[50,20],summer:[30,20],autumn:[50,25],winter:[40,20]},WXL={spring:[50,35],summer:[30,40],autumn:[50,35],winter:[40,40]};   // [맑음%, 흐림%] 나머지는 비(겨울은 눈) · [1단계%, 2단계%] 나머지는 3단계
+// ===== 날씨: 날짜마다 정해져요(같은 날은 늘 같은 날씨) =====
+// 달마다 [맑음, 흐림, 비, 눈] 확률. 비·눈은 하루 종일 오거나 몇 시간만 와요(그 밖의 시간은 흐림). 3월 초·11월엔 눈, 겨울엔 비, 가끔 진눈깨비.
+// 꽃잎·잎은 날짜마다 따로 정해지고(매화→벚꽃→라일락→아카시아 / 단풍·은행·낙엽), 약한 비와 함께 내리기도 해요.
+const WXM={1:[40,25,5,30],2:[40,25,10,25],3:[40,25,25,10],4:[45,25,30,0],5:[50,25,25,0],6:[35,30,35,0],7:[20,25,55,0],8:[35,25,40,0],9:[50,25,25,0],10:[55,25,20,0],11:[40,30,25,5],12:[35,30,10,25]};
+const DRIFT=[['plum','03-01','03-20'],['cherry','03-25','04-15'],['lilac','04-12','05-10'],['acacia','05-08','05-31'],['maple','10-05','11-20'],['ginkgo','10-18','11-12'],['leaf','11-10','12-05']];
+const DRN={plum:['🌸','매화'],cherry:['🌸','벚꽃'],lilac:['💜','라일락'],acacia:['🤍','아카시아꽃'],maple:['🍁','단풍'],ginkgo:['💛','은행잎'],leaf:['🍂','낙엽']};
 const WXC={},wxSeason=d=>{const m=d.getMonth()+1;return m>=3&&m<=5?'spring':m<=8&&m>=6?'summer':m>=9&&m<=11?'autumn':'winter'};
-function wxOf(day){day=day==null?G.day:day;if(WXC[day])return WXC[day];const s=wxSeason(new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+day)),P=WXP[s],r=hsh('wx'+day)%100;
-  const k=r<P[0]?'clear':r<P[0]+P[1]?'cloudy':(s==='winter'?'snow':'rain');let lv=0;if(k==='rain'||k==='snow'){const L=WXL[s],q=hsh('wl'+day)%100;lv=q<L[0]?1:q<L[0]+L[1]?2:3}
-  return WXC[day]={k,lv,s}}
-const wxLabel=w=>w.k==='clear'?['☀️','맑음']:w.k==='cloudy'?['☁️','흐림']:w.k==='rain'?[['🌦','보슬비'],['🌧','비'],['⛈','폭우']][w.lv-1]:[['🌨','눈발'],['❄️','눈'],['☃️','폭설']][w.lv-1];
+// 날짜 문자열 해시는 이웃한 날끼리 값이 비슷해서(그래서 3월 내내 맑았어요) 한 번 더 섞어서 써요
+const hx=t=>{let h=hsh(t);h^=h>>>16;h=Math.imul(h,0x85ebca6b)>>>0;h^=h>>>13;h=Math.imul(h,0xc2b2ae35)>>>0;h^=h>>>16;return h>>>0};
+function wxOf(day){day=day==null?G.day:day;if(WXC[day])return WXC[day];const dt=new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+day),m=dt.getMonth()+1,dd=dt.getDate(),md=String(m).padStart(2,'0')+'-'+String(dd).padStart(2,'0'),s=wxSeason(dt),P=WXM[m],r=hx('wx'+day)%100;
+  let k=r<P[0]?'clear':r<P[0]+P[1]?'cloudy':r<P[0]+P[1]+P[2]?'rain':'snow';if(k==='snow'&&m===3&&dd>15)k='rain';
+  let lv=0,a=0,b=DAY,mix=0;
+  if(k==='rain'||k==='snow'){const L=m>=6&&m<=8?[30,40]:(k==='snow'&&(m===3||m===11))?[65,35]:[50,35],q=hx('wl'+day)%100;lv=q<L[0]?1:q<L[0]+L[1]?2:3;
+    if((k==='snow'&&(m===3||m===11))||(k==='rain'&&(m===12||m<=2)))mix=hx('mx'+day)%100<35?1:0;
+    if(hx('wa'+day)%100>=45){a=360+(hx('wb'+day)%15)*60;b=Math.min(DAY,a+(3+hx('wc'+day)%7)*60)}}
+  const act=DRIFT.filter(([,f,t])=>md>=f&&md<=t).map(x=>x[0]),d=act.length&&hx('dr'+day)%100<75?act:[],dl=1+hx('dl'+day)%2;
+  return WXC[day]={k,lv,s,a,b,mix,d,dl,part:(a>0||b<DAY)?1:0}}
+// 지금 이 시각의 날씨 (비·눈이 오는 시간이 아니면 흐림)
+function wxCur(){const w=wxOf(),pr=w.k==='rain'||w.k==='snow',on=pr&&G.min>=w.a&&G.min<w.b;
+  return{k:pr?(on?w.k:'cloudy'):w.k,lv:on?w.lv:0,mix:on?w.mix:0,s:w.s,d:on&&w.lv>=3?[]:w.d,dl:w.dl,day:w}}
+const wxLabel=w=>{const L=w.mix?[['🌨','진눈깨비'],['🌨','진눈깨비'],['🌨','굵은 진눈깨비']][w.lv-1]:w.k==='clear'?['☀️','맑음']:w.k==='cloudy'?['☁️','흐림']:w.k==='rain'?[['🌦','보슬비'],['🌧','비'],['⛈','폭우']][w.lv-1]:[['🌨','눈발'],['❄️','눈'],['☃️','폭설']][w.lv-1];return w.part&&w.lv?[L[0],'한때 '+L[1]]:L};
+const wxDrift=w=>(w.d||[]).map(k=>DRN[k][1]).join('·');
 // ===== 조명: 시각×(야외/실내)×(영업/비영업)×날씨. 색은 [r,g,b,투명도]이고 시각 사이는 부드럽게 이어져요 =====
 const TINT=[[0,[18,28,78,.56]],[240,[18,28,78,.52]],[300,[255,196,186,.30]],[360,[255,222,205,.18]],[420,[255,255,255,0]],[780,[255,240,200,.08]],[960,[255,232,170,.18]],[1020,[255,160,96,.32]],[1110,[255,132,92,.34]],[1170,[62,54,130,.45]],[1260,[22,32,86,.54]],[1440,[18,28,78,.56]]];   // 야외
 const TINT_IO=[[0,[255,236,205,.10]],[300,[255,228,200,.10]],[360,[255,238,216,.04]],[420,[255,255,255,0]],[1020,[255,244,222,.03]],[1110,[255,232,200,.07]],[1170,[255,228,198,.10]],[1440,[255,236,205,.10]]];   // 실내·영업 중(불이 켜져 있어요: 거의 안 어두워져요)
@@ -1308,7 +1325,7 @@ function wxTint(w,m,sc){if(!w||w.k==='clear')return null;const d=KF(DAYF,m),lp=(
   else if(w.k==='rain'){al=[.12,.19,.28][w.lv-1];c=[lp(100,10),lp(116,16),lp(152,46)];al=lp(al,al*.5)}
   else{al=[.07,.10,.14][w.lv-1];c=[228,238,255];al=lp(al,al*.6)}
   return [c[0],c[1],c[2],al*(sc==null?1:sc)]}
-function lightCalc(){const m=G.min,w=(()=>{try{return wxOf()}catch(e){return{k:'clear',lv:0,s:'spring'}}})(),pl=WORLD.places[G.place],p=pl||{},open=!pl||p.type==='home'||openNow(G.place);
+function lightCalc(){const m=G.min,w=(()=>{try{return wxCur()}catch(e){return{k:'clear',lv:0,s:'spring'}}})(),pl=WORLD.places[G.place],p=pl||{},open=!pl||p.type==='home'||openNow(G.place);
   let o=KF(TINT,m);if(w.k==='snow')o=[o[0],o[1],o[2],o[3]*(1-.1*w.lv*(1-KF(DAYF,m)))];   // 눈 오는 밤은 눈빛 때문에 조금 덜 어두워요
   const outTint=over(o,wxTint(w,m,1));let inTint,glow=0;
   if(p.outdoor)inTint=outTint;
@@ -1412,7 +1429,7 @@ const ACT0=[
   {code:'talk',name:'이야기하기',icon:'💬',kind:'normal',descr:'',mins:30,energy:0,money:0,effects:{aff:[{npc:'*',v:1}]},scene:[]},
   {code:'sleep',name:'잠자기',icon:'😴',kind:'normal',descr:'아침 7시까지 푹 자요. 에너지가 채워져요.',mins:0,energy:0,money:0,endAt:420,minMins:240,cond:{ranges:[[1200,120]]},effects:{eph:12}},
   {code:'closet',name:'옷장 열기',icon:'👗',kind:'closet',descr:'옷을 갈아입어요.',mins:0,energy:0,money:0},
-  {code:'status',name:'거울 보기',icon:'🪞',kind:'status',descr:'거울에 비친 내 모습과 돈·에너지·호감도를 확인해요.',mins:0,energy:0,money:0},
+  {code:'status',name:'내 상태',icon:'📋',kind:'status',descr:'날짜·날씨·돈·에너지·관계를 한눈에 봐요.',mins:0,energy:0,money:0,effects:{group:'diary'}},
   {code:'shop',name:'물건 보기',icon:'🛍',kind:'shop',descr:'파는 물건을 살펴봐요.',mins:0,energy:0,money:0},
   {code:'walk',name:'산책하기',icon:'🚶',kind:'normal',descr:'천천히 걸으며 기분을 풀어요.',mins:30,energy:-5,money:0,scene:[{t:'나무 사이로 바람이 지나간다. 머릿속이 조금 맑아진 것 같다.'}]},
   {code:'drink',name:'음료 마시기',icon:'☕',kind:'normal',descr:'달콤한 음료로 한숨 돌려요.',mins:60,energy:10,money:-4500,scene:[{t:'따뜻한 음료를 천천히 마셨다. 기운이 조금 돌아온다.'}]},
@@ -1502,7 +1519,7 @@ function ensureMe(){if(!G||G.me||$('#welcome').open||$('#mesetup').open)return;
   $('#mesetup').oncancel=e=>e.preventDefault();
   $('#me_ok').onclick=()=>{const p=n=>String(n).padStart(2,'0');G.me={n:($('#me_n').value||'').trim()||'레오',b:p(m.value)+'-'+p(d.value)};applyMe();$('#mesetup').close();saveGame();refresh();renderWorld()};
   $('#mesetup').showModal()}
-function newGame(){const w=WORLD.start;G={v:3,day:0,min:WORLD.wakeMin,place:w.place,money:w.money,ledger:[],energy:100,owned:{},aff:{},done:{},doneDay:{},actDay:{},talked:{},closet:false,cheat:G?G.cheat:false,log:'새 게임을 시작했어요'};
+function newGame(){const w=WORLD.start;G={v:3,day:0,min:WORLD.wakeMin,place:w.place,money:w.money,ledger:[],energy:100,owned:{},aff:{},done:{},doneDay:{},actDay:{},talked:{},closet:false,cheat:G?G.cheat:false,log:'새 게임을 시작했어요',gid:Date.now().toString(36)+Math.random().toString(36).slice(2,8),dyQ:[],dyMig:1};
   WORLD.sources.filter(s=>s.type==='starter').forEach(s=>G.owned[rid(s.ref)]=1)}
 function loadGame(){try{G=JSON.parse(localStorage.getItem('fsfsGame')||'null')}catch(e){G=null}if(!G)newGame();
   if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}   // 예전 저장(구간)을 시각으로 옮겨요
@@ -1546,8 +1563,23 @@ function homeGate(k,from){const q=WORLD.places[k],par=q&&q.parent,P=par&&WORLD.p
 const earn=(v,label)=>{v=Math.round(+v||0);if(!v)return;G.money+=v;dyMoney(v);G.ledger=[{d:G.day,t:G.min,n:label||'',v}].concat(G.ledger||[]).slice(0,20)};   // 돈이 오가면 여기서 기록해요(최근 20건)
 const clampE=v=>Math.max(0,Math.min(100,v));
 // ===== 하루 기록: 그날 다닌 곳·한 일·돈을 자동으로 모아요 (G.dy[날짜] = {e:[[분,글,횟수]], p:[장소], w:[인물], i:번 돈, o:쓴 돈}) =====
-const DY_KEEP=100,DY_ENT=60;
-function dyRec(){G.dy=G.dy&&typeof G.dy==='object'?G.dy:{};const k=G.day;if(!G.dy[k]){const wx=wxOf(k);G.dy[k]={e:[],p:[],w:[],i:0,o:0,x:[wx.k,wx.lv]};Object.keys(G.dy).forEach(x=>{if(+x<=G.day-DY_KEEP)delete G.dy[x]})}return G.dy[k]}
+// 하루 기록은 Supabase fsfs_day(한 판 G.gid × 하루 한 줄)에 영구로 쌓고, 세이브에는 올리지 않은 날(G.dyQ)과 최근 DY_LOCAL일만 남겨요.
+// 로그인하지 않았을 땐 예전처럼 세이브에 최근 DY_KEEP일까지만 남아요.
+const DY_KEEP=100,DY_LOCAL=14,DY_ENT=60;
+const dyMark=k=>{if(!Array.isArray(G.dyQ))G.dyQ=[];if(!G.dyQ.includes(k))G.dyQ.push(k)};
+function dyPrune(){const lim=S&&SAVE.ok?DY_LOCAL:DY_KEEP;Object.keys(G.dy||{}).forEach(x=>{if(+x<=G.day-lim&&!(G.dyQ||[]).includes(+x))delete G.dy[x]})}
+function dyRec(){G.dy=G.dy&&typeof G.dy==='object'?G.dy:{};const k=G.day;if(!G.dy[k]){const wx=wxOf(k);G.dy[k]={e:[],p:[],w:[],i:0,o:0,x:[wx.k,wx.lv,wx.mix,wx.part]};dyPrune()}dyMark(k);return G.dy[k]}
+let DYP=null;
+async function dyPush(){if(!S||!SAVE.ok||!G||!(G.dyQ||[]).length||DYP)return;const ds=G.dyQ.filter(d=>G.dy&&G.dy[d]),snap={};ds.forEach(d=>snap[d]=JSON.stringify(G.dy[d]));
+  if(!ds.length){G.dyQ=[];return}
+  DYP=sb('/rest/v1/fsfs_day?on_conflict=user_id,gid,day',{m:'POST',h:{Prefer:'resolution=merge-duplicates,return=minimal'},b:ds.map(d=>({gid:G.gid,day:d,data:G.dy[d],updated_at:new Date().toISOString()}))});
+  try{await DYP;G.dyQ=G.dyQ.filter(d=>!(d in snap)||!G.dy[d]||JSON.stringify(G.dy[d])!==snap[d]);dyCk();ds.forEach(d=>{if(G.dy[d])DYC.m[d]=G.dy[d]});dyPrune()}catch(e){}finally{DYP=null}}
+// 세이브에 없는 옛날 하루는 fsfs_day에서 2주씩 읽어 와요
+const DYC={g:'',m:{},ld:{}};
+const dyCk=()=>{if(DYC.g!==G.gid){DYC.g=G.gid;DYC.m={};DYC.ld={}}};
+function dyGet(d){dyCk();const r=(G.dy||{})[d];if(r)return r;if(d in DYC.m)return DYC.m[d];if(!S)return false;
+  const a=Math.max(0,d-13);if(DYC.ld[a])return null;DYC.ld[a]=1;
+  sb(`/rest/v1/fsfs_day?select=day,data&gid=eq.${encodeURIComponent(G.gid)}&day=gte.${a}&day=lte.${d}`).then(L=>{for(let i=a;i<=d;i++)if(!(i in DYC.m))DYC.m[i]=false;(L||[]).forEach(x=>DYC.m[x.day]=x.data)}).catch(()=>{for(let i=a;i<=d;i++)if(!(i in DYC.m))DYC.m[i]=false}).finally(()=>{if(viewSh&&shMode==='dylog')renderShrine()});return null}
 function dyAdd(x,o){x=String(x||'').trim();if(!x)return;const r=dyRec(),l=r.e[r.e.length-1];o=o||{};
   if(o.p&&!r.p.includes(o.p))r.p.push(o.p);if(o.w&&!r.w.includes(o.w))r.w.push(o.w);
   if(l&&l[1]===x)l[2]=(l[2]||1)+1;else{r.e.push([G.min,x,1]);if(r.e.length>DY_ENT)r.e.shift()}}
@@ -1573,7 +1605,7 @@ function recRefresh(){
     try{r.wk=(await wkLoad()).filter(x=>x.isNew).length;ok++}catch(e){}
     REC=r;RECT=Date.now()-(ok?0:REC_TTL-60000);return r})().finally(()=>{RECP=null});return RECP}
 const REC_TTL=300000;
-const wxNow=()=>{try{const w=wxOf();return w.k==='rain'?'rain':w.k==='snow'?'snow':'clear'}catch(e){return null}};   // 계절 효과와 같은 날씨: 여름엔 비/맑음이 섞이고 겨울엔 눈
+const wxNow=()=>{try{const w=wxCur();return w.k==='rain'?'rain':w.k==='snow'?'snow':'clear'}catch(e){return null}};   // 지금 시각의 날씨(비·눈이 그친 시간이면 맑음으로 쳐요)   // 계절 효과와 같은 날씨: 여름엔 비/맑음이 섞이고 겨울엔 눈
 const hasRef=r=>String(r).startsWith('g:')?(((G.bag||{})[String(r).slice(2)])||0)>0:!!(G.owned||{})[rid(r)];
 const npcNear=id=>{const tn=new Set([townOf(ROADCTX.from),townOf(ROADCTX.to)]);return Object.keys(WORLD.places).some(k=>tn.has(townOf(k))&&WORLD.places[k].type!==ROAD&&npcIn(id,k))};   // 길 위 만남: 그 인물이 지금 이 동네 어딘가에 있어요
 function evOk(e){
@@ -1888,11 +1920,11 @@ function openDiary(m){shMode=m==='mail'?'dymail':m==='log'?'dylog':'dydex';dyDay
 const dayText=(d,y)=>{const t=new Date(WORLD.start.y,WORLD.start.m-1,WORLD.start.d+(d||0));return `${y?t.getFullYear()+'년 ':''}${t.getMonth()+1}월 ${t.getDate()}일${y?' '+DOW[t.getDay()]+'요일':''}`};
 function dyIcon(n,cls){const e=esc(n.i||'🐈');return n.img?`<img class="${cls}" src="${esc(n.img)}" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="${cls} em" hidden>${e}</span>`:`<span class="${cls} em">${e}</span>`}
 function renderDayLog(box,tape,back){
-  const lo=Math.max(0,G.day-DY_KEEP+1);dyDay=Math.max(lo,Math.min(dyDay,G.day));
-  const r=(G.dy||{})[dyDay]||{e:[],p:[],w:[],i:0,o:0},ago=G.day-dyDay,W=n=>'₩'+Math.abs(n).toLocaleString(),wl=wxLabel(r.x?{k:r.x[0],lv:r.x[1]}:wxOf(dyDay));
+  const lo=S?0:Math.max(0,G.day-DY_KEEP+1);dyDay=Math.max(lo,Math.min(dyDay,G.day));
+  const got=dyGet(dyDay),loading=got===null,r=got||{e:[],p:[],w:[],i:0,o:0},ago=G.day-dyDay,W=n=>'₩'+Math.abs(n).toLocaleString(),wl=wxLabel(r.x?{k:r.x[0],lv:r.x[1],mix:r.x[2],part:r.x[3]}:wxOf(dyDay));
   const sm=[`${wl[0]} ${wl[1]}`,r.p.length?`다닌 곳 ${r.p.length}`:'',r.w.length?`만난 사람 ${r.w.length}`:'',r.i?`번 돈 +${W(r.i)}`:'',r.o?`쓴 돈 −${W(r.o)}`:''].filter(Boolean).join(' · ');
   const rows=r.e.map(e=>`<div class="dyr"><span class="dt">${fmtT(e[0])}</span><span class="dx">${esc(e[1])}${e[2]>1?` ×${e[2]}`:''}</span></div>`).join('');
-  box.innerHTML=`<div class="paper dy">${tape}<div class="ph" style="align-items:baseline"><span>📒 ${esc(dayText(dyDay,1))}</span><span>${ago?`${ago}일 전`:'오늘'}</span></div><div class="pt dylog">${sm?`<div class="dysm">${esc(sm)}</div>`:''}${rows||`<div class="dyne">${ago?'이 날은 남은 기록이 없어요.':'아직 오늘의 기록이 없어요.\n돌아다니다 보면 여기에 차곡차곡 쌓여요.'}</div>`}</div><div class="pb"><button id="dy_pv" type="button"${dyDay<=lo?' disabled':''}>◀ 전날</button><button id="dy_nx" type="button"${dyDay>=G.day?' disabled':''}>다음 날 ▶</button><span class="sp"></span><button id="dy_bk" type="button" class="pri">돌아가기</button></div></div>`;
+  box.innerHTML=`<div class="paper dy">${tape}<div class="ph" style="align-items:baseline"><span>📒 ${esc(dayText(dyDay,1))}</span><span>${ago?`${ago}일 전`:'오늘'}</span></div><div class="pt dylog">${sm?`<div class="dysm">${esc(sm)}</div>`:''}${rows||`<div class="dyne">${loading?'기록을 불러오는 중이에요…':ago?'이 날은 남은 기록이 없어요.':'아직 오늘의 기록이 없어요.\n돌아다니다 보면 여기에 차곡차곡 쌓여요.'}</div>`}</div><div class="pb"><button id="dy_pv" type="button"${dyDay<=lo?' disabled':''}>◀ 전날</button><button id="dy_nx" type="button"${dyDay>=G.day?' disabled':''}>다음 날 ▶</button><span class="sp"></span><button id="dy_bk" type="button" class="pri">돌아가기</button></div></div>`;
   $('#dy_pv').onclick=()=>{dyDay--;renderShrine()};$('#dy_nx').onclick=()=>{dyDay++;renderShrine()};$('#dy_bk').onclick=back}
 function renderDiary(box,tape){
   const back=()=>{if(dyDirty){dyDirty=false;saveGame()}shClose()};
@@ -2091,7 +2123,7 @@ function renderShrine(){
 function renderStatus(){
   const aff=Object.entries(G.aff).filter(([k,v])=>v&&!isCat(k)).map(([k,v])=>`<div class="srow"><span>${esc((WORLD.npcs[k]||{}).n||k)}</span><b>♥ ${v}</b></div>`).join('')||'<div class="tag">아직 호감도가 쌓인 사람이 없어요</div>',
     catH=Object.entries(G.aff).filter(([k,v])=>v&&isCat(k)).map(([k,v])=>`<div class="srow"><span>${esc(WORLD.npcs[k].i||'🐈')} ${esc(WORLD.npcs[k].n)}</span><b>♥ ${v}</b></div>`).join('');
-  $('#st_b').innerHTML=`<div class="stcol"><div class="srow"><span>날짜·시간</span><b>${dateText()} ${timeText()}</b></div><div class="srow"><span>날씨</span><b>${(l=>l[0]+' '+l[1])(wxLabel(wxOf()))}</b></div><div class="srow"><span>돈</span><b>₩${G.money.toLocaleString()}</b></div>
+  $('#st_b').innerHTML=`<div class="stcol"><div class="srow"><span>날짜·시간</span><b>${dateText()} ${timeText()}</b></div><div class="srow"><span>날씨</span><b>${(()=>{const c=wxCur(),w=c.day,l=wxLabel({...c,part:0}),dr=wxDrift(c);return `<i class="emj">${l[0]}</i> ${l[1]}`+(w.part&&w.lv?` <small>(오늘 ${fmtT(w.a)}~${fmtT(w.b%DAY)} ${wxLabel({...w,part:0})[1]})</small>`:'')+(dr?` · ${dr}이 흩날려요`:'')})()}</b></div><div class="srow"><span>돈</span><b>₩${G.money.toLocaleString()}</b></div>
     <div class="srow" style="border:0"><span>에너지</span><b>${G.energy} / 100</b></div><div class="ebar"><i style="width:${G.energy}%"></i></div>
     <h2 style="margin-top:12px">호감도</h2>${aff}${catH?`<h2 style="margin-top:12px">고양이</h2>${catH}`:''}<div class="srow" style="margin-top:8px"><span>모은 옷</span><b>${Object.keys(G.owned).length}벌</b></div></div>
     <div class="stcol"><h2>🎒 가방</h2>${bagHtml()}
@@ -2113,7 +2145,7 @@ const ledSvg=w=>{const W=35,P=4,n=w.length,x0=Math.floor((W-(n*6-1))/2),pts=[]; 
 const signHtml=pid=>{const q=WORLD.places[pid];if(!q||q.type==='home'||q.type==='npchome'||q.type==='npcroom'||q.type===ROAD)return '';const o=openNow(pid),h=q.open&&q.open.length?q.open.map(([a,b])=>fmtT(a)+' ~ '+fmtB(b)).join(', '):'24H';return `<div class="sign ${o?'o':'c'}">${ledSvg(o?'OPEN':'CLOSED')}<span>${h}</span></div>`};
 function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const d=dateOf();const bn=bandOf(G.min),BR=[['아침','🌅',300,420],['오전','🌤',420,780],['오후','☀️',780,1020],['저녁','🌇',1020,1140],['밤','🌙',1140,1740]],wd=d.getDay(),np=((G.min-300+1440)%1440)/1440*100; 
-  $('#wt').innerHTML=`<div class="cal${wd===0?' sun':wd===6?' sat':''}"><span class="mo"><span class="hx">${d.getMonth()+1}월</span></span><b class="dy"><span class="hx">${d.getDate()}</span></b><span class="wk"><span class="hx">${DOW[wd]}요일</span></span></div>
+  $('#wt').innerHTML=`<div class="cal${wd===0?' sun':wd===6?' sat':''}"><span class="mo"><span class="hx">${d.getMonth()+1}월</span></span><b class="dy"><span class="hx">${d.getDate()}</span></b><span class="wk"><span class="hx">${(()=>{try{const c=wxCur(),l=wxLabel({...c,part:0});return `<i class="wxi" title="${l[1]}">${l[0]}</i>`}catch(e){return''}})()}${DOW[wd]}요일</span></span></div>
    <b class="clk"><span class="ap"><span class="${G.min<720?'on':''}">AM</span><span class="${G.min>=720?'on':''}">PM</span></span><span class="hx">${String((Math.floor(G.min/60)%12)||12).padStart(2,"0")}<i>:</i>${String(G.min%60).padStart(2,"0")}</span></b>
    <div class="tl"><div class="bands">${BR.map(([n,i,a,b])=>`<span class="bd${n===bn?' on':''}" style="flex:${b-a} 1 0"><i class="hx">${i}</i><em class="hx">${n}</em></span>`).join('')}</div><div class="scale">${Array.from({length:47},(_,k)=>{const n=k+1;return `<i class="tk ${n%4===0?'l':n%2===0?'m':'s'}" style="left:${n/48*100}%"></i>`}).join('')}<b class="dot" style="left:${Math.min(97,Math.max(3,np))}%"></b></div></div>
    <div class="vit"><div class="led en" style="--p:${Math.max(0,Math.min(100,G.energy))}%"><i>EN</i><b>${Math.round(G.energy)}<small>/100</small></b></div><div class="led mo"><i>₩</i><b>${(G.money||0).toLocaleString()}</b></div></div>`;applyTint();setTimeout(posSys,0);
@@ -3325,39 +3357,44 @@ function openMyBooks(){
 
 /* ===== 계절 효과: 마을 지도와 야외 장소에 눈·벚꽃·단풍·비 + 계절 조명 (가볍게: 입자 수십 개, 초당 30프레임) ===== */
 var FX={on:(()=>{try{return localStorage.getItem('fsfsFx')!=='0'}catch(e){return true}})(),out:false,ps:[],key:'',run:0,last:0,w:0,h:0,a:null};
-const fxKind=()=>{const w=wxOf();return w.k==='rain'?'rain'+w.lv:w.k==='snow'?'snow'+w.lv:w.s==='spring'?'spring':w.s==='autumn'?'autumn':'none'};   // 날씨가 우선이고, 비·눈이 없는 날은 봄 꽃잎·가을 낙엽
+// 효과 열쇠: 내리는 것(비·눈·진눈깨비+단계) | 흩날리는 것(꽃잎·잎) | 세기
+const fxKind=()=>{const c=wxCur(),pk=c.k==='rain'||c.k==='snow'?(c.mix?'mix':c.k)+c.lv:'';return pk+'|'+(c.d||[]).join(',')+'|'+c.dl};
 const FXTINTS={spring:[255,176,205,.08],summer:[120,210,255,.06],autumn:[255,150,60,.11],winter:[150,190,255,.13]};   // 계절 분위기 색(날씨가 맑지 않으면 절반)
-const FXN={spring:30,autumn:26,none:0,rain1:26,rain2:64,rain3:130,snow1:22,snow2:48,snow3:110};
+const FXN={rain:[26,64,130],snow:[22,48,110]},FXD={plum:{t:'round',c:['#fff4f7','#ffe3ec','#fbd0de','#ffffff']},cherry:{t:'petal',c:['#ffc2d6','#ffd9e6','#ffb3cc','#fff0f5']},lilac:{t:'petal',sm:.65,c:['#c8a2e8','#b38ad9','#e0c8f5','#d6b4f0']},acacia:{t:'petal',sm:.55,c:['#fffbe8','#ffffff','#f6f2d8']},maple:{t:'leaf',c:['#e8742a','#c8452a','#e9a23b','#b8342a']},ginkgo:{t:'fan',c:['#f2c230','#f7d64a','#e8b020']},leaf:{t:'leaf',c:['#a0703a','#8a5a2b','#b8864a','#c49a5a']}};
+const fxCount=k=>{const [pk,dk,dl]=k.split('|'),lv=+pk.slice(-1)||0,base=pk.replace(/\d/g,'');return(pk?FXN[base==='mix'?'rain':base][lv-1]:0)+(dk?(pk?(lv>=3?0:lv===2?8:14):(+dl===2?36:22)):0)};
 function fxEnsure(){let c=$('#fxcv');if(c)return c;const f=$('#mapframe');if(!f)return null;
   const t=document.createElement('div');t.id='seastint';t.style.cssText='position:absolute;inset:0;z-index:3;pointer-events:none;transition:background 1.2s ease';
   c=document.createElement('canvas');c.id='fxcv';c.style.cssText='position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none';f.append(t,c);return c}
-const FX_PETAL=new Path2D('M-1 0C-1-.58-.3-.66.3-.42C.7-.26.92-.1 1.1 0C.92.1.7.26.3.42C-.3.66-1 .58-1 0Z');   // 봄 꽃잎: 한쪽은 둥글고 한쪽은 살짝 뾰족한 타원
-function fxSeed(k){const w=FX.w,h=FX.h,R=Math.random,PC=['#ffc2d6','#ffd9e6','#ffb3cc','#fff0f5'],LC=['#e8742a','#c8452a','#e9a23b','#a8552b'],base=k.replace(/\d/g,''),lv=+k.slice(-1)||0,I=lv-1;
-  FX.base=base;FX.lv=lv;FX.sl=base==='rain'?[25,50,80][I]:0;FX.lw=base==='rain'?[1,1.3,1.5][I]:1;FX.ft=6+R()*6;FX.fa=0;
-  FX.ps=Array.from({length:FXN[k]||0},()=>{const p={x:R()*w,y:R()*h,ph:R()*6.28,sp:.6+R()*1.2};
-    if(base==='snow'){p.r=[1.2,1.4,1.6][I]+R()*[1.4,2.2,2.8][I];p.vy=[14,22,40][I]+R()*[18,30,40][I];p.vx=[0,0,18][I]+R()*[0,0,22][I];p.a=.6+R()*.35}
-    else if(base==='spring'){p.r=3+R()*2;p.vy=18+R()*22;p.vx=8+R()*18;p.rot=R()*6.28;p.vr=(R()-.5)*3;p.c=PC[Math.floor(R()*PC.length)]}
-    else if(base==='autumn'){p.r=4+R()*2.5;p.vy=24+R()*24;p.vx=6+R()*16;p.rot=R()*6.28;p.vr=(R()-.5)*4;p.c=LC[Math.floor(R()*LC.length)]}
-    else{p.l=[7,9,12][I]+R()*[5,8,10][I];p.vy=[300,380,480][I]+R()*[80,160,200][I];p.a=[.22,.32,.35][I]+R()*[.25,.35,.4][I]}
-    return p})}
+const FX_PETAL=new Path2D('M-1 0C-1-.58-.3-.66.3-.42C.7-.26.92-.1 1.1 0C.92.1.7.26.3.42C-.3.66-1 .58-1 0Z');   // 꽃잎: 한쪽은 둥글고 한쪽은 살짝 뾰족한 타원
+const FX_FAN=new Path2D('M0 .9L-.95-.35C-.6-.85.6-.85.95-.35Z');   // 은행잎: 부채꼴
+function fxSeed(k){const w=FX.w,h=FX.h,R=Math.random,[pk,dk,dl]=k.split('|'),lv=+pk.slice(-1)||0,base=pk.replace(/\d/g,''),I=lv-1;
+  FX.base=base;FX.lv=lv;FX.sl=base==='rain'||base==='mix'?[25,50,80][I]:0;FX.lw=[1,1.3,1.5][Math.max(0,I)];FX.ft=6+R()*6;FX.fa=0;FX.ps=[];
+  const P=()=>({x:R()*w,y:R()*h,ph:R()*6.28,sp:.6+R()*1.2});
+  const snow=()=>{const p=P();p.t='snow';p.r=[1.2,1.4,1.6][I]+R()*[1.4,2.2,2.8][I];p.vy=[14,22,40][I]+R()*[18,30,40][I];p.vx=[0,0,18][I]+R()*[0,0,22][I];p.a=.6+R()*.35;return p};
+  const rain=()=>{const p=P();p.t='rain';p.l=[7,9,12][I]+R()*[5,8,10][I];p.vy=[300,380,480][I]+R()*[80,160,200][I];p.a=[.22,.32,.35][I]+R()*[.25,.35,.4][I];return p};
+  if(pk){const n=FXN[base==='mix'?'rain':base][I];for(let i=0;i<n;i++)FX.ps.push(base==='snow'?snow():base==='rain'?rain():(i%2?snow():rain()))}
+  const ds=dk?dk.split(','):[],nd=fxCount(k)-FX.ps.length;
+  for(let i=0;i<nd;i++){const d=FXD[ds[i%ds.length]],p=P(),wet=!!pk;p.t=d.t;p.c=d.c[Math.floor(R()*d.c.length)];p.rot=R()*6.28;p.vr=(R()-.5)*(d.t==='leaf'?4:3);
+    p.r=(d.t==='round'?2+R()*1.3:d.t==='leaf'?4+R()*2.5:d.t==='fan'?4+R()*2:3+R()*2)*(d.sm||1);p.vy=(d.t==='petal'||d.t==='round'?18+R()*22:24+R()*24)*(wet?1.6:1);p.vx=(6+R()*16)*(wet?.5:1);FX.ps.push(p)}}
 function fxSize(c){const f=$('#mapframe'),w=f.offsetWidth,h=f.offsetHeight;if(!w||!h)return false;if(FX.w!==w||FX.h!==h){FX.w=w;FX.h=h;c.width=w*2;c.height=h*2;FX.key='';}return true}
 const FX_CALM=(()=>{try{return matchMedia('(prefers-reduced-motion:reduce)').matches}catch(e){return false}})();
 function fxLoop(t){if(!FX.run)return;requestAnimationFrame(fxLoop);if(t-FX.last<32)return;const dt=Math.min(.06,(t-(FX.last||t-33))/1000);FX.last=t;
-  const c=$('#fxcv');if(!c)return;const x=c.getContext('2d'),k=FX.key,b=FX.base,w=FX.w,h=FX.h;x.setTransform(2,0,0,2,0,0);x.clearRect(0,0,w,h);
-  for(const p of FX.ps){p.ph+=p.sp*dt;p.y+=p.vy*dt;p.x+=Math.sin(p.ph)*(b==='rain'?4:20)*dt+(p.vx||0)*dt;if(b==='rain')p.x-=FX.sl*dt;
+  const c=$('#fxcv');if(!c)return;const x=c.getContext('2d'),w=FX.w,h=FX.h;x.setTransform(2,0,0,2,0,0);x.clearRect(0,0,w,h);
+  for(const p of FX.ps){const rn=p.t==='rain';p.ph+=p.sp*dt;p.y+=p.vy*dt;p.x+=Math.sin(p.ph)*(rn?4:20)*dt+(p.vx||0)*dt;if(rn)p.x-=FX.sl*dt;
     if(p.y>h+12){p.y=-12;p.x=Math.random()*w}if(p.x>w+12)p.x=-12;if(p.x<-12)p.x=w+12;
-    if(b==='snow'){x.globalAlpha=p.a;x.fillStyle='#fff';x.beginPath();x.arc(p.x,p.y,p.r,0,6.283);x.fill();x.strokeStyle='rgba(140,170,215,.55)';x.lineWidth=.7;x.stroke()}
-    else if(b==='rain'){x.globalAlpha=p.a;x.strokeStyle='#a9cdf2';x.lineWidth=FX.lw;x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p.x-p.l*FX.sl/350,p.y+p.l);x.stroke()}
-    else{p.rot+=p.vr*dt;x.globalAlpha=.9;x.fillStyle=p.c;x.save();x.translate(p.x,p.y);x.rotate(p.rot);if(b==='spring'){x.scale(p.r,p.r);x.fill(FX_PETAL)}else{x.beginPath();x.ellipse(0,0,p.r,p.r*.55,0,0,6.283);x.fill()}x.restore()}}
-  if(b==='rain'&&FX.lv===3&&!FX_CALM){FX.ft-=dt;if(FX.ft<=0){FX.fa=.3;FX.ft=7+Math.random()*9}   // 폭우엔 가끔 번개가 번쩍여요
+    if(p.t==='snow'){x.globalAlpha=p.a;x.fillStyle='#fff';x.beginPath();x.arc(p.x,p.y,p.r,0,6.283);x.fill();x.strokeStyle='rgba(140,170,215,.55)';x.lineWidth=.7;x.stroke()}
+    else if(rn){x.globalAlpha=p.a;x.strokeStyle='#a9cdf2';x.lineWidth=FX.lw;x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p.x-p.l*FX.sl/350,p.y+p.l);x.stroke()}
+    else{p.rot+=p.vr*dt;x.globalAlpha=.9;x.fillStyle=p.c;x.save();x.translate(p.x,p.y);x.rotate(p.rot);
+      if(p.t==='petal'){x.scale(p.r,p.r);x.fill(FX_PETAL)}else if(p.t==='fan'){x.scale(p.r,p.r);x.fill(FX_FAN)}else if(p.t==='round'){x.beginPath();x.ellipse(0,0,p.r,p.r*.85,0,0,6.283);x.fill()}else{x.beginPath();x.ellipse(0,0,p.r,p.r*.55,0,0,6.283);x.fill()}x.restore()}}
+  if(FX.base==='rain'&&FX.lv===3&&!FX_CALM){FX.ft-=dt;if(FX.ft<=0){FX.fa=.3;FX.ft=7+Math.random()*9}   // 폭우엔 가끔 번개가 번쩍여요
     if(FX.fa>0){x.globalAlpha=FX.fa;x.fillStyle='#eaf0ff';x.fillRect(0,0,w,h);FX.fa=Math.max(0,FX.fa-dt*1.2)}}
   x.globalAlpha=1}
 function fxStop(){FX.run=0;const c=$('#fxcv');if(c)c.getContext('2d').clearRect(0,0,c.width,c.height)}
 function fxUpdate(mapOnly,vw,co){FX.a=[mapOnly,vw,co];
   const p=WORLD.places[G.place]||{};FX.out=!vw&&!co&&(mapOnly||!!p.outdoor);
-  const c=fxEnsure();if(!c)return;const k=fxKind(),tn=$('#seastint');if(tn){const w=wxOf(),t=FXTINTS[w.s].slice();t[3]*=w.k==='clear'?1:.5;tn.style.background=FX.out?rgbaStr(t):'transparent'}
+  const c=fxEnsure();if(!c)return;const k=fxKind(),tn=$('#seastint');if(tn){const w=wxCur(),t=FXTINTS[w.s].slice();t[3]*=w.k==='clear'?1:.5;tn.style.background=FX.out?rgbaStr(t):'transparent'}
   const b=$('#fxbtn');if(b){b.textContent='✨ '+(FX.on?'켬':'끔');}
-  if(FX.out&&FX.on&&FXN[k]>0&&fxSize(c)){if(FX.key!==k){FX.key=k;fxSeed(k)}if(!FX.run){FX.run=1;FX.last=0;requestAnimationFrame(fxLoop)}}else fxStop()}
+  if(FX.out&&FX.on&&fxCount(k)>0&&fxSize(c)){if(FX.key!==k){FX.key=k;fxSeed(k)}if(!FX.run){FX.run=1;FX.last=0;requestAnimationFrame(fxLoop)}}else fxStop()}
 document.addEventListener('click',e=>{if(!e.target.closest||!e.target.closest('#fxbtn'))return;FX.on=!FX.on;try{localStorage.setItem('fsfsFx',FX.on?'1':'0')}catch(x){}if(FX.a)fxUpdate(...FX.a)});
 
 /* ===== 배경음악 (cdcd 재생목록 연결) ===== */
@@ -3493,7 +3530,8 @@ var SLOTS=5,SAVE={slot:(()=>{try{return Math.min(SLOTS,Math.max(1,+localStorage.
 function normG(){applyMe();
   if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}
   if(typeof G.min!=='number')G.min=WORLD.wakeMin;if(!Array.isArray(G.ledger))G.ledger=[];
-  if(!G.dy||typeof G.dy!=='object')G.dy={};if(!G.road||typeof G.road!=='object')G.road={d:-1,n:0};if(!G.evCool||typeof G.evCool!=='object')G.evCool={};if(G.place===ROAD)G.place=(G.roadFrom&&WORLD.places[G.roadFrom])?G.roadFrom:startPlace();if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.wait=Array.isArray(G.wait)?G.wait:[];G.vgoods=G.vgoods||{};G.dlv=Array.isArray(G.dlv)?G.dlv:[];G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.catFeed=G.catFeed||{};G.catMet=G.catMet||{};G.mail=Array.isArray(G.mail)?G.mail:[];G.catNames=G.catNames||{};if(!G.visits){G.visits={};if(G.place)G.visits[G.place]=99;G.visits.home=99}G.catWhere=G.catWhere||{};G.catNamedDay=G.catNamedDay||{};catApplyNames();if(G.mailDay==null)G.mailDay=null;G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
+  if(!G.dy||typeof G.dy!=='object')G.dy={};if(!G.gid)G.gid=Date.now().toString(36)+Math.random().toString(36).slice(2,8);if(!Array.isArray(G.dyQ))G.dyQ=[];if(!G.dyMig){G.dyMig=1;Object.keys(G.dy).forEach(d=>dyMark(+d))}   // gid: 한 판의 고유 번호(하루 기록 테이블의 열쇠) · 처음엔 지금까지의 하루 기록을 모두 올려요
+  if(!G.road||typeof G.road!=='object')G.road={d:-1,n:0};if(!G.evCool||typeof G.evCool!=='object')G.evCool={};if(G.place===ROAD)G.place=(G.roadFrom&&WORLD.places[G.roadFrom])?G.roadFrom:startPlace();if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.wait=Array.isArray(G.wait)?G.wait:[];G.vgoods=G.vgoods||{};G.dlv=Array.isArray(G.dlv)?G.dlv:[];G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.catFeed=G.catFeed||{};G.catMet=G.catMet||{};G.mail=Array.isArray(G.mail)?G.mail:[];G.catNames=G.catNames||{};if(!G.visits){G.visits={};if(G.place)G.visits[G.place]=99;G.visits.home=99}G.catWhere=G.catWhere||{};G.catNamedDay=G.catNamedDay||{};catApplyNames();if(G.mailDay==null)G.mailDay=null;G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
 const lookPack=()=>({...(CL&&CL.try&&CL.snap?CL.snap:{sel,colors,iord}),ol:OUTL,hl:HLINK,rc:RECENT});   // 입어보는 동안에는 저장되지 않아요
 function lookSave(){if(LOOKP)return;clearTimeout(SAVE.lt);SAVE.lt=setTimeout(()=>{try{localStorage.setItem('fsfsLook',JSON.stringify(lookPack()));localStorage.setItem('fsfsLocalAt',Date.now());localStorage.setItem('fsfsDirty','1')}catch(e){}try{pushSoon()}catch(e){}},800)}
 function applyLook(l){const d=l||LOOKP;if(!d||!d.sel)return;if(!l&&!DB.items.length)return;sel={...sel,...d.sel};colors=d.colors||{};iord=Array.isArray(d.iord)?d.iord.slice():[];OUTL=d.ol||null;HLINK=!!d.hl;RECENT=Array.isArray(d.rc)?d.rc.slice(0,12):[];if(!l)LOOKP=null}
@@ -3504,7 +3542,7 @@ const gsig=()=>[G.day,G.min,G.money].join('|');   // 진행 정도(일·시각·
 function cloudMark(ts,at0,sg){try{localStorage.setItem('fsfsCloudAt',Date.parse(ts)||0);localStorage.setItem('fsfsSig',sg||gsig());if(at0==null||localStorage.getItem('fsfsLocalAt')==at0)localStorage.setItem('fsfsDirty','0')}catch(e){}}
 async function cloudPut(slot){if(!S||!SAVE.ok)return;slot=slot||SAVE.slot;let at0=null;const sg=gsig();try{at0=localStorage.getItem('fsfsLocalAt')}catch(e){}
   const r=await sb('/rest/v1/fsfs_save?on_conflict=user_id,slot&select=updated_at',{m:'POST',h:{Prefer:'resolution=merge-duplicates,return=representation'},b:{slot,name:'슬롯 '+slot,summary:saveSummary(),data:savePack(),updated_at:new Date().toISOString()}});
-  if(slot===SAVE.slot&&r&&r[0])cloudMark(r[0].updated_at,at0,sg)}
+  if(slot===SAVE.slot&&r&&r[0])cloudMark(r[0].updated_at,at0,sg);dyPush().catch(()=>{})}
 function pushSoon(){if(!S)return;clearTimeout(SAVE.pt);SAVE.pt=setTimeout(()=>cloudPut().catch(()=>{}),2500)}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&S){clearTimeout(SAVE.pt);cloudPut().catch(()=>{})}});
 async function syncSave(){
