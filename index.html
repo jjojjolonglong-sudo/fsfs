@@ -922,10 +922,13 @@ function pruneSel(){for(const p of PARTS){sel[p.code]=(sel[p.code]||[]).filter(i
 function initSel(){sel={};for(const [part,key] of Object.entries(START)){const it=ITEMS.find(i=>i.part===part&&i.key===key);if(it)sel[part]=[it.id]}colors={};pruneSel()}
 const uiParts=()=>{const all=[...TAB_ORDER,...PARTS.map(p=>p.code).filter(c=>!TAB_ORDER.includes(c))];return all.filter(c=>P(c))};
 const tabParts=()=>{const l=uiParts().filter(c=>!P(c).fixed||ITEMS.filter(i=>i.part===c).length>1);return CL&&CL.parts.length?l.filter(c=>CL.parts.includes(c)):l};
-const canWear=it=>owned(it)||!!(CL&&CL.try);   // 피팅룸(입어보기)에서는 아직 없는 옷도 입어 볼 수 있어요
+// 미용실처럼 돈을 내는 옷장 행동(모양 바꾸기 등)에서는, 이 가게의 상점 경로에 있는 옷(머리 모양)을 바로 골라 할 수 있고 값을 내면 내 것이 돼요
+const salonPick=it=>!!(it&&CL&&CL.fee&&CL.fee.money<0&&CL.mode!=='color'&&CL.parts.includes(it.part)&&WORLD.sources.some(s=>s.type==='shop'&&s.place===G.place&&rid(s.ref)===it.id));
+const canWear=it=>owned(it)||!!(CL&&CL.try)||salonPick(it);   // 피팅룸(입어보기)에서는 아직 없는 옷도 입어 볼 수 있어요
 const lockTile=(t,u)=>{if(!u)return;if(!(CL&&CL.try))t.classList.add('locked');t.append(' 🔒')};
 function closeCl(){const f=CL&&CL.fee;let paid=false;
   if(f&&CL.base&&JSON.stringify({sel,colors,iord})!==JSON.stringify(CL.base))paid=true;   // 아무것도 안 바꿨으면 값도 시간도 들지 않아요
+  if(paid)for(const c of CL.parts)for(const id of sel[c]||[]){const it=BY[id];if(it&&!owned(it)&&salonPick(it))G.owned[id]=1}   // 시술받은 머리 모양은 이제 내 것
   if(CL&&CL.snap){sel=CL.snap.sel;colors=CL.snap.colors;iord=CL.snap.iord}CL=null;G.closet=false;
   if(paid){earn(f.money,f.name);G.energy=clampE(G.energy+f.en);pass(f.dur);G.log=`${f.icon||''} ${f.name}`+(f.ch?` (${f.ch})`:'')}return paid}   // 입어보기를 마치면 원래 옷차림으로
 
@@ -996,7 +999,7 @@ function renderGrid(){
   const gd=$('#grid');gd.innerHTML='';
   if(tab==='세트'){SETS.forEach(s=>{const t=tile(s.name,s.items.every(it=>(sel[it.part]||[]).includes(it.id)),thumb(s.items),()=>applySet(s));lockTile(t,s.items.some(it=>!owned(it)));gd.append(t)});if(!SETS.length)gd.textContent='세트가 없어요';return}
   if(!P(tab).fixed){const n=document.createElement('div');n.className='none';n.textContent='✕';gd.append(tile('없음',!(sel[tab]||[]).length,n,()=>{sel[tab]=[];refresh()}))}
-  ITEMS.filter(i=>i.part===tab).forEach(it=>{const t=tile(it.name+(it.published===false?' (초안)':''),(sel[tab]||[]).includes(it.id),thumb([it]),()=>toggle(it));lockTile(t,!owned(it));gd.append(t)});
+  ITEMS.filter(i=>i.part===tab).forEach(it=>{const t=tile(it.name+(it.published===false?' (초안)':''),(sel[tab]||[]).includes(it.id),thumb([it]),()=>toggle(it));const sp=!owned(it)&&salonPick(it);lockTile(t,!owned(it)&&!sp);if(sp)t.append(' ✂️');gd.append(t)});
 }
 const CLOK=k=>'cl'+[...k].reduce((h,c)=>(h*31+c.charCodeAt(0))|0,0);
 function addRecent(c){if(!/^#[0-9a-f]{6}$/i.test(c||''))return;RECENT=[c.toLowerCase(),...RECENT.filter(x=>x!==c.toLowerCase())].slice(0,12);renderRecent();lookSave()}
