@@ -55,6 +55,13 @@ h2{font-size:13px;margin:0 0 8px;color:var(--mute);font-weight:600}
 .none{height:86px;display:flex;align-items:center;justify-content:center;color:var(--mute);font-size:20px}
 .ct{font-size:12px;margin:8px 0 4px}
 .cl{flex-direction:row;align-items:center;gap:6px;display:inline-flex;margin:0 10px 6px 0}
+.cl.act{outline:2px solid var(--acc);outline-offset:2px;border-radius:4px}
+.ct small{font-weight:400;opacity:.65;margin-left:4px}
+.crow{margin-bottom:6px}.chead{border-bottom:1px dashed var(--line);margin-bottom:8px;padding-bottom:4px}
+.crec{display:flex;flex-wrap:wrap;gap:6px;min-height:22px;align-items:center}
+.csw{width:22px;height:22px;min-width:0;padding:0;border:1px solid rgba(0,0,0,.35);border-radius:4px;box-shadow:none;cursor:pointer}
+.crx{font-size:11px;opacity:.6}
+.cl.cal input[type=range]{width:90px;accent-color:var(--acc)}.cl.chk input{accent-color:var(--acc)}.cl.cal b{font-weight:400;font-size:11px;min-width:32px}
 dialog{background:var(--p);color:var(--ink);border:1px solid var(--line);border-radius:14px;max-width:560px;width:92vw}
 dialog::backdrop{background:rgba(0,0,0,.45)}
 #dev{position:fixed;inset:0;background:var(--bg);overflow:auto;z-index:50}
@@ -770,7 +777,7 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
               <div id="closet" hidden>
     <div id="cbar" class="cbar" hidden><button id="rand">🎲 랜덤</button><button id="crand">🎨 색 랜덤</button><button id="reset">↺ 처음 옷차림</button><button id="strip">👕 전부 벗기</button></div>
     <div class="card" id="gridcard"><div class="tabs" id="tabs"></div><div class="grid" id="grid"></div></div>
-    <div class="card" id="colorcard" hidden><h2>색상 (외곽선은 고정이에요)</h2><div id="colors"></div></div>
+    <div class="card" id="colorcard" hidden><h2>색상</h2><div id="colors"></div></div>
     <div class="card" id="ordercard"><h2>순서</h2><div id="order"></div></div>
       <button id="endview2" class="pri" type="button">옷장 닫기</button></div>
 <div class="mapov"><div class="descbox" id="mapcurrent"></div>
@@ -822,7 +829,7 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
   <div class="row"><h2 style="flex:1;font-size:16px;color:var(--ink)">🛠 관리자 모드</h2><button id="devclose">게임으로 돌아가기</button></div>
   <div class="tabs" id="devtabs"><button data-t="items" class="on">👗 의상</button><button data-t="map">🗺 마을</button><button data-t="npc">🧑 인물</button><button data-t="event">📖 이벤트</button><button data-t="goods">🧺 아이템</button><button data-t="dlv">🛵 배달</button><button data-t="tbl">📊 표 입력</button></div>
   <div id="dv-items"><div class="card" style="margin-bottom:12px">
-    <div class="hd"><b>빠른 등록</b><i class="tip" tabindex="0" data-tip="전체 캔버스 크기 PNG를 레이어별로 한꺼번에 선택하세요. 파일명: 이름_outline.png, 이름_fill1.png, 이름_fill2.png, 이름_static.png (_ 하나나 __ 둘 다 돼요. 레이어 이름이 없으면 static 한 장짜리)">?</i></div>
+    <div class="hd"><b>빠른 등록</b><i class="tip" tabindex="0" data-tip="전체 캔버스 크기 PNG를 레이어별로 한꺼번에 선택하세요. 파일명: 이름_outline.png, 이름_fill1.png, 이름_fill2.png, 이름_static.png (_ 하나나 __ 둘 다 돼요. 레이어 이름이 없으면 static 한 장짜리). 겹치는 순서: outline이 맨 위, 그 바로 아래가 fill1, 숫자가 클수록 아래(가장 큰 숫자 = 바탕색)">?</i></div>
     <div class="row"><label>파츠<select id="np"></select></label><label>PNG 파일<input id="nf" type="file" accept="image/png" multiple></label>
       <button class="pri" id="bulk">등록</button><button id="exp">JSON 백업</button></div>
   </div>
@@ -888,16 +895,20 @@ let PARTS=PARTS0.slice(),DB={parts:[],types:[],sets:[],items:[],maps:[],places:[
 let order=[],iord=[],sel={},hidden=new Set(),colors={},tab='세트',CL=null,ACTGRP=null,S=null,isAdmin=false,inited=false;
 const P=c=>PARTS.find(p=>p.code===c),pz=c=>(P(c)||{z:0}).z;
 const roleOf=n=>n==='outline'?'outline':n==='static'?'static':'fill';
+const fillNo=n=>{const m=/^fill(\d*)$/.exec(n||'');return m?(+m[1]||0):0};
+// 그리는 순서(작을수록 아래): static → fill 숫자 큰 것(바탕색) … fill1(맨 위 장식) → outline(맨 위). 파일 이름이 fill1=외곽선 바로 아래라서 이렇게 정해요
+const layRank=n=>{const r=roleOf(n||'static');return r==='outline'?1e6:r==='static'?-1e6:1000-fillNo(n)};
+const baseFill=it=>{const f=it.layers.filter(l=>roleOf(l.layer)==='fill');return f.length?f.reduce((a,b)=>fillNo(b.layer)>fillNo(a.layer)?b:a):null};   // 바탕색 = 숫자가 가장 큰 fill
 const pubUrl=k=>cfg.pub?cfg.pub.replace(/\/$/,'')+'/'+k:'';
 
 function buildModel(){
   PARTS=(DB.parts.length?DB.parts.map(p=>({code:p.code,label:p.label,z:p.z_default,fixed:p.is_fixed,multi:p.multi})):PARTS0.map(p=>({...p}))).sort((a,b)=>a.z-b.z);
   PARTS.forEach(p=>{p.multi=!p.fixed&&!SINGLE.includes(p.code)});
   const its=[];
-  if(cfg.builtin)for(const [part,arr] of Object.entries(LEGACY))for(const o of arr)
+  if(cfg.builtin)for(const [part,arr] of Object.entries(LEGACY))if(!DB.items.some(i=>i.part===part))for(const o of arr)   // 올린 바디가 있으면 내장 바디는 안 써요
     its.push({id:'b:'+part+':'+o.n,key:o.n,part,name:o.n.replace(/^(앞머리|뒷머리|신발)-/,''),builtin:true,layers:[{layer:'static',src:o.s,x:o.x,y:o.y,w:o.w,h:o.h}]});
   for(const i of DB.items){
-    const ls=i.fsfs_asset.filter(a=>a.kind==='game').sort((a,b)=>(a.z||0)-(b.z||0)).map(a=>({id:a.id,layer:a.layer||'static',src:pubUrl(a.file_key),key:a.file_key,x:+a.x,y:+a.y,w:+a.w,h:+a.h,color:a.default_color}));
+    const ls=i.fsfs_asset.filter(a=>a.kind==='game').sort((a,b)=>layRank(a.layer)-layRank(b.layer)||(a.z||0)-(b.z||0)).map(a=>({id:a.id,layer:a.layer||'static',src:pubUrl(a.file_key),key:a.file_key,x:+a.x,y:+a.y,w:+a.w,h:+a.h,color:a.default_color}));
     its.push({id:i.id,part:i.part,name:i.name,setId:i.set_id,published:i.is_published,layers:ls,raw:i});
   }
   ITEMS=its;BY={};its.forEach(i=>BY[i.id]=i);
@@ -920,12 +931,18 @@ function closeCl(){const f=CL&&CL.fee;let paid=false;
 
 // ================= 그리기 =================
 const cv=$('#cv'),g=cv.getContext('2d');cv.width=Math.round(CROP.w*CVS);cv.height=Math.round(CROP.h*CVS);
-const colorOf=(it,l)=>colors[it.id+':'+l.layer]||l.color||'#cccccc';
+let OUTL=null,HLINK=false,RECENT=[],CACT=null;   // 외곽선 색(null=기본) · 앞뒤 머리 한 색 · 최근 색 · 최근 색을 칠할 곳
+const olCol=()=>OUTL||cfg.outline;
+const hairFront=()=>BY[(sel.hair_front||[])[0]];
+// 앞뒤 머리 한 색: 뒷머리의 바탕색은 앞머리의 바탕색을 따라가요
+const linkSrc=(it,l)=>{if(!HLINK||!it||it.part!=='hair_back'||baseFill(it)!==l)return null;const f=hairFront(),b=f&&baseFill(f);return b?[f,b]:null};
+const colorOf=(it,l)=>{const s=linkSrc(it,l);if(s)return colorOf(s[0],s[1]);return colors[it.id+':'+l.layer]||l.color||'#cccccc'};
+const alphaOf=it=>{const a=colors[it.id+':@a'];return a==null?100:Math.max(10,Math.min(100,+a))};   // 투명도 (외곽선은 그대로)
 function ensure(l){if(!l.img&&l.src){l.img=new Image();l.img.onload=()=>{l.ok=true;redraw()};l.img.src=l.src}}
 function layerCanvas(l,color){
   ensure(l);if(!l.ok)return null;
   const role=roleOf(l.layer);if(role==='static')return l.img;
-  const col=role==='outline'?cfg.outline:color;
+  const col=role==='outline'?olCol():color;
   if(l._t&&l._t.col===col)return l._t.c;
   const c=document.createElement('canvas');c.width=l.img.naturalWidth;c.height=l.img.naturalHeight;
   const x=c.getContext('2d');x.drawImage(l.img,0,0);x.globalCompositeOperation='source-in';x.fillStyle=col;x.fillRect(0,0,c.width,c.height);
@@ -938,19 +955,27 @@ function syncOrder(){
   const cur=[];for(const p of PARTS)for(const id of sel[p.code]||[])if(movable(id))cur.push(id);
   iord=iord.filter(id=>cur.includes(id));
   for(const id of cur){if(iord.includes(id))continue;const z=pz(BY[id].part);let k=iord.findIndex(o=>pz(BY[o].part)<=z);if(k<0)k=iord.length;iord.splice(k,0,id)}}
+// 옷 한 벌 그리기: 투명도가 있으면 칠한 레이어만 한 장에 모아 반투명으로 얹고, 외곽선은 그대로 진하게
+const TMP={};function tmpCv(w,h,n){const c=TMP[n]||(TMP[n]=document.createElement('canvas'));if(c.width!==w||c.height!==h){c.width=w;c.height=h}const x=c.getContext('2d');x.clearRect(0,0,w,h);return[c,x]}
+function drawItem(x,it,at,n){const a=alphaOf(it)/100;
+  if(a>=1){for(const l of it.layers){const c=layerCanvas(l,colorOf(it,l));if(c)x.drawImage(c,...at(l))}return}
+  const [t,tx]=tmpCv(x.canvas.width,x.canvas.height,n);
+  for(const l of it.layers)if(roleOf(l.layer)!=='outline'){const c=layerCanvas(l,colorOf(it,l));if(c)tx.drawImage(c,...at(l))}
+  x.globalAlpha=a;x.drawImage(t,0,0);x.globalAlpha=1;
+  for(const l of it.layers)if(roleOf(l.layer)==='outline'){const c=layerCanvas(l,colorOf(it,l));if(c)x.drawImage(c,...at(l))}}
 function drawStage(){
   g.clearRect(0,0,cv.width,cv.height);const k=cv.width/CROP.w;syncOrder();
   const base=[];for(const p of PARTS)for(const id of sel[p.code]||[])if(!movable(id))base.push(id);
-  for(const id of [...base,...[...iord].reverse()]){const it=BY[id];if(!it)continue;
-    for(const l of it.layers){const c=layerCanvas(l,colorOf(it,l));if(c)g.drawImage(c,(l.x*cfg.cw-CROP.x)*k,(l.y*cfg.ch-CROP.y)*k,l.w*cfg.cw*k,l.h*cfg.ch*k)}}
+  const at=l=>[(l.x*cfg.cw-CROP.x)*k,(l.y*cfg.ch-CROP.y)*k,l.w*cfg.cw*k,l.h*cfg.ch*k];
+  for(const id of [...base,...[...iord].reverse()]){const it=BY[id];if(it)drawItem(g,it,at,'st')}
 }
 function paintThumb(c){
   const its=c._its,x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);
   const Ls=its.flatMap(i=>i.layers);if(!Ls.length)return;
   const x0=Math.min(...Ls.map(l=>l.x)),y0=Math.min(...Ls.map(l=>l.y)),x1=Math.max(...Ls.map(l=>l.x+l.w)),y1=Math.max(...Ls.map(l=>l.y+l.h));
   const pw=(x1-x0)*cfg.cw,ph=(y1-y0)*cfg.ch,s=Math.min(c.width/pw,c.height/ph)*.94,ox=(c.width-pw*s)/2,oy=(c.height-ph*s)/2;
-  for(const it of [...its].sort((a,b)=>pz(a.part)-pz(b.part)))for(const l of it.layers){
-    const d=layerCanvas(l,colorOf(it,l));if(d)x.drawImage(d,ox+(l.x-x0)*cfg.cw*s,oy+(l.y-y0)*cfg.ch*s,l.w*cfg.cw*s,l.h*cfg.ch*s)}
+  const at=l=>[ox+(l.x-x0)*cfg.cw*s,oy+(l.y-y0)*cfg.ch*s,l.w*cfg.cw*s,l.h*cfg.ch*s];
+  for(const it of [...its].sort((a,b)=>pz(a.part)-pz(b.part)))drawItem(x,it,at,'th');
 }
 function thumb(its,w=76,h=92){const c=document.createElement('canvas');c.width=w*2;c.height=h*2;c.style.cssText=`width:${w}px;height:${h}px`;c.className='thc';c._its=its;return c}
 let rq=0;function redraw(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;drawStage();document.querySelectorAll('canvas.thc').forEach(paintThumb)})}
@@ -973,15 +998,40 @@ function renderGrid(){
   if(!P(tab).fixed){const n=document.createElement('div');n.className='none';n.textContent='✕';gd.append(tile('없음',!(sel[tab]||[]).length,n,()=>{sel[tab]=[];refresh()}))}
   ITEMS.filter(i=>i.part===tab).forEach(it=>{const t=tile(it.name+(it.published===false?' (초안)':''),(sel[tab]||[]).includes(it.id),thumb([it]),()=>toggle(it));lockTile(t,!owned(it));gd.append(t)});
 }
+const CLOK=k=>'cl'+[...k].reduce((h,c)=>(h*31+c.charCodeAt(0))|0,0);
+function addRecent(c){if(!/^#[0-9a-f]{6}$/i.test(c||''))return;RECENT=[c.toLowerCase(),...RECENT.filter(x=>x!==c.toLowerCase())].slice(0,12);renderRecent();lookSave()}
+function setLayerCol(it,l,v){const s=linkSrc(it,l);if(s){it=s[0];l=s[1]}colors[it.id+':'+l.layer]=v}   // 연결된 뒷머리 바탕색을 고치면 앞머리 색이 바뀌어요(뒤는 따라감)
+function syncColInputs(){document.querySelectorAll('#colors input[type=color][data-k]').forEach(i=>{const k=i.dataset.k;if(k==='@ol'){i.value=olCol();return}const [id,ly]=k.split('\u0001'),it=BY[id],l=it&&it.layers.find(x=>x.layer===ly);if(l)i.value=colorOf(it,l)})}
+function pickAct(k){CACT=k;document.querySelectorAll('#colors .cl').forEach(e=>e.classList.toggle('act',e.dataset.k===k))}
+function renderRecent(){const r=$('#crec');if(!r)return;r.innerHTML='';
+  if(!RECENT.length){r.innerHTML='<span class="crx">색을 고르면 여기에 모여요</span>';return}
+  RECENT.forEach(c=>{const b=document.createElement('button');b.type='button';b.className='csw';b.style.background=c;b.title=c;
+    b.onclick=()=>{const k=CACT;if(!k)return msg('칠할 곳(색 칸)을 먼저 눌러 골라 주세요');
+      if(k==='@ol')OUTL=c;else{const [id,ly]=k.split('\u0001'),it=BY[id],l=it&&it.layers.find(x=>x.layer===ly);if(!l)return;setLayerCol(it,l,c)}
+      addRecent(c);syncColInputs();redraw();lookSave()};r.append(b)})}
+function colLabel(key,txt,val,onIn){const lb=document.createElement('label');lb.className='cl';lb.dataset.k=key;if(CACT===key)lb.classList.add('act');lb.append(txt);
+  const inp=document.createElement('input');inp.type='color';inp.value=val;inp.dataset.k=key;
+  inp.oninput=()=>{onIn(inp.value);syncColInputs();redraw()};inp.onchange=()=>{addRecent(inp.value);lookSave()};
+  lb.addEventListener('pointerdown',()=>pickAct(key));inp.addEventListener('focus',()=>pickAct(key));lb.append(inp);return lb}
 function renderColors(){
   const box=$('#colors');box.innerHTML='';let any=false;
+  const head=document.createElement('div');head.className='chead';
+  if(!CL){const ol=document.createElement('div');ol.className='crow';ol.innerHTML='<div class="ct">외곽선 <small>모든 옷·바디</small></div>';
+    ol.append(colLabel('@ol','',olCol(),v=>{OUTL=v}));
+    const b=document.createElement('button');b.textContent='기본색';b.onclick=()=>{OUTL=null;lookSave();refresh()};ol.append(b);head.append(ol)}
+  const rc=document.createElement('div');rc.className='crow';rc.innerHTML='<div class="ct">최근 색 <small>색 칸을 누른 뒤 고르면 칠해져요</small></div><div id="crec" class="crec"></div>';head.append(rc);box.append(head);
   for(const code of (CL&&CL.parts.length?uiParts().filter(c=>CL.parts.includes(c)):uiParts()))for(const id of sel[code]||[]){
-    const it=BY[id],fl=it?it.layers.filter(l=>roleOf(l.layer)==='fill'):[];if(!fl.length)continue;any=true;
-    const row=document.createElement('div');row.innerHTML=`<div class="ct">${esc(P(code).label)} · ${esc(it.name)}</div>`;
-    fl.forEach(l=>{const lb=document.createElement('label');lb.className='cl';lb.append(l.layer);const inp=document.createElement('input');inp.type='color';inp.value=colorOf(it,l);
-      inp.oninput=()=>{colors[it.id+':'+l.layer]=inp.value;redraw()};lb.append(inp);row.append(lb)});
-    const b=document.createElement('button');b.textContent='기본색';b.onclick=()=>{fl.forEach(l=>delete colors[it.id+':'+l.layer]);refresh()};row.append(b);box.append(row)}
-  if(!any&&CL&&CL.mode==='color'){box.innerHTML='<div class="tag">염색할 수 있는 옷이 없어요</div>';$('#colorcard').hidden=false;return}
+    const it=BY[id],fl=it?it.layers.filter(l=>roleOf(l.layer)==='fill').sort((a,b)=>fillNo(a.layer)-fillNo(b.layer)):[];if(!fl.length)continue;any=true;
+    const row=document.createElement('div');row.className='crow';row.innerHTML=`<div class="ct">${esc(P(code).label)} · ${esc(it.name)}</div>`;
+    fl.forEach(l=>{const lk=linkSrc(it,l);row.append(colLabel(it.id+'\u0001'+l.layer,l.layer+(lk?' (앞머리 색)':''),colorOf(it,l),v=>setLayerCol(it,l,v)))});
+    if(code==='hair_back'&&hairFront()){const lb=document.createElement('label');lb.className='cl chk';const c=document.createElement('input');c.type='checkbox';c.checked=HLINK;
+      c.onchange=()=>{HLINK=c.checked;lookSave();refresh()};lb.append(c,'앞머리와 같은 색');row.append(lb)}
+    if(!P(code).fixed){const lb=document.createElement('label');lb.className='cl cal';const r=document.createElement('input');r.type='range';r.min=10;r.max=100;r.step=5;r.value=alphaOf(it);
+      const o=document.createElement('b');o.textContent=alphaOf(it)+'%';
+      r.oninput=()=>{const v=+r.value;if(v>=100)delete colors[it.id+':@a'];else colors[it.id+':@a']=v;o.textContent=v+'%';redraw()};r.onchange=()=>lookSave();lb.append('불투명도',r,o);row.append(lb)}
+    const b=document.createElement('button');b.textContent='기본색';b.onclick=()=>{fl.forEach(l=>delete colors[it.id+':'+l.layer]);delete colors[it.id+':@a'];refresh()};row.append(b);box.append(row)}
+  renderRecent();
+  if(!any&&CL&&CL.mode==='color'){box.insertAdjacentHTML('beforeend','<div class="tag">염색할 수 있는 옷이 없어요</div>');$('#colorcard').hidden=false;return}
   $('#colorcard').hidden=!any||!!(CL&&CL.mode==='shape');
 }
 function renderOrder(){
@@ -1127,7 +1177,6 @@ function lysHtml(){
   for(let i=cur.L.length-1;i>=0;i--){const l=cur.L[i],fill=roleOf(l.layer)==='fill';
     h+=`<div class="lyr" data-i="${i}"><div class="th" style="width:44px;height:54px">${l.url?`<img src="${esc(l.url)}">`:'🖼'}</div>
     <input class="ln" list="lnames" value="${esc(l.layer)}" size="8"><input class="lc" type="color" value="${esc(l.color||'#cccccc')}" ${fill?'':'disabled style="opacity:.3"'}>
-    <button class="up"${i===cur.L.length-1?' disabled':''}>▲</button><button class="dn"${i===0?' disabled':''}>▼</button>
     <label style="flex-direction:row;align-items:center;gap:4px">${l._file?'<b>교체 예정</b>':'파일 교체'}<input class="lf" type="file" accept="image/png" style="max-width:120px"></label><button class="lx">✕</button></div>`}
   return h||'<div class="tag">레이어가 없어요</div>';
 }
@@ -1469,10 +1518,10 @@ const onShift=n=>!!n&&!!n.work&&!!WORLD.places[n.work]&&openNow(n.work)&&inR(shi
 const npcRnd=(id,h)=>{let x=7;for(const c of id+':'+G.day+':'+h)x=(x*31+c.charCodeAt(0))>>>0;return(x%1000)/1000};
 /* ===== 고양이(역할 cat) 출몰: 인물의 「출몰 일정」이 고양이에게는 '이 시간대에 갈 수 있는 후보 장소'예요.
    1시간마다 확률(appear)을 굴려 나올지 정하고, 나오면 후보 중 한 곳으로 가요(장소의 「고양이 출몰 가능」이 켜진 곳만). 한 장소에는 최대 CAT_MAX마리 ===== */
-const CAT_MAX=3,CAT_FEED_DAY=2,CAT_PET_MIN=10,CAT_GIFT_P=.5,CAT_CAP=100,CATM={k:'',m:{}};
+const CAT_RATE=.75,CAT_MAX=3,CAT_FEED_DAY=2,CAT_PET_MIN=10,CAT_GIFT_P=.5,CAT_CAP=100,CATM={k:'',m:{}};
 const isCat=id=>{const n=WORLD.npcs[id];return !!n&&n.role==='cat'};
 function catSpot(id,h){
-  const n=WORLD.npcs[id];if(npcRnd(id,h)>=(n.appear==null?75:n.appear)/100)return'';
+  const n=WORLD.npcs[id];if(npcRnd(id,h)>=(n.appear==null?75:n.appear)/100*CAT_RATE)return'';   // CAT_RATE: 전체 출몰 빈도 배율
   const cs=[];(n.sch||[]).forEach(x=>{if(!inR([[x.a,x.b]],h*60))return;
     (String(x.p||'').startsWith('@type:')?Object.keys(WORLD.places).filter(k=>plMatch(x.p,k)):[x.p]).forEach(k=>{if(WORLD.places[k]&&WORLD.places[k].cat&&!cs.includes(k))cs.push(k)})});
   return cs.length?cs[hsh(id+'|'+G.day+'|'+h+'|p')%cs.length]:''}
@@ -2058,7 +2107,7 @@ const ledSvg=w=>{const W=35,P=4,n=w.length,x0=Math.floor((W-(n*6-1))/2),pts=[]; 
   [...w].forEach((ch,k)=>LEDF[ch].split(',').forEach((row,r)=>[...row].forEach((v,c)=>{if(v==='1')pts.push([(x0+k*6+c)*P+P/2,r*P+P/2])})));
   const L=(cls,r)=>`<g class="${cls}">${pts.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g>`;
   return `<svg class="led" viewBox="0 0 ${W*P} ${7*P}" role="img" aria-label="${w}"><defs><pattern id="ledp" width="${P}" height="${P}" patternUnits="userSpaceOnUse"><circle cx="${P/2}" cy="${P/2}" r="1.3" fill="rgba(255,255,255,.1)"/></pattern></defs><rect width="${W*P}" height="${7*P}" fill="url(#ledp)"/>${L('h1',3.1)}${L('h2',2.3)}${L('d0',1.55)}</svg>`};
-const signHtml=pid=>{const q=WORLD.places[pid];if(!q||q.type==='home'||q.type===ROAD)return '';const o=openNow(pid),h=q.open&&q.open.length?q.open.map(([a,b])=>fmtT(a)+' ~ '+fmtB(b)).join(', '):'24H';return `<div class="sign ${o?'o':'c'}">${ledSvg(o?'OPEN':'CLOSED')}<span>${h}</span></div>`};
+const signHtml=pid=>{const q=WORLD.places[pid];if(!q||q.type==='home'||q.type==='npchome'||q.type==='npcroom'||q.type===ROAD)return '';const o=openNow(pid),h=q.open&&q.open.length?q.open.map(([a,b])=>fmtT(a)+' ~ '+fmtB(b)).join(', '):'24H';return `<div class="sign ${o?'o':'c'}">${ledSvg(o?'OPEN':'CLOSED')}<span>${h}</span></div>`};
 function renderWorld(){if(!WORLD.places[G.place])G.place=startPlace();
   const d=dateOf();const bn=bandOf(G.min),BR=[['아침','🌅',300,420],['오전','🌤',420,780],['오후','☀️',780,1020],['저녁','🌇',1020,1140],['밤','🌙',1140,1740]],wd=d.getDay(),np=((G.min-300+1440)%1440)/1440*100; 
   $('#wt').innerHTML=`<div class="cal${wd===0?' sun':wd===6?' sat':''}"><span class="mo"><span class="hx">${d.getMonth()+1}월</span></span><b class="dy"><span class="hx">${d.getDate()}</span></b><span class="wk"><span class="hx">${DOW[wd]}요일</span></span></div>
@@ -3149,8 +3198,7 @@ function runExcerpt(b,text,pos,done){
   dlg.innerHTML=`<div class="fhd"><b>📖 ${esc(b.name)}</b><span class="fck">${esc(pos)}</span></div><div class="xq"><div class="xqb">${bkSw(b)}</div><div class="xqt">${esc(text)}</div></div>`;
   dlg.oncancel=e=>{e.preventDefault();dlg.close()};
   dlg.onclick=()=>{if(Date.now()-stamp<250)return;dlg.close();done&&done()};
-  if(viewSt||viewBk||viewMv||viewSh){viewSt=viewBk=viewMv=viewSh=false;mvPlace=null;renderWorld()}
-  dlg.showModal()}
+  dlg.showModal()}   // 책장·선반 화면은 그대로 두고 그 위에 띄워요 (닫으면 보던 책장 페이지로)
 async function showExcerpt(b){
   if(String(b.id).startsWith('wk:'))return readWk(b);
   try{const t=await sb('/rest/v1/bkbk_texts?book=eq.'+b.id+'&select=text,page,pct&limit=1000'),L=(t||[]).filter(x=>x.text&&x.text.trim());
@@ -3443,9 +3491,9 @@ function normG(){applyMe();
   if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}
   if(typeof G.min!=='number')G.min=WORLD.wakeMin;if(!Array.isArray(G.ledger))G.ledger=[];
   if(!G.dy||typeof G.dy!=='object')G.dy={};if(!G.road||typeof G.road!=='object')G.road={d:-1,n:0};if(!G.evCool||typeof G.evCool!=='object')G.evCool={};if(G.place===ROAD)G.place=(G.roadFrom&&WORLD.places[G.roadFrom])?G.roadFrom:startPlace();if(G.energy==null)G.energy=100;G.owned=G.owned||{};G.wait=Array.isArray(G.wait)?G.wait:[];G.vgoods=G.vgoods||{};G.dlv=Array.isArray(G.dlv)?G.dlv:[];G.aff=G.aff||{};G.done=G.done||{};G.bag=G.bag||{};G.videos=G.videos||{};G.talked=G.talked||{};G.notes=Array.isArray(G.notes)?G.notes:[];G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.cnt=G.cnt||{};G.catFeed=G.catFeed||{};G.catMet=G.catMet||{};G.mail=Array.isArray(G.mail)?G.mail:[];G.catNames=G.catNames||{};if(!G.visits){G.visits={};if(G.place)G.visits[G.place]=99;G.visits.home=99}G.catWhere=G.catWhere||{};G.catNamedDay=G.catNamedDay||{};catApplyNames();if(G.mailDay==null)G.mailDay=null;G.orders=G.orders||{};G.gdone=G.gdone||{};G.closet=false;G.log=G.log||''}
-const lookPack=()=>(CL&&CL.try&&CL.snap?CL.snap:{sel,colors,iord});   // 입어보는 동안에는 저장되지 않아요
+const lookPack=()=>({...(CL&&CL.try&&CL.snap?CL.snap:{sel,colors,iord}),ol:OUTL,hl:HLINK,rc:RECENT});   // 입어보는 동안에는 저장되지 않아요
 function lookSave(){if(LOOKP)return;clearTimeout(SAVE.lt);SAVE.lt=setTimeout(()=>{try{localStorage.setItem('fsfsLook',JSON.stringify(lookPack()));localStorage.setItem('fsfsLocalAt',Date.now());localStorage.setItem('fsfsDirty','1')}catch(e){}try{pushSoon()}catch(e){}},800)}
-function applyLook(l){const d=l||LOOKP;if(!d||!d.sel)return;if(!l&&!DB.items.length)return;sel={...sel,...d.sel};colors=d.colors||{};iord=Array.isArray(d.iord)?d.iord.slice():[];if(!l)LOOKP=null}
+function applyLook(l){const d=l||LOOKP;if(!d||!d.sel)return;if(!l&&!DB.items.length)return;sel={...sel,...d.sel};colors=d.colors||{};iord=Array.isArray(d.iord)?d.iord.slice():[];OUTL=d.ol||null;HLINK=!!d.hl;RECENT=Array.isArray(d.rc)?d.rc.slice(0,12):[];if(!l)LOOKP=null}
 const savePack=()=>({G,look:lookPack()});
 function saveSummary(){const d=dateOf();return{date:`${d.getMonth()+1}월 ${d.getDate()}일`,money:G.money,place:(WORLD.places[G.place]||{}).n||'',day:G.day}}
 // 저장은 클라우드가 기준이에요: 이 기기의 localStorage는 임시 사본이고, 마지막으로 맞춘 클라우드 버전(fsfsCloudAt)과 아직 안 올린 변경(fsfsDirty)을 기억해요
