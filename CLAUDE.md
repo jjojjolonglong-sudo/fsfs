@@ -10,7 +10,7 @@ fsfs 저장소에서 일할 때 읽는 안내서예요. 사용자와 일하는 �
 
 ## 저장소
 - `index.html` 한 파일이 게임 전체예요. GitHub Pages로 서비스해요. 설치형(PWA) 파일은 `manifest.webmanifest`, `sw.js`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon.png` (다른 앱과 같은 구성).
-- 공용 스크립트와 소리는 mnmn 저장소(`config.js`, `fonts.v1.js`, `media.v1/v2.js`, `mvtape.v1.js`, `click.wav`, `get.wav`)에서 불러와요.
+- 공용 스크립트와 소리는 mnmn 저장소(`config.js`, `fonts.v1.js`, `media.js`, `mvtape.v1.js`, `click.wav`, `get.wav`)에서 불러와요.
 
 ## 값이 어디에 있나 (가장 중요)
 1. **앱 코드(`index.html`)** — 규칙·공식·고정 기능. 고치려면 파일을 고쳐요.

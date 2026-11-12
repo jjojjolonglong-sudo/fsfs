@@ -1063,11 +1063,15 @@ function fillCfg(){CF.forEach(k=>$('#c_'+k).value=cfg[k]);$('#c_builtin').checke
 $('#authbtn').onclick=()=>{fillCfg();$('#dlg').showModal()};$('#dclose').onclick=()=>$('#dlg').close();
 $('#cfgsave').onclick=()=>{CF.forEach(k=>cfg[k]=['cw','ch','scale'].includes(k)?+$('#c_'+k).value:$('#c_'+k).value.trim());cfg.builtin=$('#c_builtin').checked;
   try{localStorage.setItem('fsfsCfg',JSON.stringify(cfg))}catch(e){}buildModel();pruneSel();refresh();msg('설정을 저장했어요')};
-function saveSess(){try{S?localStorage.setItem('fsfsSess',JSON.stringify({rt:S.rt})):localStorage.removeItem('fsfsSess')}catch(e){}}
+/* 로그인은 모든 앱이 함께 쓰는 'jjojjo_ses'에 저장해요 (예전 fsfsSess는 한 번 읽고 지움) */
+function saveSess(){try{localStorage.removeItem('fsfsSess');S?localStorage.setItem('jjojjo_ses',JSON.stringify({access_token:S.at,refresh_token:S.rt,expires_at:S.exp,user:S.user||null})):localStorage.removeItem('jjojjo_ses')}catch(e){}}
+function readSess(){try{const x=JSON.parse(localStorage.getItem('jjojjo_ses')||'null');return x&&x.refresh_token?{at:x.access_token||'',rt:x.refresh_token,exp:x.expires_at||0,user:x.user||null}:null}catch(e){return null}}
+const sessUser=(j,old)=>j&&j.user?{id:j.user.id,email:j.user.email}:(old&&old.user)||null;
 async function tok(){
+  if(S){const x=readSess();if(x&&x.rt!==S.rt)S=x}   // 다른 앱이 로그인 정보를 새로 받았으면 그걸 써요
   if(S&&S.exp-Date.now()<60000){
     const r=await fetch(cfg.sb+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:cfg.anon,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:S.rt})});
-    const j=await r.json();if(r.ok){S={at:j.access_token,rt:j.refresh_token,exp:Date.now()+j.expires_in*1000};saveSess()}else{S=null;saveSess()}
+    const j=await r.json();if(r.ok){S={at:j.access_token,rt:j.refresh_token,exp:Date.now()+j.expires_in*1000,user:sessUser(j,S)};saveSess()}else{S=null;saveSess()}
   }
   return S?S.at:cfg.anon;
 }
@@ -1084,7 +1088,7 @@ async function loadCatalog(){
   [DB.parts,DB.types,DB.sets,DB.items,DB.maps,DB.places,DB.npcs,DB.events,DB.keymap,DB.actions,DB.ptypes,DB.ptacts,DB.pacts]=await Promise.all([
     sb('/rest/v1/fsfs_part?select=*&order=sort'),sb('/rest/v1/fsfs_source_type?select=*'),
     sb('/rest/v1/fsfs_set?select=*&order=name'),sb('/rest/v1/fsfs_item?select=*,fsfs_asset(*),fsfs_source(*)&order=created_at.desc'),
-    sb('/rest/v1/fsfs_map?select=*&order=created_at').catch(()=>[]),sb('/rest/v1/fsfs_place?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_npc?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_event?select=*&order=created_at').catch(()=>[]),sb('/rest/v1/fsfs_keymap?select=*&order=keyword').catch(()=>[]),
+    sb('/rest/v1/fsfs_map?select=*&order=created_at').catch(()=>[]),sb('/rest/v1/fsfs_place?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_npc?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_event?select=*&order=created_at').catch(()=>[]),Promise.resolve([]),
     sb('/rest/v1/fsfs_action?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_place_type?select=*&order=sort').catch(()=>[]),sb('/rest/v1/fsfs_place_type_action?select=*').catch(()=>[]),sb('/rest/v1/fsfs_place_action?select=*').catch(()=>[])]);
   DB.ptypes.forEach(t=>{if(t.code==='home'&&t.name==='집'){t.name='주거';if(typeof S!=='undefined'&&S)try{post('/rest/v1/fsfs_place_type?id=eq.'+t.id,{name:'주거'},'PATCH').catch(()=>{})}catch(e){}}});
   DB.goods=await sb('/rest/v1/fsfs_goods?select=*,fsfs_source(*)&order=sort').catch(()=>[]);
@@ -1098,7 +1102,7 @@ $('#go').onclick=async()=>{
     msg('로그인 중…');
     const r=await fetch(cfg.sb+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:cfg.anon,'Content-Type':'application/json'},body:JSON.stringify({email:$('#em').value,password:$('#pw').value})});
     const j=await r.json();if(!r.ok)throw new Error(j.error_description||j.msg||'로그인 실패');
-    S={at:j.access_token,rt:j.refresh_token,exp:Date.now()+j.expires_in*1000};saveSess();
+    S={at:j.access_token,rt:j.refresh_token,exp:Date.now()+j.expires_in*1000,user:sessUser(j)};saveSess();
     await afterLogin();$('#dlg').close();msg(isAdmin?'관리자로 로그인했어요':'로그인했어요');
   }catch(e){msg(e.message,1)}
 };
@@ -3136,7 +3140,7 @@ lockLand();document.addEventListener('click',lockLand,{once:true});
 
 // ================= 시작 =================
 loadGame();applyMe();buildModel();rebuildAcq();initSel();inited=true;refresh();renderWorld();checkEvents();
-(async()=>{try{const t=JSON.parse(localStorage.getItem('fsfsSess')||'null');if(t&&t.rt){S={rt:t.rt,exp:0};await tok();if(S)await afterLogin()}if(!S)await loadCatalog()}catch(e){if(!S)try{await loadCatalog()}catch(x){}else msg('자동 로그인 실패: '+e.message,1)}})();
+(async()=>{try{let t=readSess();if(!t){const o=JSON.parse(localStorage.getItem('fsfsSess')||'null');if(o&&o.rt)t={rt:o.rt,exp:0}}if(t&&t.rt){S=t;await tok();if(S)await afterLogin()}if(!S)await loadCatalog()}catch(e){if(!S)try{await loadCatalog()}catch(x){}else msg('자동 로그인 실패: '+e.message,1)}})();
 
 /* ===== 효과음 (mnmn 저장소의 click.wav / get.wav) ===== */
 const SFX_BASE='https://jjojjolonglong-sudo.github.io/mnmn/';
