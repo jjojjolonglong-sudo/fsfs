@@ -82,6 +82,22 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .shi{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
 .cws{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}.shi .nm2 .cws small{display:inline;margin-left:2px}
 .cws .csw{width:18px;height:18px;border-radius:50%}.cws .csw.on{outline:2px solid var(--ink);outline-offset:2px}
+#mini{padding:0;border:0;outline:none;border-radius:8px;background:#151228;color:#fff;width:min(94vw,580px);max-width:none;box-shadow:0 0 0 1px #2a2540,0 20px 70px #000;overflow:hidden;font-family:'Gowun Dodum',inherit}
+#mini .mh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 14px;background:#050408;font-size:13px;color:#25e8ff}
+#mini .mh b{font-family:'Do Hyeon','Gowun Dodum',inherit;font-weight:400;font-size:16px;color:#fff}
+#mini canvas{display:block;width:100%;height:auto;touch-action:none;cursor:pointer;user-select:none;-webkit-user-select:none}
+#mini .mf{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#0c0a18;min-height:38px}#mini .sp,#pzd .sp{flex:1}
+#mini .mt{color:#ffe14a;font-size:14px;line-height:1.5;min-width:0}#mini .mf button,#pzd .pzbar button{flex:none;white-space:nowrap}
+#mini .dcase{padding:14px 18px 4px;background:#3a2c22}#mini .dshelf{display:flex;justify-content:center;gap:8px;padding:6px 0 10px;border-bottom:8px solid #6b4a34;margin-bottom:10px}
+#mini .dslot{width:72px;height:72px;min-width:0;padding:0;font-size:44px;line-height:1;background:rgba(255,255,255,.06);border:1px dashed rgba(255,255,255,.28);border-radius:6px;box-shadow:none;color:#fff}#mini .dslot.on{border-style:solid;background:rgba(255,255,255,.13)}
+#mini .dpick{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 14px;background:#1d1a30;min-height:50px}
+#mini .dopt{position:relative;width:50px;height:50px;min-width:0;padding:0;font-size:28px;line-height:1}#mini .dopt small{position:absolute;right:3px;bottom:1px;font-size:10px}#mini .dopt.on{outline:3px solid #ff2e97;outline-offset:1px}
+#mini .pzgal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px;max-height:62vh;overflow:auto}#mini .pzth{padding:0;min-width:0;border:2px solid #000;border-radius:0;line-height:0;box-shadow:none;background:#000}
+#mini .pzth img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}#mini .pzbig{padding:14px;text-align:center}#mini .pzbig img{max-width:100%;max-height:60vh;display:block;margin:0 auto 8px}
+#pzd{padding:0;border:0;outline:none;border-radius:8px;width:96vw;height:94vh;max-width:none;max-height:none;background:#2f4a3c;overflow:hidden;box-shadow:0 0 0 1px #2a2540,0 20px 70px #000;font-family:'Gowun Dodum',inherit}
+#pzd canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+#pzd .pzbar{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(5,4,8,.84);color:#ffe14a;font-size:14px}
+#pzd .pzbar b{font-family:'Do Hyeon','Gowun Dodum',inherit;font-weight:400;font-size:16px;color:#fff;margin-right:6px}
 .tansw{width:44px;height:44px;border-radius:50%;border:2px solid var(--ink);flex:none;box-sizing:border-box}
 .swd{display:inline-block;width:11px;height:11px;border-radius:2px;border:1px solid rgba(0,0,0,.35);margin:0 3px;vertical-align:-1px}
 .tgs{display:grid;gap:6px}.tgrow{display:flex;gap:8px;align-items:flex-start}.tgc{flex:none;width:52px;font-size:12px;font-weight:700;padding-top:5px}
@@ -809,6 +825,8 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
 <dialog id="savedlg"><h2>💾 세이브</h2><div class="tag" id="sv_i" style="margin:6px 0 10px"></div><div id="sv_l"></div><div class="bar" style="margin-top:12px;justify-content:flex-end"><button id="sv_x">닫기</button></div></dialog>
 <dialog id="welcome"><div class="wl1">play the retro music</div></dialog>
 <dialog id="film"></dialog>
+<dialog id="mini"></dialog>
+<dialog id="pzd"></dialog>
 <dialog id="catname" style="text-align:center;min-width:320px"><h2 id="cn_h" style="margin:4px 0 8px;font-size:16px;color:var(--ink)"></h2><div id="cn_d" class="tag" style="margin:0 0 12px;line-height:1.5"></div>
   <div class="row" style="justify-content:center"><label>이름<input id="cn_n" maxlength="8" placeholder="최대 8글자" style="width:170px;text-align:center"></label></div>
   <div class="bar" style="justify-content:center;gap:8px;margin-top:12px"><button id="cn_ok" type="button" class="pri">정했어요</button><button id="cn_rs" type="button">이름 지우기</button><button id="cn_x" type="button">취소</button></div></dialog>
@@ -1152,6 +1170,214 @@ const pieceSig=(cs,id)=>Object.keys(cs).filter(k=>k.startsWith(id+':')).sort().m
 // 염색을 맡긴 옷이 몇 벌인지 (한 벌마다 값을 내는 염색)
 const dyedN=()=>{if(!CL||!CL.base)return 0;let n=0;for(const c of (CL.parts.length?CL.parts:Object.keys(sel)))for(const id of sel[c]||[])if(pieceSig(colors,id)!==pieceSig(CL.base.colors,id))n++;return n};
 function dyeFeeText(){const el=$('#dyefee');if(!el||!CL||!CL.fee)return;const n=dyedN(),u=-CL.fee.money;el.textContent=`한 벌에 ₩${u.toLocaleString()} · 지금 색을 바꾼 옷 ${n}벌`+(n?` = ₩${(u*n).toLocaleString()}`:'')+(n&&G.money<u*n?' (돈이 부족해요)':'')}
+
+// ================= 오락실(인형 뽑기 · 두더지 잡기 · 룰렛 가차) · 장식장 · 퍼즐 =================
+// 아이템(fsfs_goods)의 effects로 구분해요: doll(인형, 숫자가 클수록 드물어요) · catgift(잡동사니) · pz(퍼즐 조각 봉지, 숫자 = 봉지 수)
+const goodsOf=f=>(DB.goods||[]).filter(g=>g.effects&&f(g.effects));
+const DOLLS=()=>goodsOf(e=>e.doll),JUNK=()=>goodsOf(e=>e.catgift);
+const bagAdd=(g,n=1)=>{G.bag=G.bag||{};G.bag[g.id]=(G.bag[g.id]||0)+n};
+function pickDoll(){const L=DOLLS();if(!L.length)return null;const w=L.map(g=>1/Math.max(1,+g.effects.doll||1)),t=w.reduce((a,b)=>a+b,0);let r=Math.random()*t;for(let i=0;i<L.length;i++){r-=w[i];if(r<=0)return L[i]}return L[0]}
+
+/* ----- 퍼즐 조각: 봉지 하나에 5~10조각. 지금 퍼즐의 조각이 다 모일 때까지는 그 퍼즐 조각만 나와요 ----- */
+const PZ_C=30,PZ_R=17,PZ_N=PZ_C*PZ_R,PZ_S=56,PZ_M=24,PZ_BAG=[5,10],PZ_SNAP=11,PZ_MIN=30;   // 가로·세로 조각 수(510조각) · 조각 크기 · 요철 여백 · 봉지당 조각 수 · 붙는 거리 · 한 번 맞출 때 지나는 시간(분)
+function pzState(){const p=G.pz=G.pz||{};p.have=p.have||[];p.pos=p.pos||{};p.done=p.done||[];p.extra=+p.extra||0;if(!p.seed)p.seed=1+Math.floor(Math.random()*1e9);return p}
+function pzOpenBags(k){const p=pzState();let got=0;
+  for(let b=0;b<k;b++){const own=new Set(p.have),rest=[];for(let i=0;i<PZ_N;i++)if(!own.has(i))rest.push(i);
+    if(!rest.length){p.extra+=k-b;break}   // 다 모였으면 남은 봉지는 다음 퍼즐로 넘겨요
+    const n=Math.min(rest.length,PZ_BAG[0]+Math.floor(Math.random()*(PZ_BAG[1]-PZ_BAG[0]+1)));
+    for(let j=0;j<n;j++){p.have.push(rest.splice(Math.floor(Math.random()*rest.length),1)[0]);got++}}
+  return got}
+const pzBagText=n=>{const p=pzState();return n?`🧩 봉지 안에 퍼즐 조각이 ${n}개 들어 있어요. (${p.have.length}/${PZ_N})`:'🧩 지금 퍼즐은 조각이 다 모였어요. 이 봉지는 다음 퍼즐을 위해 아껴 둘게요.'};
+// 가방에 들어온 「퍼즐 조각 봉지」 아이템은 바로 뜯어요 (상점·이벤트·선물 어느 경로로 받아도 같아요)
+function pzSweep(){const B=G.bag||{};let k=0;for(const g of goodsOf(e=>e.pz))if(B[g.id]){k+=B[g.id]*Math.max(1,+g.effects.pz||1);delete B[g.id]}
+  if(!k)return;const n=pzOpenBags(k);setTimeout(()=>msg(pzBagText(n)),700)}
+/* ----- 고양이가 물어다 주는 것: 쪽지 · 잡동사니 · 퍼즐 조각 봉지 ----- */
+const CAT_BRING_P=.3,CAT_BRING_W={mail:25,junk:40,pz:35};   // 뭔가 물어다 줄 확률(고양이 한 마리·하루 한 번) · 무엇을 가져올지 비율
+function catBringTry(id){
+  if(catAff(id)<MAIL_MIN||G.actDay['catmail:'+id]===G.day)return null;G.actDay['catmail:'+id]=G.day;
+  if(Math.random()>=CAT_BRING_P)return null;
+  const nm=catName(id),W={...CAT_BRING_W};if(G.mailDay!=null&&G.day-G.mailDay<MAIL_CD)W.mail=0;if(!JUNK().length)W.junk=0;
+  let r=Math.random()*(W.mail+W.junk+W.pz);const k=(r-=W.mail)<0?'mail':(r-=W.junk)<0?'junk':'pz';
+  if(k==='mail')return catMailScene(id);
+  if(k==='junk'){const g=rndOf(JUNK());bagAdd(g);saveGame();return[{t:`${jp(nm,'이','가')} 뭔가를 입에 물고 와 발치에 툭 내려놓았다.`},{t:`${g.icon||'🎁'} ${g.name}. 가방에 넣어 두었어요.`}]}
+  const n=pzOpenBags(1);saveGame();return[{t:`${jp(nm,'이','가')} 작은 종이 봉지를 물고 와 발치에 내려놓았다.`},{t:pzBagText(n)}]}
+
+/* ----- 오락실 공통 창 ----- */
+let MG=null;   // 지금 돌아가는 미니게임 {raf, stop}
+function mgOpen(title,body,foot){const d=$('#mini');d.innerHTML=`<div class="mh"><b>${title}</b><span id="mi_m"></span></div>${body}<div class="mf"><span id="mi_t" class="mt"></span><span class="sp"></span>${foot}<button id="mi_x" type="button">그만하기</button></div>`;
+  d.onclick=null;d.oncancel=e=>{e.preventDefault();mgClose()};$('#mi_x').onclick=mgClose;mgMoney();d.showModal();return d}
+function mgMoney(){const e=$('#mi_m');if(e)e.textContent='보유 금액 ₩'+G.money.toLocaleString()}
+function mgClose(){if(MG){MG.dead=true;cancelAnimationFrame(MG.raf);clearInterval(MG.iv);MG=null}const d=$('#mini');if(d.open)d.close();after()}
+function mgPay(a){const price=Math.abs(a.money||0),en=enOf(a);if(G.money<price){$('#mi_t').textContent='돈이 부족해요';return false}if(en<0&&G.energy<-en){$('#mi_t').textContent='에너지가 부족해요';return false}
+  earn(-price,a.name);G.energy=clampE(G.energy+en);pass(durOf(a));G.cnt=G.cnt||{};G.cnt[a.code]=(G.cnt[a.code]||0)+1;G.log=`${a.icon||'🕹'} ${a.name}`;mgMoney();sfx('click');return true}
+function mgGive(kind){   // 경품: doll 인형 · junk 잡동사니 · pz 퍼즐 조각 봉지
+  if(kind==='doll'){const g=pickDoll();if(g){bagAdd(g);sfx('get');return `${g.icon||'🧸'} ${jp(g.name,'을','를')} 얻었어요!`}kind='junk'}
+  if(kind==='junk'){const L=JUNK();if(L.length){const g=rndOf(L);bagAdd(g);sfx('get');return `${g.icon||'🎁'} ${jp(g.name,'을','를')} 받았어요`}kind='pz'}
+  if(kind==='pz'){const n=pzOpenBags(1);sfx('get');return n?`🧩 퍼즐 조각 봉지! 조각 +${n} (${pzState().have.length}/${PZ_N})`:'🧩 퍼즐 조각 봉지! 다음 퍼즐을 위해 아껴 둘게요'}
+  return '아쉽지만 꽝이에요'}
+const mgEmo=(x,t,cx,cy,s)=>{x.font=`${s}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;x.textAlign='center';x.textBaseline='middle';x.fillText(t,cx,cy)};
+
+/* ----- 인형 뽑기: 집게가 좌우로 오가요. 「내리기」를 누르면 그 자리에 내려가고, 가운데에 가까울수록 잘 잡혀요 ----- */
+function openClaw(a){
+  if(!DOLLS().length)return say('뽑을 인형이 아직 없어요',1);
+  const W=560,H=400,price=Math.abs(a.money||0),SL=[150,230,310,390,470],FY=318;
+  mgOpen(`🧸 ${esc(a.name)}`,`<canvas id="mi_c" width="${W*2}" height="${H*2}"></canvas>`,`<button id="mi_go" type="button" class="pri"></button>`);
+  const x=$('#mi_c').getContext('2d'),st=MG={ph:'idle',cx:300,cy:70,dir:1,dolls:SL.map(s=>({g:pickDoll(),x:s+(Math.random()*16-8)})),got:null,t:0};
+  const go=$('#mi_go'),tx=$('#mi_t');tx.textContent='집게가 인형 한가운데에 왔을 때 내려 보세요';
+  const label=()=>{go.textContent=st.ph==='idle'?`₩${price.toLocaleString()} 넣기`:st.ph==='move'?'내리기!':'…';go.disabled=!(st.ph==='idle'||st.ph==='move')};
+  const press=()=>{if(st.ph==='idle'){if(!mgPay(a))return;st.dolls.forEach((d,i)=>{if(!d.g){d.g=pickDoll();d.x=SL[i]+(Math.random()*16-8)}});st.ph='move';tx.textContent=''}
+    else if(st.ph==='move'){st.ph='down';sfx('click')}label()};
+  go.onclick=press;$('#mi_c').onclick=()=>{if(st.ph==='move')press()};
+  function step(){if(st.dead)return;const sp=3.1;
+    if(st.ph==='move'){st.cx+=st.dir*sp;if(st.cx>500){st.cx=500;st.dir=-1}if(st.cx<120){st.cx=120;st.dir=1}}
+    else if(st.ph==='down'){st.cy+=5;if(st.cy>=FY-52){st.cy=FY-52;let best=null,bd=99;st.dolls.forEach(d=>{if(d.g){const q=Math.abs(d.x-st.cx);if(q<bd){bd=q;best=d}}});
+        const p=bd<9?.85:bd<20?.5:bd<32?.18:0;if(best&&Math.random()<p){st.got=best.g;best.g=null}st.ph='up'}}
+    else if(st.ph==='up'){st.cy-=4;if(st.cy<=70){st.cy=70;st.ph=st.got?'carry':'end'}}
+    else if(st.ph==='carry'){st.cx-=4;if(st.cx<=62){st.cx=62;st.ph='drop';st.t=0}}
+    else if(st.ph==='drop'){st.t+=6;if(st.t>230){bagAdd(st.got);sfx('get');tx.textContent=`${st.got.icon||'🧸'} ${jp(st.got.name,'을','를')} 뽑았어요! 장식장에 놓을 수 있어요`;st.got=null;st.ph='idle';saveGame();label()}}
+    else if(st.ph==='end'){tx.textContent=rndOf(['아깝다, 미끄러졌어요','집게가 헛돌았어요','조금만 더 가운데였으면…']);st.ph='idle';label()}
+    draw();st.raf=requestAnimationFrame(step)}
+  function draw(){x.setTransform(2,0,0,2,0,0);const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#2b2550');g.addColorStop(1,'#151228');x.fillStyle=g;x.fillRect(0,0,W,H);
+    x.fillStyle='#ff5fa8';x.fillRect(0,0,W,26);x.fillStyle='#3d3470';x.fillRect(0,FY+26,W,H);x.fillStyle='#0c0a18';x.fillRect(24,FY-6,76,H);   // 윗판 · 바닥 · 배출구
+    x.strokeStyle='#8f86c9';x.lineWidth=2;x.strokeRect(24.5,FY-6.5,76,90);x.fillStyle='#bdb6ea';x.font='11px sans-serif';x.textAlign='center';x.fillText('OUT',62,FY+60);
+    st.dolls.forEach(d=>{if(d.g)mgEmo(x,d.g.icon||'🧸',d.x,FY,46)});
+    x.strokeStyle='#d9d5f3';x.lineWidth=3;x.beginPath();x.moveTo(st.cx,26);x.lineTo(st.cx,st.cy);x.stroke();   // 줄
+    const op=st.ph==='down'||st.ph==='move'||st.ph==='idle'?15:8;x.lineWidth=4;x.lineCap='round';x.beginPath();x.moveTo(st.cx-12,st.cy);x.lineTo(st.cx+12,st.cy);
+    x.moveTo(st.cx-10,st.cy);x.lineTo(st.cx-op-6,st.cy+22);x.lineTo(st.cx-op+2,st.cy+38);x.moveTo(st.cx+10,st.cy);x.lineTo(st.cx+op+6,st.cy+22);x.lineTo(st.cx+op-2,st.cy+38);x.stroke();
+    if(st.got)mgEmo(x,st.got.icon||'🧸',st.cx,st.cy+34+(st.ph==='drop'?st.t:0),46)}
+  label();step()}
+
+/* ----- 두더지 잡기: 20초 동안 튀어나오는 두더지를 눌러요 ----- */
+const MOLE_SEC=20,MOLE_WIN=[14,7];   // 시간(초) · 퍼즐 조각 봉지 / 잡동사니를 받는 점수
+function openMole(a){
+  const W=560,H=400,price=Math.abs(a.money||0);
+  mgOpen(`🔨 ${esc(a.name)}`,`<canvas id="mi_c" width="${W*2}" height="${H*2}"></canvas>`,`<button id="mi_go" type="button" class="pri"></button>`);
+  const cv=$('#mi_c'),x=cv.getContext('2d'),go=$('#mi_go'),tx=$('#mi_t'),HO=[];for(let r=0;r<3;r++)for(let c=0;c<3;c++)HO.push({x:130+c*150,y:110+r*110,up:0,hit:0});
+  const st=MG={on:false,end:0,score:0,next:0};tx.textContent=`${MOLE_SEC}초 동안 ${MOLE_WIN[1]}마리 넘게 잡으면 선물이 있어요`;
+  const label=()=>{go.textContent=`₩${price.toLocaleString()} 넣고 시작`;go.disabled=st.on};
+  go.onclick=()=>{if(st.on||!mgPay(a))return;st.on=true;st.score=0;st.end=performance.now()+MOLE_SEC*1000;st.next=0;HO.forEach(h=>{h.up=0;h.hit=0});tx.textContent='';label()};
+  cv.onpointerdown=e=>{if(!st.on)return;const b=cv.getBoundingClientRect(),px=(e.clientX-b.left)*W/b.width,py=(e.clientY-b.top)*H/b.height,now=performance.now();
+    for(const h of HO)if(h.up>now&&!h.hit&&Math.hypot(px-h.x,py-(h.y-14))<48){h.hit=now;h.up=now+260;st.score++;sfx('click');break}};
+  function step(){if(st.dead)return;const now=performance.now();
+    if(st.on){if(now>=st.end){st.on=false;const s=st.score,k=s>=MOLE_WIN[0]?'pz':s>=MOLE_WIN[1]?'junk':null;tx.textContent=`${s}마리! `+(k?mgGive(k):'다음엔 더 잡아 봐요');saveGame();label()}
+      else if(now>=st.next){const free=HO.filter(h=>h.up<now);if(free.length&&HO.filter(h=>h.up>now).length<2){rndOf(free).up=now+800+Math.random()*450;free.forEach(h=>h.hit=h.up>now?h.hit:0)}st.next=now+380+Math.random()*320}}
+    x.setTransform(2,0,0,2,0,0);x.fillStyle='#3f7d4a';x.fillRect(0,0,W,H);x.fillStyle='#356b3f';for(let i=0;i<W;i+=40)x.fillRect(i,0,20,H);
+    for(const h of HO){x.fillStyle='#2a1c14';x.beginPath();x.ellipse(h.x,h.y+18,54,20,0,0,7);x.fill();if(h.up>now)mgEmo(x,h.hit?'💫':'🐹',h.x,h.y-14,58)}
+    x.fillStyle='#000a';x.fillRect(0,0,W,34);x.fillStyle='#fff';x.font='16px "Do Hyeon","Gowun Dodum",sans-serif';x.textBaseline='middle';x.textAlign='left';x.fillText(`잡은 두더지 ${st.score}`,14,18);
+    x.textAlign='right';x.fillText(st.on?`남은 시간 ${Math.max(0,Math.ceil((st.end-now)/1000))}초`:'',W-14,18);
+    st.raf=requestAnimationFrame(step)}
+  label();step()}
+
+/* ----- 룰렛 가차: 돌리면 여덟 칸 가운데 한 곳에 멈춰요 ----- */
+const GACHA=[['doll','🧸','인형'],['pz','🧩','조각 봉지'],['junk','🎁','잡동사니'],['none','💨','꽝'],['pz','🧩','조각 봉지'],['junk','🎁','잡동사니'],['doll','🧸','인형'],['none','💨','꽝']];
+function openGacha(a){
+  const W=560,H=400,price=Math.abs(a.money||0),N=GACHA.length,SEG=Math.PI*2/N,COL=['#ff7fb5','#ffd166','#7bdff2','#c9c3e6'];
+  mgOpen(`🎰 ${esc(a.name)}`,`<canvas id="mi_c" width="${W*2}" height="${H*2}"></canvas>`,`<button id="mi_go" type="button" class="pri"></button>`);
+  const x=$('#mi_c').getContext('2d'),go=$('#mi_go'),tx=$('#mi_t'),st=MG={ang:0,from:0,to:0,t0:0,spin:false,res:null};
+  const label=()=>{go.textContent=`₩${price.toLocaleString()} 넣고 돌리기`;go.disabled=st.spin};
+  go.onclick=()=>{if(st.spin||!mgPay(a))return;const k=Math.floor(Math.random()*N);st.res=k;st.from=st.ang%(Math.PI*2);
+    st.to=Math.PI*2*5+(-Math.PI/2-(k+.5)*SEG)+(Math.random()-.5)*SEG*.7;while(st.to-st.from<Math.PI*8)st.to+=Math.PI*2;st.t0=performance.now();st.spin=true;tx.textContent='';label()};
+  function step(){if(st.dead)return;const now=performance.now();
+    if(st.spin){const u=Math.min(1,(now-st.t0)/3600),e=1-Math.pow(1-u,3);st.ang=st.from+(st.to-st.from)*e;if(u>=1){st.spin=false;tx.textContent=mgGive(GACHA[st.res][0]);saveGame();label()}}
+    x.setTransform(2,0,0,2,0,0);const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#2b2550');g.addColorStop(1,'#151228');x.fillStyle=g;x.fillRect(0,0,W,H);
+    const cx=W/2,cy=H/2+12,R=160;
+    for(let i=0;i<N;i++){const a0=st.ang+i*SEG;x.beginPath();x.moveTo(cx,cy);x.arc(cx,cy,R,a0,a0+SEG);x.closePath();x.fillStyle=COL[['doll','junk','pz','none'].indexOf(GACHA[i][0])];x.fill();x.strokeStyle='#151228';x.lineWidth=2;x.stroke();
+      const m=a0+SEG/2;mgEmo(x,GACHA[i][1],cx+Math.cos(m)*R*.66,cy+Math.sin(m)*R*.66,34)}
+    x.beginPath();x.arc(cx,cy,20,0,7);x.fillStyle='#151228';x.fill();x.strokeStyle='#fff';x.lineWidth=3;x.stroke();
+    x.fillStyle='#fff';x.beginPath();x.moveTo(cx,cy-R+16);x.lineTo(cx-13,cy-R-14);x.lineTo(cx+13,cy-R-14);x.closePath();x.fill();   // 바늘
+    st.raf=requestAnimationFrame(step)}
+  label();step()}
+
+/* ----- 장식장: 뽑은 인형을 칸에 놓아요 (세 단 × 여섯 칸) ----- */
+const CASE_N=18;
+function openCase(){
+  let pick=null;G.dcase=Array.isArray(G.dcase)?G.dcase:[];
+  const d=$('#mini');d.oncancel=e=>{e.preventDefault();close()};
+  const close=()=>{d.close();saveGame()};
+  const own=()=>{const o={};DOLLS().forEach(g=>{const n=(G.bag||{})[g.id]||0;if(n)o[g.id]=n});return o};
+  function render(){const O=own(),used={};for(let i=0;i<CASE_N;i++){const id=G.dcase[i];if(!id)continue;if((used[id]||0)<(O[id]||0))used[id]=(used[id]||0)+1;else G.dcase[i]=null}   // 가지고 있는 만큼만 놓여요
+    const G0=id=>(DB.goods||[]).find(g=>g.id===id),left=id=>(O[id]||0)-(used[id]||0),ids=Object.keys(O);if(pick&&!left(pick))pick=null;
+    d.innerHTML=`<div class="mh"><b>🧸 장식장</b><span>${ids.length?`모은 인형 ${ids.length}종류`:''}</span></div><div class="dcase">${[0,1,2].map(r=>`<div class="dshelf">${[0,1,2,3,4,5].map(c=>{const i=r*6+c,g=G0(G.dcase[i]);return `<button type="button" class="dslot${g?' on':''}" data-i="${i}" title="${g?esc(g.name):'빈 칸'}">${g?esc(g.icon||'🧸'):''}</button>`}).join('')}</div>`).join('')}</div>
+      <div class="dpick">${ids.length?ids.map(id=>{const g=G0(id);return `<button type="button" class="dopt${pick===id?' on':''}" data-id="${esc(id)}"${left(id)?'':' disabled'} title="${esc(g.name)}">${esc(g.icon||'🧸')}<small>${left(id)}</small></button>`}).join(''):'<span class="mt">아직 인형이 없어요. 오락실의 인형 뽑기나 룰렛 가차에서 얻을 수 있어요</span>'}</div>
+      <div class="mf"><span class="mt">${ids.length?(pick?'놓을 칸을 눌러 주세요':'아래에서 인형을 고른 뒤 칸을 누르면 놓여요. 놓인 인형을 누르면 내려와요'):''}</span><span class="sp"></span><button id="mi_x" type="button">닫기</button></div>`;
+    $('#mi_x').onclick=close}
+  d.onclick=e=>{const o=e.target.closest('.dopt'),s=e.target.closest('.dslot');
+    if(o){pick=pick===o.dataset.id?null:o.dataset.id;render();return}
+    if(s){const i=+s.dataset.i;if(pick){G.dcase[i]=pick}else if(G.dcase[i])G.dcase[i]=null;else return;sfx('click');render()}};
+  render();d.showModal()}
+
+/* ----- 퍼즐 맞추기 (집에서만): 모은 조각을 책상에 펼쳐 놓고 맞춰요. 밑그림·테두리 안내 없음 ----- */
+let PZ=null;
+const pzRnd=s=>()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+function pzEdges(seed){const r=pzRnd(seed),e=()=>({s:r()<.5?1:-1,o:(r()-.5)*.14}),Hh=[],V=[];
+  for(let y=0;y<=PZ_R;y++){Hh.push([]);for(let x0=0;x0<PZ_C;x0++)Hh[y].push(y===0||y===PZ_R?null:e())}
+  for(let y=0;y<PZ_R;y++){V.push([]);for(let x0=0;x0<=PZ_C;x0++)V[y].push(x0===0||x0===PZ_C?null:e())}return{H:Hh,V}}
+function pzSide(p,ax,ay,bx,by,e,o){if(!e){p.lineTo(bx,by);return}const dx=bx-ax,dy=by-ay,L=Math.hypot(dx,dy),nx=dy/L*e*PZ_S,ny=-dx/L*e*PZ_S,P=(t,d)=>[ax+dx*(t+o)+nx*d,ay+dy*(t+o)+ny*d];
+  const b=(c1,c2,q)=>p.bezierCurveTo(...P(...c1),...P(...c2),...P(...q));p.lineTo(...P(.38,0));b([.42,.10],[.28,.12],[.30,.22]);b([.32,.36],[.68,.36],[.70,.22]);b([.72,.12],[.58,.10],[.62,0]);p.lineTo(bx,by)}
+function pzPath(E,i){const r=Math.floor(i/PZ_C),c=i%PZ_C,S=PZ_S,p=new Path2D(),t=E.H[r][c],bt=E.H[r+1][c],l=E.V[r][c],rt=E.V[r][c+1];p.moveTo(0,0);
+  pzSide(p,0,0,S,0,t?-t.s:0,t?t.o:0);pzSide(p,S,0,S,S,rt?rt.s:0,rt?rt.o:0);pzSide(p,S,S,0,S,bt?bt.s:0,bt?-bt.o:0);pzSide(p,0,S,0,0,l?-l.s:0,l?-l.o:0);p.closePath();return p}
+async function pzPickImage(p){   // 새 퍼즐의 그림: 영화 장면 캡처 가운데 아직 안 한 것을 랜덤으로
+  if(p.img)return true;let L=[];try{await mvLoad();L=MVA.flatMap(m=>(m.scenes||[]).filter(s=>mediaUrl(s.image)).map(s=>({sid:String(s.id),img:s.image,name:m.name})))}catch(e){return msg('영화 장면을 불러오지 못했어요 (로그인이 필요해요)',1),false}
+  const used=new Set(p.done.map(d=>d.sid));L=L.filter(s=>!used.has(s.sid));if(!L.length)return msg('새 퍼즐로 만들 장면이 없어요. mvmv에 장면 캡처를 더 올리면 다음 퍼즐이 생겨요'),false;
+  const s=rndOf(L);p.sid=s.sid;p.img=s.img;p.name=s.name;saveGame();return true}
+async function openPuzzle(a){
+  const p=pzState();
+  if(isMobile())return openPzGallery(`퍼즐은 넓은 책상이 필요해서 컴퓨터로 접속했을 때 맞춰요. 지금 모은 조각 ${p.have.length}/${PZ_N}`);
+  if(!p.have.length)return p.done.length?openPzGallery('새 퍼즐 조각이 아직 없어요. 조각 봉지를 모아 보세요'):say('아직 퍼즐 조각이 없어요. 고양이나 오락실에서 조각 봉지를 얻을 수 있어요');
+  if(!(await pzPickImage(p)))return;
+  const d=$('#pzd');d.innerHTML=`<canvas id="pz_c"></canvas><div class="pzbar"><b>🧩 퍼즐 맞추기</b><span id="pz_n"></span><span class="sp"></span><button id="pz_o" type="button" title="작게">－</button><button id="pz_i" type="button" title="크게">＋</button><button id="pz_g" type="button">🖼 완성한 퍼즐 ${p.done.length}</button><button id="pz_x" type="button" class="pri">끝내기</button></div>`;
+  d.showModal();
+  const cv=$('#pz_c'),x=cv.getContext('2d'),hx=document.createElement('canvas').getContext('2d'),E=pzEdges(p.seed),S=PZ_S,M=PZ_M,Q=1.5,SP=S+2*M;
+  const st=PZ={p,E,path:{},spr:{},pos:{},grp:{},ord:[],v:{x:-200,y:-150,z:.5},drag:null,moved:false,img:null,fin:false,dead:false};
+  // 자리 정하기: 처음 받은 조각은 책상 아래쪽에 흩어 놓아요
+  const rr=pzRnd(p.seed^p.have.length);p.have.forEach(i=>{let q=p.pos[i];if(!q)q=p.pos[i]=[Math.round(rr()*2500-200),Math.round(1250+rr()*620)];st.pos[i]=[q[0],q[1]];st.path[i]=pzPath(E,i);st.grp[i]=i;st.ord.push(i)});
+  const own=new Set(p.have),nb=i=>{const r=Math.floor(i/PZ_C),c=i%PZ_C,o=[];if(c>0)o.push([i-1,-S,0]);if(c<PZ_C-1)o.push([i+1,S,0]);if(r>0)o.push([i-PZ_C,0,-S]);if(r<PZ_R-1)o.push([i+PZ_C,0,S]);return o.filter(n=>own.has(n[0]))};
+  const members=g=>st.ord.filter(i=>st.grp[i]===g),join=(a0,b0)=>{const ga=st.grp[a0],gb=st.grp[b0];if(ga!==gb)st.ord.forEach(i=>{if(st.grp[i]===gb)st.grp[i]=ga})};
+  p.have.forEach(i=>nb(i).forEach(([j,dx,dy])=>{if(Math.abs(st.pos[j][0]-st.pos[i][0]-dx)<.6&&Math.abs(st.pos[j][1]-st.pos[i][1]-dy)<.6)join(i,j)}));   // 붙어 있던 조각은 다시 한 덩어리로
+  const count=()=>{const gs=new Set(st.ord.map(i=>st.grp[i]));$('#pz_n').textContent=`조각 ${p.have.length} / ${PZ_N}`+(p.have.length<PZ_N?' · 조각을 더 모으면 이어서 맞출 수 있어요':'')+(p.extra?` · 아껴 둔 봉지 ${p.extra}`:'');return gs.size};
+  // 조각 그림 만들기 (그림이 오면 조금씩 입혀요)
+  let need=false;const dirty=()=>{if(need||st.dead)return;need=true;requestAnimationFrame(draw)};
+  function sprite(i){const c=document.createElement('canvas');c.width=c.height=Math.ceil(SP*Q);const g=c.getContext('2d'),r=Math.floor(i/PZ_C),cc=i%PZ_C;g.scale(Q,Q);g.translate(M,M);g.save();g.clip(st.path[i]);
+    if(st.img){const im=st.img,BW=PZ_C*S,BH=PZ_R*S,ar=BW/BH,ia=im.naturalWidth/im.naturalHeight;let sw=im.naturalWidth,sh=im.naturalHeight,sx=0,sy=0;if(ia>ar){sw=sh*ar;sx=(im.naturalWidth-sw)/2}else{sh=sw/ar;sy=(im.naturalHeight-sh)/2}
+      const k=sw/BW,x0=cc*S-M,y0=r*S-M;g.drawImage(im,sx+x0*k,sy+y0*k,SP*k,SP*k,-M,-M,SP,SP)}else{g.fillStyle='#d8c8a6';g.fillRect(-M,-M,SP,SP)}
+    g.restore();g.lineWidth=1.1;g.strokeStyle='rgba(20,14,10,.55)';g.stroke(st.path[i]);g.lineWidth=.6;g.strokeStyle='rgba(255,255,255,.22)';g.translate(.7,.7);g.stroke(st.path[i]);st.spr[i]=c}
+  function build(){let k=0;const L=p.have.slice(),run=()=>{if(st.dead)return;for(let n=0;n<36&&k<L.length;n++,k++)sprite(L[k]);dirty();if(k<L.length)setTimeout(run,0)};run()}
+  build();{const im=new Image();im.onload=()=>{if(st.dead)return;st.img=im;build()};im.src=mediaUrl(p.img)}
+  // 그리기
+  function size(){const b=cv.getBoundingClientRect(),dp=Math.min(1.5,window.devicePixelRatio||1);cv.width=Math.round(b.width*dp);cv.height=Math.round(b.height*dp);st.dp=dp;st.w=b.width;st.h=b.height;dirty()}
+  function draw(){need=false;if(st.dead)return;const {x:vx,y:vy,z}=st.v,dp=st.dp;x.setTransform(1,0,0,1,0,0);x.fillStyle='#2f4a3c';x.fillRect(0,0,cv.width,cv.height);x.setTransform(z*dp,0,0,z*dp,-vx*z*dp,-vy*z*dp);
+    if(st.fin&&st.img){const o=st.pos[0];x.drawImage(st.img,o[0],o[1],PZ_C*S,PZ_R*S);return}   // 다 맞추면 이음매 없는 그림으로
+    const x1=vx+st.w/z,y1=vy+st.h/z;for(const i of st.ord){const q=st.pos[i],c=st.spr[i];if(!c||q[0]+S+M<vx||q[1]+S+M<vy||q[0]-M>x1||q[1]-M>y1)continue;x.drawImage(c,q[0]-M,q[1]-M,SP,SP)}}
+  // 잡기 · 옮기기 · 붙이기
+  const world=e=>{const b=cv.getBoundingClientRect();return[(e.clientX-b.left)/st.v.z+st.v.x,(e.clientY-b.top)/st.v.z+st.v.y]};
+  const hit=(wx,wy)=>{for(let k=st.ord.length-1;k>=0;k--){const i=st.ord[k],q=st.pos[i];if(wx<q[0]-M||wy<q[1]-M||wx>q[0]+S+M||wy>q[1]+S+M)continue;if(hx.isPointInPath(st.path[i],wx-q[0],wy-q[1]))return i}return -1};
+  function snap(g){let did=false;for(let pass0=0;pass0<4;pass0++){let any=false;for(const i of members(g))for(const [j,dx,dy] of nb(i)){if(st.grp[j]===g)continue;const ex=st.pos[j][0]-dx-st.pos[i][0],ey=st.pos[j][1]-dy-st.pos[i][1];
+        if(Math.abs(ex)<=PZ_SNAP&&Math.abs(ey)<=PZ_SNAP){members(g).forEach(m=>{st.pos[m][0]+=ex;st.pos[m][1]+=ey});join(j,i);g=st.grp[i];any=did=true;break}}if(!any)break}return did}
+  cv.onpointerdown=e=>{if(st.fin)return;cv.setPointerCapture(e.pointerId);const [wx,wy]=world(e),i=hit(wx,wy);
+    if(i<0){st.drag={pan:1,sx:e.clientX,sy:e.clientY,vx:st.v.x,vy:st.v.y};return}
+    const g=st.grp[i],ms=members(g);st.ord=st.ord.filter(k=>st.grp[k]!==g).concat(ms);st.drag={g,ms,wx,wy,o:ms.map(m=>[st.pos[m][0],st.pos[m][1]])};dirty()};
+  cv.onpointermove=e=>{const D=st.drag;if(!D)return;if(D.pan){st.v.x=D.vx-(e.clientX-D.sx)/st.v.z;st.v.y=D.vy-(e.clientY-D.sy)/st.v.z}else{const [wx,wy]=world(e);D.ms.forEach((m,k)=>{st.pos[m][0]=D.o[k][0]+wx-D.wx;st.pos[m][1]=D.o[k][1]+wy-D.wy})}dirty()};
+  const up=()=>{const D=st.drag;st.drag=null;if(!D||D.pan)return;if(snap(D.g))sfx('click');members(st.grp[D.ms[0]]).forEach(m=>{p.pos[m]=[Math.round(st.pos[m][0]*10)/10,Math.round(st.pos[m][1]*10)/10]});st.moved=true;
+    const n=count();if(p.have.length===PZ_N&&n===1)finish();else saveGame();dirty()};
+  cv.onpointerup=up;cv.onpointercancel=up;
+  const zoom=(f,cx,cy)=>{const z0=st.v.z,z1=Math.max(.25,Math.min(2,z0*f));if(z1===z0)return;const wx=cx/z0+st.v.x,wy=cy/z0+st.v.y;st.v.z=z1;st.v.x=wx-cx/z1;st.v.y=wy-cy/z1;dirty()};
+  cv.onwheel=e=>{e.preventDefault();const b=cv.getBoundingClientRect();zoom(e.deltaY<0?1.12:1/1.12,e.clientX-b.left,e.clientY-b.top)};
+  $('#pz_i').onclick=()=>zoom(1.25,st.w/2,st.h/2);$('#pz_o').onclick=()=>zoom(.8,st.w/2,st.h/2);$('#pz_g').onclick=()=>openPzGallery();
+  function finish(){st.fin=true;sfx('get');p.done.unshift({sid:p.sid,img:p.img,name:p.name||'',d:G.day});const ex=p.extra;p.have=[];p.pos={};p.sid=p.img=p.name=null;p.seed=0;p.extra=0;pzState();const n=ex?pzOpenBags(ex):0;saveGame();
+    $('#pz_n').textContent=`완성! 🎉 완성한 퍼즐에 걸어 두었어요`+(n?` · 아껴 둔 봉지에서 다음 퍼즐 조각 ${n}개가 나왔어요`:'');$('#pz_g').textContent=`🖼 완성한 퍼즐 ${p.done.length}`;G.log='🧩 퍼즐을 완성했어요!';
+    st.v.z=Math.min(st.w/(PZ_C*S+80),st.h/(PZ_R*S+80));st.v.x=st.pos[0][0]-(st.w/st.v.z-PZ_C*S)/2;st.v.y=st.pos[0][1]-(st.h/st.v.z-PZ_R*S)/2;dirty()}
+  const close=()=>{st.dead=true;PZ=null;window.removeEventListener('resize',size);d.close();if(st.moved){pass(a&&a.mins>0?a.mins:PZ_MIN);if(!st.fin)G.log='🧩 퍼즐을 맞췄어요'}after()};
+  $('#pz_x').onclick=close;d.oncancel=e=>{e.preventDefault();close()};window.addEventListener('resize',size);
+  count();size();
+  {let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const i of st.ord){const q=st.pos[i];x0=Math.min(x0,q[0]);y0=Math.min(y0,q[1]);x1=Math.max(x1,q[0]+S);y1=Math.max(y1,q[1]+S)}   // 처음엔 조각이 모두 보이게
+    const z=Math.max(.25,Math.min(1,st.w/(x1-x0+240),(st.h-50)/(y1-y0+240)));st.v={z,x:(x0+x1)/2-st.w/z/2,y:(y0+y1)/2-(st.h+50)/z/2};dirty()}}
+function openPzGallery(note){const p=pzState(),d=$('#mini');let big=null;
+  const render=()=>{d.innerHTML=`<div class="mh"><b>🖼 완성한 퍼즐</b><span>${p.done.length?p.done.length+'점':''}</span></div>${note?`<div class="mt" style="padding:10px 14px 0">${esc(note)}</div>`:''}
+    ${big!=null?`<div class="pzbig"><img src="${esc(mediaUrl(p.done[big].img))}" alt=""><div class="mt">${esc(p.done[big].name||'')} · ${esc(dayText(p.done[big].d,1))}에 완성</div></div>`
+      :`<div class="pzgal">${p.done.length?p.done.map((x,i)=>`<button type="button" class="pzth" data-i="${i}" title="${esc(x.name||'')}"><img src="${esc(mediaUrl(x.img))}" alt="" loading="lazy"></button>`).join(''):'<span class="mt">아직 완성한 퍼즐이 없어요</span>'}</div>`}
+    <div class="mf"><span class="sp"></span>${big!=null?'<button id="mi_b" type="button">◀ 목록으로</button>':''}<button id="mi_x" type="button">닫기</button></div>`;
+    $('#mi_x').onclick=()=>d.close();const b=$('#mi_b');if(b)b.onclick=()=>{big=null;render()}};
+  d.oncancel=null;d.onclick=e=>{const t=e.target.closest('.pzth');if(t){big=+t.dataset.i;render()}};render();d.showModal()}
 
 // ================= 게임 UI =================
 function toggle(it){if(!canWear(it))return hint(it);const p=P(it.part),a=sel[it.part]=sel[it.part]||[],i=a.indexOf(it.id);
@@ -1650,6 +1876,8 @@ const ACT0=[
   {code:'diary_log',name:'하루 기록',icon:'📒',kind:'daylog',descr:'그날 다닌 곳과 한 일을 하루씩 펼쳐 봐요.',mins:0,energy:0,money:0,effects:{group:'diary'}},
   {code:'diary_cats',name:'고양이 도감',icon:'🐈',kind:'catdex',descr:'만나 본 고양이들을 펼쳐 봐요.',mins:0,energy:0,money:0,effects:{group:'diary'}},
   {code:'diary_mail',name:'받은 쪽지',icon:'📩',kind:'mail',descr:'고양이들이 물어다 준 쪽지를 다시 읽어요.',mins:0,energy:0,money:0,effects:{group:'diary'}},
+  {code:'dollcase',name:'장식장',icon:'🧸',kind:'dollcase',descr:'뽑은 인형을 칸칸이 놓아 둬요.',mins:0,energy:0,money:0},
+  {code:'puzzle',name:'퍼즐 맞추기',icon:'🧩',kind:'puzzle',descr:'모은 조각을 책상에 펼쳐 놓고 맞춰요. 밑그림은 없어요.',mins:30,energy:0,money:0},
   {code:'mybooks',name:'선반',icon:'🗄',kind:'mybooks',descr:'산 책과 비디오가 섞여 꽂혀 있어요. 골라서 읽거나 봐요.',mins:0,energy:0,money:0},
   {code:'mvmv',name:'영화 보기',icon:'🎬',kind:'mvmv',descr:'포스터를 골라 기록해 둔 장면을 처음부터 끝까지 따라가 봐요. (mvmv 연동)',mins:0,energy:0,money:0},
   {code:'bkbk',name:'추천작 살펴보기',icon:'📖',kind:'bkbk',descr:'책장에서 책을 골라 발췌문을 읽어요. (bkbk 연동)',mins:0,energy:0,money:0},
@@ -1678,7 +1906,7 @@ WORLD.actions={};ACT0.forEach(a=>WORLD.actions[a.code]=a);WORLD.types=structured
 const ACQ={};
 const ROAD='road',ROAD_P=.12,ROAD_MAXD=2,ROAD_COOL=7,ROAD_MIN=10;   // 길 위(지도에 없는 숨겨진 장소): 이동 한 번에 12% · 하루 최대 2번 · 같은 만남은 7일 뒤에 다시 · 이동이 10분 이상일 때만
 let ROADCTX={from:'',to:''};
-const FIXTYPE={road:{name:'길 위',icon:'🚶',acts:[],lock:[]},department:{name:'백화점',icon:'🏬',acts:['limited','groupbuy'],lock:['limited','groupbuy']},home:{name:'주거',icon:'🏠',acts:['sleep','closet','status','mybooks','diary'],lock:['mybooks','diary']},videostore:{name:'비디오 가게',icon:'📼',acts:['videobuy'],lock:['videobuy']},bookstore:{name:'서점',icon:'📚',acts:['bookbuy','bookmore'],lock:['bookmore','bookbuy']},library:{name:'도서관',icon:'📚',acts:['bkbk'],lock:['bkbk']},cinema:{name:'영화관',icon:'🎬',acts:['mvmv'],lock:['mvmv']},posterhall:{name:'포스터 전시관',icon:'🎞',acts:['mvmv'],lock:['mvmv']},shrine:{name:'성소',icon:'🕯',acts:['shrine'],lock:['shrine']}};
+const FIXTYPE={road:{name:'길 위',icon:'🚶',acts:[],lock:[]},department:{name:'백화점',icon:'🏬',acts:['limited','groupbuy'],lock:['limited','groupbuy']},home:{name:'주거',icon:'🏠',acts:['sleep','closet','status','mybooks','diary','dollcase','puzzle'],lock:['mybooks','diary','dollcase','puzzle']},videostore:{name:'비디오 가게',icon:'📼',acts:['videobuy'],lock:['videobuy']},bookstore:{name:'서점',icon:'📚',acts:['bookbuy','bookmore'],lock:['bookmore','bookbuy']},library:{name:'도서관',icon:'📚',acts:['bkbk'],lock:['bkbk']},cinema:{name:'영화관',icon:'🎬',acts:['mvmv'],lock:['mvmv']},posterhall:{name:'포스터 전시관',icon:'🎞',acts:['mvmv'],lock:['mvmv']},shrine:{name:'성소',icon:'🕯',acts:['shrine'],lock:['shrine']}};
 // 관리자에서 의상마다 적은 획득 경로(DB)를 게임 경로로 바꿔요. 종류 이름·칸 이름은 DB의 경로 종류 정의를 그대로 따라요
 const shopPlaces=()=>Object.keys(WORLD.places).filter(k=>((WORLD.types[WORLD.places[k].type]||{actions:[]}).actions||[]).some(c=>(WORLD.actions[c]||{}).kind==='shop'));
 const placesFor=nm=>{const m=/^모든 (.+)$/.exec(nm||'');if(m){const ts=Object.keys(WORLD.types).filter(k=>WORLD.types[k].name===m[1]);if(ts.length)return Object.keys(WORLD.places).filter(k=>ts.includes(WORLD.places[k].type));if(m[1]==='상점')return shopPlaces()}return Object.keys(WORLD.places).filter(k=>WORLD.places[k].n===nm)};
@@ -1752,7 +1980,7 @@ function loadGame(){try{G=JSON.parse(localStorage.getItem('fsfsGame')||'null')}c
   if(G.v!==3){let sl=G.slot;if(G.v!==2)sl=[2,4,6,7][sl]??2;G.min=(sl??2)*SLOTLEN;delete G.slot;G.v=3}   // 예전 저장(구간)을 시각으로 옮겨요
   if(typeof G.min!=='number')G.min=WORLD.wakeMin;if(!Array.isArray(G.ledger))G.ledger=[];
   if(G.energy==null)G.energy=100;G.doneDay=G.doneDay||{};G.actDay=G.actDay||{};G.copies=G.copies||{};G.tan=+G.tan||0;G.closet=false}
-const saveGame=()=>{try{const js=JSON.stringify(G),same=localStorage.getItem('fsfsGame')===js;localStorage.setItem('fsfsGame',js);if(!same){localStorage.setItem('fsfsLocalAt',Date.now());localStorage.setItem('fsfsDirty','1')}}catch(e){}try{pushSoon()}catch(e){}};
+const saveGame=()=>{try{pzSweep()}catch(e){}try{const js=JSON.stringify(G),same=localStorage.getItem('fsfsGame')===js;localStorage.setItem('fsfsGame',js);if(!same){localStorage.setItem('fsfsLocalAt',Date.now());localStorage.setItem('fsfsDirty','1')}}catch(e){}try{pushSoon()}catch(e){}};
 const owned=it=>!ACQ[it.id]||G.cheat||!!G.owned[it.id];
 const routeText=s=>s.text||routeText0(s);
 const routeText0=s=>s.type==='starter'?'기본 제공':s.type==='shop'?`${WORLD.places[s.place].n} · ₩${s.price.toLocaleString()}`:s.type==='gift'?'특별한 날, 누군가에게 선물로 받을 수 있어요':s.type==='event'?'이벤트 · '+(s.evt||'특별한 날'):s.type==='groupbuy'?`백화점 공동구매 · ₩${s.price.toLocaleString()} · ${s.need}명이 모이면 ${s.days}일 뒤 배송`:s.type==='limited'?`백화점 한정판 · ₩${s.price.toLocaleString()} · 선착순 ${s.stock}개 · ${s.hour}시 오픈`:s.type==='job'?`${s.job||'아르바이트'} · ${s.rank}단계 (${Math.max(1,(s.rank-1)*JOBN)}회 근무)`:s.type==='quest'?`${s.npc?s.npc+'의 ':''}의뢰 · ${s.quest}`:s.type;
@@ -2017,6 +2245,11 @@ function doAction(a,who){
   if(a.kind==='delivery')return openDelivery();
   if(a.kind==='onlineshop')return openOnlineShop();
   if(a.kind==='tan')return openTan(a);
+  if(a.kind==='claw')return openClaw(a);
+  if(a.kind==='mole')return openMole(a);
+  if(a.kind==='gacha')return openGacha(a);
+  if(a.kind==='dollcase')return openCase();
+  if(a.kind==='puzzle')return openPuzzle(a);
   if(a.kind==='soon')return msg('🚧 '+a.name+' — 아직 준비 중이에요');
   if(a.kind!=='call'||who)ACTGRP=null;
   if(a.kind==='closet'){const ef=a.effects||{},spec=(ef.parts&&ef.parts.length)||ef.try||ef.mode;
@@ -2135,16 +2368,15 @@ function catActs(box,id){
 function catNotice(){const cs=catsHere();if(!cs.length)return;cs.forEach(catMeet);const n=cs.map(catName);msg('🐈 '+[...n.slice(0,-1),jp(n[n.length-1],'이','가')].join(', ')+' 있어요')}
 
 /* ===== 다이어리: 고양이 도감 · 받은 쪽지 (집 > 다이어리 열기). 쪽지는 호감도 60 이상 고양이가 가끔 물어다 줘요 (세이브: G.mail) ===== */
-const MAIL_P=.03,MAIL_CD=2,MAIL_MIN=60,MAIL_KEEP=100,MAIL_RE_P=.4;   // 쪽지 확률(고양이 한 마리·하루 한 번 굴림) · 다음 쪽지까지 최소 일수 · 필요한 호감도 · 보관 개수 · 성소 글 인용 답장일 확률
+const MAIL_CD=2,MAIL_MIN=60,MAIL_KEEP=100,MAIL_RE_P=.4;   // 다음 쪽지까지 최소 일수 (물어다 줄 확률은 CAT_BRING_P) · 필요한 호감도 · 보관 개수 · 성소 글 인용 답장일 확률
 const MAIL_T=["늘 지켜보고 있단다.", "잘 하고 있어.", "무서워하지 마라.", "밥은 거르지 말고 먹거라.", "오늘도 수고했구나.", "힘들면 쉬어 가도 괜찮단다.", "네가 걷는 길 위에 불을 하나 밝혀 두었단다.", "조금 늦어도 괜찮아. 길은 도망가지 않는단다.", "따뜻하게 입고 다니거라. 바람이 차더구나.", "네가 웃는 날엔 나도 마음이 가볍단다.", "아무도 모르는 노력도 나는 알고 있단다.", "오늘 하루, 잘 버텼구나.", "너무 애쓰지 않아도 된단다.", "잠은 충분히 자고 있니? 눈 밑이 어둡더구나.", "작은 것에도 기뻐할 줄 아는 네가 나는 참 좋단다.", "걱정은 내게 맡기고 오늘은 푹 쉬거라.", "네가 남긴 발자국마다 작은 불빛이 켜져 있단다.", "울고 싶으면 울어도 된단다. 여기선 아무도 보지 않으니까.", "고양이들이 너를 따르는 이유를 알겠구나.", "가끔은 아무것도 하지 않아도 괜찮은 날이란다.", "하늘을 올려다보렴. 거기 내가 있단다.", "네 곁엔 생각보다 많은 이들이 있단다.", "그래, 그렇게 천천히.", "어제의 너보다 오늘의 네가 조금 더 단단하구나.", "서두르지 마라. 계절은 어김없이 온단다.", "마음이 시끄러운 날엔 촛불을 바라보렴.", "좋은 일이 곧 찾아올 게다. 그냥, 그런 느낌이 든단다.", "네가 누구든 나는 네 편이란다.", "손을 따뜻하게 하고 자거라.", "오늘은 어떤 하루였니? 말하지 않아도 괜찮단다.", "이 쪽지는 읽고 나면 잊어도 된단다. 마음만 가져가거라.", "힘껏 살아가는 모습, 잘 보고 있단다.", "모자란 것은 없단다. 너는 이미 충분하단다.", "따뜻한 국물이 생각나는 날이구나. 챙겨 먹거라.", "내가 보낸 심부름꾼이 마음에 들었니?", "길 잃은 마음이 있거든 이리 오렴.", "비가 와도 눈이 와도 괜찮단다. 우산은 내가 들고 있으마.", "네 이야기는 언제든 여기서 듣고 있단다.", "오늘 웃은 일이 하나라도 있었다면 그걸로 됐단다.", "그만하면 됐다. 정말 잘했단다."];
 const MAIL_RE=["네가 남긴 글, 한 글자도 빼놓지 않고 읽었단다.", "그날의 네 마음을 나는 기억하고 있어. 잘 견뎌 왔구나.", "말로 꺼내 놓은 것만으로도 충분히 잘 한 거란다.", "지금은 좀 어떠니? 대답은 안 해도 된단다. 그저 묻고 싶었어.", "그때의 너도, 지금의 너도 내겐 똑같이 소중하단다.", "그 마음은 여기에 잘 간직해 두었으니 걱정 말고 가렴.", "이만큼 걸어온 것만 해도 대단한 일이란다.", "혼자 끌어안고 있지 않아도 돼. 나는 늘 듣고 있단다.", "시간이 조금 흘렀으니, 이제 다시 읽어 봐도 괜찮을 게다.", "그때 켜 준 촛불은 아직 꺼지지 않았단다.", "그래, 그랬구나. 그저 \"그랬구나\" 하고 말해 주고 싶었단다.", "무엇이든 네 속도로 해도 괜찮아."];
 function mailMake(){
   const ns=(G.notes||[]).filter(n=>G.day-n.d>=7&&!n.a&&String(n.x||'').trim());
   if(ns.length&&Math.random()<MAIL_RE_P){const n=rndOf(ns);n.a=1;const q=String(n.x).replace(/\s+/g,' ').trim();return{x:rndOf(MAIL_RE),q:q.length>44?q.slice(0,44)+'…':q,qd:n.d}}   // 7일 넘은 성소 글에만 답장하고, 한 번 답한 글은 다시 고르지 않아요
   const used=new Set((G.mail||[]).map(m=>m.x));let pool=MAIL_T.filter(t=>!used.has(t));if(!pool.length)pool=MAIL_T;return{x:rndOf(pool)}}
-function catMailTry(id){
-  if(catAff(id)<MAIL_MIN||G.actDay['catmail:'+id]===G.day)return null;G.actDay['catmail:'+id]=G.day;
-  if(G.mailDay!=null&&G.day-G.mailDay<MAIL_CD)return null;if(Math.random()>=MAIL_P)return null;
+const catMailTry=id=>catBringTry(id);   // 쪽지만 오던 것을 「뭔가 물어다 줘요」로 넓혔어요 (쪽지·잡동사니·퍼즐 조각 봉지)
+function catMailScene(id){
   const m={...mailMake(),d:G.day,t:G.min,c:id},nm=catName(id);G.mail=G.mail||[];G.mail.unshift(m);if(G.mail.length>MAIL_KEEP)G.mail.length=MAIL_KEEP;G.mailDay=G.day;saveGame();
   const sc=[{t:`${jp(nm,'이','가')} 어디선가 접힌 쪽지를 물고 와 발치에 내려놓았다.`}];
   if(m.q)sc.push({t:'펼쳐 보니 성소에 남겼던 글이 옮겨 적혀 있다.'},{t:`“${m.q}”`},{t:`그 아래에 따뜻한 글씨로 한 줄이 더 적혀 있다.`});
@@ -2427,7 +2659,7 @@ function applyWorld(){
 }
 function actFromRow(r){return{code:r.code,name:r.name,icon:r.icon||'',descr:r.descr||'',kind:r.kind==='sleep'?'normal':(r.kind||'normal'),mins:r.time_min!=null?+r.time_min:(+r.time_cost||0)*SLOTLEN,endAt:r.end_min!=null?+r.end_min:(r.kind==='sleep'?WORLD.wakeMin:null),minMins:+r.min_mins||0,energy:+r.energy||0,money:+r.money||0,cond:r.cond||{},effects:(()=>{const e={...(r.effects||{})};if(r.kind==='sleep'&&e.eph==null)e.eph=WORLD.sleepRegen||12;return e})(),scene:r.scene||[]}}
 function applyActions(){
-  WORLD.actions={};const keep=['shop','talk','bkbk','mvmv','bookbuy','bookmore','mybooks','videobuy','shrine','limited','groupbuy','diary','diary_log','diary_cats','diary_mail'];
+  WORLD.actions={};const keep=['shop','talk','bkbk','mvmv','bookbuy','bookmore','mybooks','videobuy','shrine','limited','groupbuy','diary','diary_log','diary_cats','diary_mail','dollcase','puzzle'];
   if(DB.actions.length){ACT0.filter(a=>keep.includes(a.code)).forEach(a=>WORLD.actions[a.code]=a);DB.actions.forEach(r=>WORLD.actions[r.code]=actFromRow(r))}else ACT0.forEach(a=>WORLD.actions[a.code]=a);
   WORLD.types={};
   if(DB.ptypes.length)DB.ptypes.forEach(t=>WORLD.types[t.code]={name:t.name,icon:t.icon||'📍',actions:DB.ptacts.filter(x=>x.type_code===t.code).sort((a,b)=>(a.sort||0)-(b.sort||0)).map(x=>x.action_code)});
@@ -2480,11 +2712,12 @@ function renderGoodsAdmin(){
     <label>메모 <span class="tag">(사용했을 때 대사처럼 먼저 떠요. 예: 아삭아삭 맛있어!)</span><input id="g_m" value="${esc(gcur.memo)}"></label>
     <div class="row"><label><input type="checkbox" id="g_c"${gcur.consume?' checked':''}> 사용하면 사라짐 (음식)</label><label>에너지 회복<input type="number" id="g_e" value="${esc(gcur.energy)}" style="width:80px"></label>${gcur.S.some(s=>dlvIsSrc((DB.types||[]).find(t=>t.code===s.type)))?'<span class="tag">배달 아이템은 에너지가 음식 종류로 정해져요 (디저트 8 · 음료 4 · 식사 16)</span>':''}<label>돈 변화(원)<input type="number" id="g_mo" value="${esc(gcur.money)}" style="width:100px" placeholder="0"></label></div>
     <div class="row"><label>🐈 고양이 호감도<input type="number" id="g_ct" value="${esc(gcur.cat)}" style="width:80px" placeholder="0"></label><span class="tag">0보다 크면 고양이에게 「밥 주기」로 줄 수 있어요 (종류는 잡화로)</span><label><input type="checkbox" id="g_cg"${gcur.catgift?' checked':''}> 고양이가 선물로 가져와요</label></div>
+    <div class="row"><label>🧸 인형<input type="number" id="g_do" min="0" value="${esc(gcur.doll||'')}" style="width:80px" placeholder="0"></label><span class="tag">1 이상이면 인형이에요(인형 뽑기·가차에서 나오고 장식장에 놓아요). 숫자가 클수록 드물게 나와요</span><label>🧩 조각 봉지<input type="number" id="g_pz" min="0" value="${esc(gcur.pz||'')}" style="width:80px" placeholder="0"></label><span class="tag">1 이상이면 받는 즉시 뜯어서 퍼즐 조각이 돼요 (숫자 = 봉지 수)</span></div>
     <b>획득 경로</b><div id="gsrcs">${gcur.S.map((s,i)=>srcHtml(s,i)).join('')||'<div class="tag">경로가 없어요</div>'}</div>
     <div class="row"><button id="g_as">+ 경로</button><span class="grow"></span><button class="pri" id="g_sv">저장</button><button id="g_dl">삭제</button></div></div>`;
 }
-function gPick(g){gcur={id:g.id,name:g.name,kind:g.kind,icon:g.icon||'📦',descr:g.descr||'',consume:!!g.consume,energy:(g.effects&&g.effects.energy!=null)?g.effects.energy:10,money:(g.effects&&g.effects.money)||'',cat:(g.effects&&g.effects.cat)||'',catgift:!!(g.effects&&g.effects.catgift),memo:(g.effects&&g.effects.memo)||'',S:(g.fsfs_source||[]).map(s=>({...s})),orig:(g.fsfs_source||[]).map(s=>s.id)};renderGoodsAdmin()}
-function gRead(){if(!gcur)return;const v=i=>$(i)&&$(i).value;gcur.icon=$('#g_ic').dataset.v||'📦';gcur.name=v('#g_n');gcur.kind=v('#g_k');gcur.descr=v('#g_d');gcur.consume=$('#g_c').checked;gcur.energy=v('#g_e');gcur.money=v('#g_mo');gcur.memo=v('#g_m');gcur.cat=v('#g_ct');gcur.catgift=!!($('#g_cg')&&$('#g_cg').checked)}
+function gPick(g){gcur={id:g.id,name:g.name,kind:g.kind,icon:g.icon||'📦',descr:g.descr||'',consume:!!g.consume,energy:(g.effects&&g.effects.energy!=null)?g.effects.energy:10,money:(g.effects&&g.effects.money)||'',cat:(g.effects&&g.effects.cat)||'',catgift:!!(g.effects&&g.effects.catgift),doll:(g.effects&&g.effects.doll)||'',pz:(g.effects&&g.effects.pz)||'',memo:(g.effects&&g.effects.memo)||'',S:(g.fsfs_source||[]).map(s=>({...s})),orig:(g.fsfs_source||[]).map(s=>s.id)};renderGoodsAdmin()}
+function gRead(){if(!gcur)return;const v=i=>$(i)&&$(i).value;gcur.icon=$('#g_ic').dataset.v||'📦';gcur.name=v('#g_n');gcur.kind=v('#g_k');gcur.descr=v('#g_d');gcur.consume=$('#g_c').checked;gcur.energy=v('#g_e');gcur.money=v('#g_mo');gcur.memo=v('#g_m');gcur.cat=v('#g_ct');gcur.catgift=!!($('#g_cg')&&$('#g_cg').checked);gcur.doll=v('#g_do')||'';gcur.pz=v('#g_pz')||''}
 $('#gnew').onclick=()=>{gcur={id:null,name:'',kind:'food',icon:'🍙',descr:'',consume:true,energy:10,money:'',cat:'',catgift:false,memo:'',S:[],orig:[]};renderGoodsAdmin()};
 $('#glist').onclick=ev=>{const li=ev.target.closest('.li');if(!li)return;const g=GOODS(li.dataset.id);if(g)gPick(g)};
 $('#ged').onclick=async ev=>{
@@ -2492,7 +2725,7 @@ $('#ged').onclick=async ev=>{
   if(ev.target.matches('#gsrcs .rm')){gRead();gcur.S.splice(ev.target.closest('.src').dataset.i,1);renderGoodsAdmin();return}
   if(ev.target.id==='g_dl'){if(!gcur.id||!confirm('이 아이템을 삭제할까요?'))return;try{await sb('/rest/v1/fsfs_goods?id=eq.'+gcur.id,{m:'DELETE'});gcur=null;await loadCatalog();renderGoodsAdmin()}catch(x){msg(x.message,1)}return}
   if(ev.target.id==='g_sv'){gRead();if(!gcur.name.trim())return msg('이름을 적어주세요',1);
-    try{const row={name:gcur.name.trim(),kind:gcur.kind,icon:gcur.icon||'📦',descr:gcur.descr||null,consume:gcur.kind==='food'?gcur.consume:false,effects:Object.assign(gcur.energy!==''?{energy:+gcur.energy}:{},+gcur.money?{money:Math.round(+gcur.money)}:{},+gcur.cat>0?{cat:Math.round(+gcur.cat)}:{},gcur.catgift?{catgift:1}:{},(gcur.memo||'').trim()?{memo:gcur.memo.trim()}:{})};
+    try{const row={name:gcur.name.trim(),kind:gcur.kind,icon:gcur.icon||'📦',descr:gcur.descr||null,consume:gcur.kind==='food'?gcur.consume:false,effects:Object.assign(gcur.energy!==''?{energy:+gcur.energy}:{},+gcur.money?{money:Math.round(+gcur.money)}:{},+gcur.cat>0?{cat:Math.round(+gcur.cat)}:{},gcur.catgift?{catgift:1}:{},+gcur.doll>0?{doll:Math.round(+gcur.doll)}:{},+gcur.pz>0?{pz:Math.round(+gcur.pz)}:{},(gcur.memo||'').trim()?{memo:gcur.memo.trim()}:{})};
       let id=gcur.id;if(id)await sb('/rest/v1/fsfs_goods?id=eq.'+id,{m:'PATCH',h:{Prefer:'return=minimal'},b:row});else{const r=await sb('/rest/v1/fsfs_goods',{m:'POST',h:{Prefer:'return=representation'},b:row});id=r[0].id}
       const ks=gcur.S.filter(s=>s.id).map(s=>s.id),gone=gcur.orig.filter(i=>!ks.includes(i));if(gone.length)await sb('/rest/v1/fsfs_source?id=in.('+gone.join(',')+')',{m:'DELETE'});
       for(const s of gcur.S){const r2={type:s.type,params:s.params||{},note:s.note||null};if(s.id)await sb('/rest/v1/fsfs_source?id=eq.'+s.id,{m:'PATCH',h:{Prefer:'return=minimal'},b:r2});else await sb('/rest/v1/fsfs_source',{m:'POST',h:{Prefer:'return=minimal'},b:{...r2,goods_id:id}})}
@@ -3154,7 +3387,7 @@ async function delEv(){
 
 // ================= 관리자: 행동 · 장소 유형 =================
 const FIXED={closet:'옷장 열기',status:'거울 보기 (내 상태)',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',bookbuy:'서점 열기',bookmore:'서점 이어서 사기',mybooks:'선반 열기',videobuy:'비디오 가게 열기',mvmv:'mvmv 포스터 벽 열기',shrine:'성소 종이 열기',daylog:'하루 기록 열기',catdex:'고양이 도감 열기',mail:'받은 쪽지 열기',limited:'한정판 오픈런 열기',groupbuy:'공동구매 열기'};
-const KSEL=[['normal','일반 행동'],['group','▸ 묶음 메뉴 (누르면 하위 행동이 나와요)'],['call','📞 통화 (아는 인물 목록에서 고르기)'],['bagfood','🎒 가방 속 음식 먹기'],['closet','👗 옷장 (부분 옷장·입어보기)'],['shrine','🕯 성소 글 쓰기'],['delivery','🛵 배달시키기 (배달 앱)'],['onlineshop','🛒 온라인 쇼핑 (택배)'],['tan','🌞 태닝 (피부색 단계 고르기)'],['soon','🚧 준비 중 (아직 기능 없음)']];
+const KSEL=[['normal','일반 행동'],['group','▸ 묶음 메뉴 (누르면 하위 행동이 나와요)'],['call','📞 통화 (아는 인물 목록에서 고르기)'],['bagfood','🎒 가방 속 음식 먹기'],['closet','👗 옷장 (부분 옷장·입어보기)'],['shrine','🕯 성소 글 쓰기'],['delivery','🛵 배달시키기 (배달 앱)'],['onlineshop','🛒 온라인 쇼핑 (택배)'],['tan','🌞 태닝 (피부색 단계 고르기)'],['claw','🧸 인형 뽑기 (미니게임)'],['mole','🔨 두더지 잡기 (미니게임)'],['gacha','🎰 룰렛 가차 (미니게임)'],['soon','🚧 준비 중 (아직 기능 없음)']];
 const isFix=a=>(!!FIXED[a.kind]&&ACT0.some(x=>x.code===a.code))||a.code==='talk';
 const actRows=()=>{const have=new Set(DB.actions.map(a=>a.code)),v=ACT0.filter(a=>(FIXED[a.kind]||a.code==='talk')&&!have.has(a.code)).map(a=>({code:a.code,name:a.name,icon:a.icon,descr:a.descr||'',kind:a.kind,mins:a.mins||0,endAt:a.endAt,minMins:a.minMins||0,energy:a.energy||0,money:a.money||0,cond:a.cond||{},effects:a.effects||{},scene:a.scene||[],sort:0,virtual:true}));
   return [...v,...DB.actions].sort((a,b)=>(isFix(b)-isFix(a))||String(a.name||'').localeCompare(String(b.name||''),'ko'))};
@@ -3351,7 +3584,7 @@ function sizeWorld(){try{const c=document.querySelector('#game .card.world'),f=$
   if(fh>100)c.style.width=Math.floor(fh*ratio)+(mob?w.offsetWidth:0)+(c.offsetWidth-c.clientWidth)+'px';posSys();sizeChar()}catch(e){}}
 var charL=0;function charSide(l){charL=l;const sw=document.querySelector('.stagewrap'),mf=$('#mapframe');if(!sw||!mf)return;sw.style.transform=l&&sw.classList.contains('mini')?`translateX(${-Math.max(0,mf.clientWidth-sw.offsetWidth-80)}px)`:''}
 function sizeChar(){const mf=$('#mapframe'),cv=$('#cv');if(!mf||!cv)return;const F=mf.clientHeight,H=Math.max(300,Math.round(F*1.3)),r=(cv.width&&cv.height)?cv.width/cv.height:596/1796;mf.style.setProperty('--sth',H+'px');mf.style.setProperty('--sw',Math.round(H*r)+'px');mf.style.setProperty('--sch',F+'px');mf.style.setProperty('--sdn',Math.max(0,Math.round(F-148-780*H/(cv.height||1796)))+'px');charSide(charL)}
-function charHit(e){const sw=document.querySelector('.stagewrap');if(!sw||document.querySelector('#game.talking')||!sw.classList.contains('mini')||(e.target.closest&&e.target.closest('.exit,#actov,.twarr,.twi,.dbox')))return false;const cv=$('#cv'),r=cv.getBoundingClientRect(),w=sw.getBoundingClientRect();if(e.clientX<w.left||e.clientX>w.right||e.clientY<w.top||e.clientY>w.bottom||e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)return false;try{const x=Math.floor((e.clientX-r.left)/r.width*cv.width),y=Math.floor((e.clientY-r.top)/r.height*cv.height);return cv.getContext('2d').getImageData(x,y,1,1).data[3]>20}catch(_){const fx=(e.clientX-r.left)/r.width;return fx>.05&&fx<.95}}
+function charHit(e){const sw=document.querySelector('.stagewrap');if(!sw||document.querySelector('#game.talking')||!sw.classList.contains('mini')||(e.target.closest&&e.target.closest('.exit,#actov,.twarr,.twi,.dbox,dialog')))return false;const cv=$('#cv'),r=cv.getBoundingClientRect(),w=sw.getBoundingClientRect();if(e.clientX<w.left||e.clientX>w.right||e.clientY<w.top||e.clientY>w.bottom||e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)return false;try{const x=Math.floor((e.clientX-r.left)/r.width*cv.width),y=Math.floor((e.clientY-r.top)/r.height*cv.height);return cv.getContext('2d').getImageData(x,y,1,1).data[3]>20}catch(_){const fx=(e.clientX-r.left)/r.width;return fx>.05&&fx<.95}}
 document.addEventListener('click',e=>{if(charHit(e)){e.stopImmediatePropagation();e.preventDefault();charSide(charL?0:1)}},true);
 document.addEventListener('click',e=>{if(!$('#game').classList.contains('talking'))return;const t=e.target;if(!t.closest||t.closest('#scene,#delta,dialog,button,a,input,select,textarea,label,.sysbar'))return;const el=!$('#scene').hidden?$('#scene'):(!$('#delta').hidden?$('#delta'):null);if(el&&el.onclick)el.onclick(e)});
 document.addEventListener('mousemove',e=>{const mf=$('#mapframe');if(mf)mf.style.cursor=charHit(e)?'pointer':''});
@@ -3474,12 +3707,20 @@ function runExcerpt(b,text,pos,done){
   dlg.oncancel=e=>{e.preventDefault();dlg.close()};
   dlg.onclick=()=>{if(Date.now()-stamp<250)return;dlg.close();done&&done()};
   dlg.showModal()}   // 책장·선반 화면은 그대로 두고 그 위에 띄워요 (닫으면 보던 책장 페이지로)
+function runExcerpts(b,L,done){   // 발췌문을 차례대로: 누를 때마다 다음 구절, 마지막에서 누르면 닫혀요 (Esc는 그만 읽기)
+  const dlg=$('#film');let i=0,stamp=0;
+  const show=()=>{const q=L[i];stamp=Date.now();dlg.innerHTML=`<div class="fhd"><b>📖 ${esc(b.name)}</b><span class="fck">${esc(q.pos)}${L.length>1?`${q.pos?' · ':''}${i+1}/${L.length}`:''}</span></div><div class="xq"><div class="xqb">${bkSw(b)}</div><div class="xqt">${esc(q.text)}</div></div>`};
+  const end=()=>{dlg.close();done&&done()};
+  dlg.oncancel=e=>{e.preventDefault();end()};
+  dlg.onclick=()=>{if(Date.now()-stamp<250)return;if(++i>=L.length)return end();show()};
+  show();dlg.showModal()}
 async function showExcerpt(b){
   if(String(b.id).startsWith('wk:'))return readWk(b);
-  try{const t=await sb('/rest/v1/bkbk_texts?book=eq.'+b.id+'&select=text,page,pct&limit=1000'),L=(t||[]).filter(x=>x.text&&x.text.trim());
+  try{const t=await sb('/rest/v1/bkbk_texts?book=eq.'+b.id+'&select=text,page,pct&order=date.asc.nullslast,created_at.asc&limit=1000'),L=(t||[]).filter(x=>x.text&&x.text.trim());
     if(!L.length)return msg('이 책엔 아직 발췌문이 없어요');
-    const q=L[Math.floor(Math.random()*L.length)],pos=bkHas(q.page)&&String(q.page)!==''?'p.'+q.page:(bkHas(q.pct)&&String(q.pct)!==''?Math.round(bkPC(q.pct))+'%':'');
-    runExcerpt(b,q.text.trim(),pos,()=>{pass(READ_MIN);G.log=`📖 ${b.name} 읽기`;after()});
+    const hp=q=>bkHas(q.page)&&String(q.page)!=='',hc=q=>bkHas(q.pct)&&String(q.pct)!=='',key=L.every(hp)?q=>+q.page:L.every(hc)?q=>+bkPC(q.pct):null;
+    if(key)L.sort((a,b)=>key(a)-key(b));   // 영화처럼 처음부터 차례대로 (쪽수나 진행률 순서. 섞여 있으면 적은 순서 그대로)
+    runExcerpts(b,L.map(q=>({text:q.text.trim(),pos:hp(q)?'p.'+q.page:(hc(q)?Math.round(bkPC(q.pct))+'%':'')})),()=>{pass(READ_MIN);G.log=`📖 ${b.name} 읽기`;after()});
   }catch(er){msg('발췌문을 불러오지 못했어요',1)}}
 $('#bk_g').onclick=e=>{const el=e.target.closest('.bks-sp');if(!el||!BK)return;showExcerpt(BK[+el.dataset.i])};
 /* 서점: 올 때마다 완독한 책 중 일부만 진열 → 산 책만 G.books에 저장 / 주거의 내 책장에서 발췌문 */
