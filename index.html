@@ -715,6 +715,13 @@ button.act b{font-weight:900;font-size:18px;color:var(--ink);-webkit-text-stroke
 .ovv-in{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center}
 .ovv .bknav{position:absolute;left:50%;bottom:14px;transform:translateX(-50%)}
 .exit.ov{bottom:14px}
+/* 나가기 위에 세로로 쌓이는 이동 버튼(하위·상위·옆 장소). 행동 칸에는 그 장소에서 하는 행동만 남아요 */
+#navcol{position:absolute;right:12px;bottom:158px;z-index:8;display:flex;flex-direction:column;align-items:stretch;gap:6px;pointer-events:none}
+#navcol>*{pointer-events:auto}#navcol .exit{position:static}
+#navlist{display:flex;flex-direction:column;align-items:stretch;gap:6px}#navlist:empty{display:none}#navlist[hidden]{display:none}
+#navlist .exit.navb{justify-content:space-between;background:#e2f4ff;border-color:#86bfe8;color:var(--ink)}
+#navlist .exit.navb:hover:not(:disabled){background:#cdebff;border-color:#5fa8dc}
+#navlist .exit.navb.off{opacity:.55}
 .mvshelf{background:none;border:0;border-radius:0;padding:0 14px;overflow:visible}
 .mvp{box-shadow:none}.mvp:hover{transform:translateY(-4px)}
 .bkshelf-wrap{--face:#dbb9a5;--dk:#5b3629}
@@ -809,7 +816,7 @@ dialog button:focus-visible,dialog :focus-visible{outline:3px solid var(--ln2);o
             <div id="townbar" class="townbar"><button type="button" id="tw_l" class="twarr">◀</button><span id="tw_items" class="twitems"></span><button type="button" id="tw_r" class="twarr">▶</button></div>
             
             <img id="simg" hidden alt="">
-            <button type="button" id="exitbtn" class="exit" hidden>나가기 <small>마을 지도로</small></button>
+            <div id="navcol"><div id="navlist"></div><button type="button" id="exitbtn" class="exit" hidden>나가기 <small>마을 지도로</small></button></div>
             <button type="button" id="endview3" class="exit ov" hidden>닫기</button>
             <div id="actov" data-m=""><div id="normal"><div id="pdesc"></div><div class="actrow"><button type="button" id="ac_l" class="acarr" hidden>◀</button><div class="acts" id="wa"></div><button type="button" id="ac_r" class="acarr" hidden>▶</button></div></div>
               <div id="scene" class="dbox" hidden><img id="sp" hidden alt=""><div class="dcol"><div class="nm" id="sn"></div><div class="tx" id="st"></div><div class="bar" id="sb"></div></div></div>
@@ -899,7 +906,7 @@ const opts=(a,v,l,sel,none)=>(none?`<option value="">${none}</option>`:'')+a.map
 /* 대사·변화는 마을창 아래 띠에 나와요 (dialog처럼 open/showModal/close를 흉내) */
 let ACTHIDE=false,EXITOK=false;
 function updBand(){const a=$('#actov');if(!a)return;const m=!$('#scene').hidden?'scene':(!$('#delta').hidden?'delta':'');a.dataset.m=m;a.hidden=!m&&ACTHIDE;
-  const x=$('#exitbtn');if(x)x.hidden=!!m||ACTHIDE||!EXITOK;$('#game').classList.toggle('talking',!!m)}
+  const x=$('#exitbtn');if(x)x.hidden=!!m||ACTHIDE||!EXITOK;{const nl=$('#navlist');if(nl)nl.hidden=!x||x.hidden}$('#game').classList.toggle('talking',!!m)}
 for(const id of ['scene','delta']){const el=$('#'+id);Object.defineProperty(el,'open',{get(){return !el.hidden}});el.showModal=()=>{el.hidden=false;updBand()};el.close=()=>{el.hidden=true;updBand()}}
 let mt=0;function msg(t,e){const m=$('#msg');clearTimeout(mt);m.textContent=t;m.className=e?'err':'';
   if(!t){m.hidden=true;try{m.hidePopover()}catch(x){}return}
@@ -1179,7 +1186,7 @@ const bagAdd=(g,n=1)=>{G.bag=G.bag||{};G.bag[g.id]=(G.bag[g.id]||0)+n};
 function pickDoll(){const L=DOLLS();if(!L.length)return null;const w=L.map(g=>1/Math.max(1,+g.effects.doll||1)),t=w.reduce((a,b)=>a+b,0);let r=Math.random()*t;for(let i=0;i<L.length;i++){r-=w[i];if(r<=0)return L[i]}return L[0]}
 
 /* ----- 퍼즐 조각: 봉지 하나에 5~10조각. 지금 퍼즐의 조각이 다 모일 때까지는 그 퍼즐 조각만 나와요 ----- */
-const PZ_C=30,PZ_R=17,PZ_N=PZ_C*PZ_R,PZ_S=56,PZ_M=24,PZ_BAG=[5,10],PZ_SNAP=11,PZ_MIN=30;   // 가로·세로 조각 수(510조각) · 조각 크기 · 요철 여백 · 봉지당 조각 수 · 붙는 거리 · 한 번 맞출 때 지나는 시간(분)
+const PZ_C=30,PZ_R=17,PZ_N=PZ_C*PZ_R,PZ_S=56,PZ_M=24,PZ_BAG=[5,10],PZ_SNAP=11,PZ_MIN=30,PZ_GRAB=9;   // 가로·세로 조각 수(510조각) · 조각 크기 · 요철 여백 · 봉지당 조각 수 · 붙는 거리 · 한 번 맞출 때 지나는 시간(분)
 function pzState(){const p=G.pz=G.pz||{};p.have=p.have||[];p.pos=p.pos||{};p.done=p.done||[];p.extra=+p.extra||0;if(!p.seed)p.seed=1+Math.floor(Math.random()*1e9);return p}
 function pzOpenBags(k){const p=pzState();let got=0;
   for(let b=0;b<k;b++){const own=new Set(p.have),rest=[];for(let i=0;i<PZ_N;i++)if(!own.has(i))rest.push(i);
@@ -1288,6 +1295,18 @@ function openGacha(a){
     st.raf=requestAnimationFrame(step)}
   label();step()}
 
+/* ----- 만물상: 잡동사니를 바꿔요 ----- */
+const JUNK_RATE={pz:3,doll:6,sell:400};   // 조각 봉지 하나에 잡동사니 3개 · 인형 하나에 6개 · 하나 팔면 ₩400
+const junkHave=()=>JUNK().reduce((n,g)=>n+((G.bag||{})[g.id]||0),0);
+function junkTake(n){const B=G.bag||{};for(let k=0;k<n;k++){const L=JUNK().filter(g=>B[g.id]>0);if(!L.length)return false;const g=L.reduce((a,b)=>B[b.id]>B[a.id]?b:a);if(--B[g.id]<=0)delete B[g.id]}return true}
+function openJunk(a){const box=$('#shl');box.classList.remove('tapes');
+  const render=()=>{const n=junkHave(),B=G.bag||{};box.innerHTML='';$('#shm').textContent=`${a.icon||'🧺'} ${a.name} · 가진 잡동사니 ${n}개`;
+    box.insertAdjacentHTML('beforeend',`<div class="tag">${n?JUNK().filter(g=>B[g.id]).map(g=>`${esc(g.icon||'🎁')} ${esc(g.name)} ×${B[g.id]}`).join(' · '):'잡동사니가 없어요. 고양이가 물어다 주거나 오락실에서 받을 수 있어요'}</div>`);
+    [['🧩','퍼즐 조각 봉지',JUNK_RATE.pz,()=>mgGive('pz')],['🧸','인형 하나 (무엇이 나올지 몰라요)',JUNK_RATE.doll,()=>mgGive('doll')],['💰',`₩${JUNK_RATE.sell.toLocaleString()}에 팔기`,1,()=>{earn(JUNK_RATE.sell,'잡동사니 팔기');return `₩${JUNK_RATE.sell.toLocaleString()}을 받았어요`}]].forEach(([ic,nm,need,fn])=>{
+      const row=document.createElement('div');row.className='shi';row.insertAdjacentHTML('beforeend',`<div class="dlvsw" style="background:#f3e9ff">${ic}</div><div class="nm2">${esc(nm)}<br><small style="opacity:.7">잡동사니 ${need}개</small></div>`);
+      const b=document.createElement('button');b.textContent='바꾸기';b.disabled=n<need;b.onclick=()=>{if(!junkTake(need))return;const t=fn();G.log=`${a.icon||'🧺'} ${a.name}`;msg(t);deltaCheck();saveGame();renderWorld();render()};row.append(b);box.append(row)})};
+  render();$('#shop').showModal()}
+const FORTUNE=['“오늘은 서두르지 않는 쪽이 이겨요.”','“뜻밖의 곳에서 작은 선물이 와요. 발밑을 잘 보세요.”','“오래 미뤄 둔 일을 하나만 꺼내 보세요. 생각보다 가벼워요.”','“누군가 당신 이야기를 좋게 하고 있어요.”','“동쪽이 길해요. 동쪽이 어딘지 모르면 왼쪽으로 가세요.”','“잃어버린 줄 알았던 것이 돌아와요.”','“오늘의 행운은 따뜻한 음료예요.”','“고양이를 만나면 인사를 건네세요. 좋은 일이 따라와요.”','“지금 고민하는 그 일, 답은 이미 알고 있어요.”','“작은 사치를 허락하는 날이에요.”','“말을 아끼면 복이 와요. 대신 많이 웃으세요.”','“새 옷보다 잘 다린 옷이 행운을 불러요.”','“저녁 무렵 반가운 얼굴을 봐요.”','“오늘 주운 것은 버리지 마세요. 언젠가 쓸모가 있어요.”','“길을 잃어도 괜찮아요. 그 길에도 가게는 있어요.”','“한 조각씩이면 돼요. 그림은 결국 맞춰져요.”','“조금 쉬어 가라는 카드예요. 정말로요.”','“당신이 켠 불빛을 누군가 보고 있어요.”'];
 /* ----- 장식장: 뽑은 인형을 칸에 놓아요 (세 단 × 여섯 칸) ----- */
 const CASE_N=18;
 function openCase(){
@@ -1350,7 +1369,9 @@ async function openPuzzle(a){
     const x1=vx+st.w/z,y1=vy+st.h/z;for(const i of st.ord){const q=st.pos[i],c=st.spr[i];if(!c||q[0]+S+M<vx||q[1]+S+M<vy||q[0]-M>x1||q[1]-M>y1)continue;x.drawImage(c,q[0]-M,q[1]-M,SP,SP)}}
   // 잡기 · 옮기기 · 붙이기
   const world=e=>{const b=cv.getBoundingClientRect();return[(e.clientX-b.left)/st.v.z+st.v.x,(e.clientY-b.top)/st.v.z+st.v.y]};
-  const hit=(wx,wy)=>{for(let k=st.ord.length-1;k>=0;k--){const i=st.ord[k],q=st.pos[i];if(wx<q[0]-M||wy<q[1]-M||wx>q[0]+S+M||wy>q[1]+S+M)continue;if(hx.isPointInPath(st.path[i],wx-q[0],wy-q[1]))return i}return -1};
+  const hit=(wx,wy)=>{const pad=Math.min(26,PZ_GRAB/st.v.z);let near=-1;hx.lineWidth=pad*2;hx.lineJoin='round';   // 외곽선보다 조금 넉넉하게 잡혀요 (화면에서 약 PZ_GRAB px, 작게 보일수록 더 넉넉히)
+    for(let k=st.ord.length-1;k>=0;k--){const i=st.ord[k],q=st.pos[i];if(wx<q[0]-M-pad||wy<q[1]-M-pad||wx>q[0]+S+M+pad||wy>q[1]+S+M+pad)continue;
+      if(hx.isPointInPath(st.path[i],wx-q[0],wy-q[1]))return i;if(near<0&&hx.isPointInStroke(st.path[i],wx-q[0],wy-q[1]))near=i}return near};
   function snap(g){let did=false;for(let pass0=0;pass0<4;pass0++){let any=false;for(const i of members(g))for(const [j,dx,dy] of nb(i)){if(st.grp[j]===g)continue;const ex=st.pos[j][0]-dx-st.pos[i][0],ey=st.pos[j][1]-dy-st.pos[i][1];
         if(Math.abs(ex)<=PZ_SNAP&&Math.abs(ey)<=PZ_SNAP){members(g).forEach(m=>{st.pos[m][0]+=ex;st.pos[m][1]+=ey});join(j,i);g=st.grp[i];any=did=true;break}}if(!any)break}return did}
   cv.onpointerdown=e=>{if(st.fin)return;cv.setPointerCapture(e.pointerId);const [wx,wy]=world(e),i=hit(wx,wy);
@@ -2249,6 +2270,8 @@ function doAction(a,who){
   if(a.kind==='mole')return openMole(a);
   if(a.kind==='gacha')return openGacha(a);
   if(a.kind==='dollcase')return openCase();
+  if(a.kind==='junkshop')return openJunk(a);
+  if(a.kind==='fortune')a={...a,kind:'normal',scene:[{t:'카드를 한 장 골라 조심스럽게 뒤집었다.'},{t:rndOf(FORTUNE)}]};   // 운세: 볼 때마다 다른 한마디
   if(a.kind==='puzzle')return openPuzzle(a);
   if(a.kind==='soon')return msg('🚧 '+a.name+' — 아직 준비 중이에요');
   if(a.kind!=='call'||who)ACTGRP=null;
@@ -2431,9 +2454,10 @@ function renderActs(){
   if(p.parent){conn.push(p.parent);Object.keys(WORLD.places).filter(k=>WORLD.places[k].parent===p.parent&&k!==pid).forEach(k=>conn.push(k))}
   Object.keys(WORLD.places).filter(k=>WORLD.places[k].parent===pid).forEach(k=>conn.push(k));
   if(gA){const b=document.createElement('button');b.className='act nav';b.innerHTML=`<b>← ${esc(gA.name)}</b>`;b.onclick=()=>{ACTGRP=null;renderActs()};box.append(b)}
-  else conn.forEach(k=>{const q=WORLD.places[k],mn=travelMin(pid,k),op=openNow(k),gt=homeGate(k,pid),ok=op&&gt.ok,b=document.createElement('button');b.className='act nav'+(ok?'':' off');
-    b.innerHTML=`<b>${k===p.parent?'← ':'→ '}${esc(q.n)}</b><small>⏱ ${mn}분${!op?' · 지금은 닫았어요':gt.ok?'':' · 🔒 초대가 필요해요'}</small>`;
-    b.onclick=()=>{if(!op)return msg('지금은 문을 닫았어요',1);if(!gt.ok)return msg(gt.why,1);go(k)};box.append(b)});
+  {const nl=$('#navlist');nl.innerHTML='';   // 이동(상위·옆·하위 장소)은 나가기 버튼 위에 세로로
+    conn.forEach(k=>{const q=WORLD.places[k],mn=travelMin(pid,k),op=openNow(k),gt=homeGate(k,pid),ok=op&&gt.ok,b=document.createElement('button');b.type='button';b.className='exit navb'+(ok?'':' off');
+      b.innerHTML=`<span>${k===p.parent?'← ':'→ '}${esc(q.n)}</span><small>${!op?'닫았어요':gt.ok?mn+'분':'🔒 초대 필요'}</small>`;
+      b.onclick=()=>{if(!op)return msg('지금은 문을 닫았어요',1);if(!gt.ok)return msg(gt.why,1);go(k)};nl.append(b)})}
   const open=openNow(pid);
   const vars=[];(gA?childrenOf(gA.code):actionsAt(pid)).filter(availAct).forEach(a=>{const sp=(a.kind==='call'||(FIXED[a.kind]&&a.code!=='talk'))?'':partnerOf(a);   // 옷장·영화·서점 같은 고정 기능은 인물이 없어도 보여요if(!open&&!sp)return;
     if(!sp)vars.push([a,null]);else{if(sp==='*')here().forEach(id=>vars.push([a,id]));else if(npcAt(sp))vars.push([a,sp]);if((a.cond||{}).solo)vars.push([a,null])}});
@@ -3387,7 +3411,7 @@ async function delEv(){
 
 // ================= 관리자: 행동 · 장소 유형 =================
 const FIXED={closet:'옷장 열기',status:'거울 보기 (내 상태)',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',bookbuy:'서점 열기',bookmore:'서점 이어서 사기',mybooks:'선반 열기',videobuy:'비디오 가게 열기',mvmv:'mvmv 포스터 벽 열기',shrine:'성소 종이 열기',daylog:'하루 기록 열기',catdex:'고양이 도감 열기',mail:'받은 쪽지 열기',limited:'한정판 오픈런 열기',groupbuy:'공동구매 열기'};
-const KSEL=[['normal','일반 행동'],['group','▸ 묶음 메뉴 (누르면 하위 행동이 나와요)'],['call','📞 통화 (아는 인물 목록에서 고르기)'],['bagfood','🎒 가방 속 음식 먹기'],['closet','👗 옷장 (부분 옷장·입어보기)'],['shrine','🕯 성소 글 쓰기'],['delivery','🛵 배달시키기 (배달 앱)'],['onlineshop','🛒 온라인 쇼핑 (택배)'],['tan','🌞 태닝 (피부색 단계 고르기)'],['claw','🧸 인형 뽑기 (미니게임)'],['mole','🔨 두더지 잡기 (미니게임)'],['gacha','🎰 룰렛 가차 (미니게임)'],['soon','🚧 준비 중 (아직 기능 없음)']];
+const KSEL=[['normal','일반 행동'],['group','▸ 묶음 메뉴 (누르면 하위 행동이 나와요)'],['call','📞 통화 (아는 인물 목록에서 고르기)'],['bagfood','🎒 가방 속 음식 먹기'],['closet','👗 옷장 (부분 옷장·입어보기)'],['shrine','🕯 성소 글 쓰기'],['delivery','🛵 배달시키기 (배달 앱)'],['onlineshop','🛒 온라인 쇼핑 (택배)'],['tan','🌞 태닝 (피부색 단계 고르기)'],['claw','🧸 인형 뽑기 (미니게임)'],['mole','🔨 두더지 잡기 (미니게임)'],['gacha','🎰 룰렛 가차 (미니게임)'],['junkshop','🧺 잡동사니 바꾸기 (만물상)'],['fortune','🔮 운세 (볼 때마다 다른 한마디)'],['soon','🚧 준비 중 (아직 기능 없음)']];
 const isFix=a=>(!!FIXED[a.kind]&&ACT0.some(x=>x.code===a.code))||a.code==='talk';
 const actRows=()=>{const have=new Set(DB.actions.map(a=>a.code)),v=ACT0.filter(a=>(FIXED[a.kind]||a.code==='talk')&&!have.has(a.code)).map(a=>({code:a.code,name:a.name,icon:a.icon,descr:a.descr||'',kind:a.kind,mins:a.mins||0,endAt:a.endAt,minMins:a.minMins||0,energy:a.energy||0,money:a.money||0,cond:a.cond||{},effects:a.effects||{},scene:a.scene||[],sort:0,virtual:true}));
   return [...v,...DB.actions].sort((a,b)=>(isFix(b)-isFix(a))||String(a.name||'').localeCompare(String(b.name||''),'ko'))};
