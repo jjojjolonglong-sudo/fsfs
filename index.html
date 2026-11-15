@@ -1186,8 +1186,10 @@ const bagAdd=(g,n=1)=>{G.bag=G.bag||{};G.bag[g.id]=(G.bag[g.id]||0)+n};
 function pickDoll(){const L=DOLLS();if(!L.length)return null;const w=L.map(g=>1/Math.max(1,+g.effects.doll||1)),t=w.reduce((a,b)=>a+b,0);let r=Math.random()*t;for(let i=0;i<L.length;i++){r-=w[i];if(r<=0)return L[i]}return L[0]}
 
 /* ----- 퍼즐 조각: 봉지 하나에 5~10조각. 지금 퍼즐의 조각이 다 모일 때까지는 그 퍼즐 조각만 나와요 ----- */
-const PZ_C=30,PZ_R=17,PZ_N=PZ_C*PZ_R,PZ_S=56,PZ_M=24,PZ_BAG=[5,10],PZ_SNAP=11,PZ_MIN=30,PZ_GRAB=9;   // 가로·세로 조각 수(510조각) · 조각 크기 · 요철 여백 · 봉지당 조각 수 · 붙는 거리 · 한 번 맞출 때 지나는 시간(분)
-function pzState(){const p=G.pz=G.pz||{};p.have=p.have||[];p.pos=p.pos||{};p.done=p.done||[];p.extra=+p.extra||0;if(!p.seed)p.seed=1+Math.floor(Math.random()*1e9);return p}
+const PZ_NEW=[27,15],PZ_OLD=[30,17];let PZ_C=PZ_NEW[0],PZ_R=PZ_NEW[1],PZ_N=PZ_C*PZ_R;   // 새 퍼즐은 27×15 = 405조각. 예전에 시작한 퍼즐(30×17 = 510조각)은 그대로 이어서 맞춰요 — 퍼즐마다 G.pz.c·r에 적어 둬요
+const PZ_S=56,PZ_M=24,PZ_BAG=[5,10],PZ_SNAP=11,PZ_MIN=30,PZ_GRAB=9;   // 조각 크기 · 요철 여백 · 봉지당 조각 수 · 붙는 거리 · 한 번 맞출 때 지나는 시간(분)
+function pzState(){const p=G.pz=G.pz||{};p.have=p.have||[];p.pos=p.pos||{};p.done=p.done||[];p.extra=+p.extra||0;if(!p.seed)p.seed=1+Math.floor(Math.random()*1e9);
+  if(!(p.c>0&&p.r>0)){const o=p.have.length?PZ_OLD:PZ_NEW;p.c=o[0];p.r=o[1]}PZ_C=p.c;PZ_R=p.r;PZ_N=PZ_C*PZ_R;return p}
 function pzOpenBags(k){const p=pzState();let got=0;
   for(let b=0;b<k;b++){const own=new Set(p.have),rest=[];for(let i=0;i<PZ_N;i++)if(!own.has(i))rest.push(i);
     if(!rest.length){p.extra+=k-b;break}   // 다 모였으면 남은 봉지는 다음 퍼즐로 넘겨요
@@ -1340,7 +1342,7 @@ async function pzPickImage(p){   // 새 퍼즐의 그림: 영화 장면 캡처 �
   const used=new Set(p.done.map(d=>d.sid));L=L.filter(s=>!used.has(s.sid));if(!L.length)return msg('새 퍼즐로 만들 장면이 없어요. mvmv에 장면 캡처를 더 올리면 다음 퍼즐이 생겨요'),false;
   const s=rndOf(L);p.sid=s.sid;p.img=s.img;p.name=s.name;saveGame();return true}
 async function openPuzzle(a){
-  const p=pzState();
+  const p=pzState(),PZ_C=p.c,PZ_R=p.r,PZ_N=PZ_C*PZ_R;   // 이 창이 열려 있는 동안은 이 퍼즐의 크기를 써요 (완성하면 전역 값은 다음 퍼즐 크기로 바뀌어요)
   if(isMobile())return openPzGallery(`퍼즐은 넓은 책상이 필요해서 컴퓨터로 접속했을 때 맞춰요. 지금 모은 조각 ${p.have.length}/${PZ_N}`);
   if(!p.have.length)return p.done.length?openPzGallery('새 퍼즐 조각이 아직 없어요. 조각 봉지를 모아 보세요'):say('아직 퍼즐 조각이 없어요. 고양이나 오락실에서 조각 봉지를 얻을 수 있어요');
   if(!(await pzPickImage(p)))return;
@@ -1384,7 +1386,7 @@ async function openPuzzle(a){
   const zoom=(f,cx,cy)=>{const z0=st.v.z,z1=Math.max(.25,Math.min(2,z0*f));if(z1===z0)return;const wx=cx/z0+st.v.x,wy=cy/z0+st.v.y;st.v.z=z1;st.v.x=wx-cx/z1;st.v.y=wy-cy/z1;dirty()};
   cv.onwheel=e=>{e.preventDefault();const b=cv.getBoundingClientRect();zoom(e.deltaY<0?1.12:1/1.12,e.clientX-b.left,e.clientY-b.top)};
   $('#pz_i').onclick=()=>zoom(1.25,st.w/2,st.h/2);$('#pz_o').onclick=()=>zoom(.8,st.w/2,st.h/2);$('#pz_g').onclick=()=>openPzGallery();
-  function finish(){st.fin=true;sfx('get');p.done.unshift({sid:p.sid,img:p.img,name:p.name||'',d:G.day});const ex=p.extra;p.have=[];p.pos={};p.sid=p.img=p.name=null;p.seed=0;p.extra=0;pzState();const n=ex?pzOpenBags(ex):0;saveGame();
+  function finish(){st.fin=true;sfx('get');p.done.unshift({sid:p.sid,img:p.img,name:p.name||'',d:G.day});const ex=p.extra;p.have=[];p.pos={};p.sid=p.img=p.name=null;p.seed=0;p.extra=0;p.c=p.r=0;pzState();const n=ex?pzOpenBags(ex):0;saveGame();
     $('#pz_n').textContent=`완성! 🎉 완성한 퍼즐에 걸어 두었어요`+(n?` · 아껴 둔 봉지에서 다음 퍼즐 조각 ${n}개가 나왔어요`:'');$('#pz_g').textContent=`🖼 완성한 퍼즐 ${p.done.length}`;G.log='🧩 퍼즐을 완성했어요!';
     st.v.z=Math.min(st.w/(PZ_C*S+80),st.h/(PZ_R*S+80));st.v.x=st.pos[0][0]-(st.w/st.v.z-PZ_C*S)/2;st.v.y=st.pos[0][1]-(st.h/st.v.z-PZ_R*S)/2;dirty()}
   const close=()=>{st.dead=true;PZ=null;window.removeEventListener('resize',size);d.close();if(st.moved){pass(a&&a.mins>0?a.mins:PZ_MIN);if(!st.fin)G.log='🧩 퍼즐을 맞췄어요'}after()};
