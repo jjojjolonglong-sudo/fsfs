@@ -1218,7 +1218,11 @@ function pickDoll(){const L=DOLLS();if(!L.length)return null;const w=L.map(g=>1/
 const PZ_NEW=[27,15],PZ_OLD=[30,17];let PZ_C=PZ_NEW[0],PZ_R=PZ_NEW[1],PZ_N=PZ_C*PZ_R;   // 새 퍼즐은 27×15 = 405조각. 예전에 시작한 퍼즐(30×17 = 510조각)은 그대로 이어서 맞춰요 — 퍼즐마다 G.pz.c·r에 적어 둬요
 const PZ_S=56,PZ_M=24,PZ_BAG=[5,10],PZ_SNAP=11,PZ_MIN=30,PZ_GRAB=9;   // 조각 크기 · 요철 여백 · 봉지당 조각 수 · 붙는 거리 · 한 번 맞출 때 지나는 시간(분)
 function pzState(){const p=G.pz=G.pz||{};p.have=p.have||[];p.pos=p.pos||{};p.done=p.done||[];p.extra=+p.extra||0;if(!p.seed)p.seed=1+Math.floor(Math.random()*1e9);
-  if(!(p.c>0&&p.r>0)){const o=p.have.length?PZ_OLD:PZ_NEW;p.c=o[0];p.r=o[1]}PZ_C=p.c;PZ_R=p.r;PZ_N=PZ_C*PZ_R;return p}
+  if(!(p.c>0&&p.r>0)){const o=p.have.length?PZ_OLD:PZ_NEW;p.c=o[0];p.r=o[1]}PZ_C=p.c;PZ_R=p.r;PZ_N=PZ_C*PZ_R;
+  if(p.have.some(i=>!(i>=0&&i<PZ_N))){   // 새로고침 전의 옛 화면이 510조각 기준으로 넣은 번호가 섞이면 퍼즐이 열리지 않아요 → 범위 밖 조각은 같은 수의 안 가진 조각으로 바꿔요
+    const own=new Set(p.have.filter(i=>i>=0&&i<PZ_N)),bad=p.have.filter(i=>!(i>=0&&i<PZ_N)),rest=[];for(let i=0;i<PZ_N;i++)if(!own.has(i))rest.push(i);
+    bad.forEach(i=>{delete p.pos[i];if(rest.length)own.add(rest.splice(Math.floor(Math.random()*rest.length),1)[0])});p.have=[...own]}
+  return p}
 function pzOpenBags(k){const p=pzState();let got=0;
   for(let b=0;b<k;b++){const own=new Set(p.have),rest=[];for(let i=0;i<PZ_N;i++)if(!own.has(i))rest.push(i);
     if(!rest.length){p.extra+=k-b;break}   // 다 모였으면 남은 봉지는 다음 퍼즐로 넘겨요
@@ -2456,6 +2460,7 @@ function catAct(id,kind){
   catMeet(id);const nm=catName(id),a=catAff(id),line=()=>({who:id,t:pickLine(id)||'…'});
   if(kind==='name')return catNameAsk(id);
   if(kind==='feed')return catFeed(id);
+  if(kind==='play')return catPlay(id);
   if(kind==='pet'){
     if(G.actDay['catpet:'+id]===G.day)return msg('오늘은 이미 쓰다듬어 줬어요',1);
     if(a<CAT_PET_MIN)return catRun(5,`🐾 ${jp(nm,'을','를')} 쓰다듬으려 했어요`,[{t:catFmt(rndOf(CAT_T.petNo),id)},line()]);
@@ -2481,11 +2486,51 @@ function catFeedGo(id,gid){
   const up=catAdd(id,gain);
   catRun(10,`🐾 ${nm}에게 ${jp(g.name,'을','를')} 줬어요 (♥ +${gain})`,[{t:catFmt(rndOf(CAT_T.feed[st]),id,g.name)},{who:id,t:pickLine(id)||'…'}],up?()=>msg(up):null,id)}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button.catfeed');if(!b)return;const sh=$('#shop');if(sh.open)sh.close();catFeedGo(b.dataset.c,b.dataset.g)});
+/* ----- 인형 선물하기: 같은 곳에 있는 인물에게 인형을 건네요 (인물마다 하루 한 번). 인물마다 유난히 좋아하는 인형이 하나 있고, 건네 보면 알게 돼요 ----- */
+const DOLL_GIFT=1,DOLL_FAV=2,DOLL_MIN=10;   // 기본 호감도(+인형의 희귀도 1~3) · 좋아하는 인형이면 더 · 걸리는 시간(분)
+const dollsOwn=()=>DOLLS().filter(g=>(G.bag||{})[g.id]>0);
+const dollFavOf=who=>{const L=DOLLS().slice().sort((a,b)=>String(a.id)<String(b.id)?-1:1);return L.length?L[hsh('dollfav'+who)%L.length].id:null};   // 인물 코드로 정해져서 늘 같아요 (인형 종류가 늘면 달라질 수 있어요)
+const dollGiven=who=>G.actDay['dollgift:'+who]===G.day;
+const DOLL_T=['{n}에게 {item을} 내밀었다. 잠깐 놀란 얼굴이더니 두 손으로 받아 들었다.','가방에서 {item을} 꺼내 {n}에게 건넸다. 한참 들여다보다가 웃음이 번졌다.','"이거, 뽑았는데." {item을} 건네자 {n}의 눈이 동그래졌다.','{item을} {n}의 손에 쥐여 주었다. 이리저리 돌려 보며 좋아하는 눈치다.'];
+const DOLL_TF=['{item을} 보자마자 {n}의 얼굴이 환해졌다. 꼭 갖고 싶었던 모양이다.','{n}은 {item을} 품에 꼭 안고 한동안 놓지 않았다.','{item을} 받아 든 {n}의 목소리가 한 톤 높아졌다. 이 인형을 유난히 좋아하는 것 같다.'];
+function openDollGift(who0){
+  const box=$('#shl'),sh=$('#shop');box.classList.remove('tapes');
+  const people=()=>here().filter(id=>!isCat(id));
+  const pickWho=()=>{$('#shm').textContent='🎁 누구에게 인형을 줄까요?';box.innerHTML='';
+    people().forEach(id=>{const n=WORLD.npcs[id],done=dollGiven(id),row=document.createElement('div');row.className='srow';row.innerHTML=`<span>${esc(n.n)}<br><small style="opacity:.7">♥ ${G.aff[id]||0}${done?' · 오늘은 이미 선물했어요':''}</small></span>`;
+      const b=document.createElement('button');b.textContent='고르기';b.disabled=done;b.onclick=()=>pickDoll2(id);row.append(b);box.append(row)})};
+  const pickDoll2=who=>{const n=WORLD.npcs[who],fav=(G.dollFav||{})[who];$('#shm').textContent=`🎁 ${n.n}에게 어떤 인형을 줄까요?`;box.innerHTML='';
+    dollsOwn().forEach(g=>{const q=G.bag[g.id],row=document.createElement('div');row.className='srow';row.innerHTML=`<span>${esc(g.icon||'🧸')} ${esc(g.name)}${q>1?' × '+q:''}<br><small style="opacity:.7">${fav===g.id?'💗 유난히 좋아하는 인형':q>1?'여러 개 있어요':'하나뿐이에요'}</small></span>`;
+      const b=document.createElement('button');b.textContent='주기';b.onclick=()=>{sh.close();dollGiftGo(who,g.id)};row.append(b);box.append(row)})};
+  if(who0)pickDoll2(who0);else{const P=people().filter(id=>!dollGiven(id));if(P.length===1&&people().length===1)pickDoll2(P[0]);else pickWho()}
+  if(!sh.open)sh.showModal()}
+function dollGiftGo(who,gid){
+  const g=GOODS(gid),n=WORLD.npcs[who];if(!g||!n||!(G.bag||{})[gid]||!here().includes(who)||dollGiven(who))return;
+  const fav=dollFavOf(who)===gid,gain=DOLL_GIFT+Math.max(1,Math.min(3,+((g.effects||{}).doll)||1))+(fav?DOLL_FAV:0),fm=t=>t.replace(/\{n은\}/g,jp(n.n,'은','는')).replace(/\{n\}/g,n.n).replace(/\{item을\}/g,jp(g.name,'을','를'));
+  if(--G.bag[gid]<=0)delete G.bag[gid];G.actDay['dollgift:'+who]=G.day;G.aff[who]=(G.aff[who]||0)+gain;if(fav){G.dollFav=G.dollFav||{};G.dollFav[who]=gid}
+  pass(DOLL_MIN);G.log=`🎁 ${n.n}에게 ${jp(g.name,'을','를')} 선물했어요 (♥ +${gain})`;try{dyAdd(G.log,{w:who});G.dyk=G.day+'|'+G.min+'|'+G.log}catch(e){}saveGame();
+  const sc=[{t:fm(rndOf(fav?DOLL_TF:DOLL_T))}],l=pickLine(who);if(l)sc.push({who,t:l});
+  runScene(sc,()=>{after();setTimeout(()=>msg(`${fav?'💗 '+jp(n.n,'이','가')+' 유난히 좋아하는 인형이에요 · ':'🎁 '}${n.n} 호감도 +${gain}`),300)})}
+/* ----- 고양이와 인형 놀이: 인형 하나를 내주면 신나게 놀다가 망가뜨려요 (고양이마다 하루 한 번) ----- */
+const CAT_PLAY=2,CAT_PLAY_MIN=15;   // 호감도 · 걸리는 시간(분)
+const CAT_PLAY_T=['{item을} 살랑살랑 흔들자 {n이} 엉덩이를 씰룩이다 와락 덮쳤다. 뒷발로 팡팡 걷어차더니… 솔기가 터져 솜이 눈처럼 흩날렸다.','{item을} 바닥에 굴려 주었다. {n은} 그것을 물고 흔들고 던지고 다시 물었다. 한참 뒤에 남은 건 귀 한쪽과 솜뭉치뿐이었다.','{n은} {item을} 앞발로 톡, 톡 건드리다 갑자기 사냥감처럼 물고 달아났다. 돌려받았을 땐 이미 인형이라 부르기 어려운 모습이었다.','{item을} 던져 주자 {n이} 공중에서 낚아챘다. 끌어안고 뒹굴며 물어뜯는 사이, 인형은 조용히 수명을 다했다.'];
+function catPlay(id){
+  if(G.actDay['catplay:'+id]===G.day)return msg('오늘은 이미 실컷 놀았어요',1);
+  const L=dollsOwn();if(!L.length)return msg('🧸 같이 놀 인형이 없어요 — 인형은 오락실에서 뽑아요',1);
+  const box=$('#shl');box.classList.remove('tapes');$('#shm').textContent=`🐾 ${jp(catName(id),'과','와')} 어떤 인형으로 놀까요? (인형은 망가져요)`;
+  box.innerHTML=L.map(g=>{const q=G.bag[g.id];return `<div class="srow"><span>${esc(g.icon||'🧸')} ${esc(g.name)}${q>1?' × '+q:''}<br><small style="opacity:.7">${q>1?'여러 개 있어요':'하나뿐이에요'}</small></span><button class="catplay" data-c="${esc(id)}" data-g="${esc(g.id)}">놀아 주기</button></div>`}).join('');
+  $('#shop').showModal()}
+function catPlayGo(id,gid){
+  const g=GOODS(gid);if(!g||!(G.bag||{})[gid]||!catsHere().includes(id)||G.actDay['catplay:'+id]===G.day)return;
+  if(--G.bag[gid]<=0)delete G.bag[gid];G.actDay['catplay:'+id]=G.day;catMeet(id);const nm=catName(id),up=catAdd(id,CAT_PLAY);
+  catRun(CAT_PLAY_MIN,`🧸 ${jp(nm,'과','와')} 인형 놀이를 했어요 — ${g.name} (♥ +${CAT_PLAY})`,[{t:catFmt(rndOf(CAT_PLAY_T),id,g.name)},{t:`${g.icon||'🧸'} ${jp(g.name,'이','가')} 망가져서 사라졌어요.`},{who:id,t:pickLine(id)||'…'}],up?()=>msg(up):null,id)}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button.catplay');if(!b)return;const sh=$('#shop');if(sh.open)sh.close();catPlayGo(b.dataset.c,b.dataset.g)});
 function catBtns(box){catsHere().forEach(id=>{catMeet(id);const n=WORLD.npcs[id],b=document.createElement('button');b.className='act';b.innerHTML=`<b>${esc(n.i||'🐈')} ${esc(n.n)} ▸</b><small>♥ ${catAff(id)}</small>`;b.onclick=()=>{CATGRP=id;renderActs()};box.append(b)})}
 function catActs(box,id){
   const n=WORLD.npcs[id],a=catAff(id),nav=document.createElement('button');nav.className='act nav';nav.innerHTML=`<b>← ${esc(n.i||'🐈')} ${esc(n.n)}</b><small>♥ ${a}</small>`;nav.onclick=()=>{CATGRP=null;renderActs()};box.append(nav);
   const f=(G.catFeed||{})[id],fed=f&&f.d===G.day?f.n:0,pet=G.actDay['catpet:'+id]===G.day;
   const A=[['feed','🥣','밥 주기',fed>=CAT_FEED_DAY?'배불러 보여요':'⏱ 10분',fed>=CAT_FEED_DAY],['pet','🤚','쓰다듬기',pet?'오늘은 했어요':'⏱ 5분',pet],['watch','👀','지켜보기','⏱ 10분',false]];
+  if(dollsOwn().length){const pl=G.actDay['catplay:'+id]===G.day;A.push(['play','🧸','인형으로 놀아 주기',pl?'오늘은 놀았어요':`⏱ ${CAT_PLAY_MIN}분 · 인형 하나`,pl])}
   if(a>=90)A.push(['call','📣','이름 부르기','⏱ 5분',false]);
   if(!catNamed(id))A.unshift(['name','🏷','이름 지어 주기','아직 이름이 없어요',false]);
   A.forEach(([k,ic,nm,sm,off])=>{const b=document.createElement('button');b.className='act'+(off?' off':'');b.innerHTML=`<b>${ic} ${nm}</b><small>${sm}</small>`;b.onclick=()=>catAct(id,k);box.append(b)})}
@@ -2564,6 +2609,7 @@ function renderActs(){
     if(!sp)vars.push([a,null]);else{if(sp==='*')here().forEach(id=>vars.push([a,id]));else if(npcAt(sp))vars.push([a,sp]);if((a.cond||{}).solo)vars.push([a,null])}});
   vars.forEach(([a,who])=>{const st=actState(a,who),b=document.createElement('button'),ch=chips(a),wn=who?(WORLD.npcs[who]||{}).n:'';b.className='act'+(st.ok?'':' off');
     b.innerHTML=`<b>${wn?esc(wn)+josa(wn)+' '+esc(a.code==='talk'?'대화하기':a.name):esc(a.name)+(a.kind==='group'?' ▸':'')}</b>`;b.onclick=()=>doAction(a,who);box.append(b)});
+  if(!gA&&open){const P=here().filter(id=>!isCat(id));if(P.length&&dollsOwn().length){const all=P.every(dollGiven),b=document.createElement('button');b.className='act'+(all?' off':'');b.innerHTML=`<b>🎁 인형 선물하기</b>`;b.onclick=()=>all?msg('오늘은 이미 선물했어요',1):openDollGift();box.append(b)}}   // 인형이 있고 인물이 있을 때만 보여요
   if(!gA)catBtns(box);
   box.style.scrollBehavior='auto';layActs();box.scrollLeft=keepSl;requestAnimationFrame(()=>{box.style.scrollBehavior='';updActArrows()});
 }
