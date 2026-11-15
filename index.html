@@ -88,6 +88,35 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 #mini canvas{display:block;width:100%;height:auto;touch-action:none;cursor:pointer;user-select:none;-webkit-user-select:none}
 #mini .mf{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#0c0a18;min-height:38px}#mini .sp,#pzd .sp{flex:1}
 #mini .mt{color:#ffe14a;font-size:14px;line-height:1.5;min-width:0}#mini .mf button,#pzd .pzbar button{flex:none;white-space:nowrap}
+#mini.tw{width:min(96vw,720px)}
+#mini .tr{position:relative;height:min(330px,calc(100vh - 150px));overflow:hidden;background:radial-gradient(ellipse at 50% 38%,#43297a 0%,#22154a 55%,#120c28 100%)}
+#mini .tra{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:0 24px}
+#mini .trh{font-family:'Do Hyeon','Gowun Dodum',inherit;font-size:20px;color:#fff}
+#mini .tra input{width:min(100%,440px);box-sizing:border-box;height:40px;padding:0 12px;font:inherit;font-size:15px;text-align:center;color:#fff;background:rgba(0,0,0,.35);border:1px solid #d9b96a;border-radius:6px;outline:none}#mini .tra input::placeholder{color:#a99fd0}
+#mini .trn{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}#mini .trn button{min-width:0;height:36px;padding:0 14px;font-size:13px;line-height:34px;color:#e9e2ff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.3);border-radius:6px;box-shadow:none}
+#mini .trn button.on{color:#22154a;background:#f1d98f;border-color:#f1d98f}
+#mini .trm{font-size:13px;color:#b9aee0}
+#mini .trt{position:absolute;left:0;right:0;top:20px;text-align:center;font-size:15px;color:#f1d98f;pointer-events:none}
+#mini .tc{background-color:#2a1a5e;background-image:radial-gradient(circle at 50% 50%,#f1d98f 0 3px,transparent 4px),repeating-linear-gradient(45deg,rgba(241,217,143,.22) 0 2px,transparent 2px 9px),repeating-linear-gradient(-45deg,rgba(241,217,143,.22) 0 2px,transparent 2px 9px);border:2px solid #d9b96a;border-radius:6px;box-sizing:border-box}
+#mini button.tc{position:absolute;width:56px;height:90px;min-width:0;padding:0;box-shadow:0 2px 6px rgba(0,0,0,.5);transition:left .26s ease,top .26s ease,transform .26s ease,margin .18s ease,box-shadow .18s ease;cursor:default}
+#mini button.tc.sp{transition-duration:.55s,.55s,.55s,.18s,.18s;cursor:pointer}
+#mini button.tc.sp:not(.pk):hover,#mini button.tc.sp:not(.pk):focus-visible{margin-top:-14px;outline:none}
+#mini button.tc.pk{margin-top:-30px;box-shadow:0 0 0 2px #fff,0 0 18px 4px #f1d98f;cursor:default}
+#mini .trr{position:absolute;inset:0;display:flex;gap:16px;padding:16px;box-sizing:border-box}
+#mini .trc{flex:none;display:flex;gap:10px;align-items:flex-start}
+#mini .tf{width:92px;perspective:700px}#mini .trr.n1 .tf{width:132px}
+#mini .tfi{position:relative;width:100%;aspect-ratio:92/148;transform-style:preserve-3d;transition:transform .6s ease}#mini .tf.on .tfi{transform:rotateY(180deg)}
+#mini .tfb,#mini .tff{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:6px}
+#mini .tff{transform:rotateY(180deg);background:#fbf3df;border:2px solid #d9b96a;box-sizing:border-box;color:#3a2a5c}
+#mini .tfx{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:8px 4px}#mini .tf.rv .tfx{transform:rotate(180deg)}
+#mini .tfx small{font-size:12px;letter-spacing:1px;line-height:14px}#mini .tfx span{font-size:44px;line-height:1;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}#mini .trr.n1 .tfx span{font-size:64px}
+#mini .tfx em{font-style:normal;font-size:13px;line-height:16px;text-align:center;word-break:keep-all}
+#mini .tfl{margin-top:8px;text-align:center;font-size:12px;line-height:16px;color:#f1d98f}
+#mini .trd{flex:1;min-width:0;overflow:auto;overscroll-behavior:contain;padding-right:4px;font-size:14px;line-height:1.55;color:#efeaff}
+#mini .trq{margin-bottom:10px;color:#f1d98f;font-size:15px;word-break:keep-all}
+#mini .trl{margin-bottom:12px}#mini .trl b{display:block;font-weight:400;font-family:'Do Hyeon','Gowun Dodum',inherit;font-size:16px;color:#fff}#mini .trl u{text-decoration:none;font-size:12px;color:#ff9ec6;margin-left:4px}
+#mini .trl i{display:block;font-style:normal;font-size:12px;color:#b9aee0}#mini .trl p{margin:2px 0 0;word-break:keep-all}
+#mini .tre{margin:0;padding:10px 12px;background:rgba(241,217,143,.12);border:1px solid rgba(241,217,143,.5);border-radius:6px}#mini .tre b{color:#f1d98f}
 #mini .dcase{padding:14px 18px 4px;background:#3a2c22}#mini .dshelf{display:flex;justify-content:center;gap:8px;padding:6px 0 10px;border-bottom:8px solid #6b4a34;margin-bottom:10px}
 #mini .dslot{width:72px;height:72px;min-width:0;padding:0;font-size:44px;line-height:1;background:rgba(255,255,255,.06);border:1px dashed rgba(255,255,255,.28);border-radius:6px;box-shadow:none;color:#fff}#mini .dslot.on{border-style:solid;background:rgba(255,255,255,.13)}
 #mini .dpick{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 14px;background:#1d1a30;min-height:50px}
@@ -1308,7 +1337,77 @@ function openJunk(a){const box=$('#shl');box.classList.remove('tapes');
       const row=document.createElement('div');row.className='shi';row.insertAdjacentHTML('beforeend',`<div class="dlvsw" style="background:#f3e9ff">${ic}</div><div class="nm2">${esc(nm)}<br><small style="opacity:.7">잡동사니 ${need}개</small></div>`);
       const b=document.createElement('button');b.textContent='바꾸기';b.disabled=n<need;b.onclick=()=>{if(!junkTake(need))return;const t=fn();G.log=`${a.icon||'🧺'} ${a.name}`;msg(t);deltaCheck();saveGame();renderWorld();render()};row.append(b);box.append(row)})};
   render();$('#shop').showModal()}
-const FORTUNE=['“오늘은 서두르지 않는 쪽이 이겨요.”','“뜻밖의 곳에서 작은 선물이 와요. 발밑을 잘 보세요.”','“오래 미뤄 둔 일을 하나만 꺼내 보세요. 생각보다 가벼워요.”','“누군가 당신 이야기를 좋게 하고 있어요.”','“동쪽이 길해요. 동쪽이 어딘지 모르면 왼쪽으로 가세요.”','“잃어버린 줄 알았던 것이 돌아와요.”','“오늘의 행운은 따뜻한 음료예요.”','“고양이를 만나면 인사를 건네세요. 좋은 일이 따라와요.”','“지금 고민하는 그 일, 답은 이미 알고 있어요.”','“작은 사치를 허락하는 날이에요.”','“말을 아끼면 복이 와요. 대신 많이 웃으세요.”','“새 옷보다 잘 다린 옷이 행운을 불러요.”','“저녁 무렵 반가운 얼굴을 봐요.”','“오늘 주운 것은 버리지 마세요. 언젠가 쓸모가 있어요.”','“길을 잃어도 괜찮아요. 그 길에도 가게는 있어요.”','“한 조각씩이면 돼요. 그림은 결국 맞춰져요.”','“조금 쉬어 가라는 카드예요. 정말로요.”','“당신이 켠 불빛을 누군가 보고 있어요.”'];
+/* ----- 타로: 물어보기 → 카드 섞기 → 펼치기 → 고르기 → 뒤집어 풀이 듣기 (메이저 22장, 정·역방향) ----- */
+// [번호, 이름, 그림, 정방향 열쇠말, 정방향 풀이, 정방향 점수, 역방향 열쇠말, 역방향 풀이, 역방향 점수] — 점수(−2~2)를 더해 「카드의 대답」이 기울어요
+const TAROT=[
+['0','바보','🎒','새 출발','가벼운 마음으로 첫걸음을 떼도 좋은 때예요. 준비가 덜 됐어도 괜찮아요.',2,'무모함','발밑을 한 번만 더 보고 가요. 서두르면 놓치는 게 있어요.',-1],
+['I','마법사','🪄','시작할 힘','필요한 건 이미 손에 다 있어요. 이제 쓰기만 하면 돼요.',2,'흩어진 마음','재주는 충분한데 마음이 여러 갈래예요. 하나만 골라 봐요.',-1],
+['II','여사제','🌙','직감','머리보다 마음이 먼저 알고 있어요. 조용히 귀를 기울여 봐요.',1,'외면한 속마음','알면서 모른 척하는 게 있어요. 그것부터 들여다봐요.',-1],
+['III','여황제','🌷','풍요','돌본 만큼 자라나는 때예요. 넉넉하게 누려도 돼요.',2,'지나친 돌봄','남을 챙기느라 나를 빼먹었어요. 오늘은 나부터 챙겨요.',-1],
+['IV','황제','👑','단단함','기준을 세우고 밀고 나가면 돼요. 흔들리지 않아도 되는 일이에요.',1,'고집','꼭 쥔 손을 조금 풀어 봐요. 내 방식만 답은 아니에요.',-1],
+['V','교황','🔔','배움','먼저 가 본 사람의 말에 답이 있어요. 물어보는 걸 부끄러워하지 마요.',1,'틀 밖으로','남들이 하는 대로가 아니어도 돼요. 내 방식을 찾아볼 때예요.',0],
+['VI','연인','💞','통하는 마음','마음이 통하는 선택이에요. 좋아하는 쪽을 골라도 괜찮아요.',2,'엇갈림','마음과 말이 따로 가고 있어요. 솔직해지는 게 먼저예요.',-1],
+['VII','전차','🏇','전진','지금은 달릴 때예요. 방향만 놓지 않으면 닿아요.',2,'헛바퀴','힘은 쓰는데 제자리예요. 잠깐 멈춰서 방향부터 봐요.',-1],
+['VIII','힘','🦁','부드러운 용기','세게 누르지 않아도 이겨요. 다정한 쪽이 더 강해요.',2,'지친 마음','버티느라 지쳤어요. 약해져도 괜찮은 날이에요.',-1],
+['IX','은둔자','🏮','혼자만의 시간','생각을 정리할 시간이 필요해요. 답은 조용한 곳에 있어요.',0,'너무 긴 고립','문을 너무 오래 닫아 뒀어요. 한 사람에게만이라도 이야기해 봐요.',-1],
+['X','운명의 수레바퀴','🎡','바뀌는 흐름','바퀴가 좋은 쪽으로 돌기 시작했어요. 흐름을 타 봐요.',2,'엇박자','때가 살짝 어긋났어요. 한 바퀴만 더 기다려요.',-1],
+['XI','정의','⚖️','공정한 결과','한 만큼 돌아와요. 떳떳한 쪽을 고르면 돼요.',1,'기울어진 저울','한쪽 이야기만 들었을지도 몰라요. 다시 한번 재 봐요.',-1],
+['XII','매달린 사람','🙃','다르게 보기','잠깐 멈추면 다른 게 보여요. 지금은 기다림이 일이에요.',0,'헛된 버팀','놓아야 할 걸 붙들고 있어요. 손을 펴면 가벼워져요.',-1],
+['XIII','죽음','🍂','끝과 시작','하나가 끝나야 다음이 와요. 정리하면 자리가 생겨요.',0,'미뤄 둔 끝','이미 끝난 일을 붙잡고 있어요. 보내 줘도 괜찮아요.',-1],
+['XIV','절제','🫖','알맞음','조금씩 섞어 가며 맞추면 돼요. 서두르지 않는 쪽이 이겨요.',1,'넘침','한쪽으로 너무 기울었어요. 덜어 내는 게 답이에요.',-1],
+['XV','악마','⛓️','얽매임','달콤해서 못 놓는 게 있어요. 줄은 생각보다 느슨해요.',-2,'풀려남','묶여 있던 데서 빠져나오는 중이에요. 이제 가벼워져요.',1],
+['XVI','탑','⚡','갑작스러운 변화','흔들리는 건 약한 부분뿐이에요. 무너진 자리에 더 단단히 지어요.',-2,'비켜 간 소나기','큰일은 비켜 갔어요. 다만 금 간 곳은 고쳐 둬요.',0],
+['XVII','별','⭐','희망','바라던 것에 조금씩 가까워지고 있어요. 믿고 계속 가요.',2,'흐려진 믿음','별은 그대로인데 구름이 꼈을 뿐이에요. 조금만 기다려요.',0],
+['XVIII','달','🌕','안개 속','아직 다 보이지 않아요. 지금 정하지 말고 날이 밝기를 기다려요.',-1,'걷히는 안개','걱정하던 것이 별것 아니었다는 걸 곧 알게 돼요.',1],
+['XIX','태양','☀️','환한 기쁨','숨길 것 없이 환한 때예요. 마음껏 좋아해도 돼요.',2,'살짝 가린 해','좋은 일은 맞는데 조금 늦게 와요. 기대는 그대로 둬요.',1],
+['XX','심판','🎺','다시 부름','미뤄 둔 일에 답할 때가 왔어요. 다시 시작해도 늦지 않았어요.',1,'망설임','지난 일로 나를 너무 나무라고 있어요. 이제 그만 용서해 줘요.',-1],
+['XXI','세계','🌍','완성','한 바퀴를 잘 마쳤어요. 마음껏 뿌듯해하고 다음으로 가요.',2,'남은 한 조각','거의 다 왔는데 한 조각이 남았어요. 마무리만 하면 돼요.',0]];
+const TAROT_REV=.35,TAROT_POS={1:['오늘의 카드'],3:['지나온 것','지금','다가올 것']};   // 역방향이 나올 확률 · 자리 이름
+// 물어본 말에 들어 있는 낱말로 갈래를 정하고, 카드 점수가 기운 쪽(좋아요·글쎄요·아직은)에 맞는 한마디를 덧붙여요
+const TAROT_TH=[['rel',/사람|친구|좋아하|사랑|연락|화해|사이|만나|만날|보고 ?싶|고백|그 ?애|걔/],['money',/돈|살까|사도|사야|지를|가격|비싸|월급|저축|쇼핑|환불/],['work',/공부|시험|회사|이직|면접|과제|프로젝트|작업|출근|퇴사|일을|일이|일은|할까/]];
+const TAROT_END={gen:['카드는 「그래요」 쪽으로 기울었어요. 마음이 가는 대로 해 봐요.','카드는 어느 한쪽을 고르지 않았어요. 답은 당신 손에 있어요.','카드는 「아직은」이라고 해요. 한 박자 쉬었다 가요.'],
+  none:['오늘은 마음 가는 대로 움직여도 좋은 날이에요.','오늘은 평소대로, 무리하지 않으면 충분해요.','오늘은 큰 결정을 미루고 천천히 가요.'],   // 묻지 않고 뽑았을 때
+  rel:['먼저 말을 건네 봐요. 그 사람도 기다리고 있을지 몰라요.','상대의 속도에 맞춰 천천히 가 봐요.','지금은 거리를 조금 두는 게 서로에게 좋아요.'],
+  money:['써도 괜찮은 돈이에요. 대신 기분 좋게 써요.','하룻밤 자고 내일도 갖고 싶으면 그때 사요.','지갑은 오늘 닫아 둬요.'],
+  work:['해 온 대로 밀고 가면 돼요.','크게 벌이지 말고 오늘 몫만 해 봐요.','방법을 한번 바꿔 볼 때예요.']};
+function tarotAnswer(q,picks){const n=picks.length,sum=picks.reduce((s,p)=>s+TAROT[p.c][p.r?8:5],0),lim=n>1?2:1,lean=sum>=lim?0:sum<=-lim?2:1,th=(TAROT_TH.find(t=>t[1].test(q))||['gen'])[0];
+  return {lean,th,text:q?TAROT_END.gen[lean]+(th!=='gen'?' '+TAROT_END[th][lean]:''):TAROT_END.none[lean]}}
+function openTarot(a){
+  const d=$('#mini'),price=Math.abs(a.money||0),N=TAROT.length,st=MG={q:'',n:1,stage:'ask',picks:[],order:[]};
+  const later=(f,ms)=>setTimeout(()=>{if(!st.dead)f()},ms),close=()=>{d.classList.remove('tw');mgClose()};
+  d.classList.add('tw');d.onclick=null;d.oncancel=e=>{e.preventDefault();close()};
+  d.innerHTML=`<div class="mh"><b>🔮 ${esc(a.name)}</b><span id="mi_m"></span></div><div class="tr" id="tr_s"></div><div class="mf"><span id="mi_t" class="mt"></span><span class="sp"></span><button id="tr_go" type="button" class="pri"></button><button id="mi_x" type="button">닫기</button></div>`;
+  const S=$('#tr_s'),go=$('#tr_go'),tx=$('#mi_t');$('#mi_x').onclick=close;mgMoney();
+  const face=(p,i)=>{const c=TAROT[p.c];return `<div class="tf${p.r?' rv':''}" data-i="${i}"><div class="tfi"><div class="tfb tc"></div><div class="tff"><div class="tfx"><small>${c[0]}</small><span>${c[2]}</span><em>${esc(c[1])}</em></div></div></div><div class="tfl">${esc(TAROT_POS[st.n][i])}</div></div>`};
+  function ask(){st.stage='ask';st.picks=[];tx.textContent='';
+    S.innerHTML=`<div class="tra"><div class="trh">무엇이 궁금한가요?</div><input id="tr_q" type="text" maxlength="40" placeholder="적지 않고 마음속으로만 물어도 돼요" value="${esc(st.q)}" autocomplete="off">
+      <div class="trn"><button type="button" data-n="1">한 장 · 오늘의 카드</button><button type="button" data-n="3">세 장 · 지나온 것 · 지금 · 다가올 것</button></div><div class="trm">카드를 섞고 펼친 뒤, 마음이 가는 카드를 골라요.</div></div>`;
+    const mark=()=>S.querySelectorAll('.trn button').forEach(b=>b.classList.toggle('on',+b.dataset.n===st.n));mark();
+    S.querySelectorAll('.trn button').forEach(b=>b.onclick=()=>{st.n=+b.dataset.n;mark()});
+    const inp=$('#tr_q');inp.onkeydown=e=>{e.stopPropagation();if(e.key==='Enter'&&!e.isComposing){e.preventDefault();go.click()}};
+    go.hidden=false;go.disabled=false;go.textContent=price?`₩${price.toLocaleString()} 내고 카드 섞기`:'카드 섞기';
+    go.onclick=()=>{st.q=inp.value.trim();if(!mgPay(a))return;shuffle()}}
+  const place=(e,x,y,r)=>{e.style.left=x+'px';e.style.top=y+'px';e.style.transform=`rotate(${r}deg)`};
+  function shuffle(){st.stage='shuffle';go.hidden=true;tx.textContent='';st.picks=[];
+    st.order=TAROT.map((_,i)=>({c:i,r:Math.random()<TAROT_REV}));for(let i=N-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[st.order[i],st.order[j]]=[st.order[j],st.order[i]]}
+    S.innerHTML=`<div class="trt">카드를 섞고 있어요…</div>`+st.order.map((_,i)=>`<button type="button" class="tc" data-k="${i}" tabindex="-1"></button>`).join('');
+    const W=S.clientWidth,H=S.clientHeight,cs=[...S.querySelectorAll('button.tc')],cx=W/2-28,cy=H/2-45;cs.forEach((e,i)=>place(e,cx+(i-N/2)*.4,cy-(i-N/2)*.3,0));
+    for(let k=0;k<3;k++){later(()=>{sfx('click');cs.forEach((e,i)=>{const sd=(i+k)%2?1:-1;place(e,cx+sd*(46+Math.random()*70),cy+(Math.random()-.5)*26,sd*(4+Math.random()*10));e.style.zIndex=Math.floor(Math.random()*N)})},80+k*520);
+      later(()=>cs.forEach((e,i)=>place(e,cx+(i-N/2)*.4,cy-(i-N/2)*.3,0)),340+k*520)}
+    later(()=>spread(cs,W,H),80+3*520+120)}
+  function spread(cs,W,H){st.stage='pick';const step=Math.min(29,(W-96)/(N-1)),m=(N-1)/2,top=Math.max(64,H/2-78);
+    cs.forEach((e,i)=>{e.style.zIndex=i;e.tabIndex=0;place(e,W/2-28+(i-m)*step,top+(i-m)*(i-m)*.5,(i-m)*2.4);e.classList.add('sp')});
+    const t=S.querySelector('.trt'),say1=()=>{const left=st.n-st.picks.length;t.textContent=left>0?`마음이 가는 카드를 ${st.n>1?left+'장 ':''}골라 주세요`:''};say1();
+    cs.forEach(e=>e.onclick=()=>{if(st.stage!=='pick'||e.classList.contains('pk'))return;e.classList.add('pk');st.picks.push(st.order[+e.dataset.k]);sfx('click');say1();if(st.picks.length>=st.n){st.stage='wait';later(reveal,650)}})}
+  function reveal(){st.stage='read';const ans=tarotAnswer(st.q,st.picks);
+    S.innerHTML=`<div class="trr n${st.n}"><div class="trc">${st.picks.map(face).join('')}</div><div class="trd" id="tr_d">${st.q?`<div class="trq">「${esc(st.q)}」</div>`:''}</div></div>`;
+    const D=$('#tr_d'),fs=[...S.querySelectorAll('.tf')];
+    st.picks.forEach((p,i)=>later(()=>{const c=TAROT[p.c];fs[i].classList.add('on');sfx('click');
+      D.insertAdjacentHTML('beforeend',`<div class="trl"><b>${st.n>1?esc(TAROT_POS[st.n][i])+' · ':''}${c[2]} ${esc(c[1])}${p.r?' <u>역방향</u>':''}</b><i>${esc(c[p.r?6:3])}</i><p>${esc(c[p.r?7:4])}</p></div>`);D.scrollTop=D.scrollHeight},350+i*900));
+    later(()=>{sfx('get');D.insertAdjacentHTML('beforeend',`<div class="trl tre"><b>${st.q?'카드의 대답':'카드가 건네는 말'}</b><p>${esc(ans.text)}</p></div>`);D.scrollTop=D.scrollHeight;
+      G.log=`🔮 타로${st.q?` 「${st.q}」`:''} — ${st.picks.map(p=>TAROT[p.c][1]+(p.r?'(역)':'')).join(' · ')}`;dyAdd(G.log);G.dyk=G.day+'|'+G.min+'|'+G.log;saveGame();
+      go.hidden=false;go.textContent='한 번 더 보기';go.onclick=ask},350+st.n*900)}
+  d.showModal();ask();setTimeout(()=>{const i=$('#tr_q');if(i&&!isMobile())i.focus()},60)}
 /* ----- 장식장: 뽑은 인형을 칸에 놓아요 (세 단 × 여섯 칸) ----- */
 const CASE_N=18;
 function openCase(){
@@ -2273,7 +2372,7 @@ function doAction(a,who){
   if(a.kind==='gacha')return openGacha(a);
   if(a.kind==='dollcase')return openCase();
   if(a.kind==='junkshop')return openJunk(a);
-  if(a.kind==='fortune')a={...a,kind:'normal',scene:[{t:'카드를 한 장 골라 조심스럽게 뒤집었다.'},{t:rndOf(FORTUNE)}]};   // 운세: 볼 때마다 다른 한마디
+  if(a.kind==='fortune')return openTarot(a);   // 타로: 물어보고 카드를 섞어 펼친 뒤 골라요
   if(a.kind==='puzzle')return openPuzzle(a);
   if(a.kind==='soon')return msg('🚧 '+a.name+' — 아직 준비 중이에요');
   if(a.kind!=='call'||who)ACTGRP=null;
@@ -3413,7 +3512,7 @@ async function delEv(){
 
 // ================= 관리자: 행동 · 장소 유형 =================
 const FIXED={closet:'옷장 열기',status:'거울 보기 (내 상태)',shop:'상점 열기',look:'둘러보기',bkbk:'bkbk 책장 열기',bookbuy:'서점 열기',bookmore:'서점 이어서 사기',mybooks:'선반 열기',videobuy:'비디오 가게 열기',mvmv:'mvmv 포스터 벽 열기',shrine:'성소 종이 열기',daylog:'하루 기록 열기',catdex:'고양이 도감 열기',mail:'받은 쪽지 열기',limited:'한정판 오픈런 열기',groupbuy:'공동구매 열기'};
-const KSEL=[['normal','일반 행동'],['group','▸ 묶음 메뉴 (누르면 하위 행동이 나와요)'],['call','📞 통화 (아는 인물 목록에서 고르기)'],['bagfood','🎒 가방 속 음식 먹기'],['closet','👗 옷장 (부분 옷장·입어보기)'],['shrine','🕯 성소 글 쓰기'],['delivery','🛵 배달시키기 (배달 앱)'],['onlineshop','🛒 온라인 쇼핑 (택배)'],['tan','🌞 태닝 (피부색 단계 고르기)'],['claw','🧸 인형 뽑기 (미니게임)'],['mole','🔨 두더지 잡기 (미니게임)'],['gacha','🎰 룰렛 가차 (미니게임)'],['junkshop','🧺 잡동사니 바꾸기 (만물상)'],['fortune','🔮 운세 (볼 때마다 다른 한마디)'],['soon','🚧 준비 중 (아직 기능 없음)']];
+const KSEL=[['normal','일반 행동'],['group','▸ 묶음 메뉴 (누르면 하위 행동이 나와요)'],['call','📞 통화 (아는 인물 목록에서 고르기)'],['bagfood','🎒 가방 속 음식 먹기'],['closet','👗 옷장 (부분 옷장·입어보기)'],['shrine','🕯 성소 글 쓰기'],['delivery','🛵 배달시키기 (배달 앱)'],['onlineshop','🛒 온라인 쇼핑 (택배)'],['tan','🌞 태닝 (피부색 단계 고르기)'],['claw','🧸 인형 뽑기 (미니게임)'],['mole','🔨 두더지 잡기 (미니게임)'],['gacha','🎰 룰렛 가차 (미니게임)'],['junkshop','🧺 잡동사니 바꾸기 (만물상)'],['fortune','🔮 타로 (카드 섞기·펼치기·풀이)'],['soon','🚧 준비 중 (아직 기능 없음)']];
 const isFix=a=>(!!FIXED[a.kind]&&ACT0.some(x=>x.code===a.code))||a.code==='talk';
 const actRows=()=>{const have=new Set(DB.actions.map(a=>a.code)),v=ACT0.filter(a=>(FIXED[a.kind]||a.code==='talk')&&!have.has(a.code)).map(a=>({code:a.code,name:a.name,icon:a.icon,descr:a.descr||'',kind:a.kind,mins:a.mins||0,endAt:a.endAt,minMins:a.minMins||0,energy:a.energy||0,money:a.money||0,cond:a.cond||{},effects:a.effects||{},scene:a.scene||[],sort:0,virtual:true}));
   return [...v,...DB.actions].sort((a,b)=>(isFix(b)-isFix(a))||String(a.name||'').localeCompare(String(b.name||''),'ko'))};
