@@ -4131,9 +4131,9 @@ async function mvLoad(){
   const EP=new Map(ep.map(e=>[String(e.id),+e.episode||0])),by=new Map();
   sc.forEach(x=>{const k=String(x.movie);(by.get(k)||by.set(k,[]).get(k)).push({...x,ep:EP.get(String(x.episode))||0})});
   const key=x=>x.timectup!=null&&x.timectup!==''?+x.timectup:x.timectdown!=null&&x.timectdown!==''?-x.timectdown:0;
-  // 본 작품(날짜가 있고 상영 예정이 아닌 것)만, 포스터가 있는 것만
-  const list=mv.filter(m=>mediaUrl(m.poster)&&!m.countdown&&String(m.date||'').trim()).map(m=>({...m,id:String(m.id),scenes:(by.get(String(m.id))||[]).sort((a,b)=>a.ep-b.ep||key(a)-key(b))}));
-  MVA=mv.filter(m=>!m.countdown&&String(m.date||'').trim()).map(m=>({...m,id:String(m.id),scenes:(by.get(String(m.id))||[]).sort((a,b)=>a.ep-b.ep||key(a)-key(b))}));
+  // 본 작품(본 날짜가 있는 것)만, 포스터가 있는 것만. mvmv의 countdown은 장면 시간을 거꾸로 세는 표시 방식일 뿐이라 거르지 않아요
+  const list=mv.filter(m=>mediaUrl(m.poster)&&String(m.date||'').trim()).map(m=>({...m,id:String(m.id),scenes:(by.get(String(m.id))||[]).sort((a,b)=>a.ep-b.ep||key(a)-key(b))}));
+  MVA=mv.filter(m=>String(m.date||'').trim()).map(m=>({...m,id:String(m.id),scenes:(by.get(String(m.id))||[]).sort((a,b)=>a.ep-b.ep||key(a)-key(b))}));
   MV=list;MVT=Date.now();return list}
 let MVA=[];
 /* 상영작 5칸: G.cine={w:주,s:[id…],kn:[이미 알고 있는 id…]} — 새로 '본' 작품이 생기면 다음 신작으로 먼저 걸어요 */
